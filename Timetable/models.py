@@ -3,7 +3,7 @@ from Registration.models import Faculty
 from General.models import BranchSubject
 
 # from Attendance.models import Division
-from Registration.models import  Faculty, Subject,Branch
+from Registration.models import Faculty, Subject, Branch
 
 
 # Create your models here.
@@ -26,6 +26,7 @@ class Room(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     room_number = models.CharField(max_length=10)
     lab = models.BooleanField()
+
     def __str__(self):
         return str(self.branch) + str(self.room_number)
 

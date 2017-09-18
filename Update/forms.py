@@ -5,7 +5,6 @@ from Configuration.stateConf import states
 from Registration.models import Faculty, Subject, Student
 
 
-
 class StudentUpdateForm(forms.ModelForm):
     current_country = forms.ChoiceField(
         choices=countries

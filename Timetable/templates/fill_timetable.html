@@ -187,17 +187,28 @@
         </div>
     </div>
 </nav>
-<br>
-<br>
+<div>
+    <h4>
+        Branch:{{ branch }}
+    </h4>
+
+</div>
 
 <form method="post" action="{% url 'Timetable:fill_timetable' %}" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.room.label_tag }}
-    {{ form.room }}
-    {{ form.subject.label }}
-    {{ form.subject }}
-    {{ form.faculty.label }}
-    {{ form.faculty }}
+    <label>Subjects: </label>
+    <select id="id_subject" onchange="loadFaculty()">
+        {% for subject in subjects %}
+            <option>{{ subject }}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <label>Faculty: </label>
+    <select id="id_faculty">
+        {% for faculty in faculty %}
+            <option>{{ faculty }}</option>
+        {% endfor %}
+    </select>
     <div class="container">
         <table style="width:100%;">
             <tr>
@@ -214,7 +225,7 @@
                         {{ time }}
                     </th>
 
-                    {% for x in number_of_division %}
+                    {% for x in division %}
                         <tr>
                             {% for z in 'xxxxxxx' %}
 
@@ -230,7 +241,7 @@
                                         </div>
                                     </td>
                                 {% else %}
-                                    <td>Not</td>
+                                    <td>{{ x }}</td>
                                 {% endif %}
                             {% endfor %}
 
@@ -248,6 +259,22 @@
 
 
 </body>
+<script>
+    function loadFaculty() {
+        var facultyElement = document.getElementById('id_faculty');
+        var subjectElement = document.getElementById('id_subject');
+        $.ajax({
+            type:"POST",
+            url : '{% url 'Timetable:get_faculty' %}',
+            data : {
+                'csrfmiddlewaretoken' : {% csrf_token %},
+                'subject' : subjectElement.value,
+            }
+            success: function (data) {
 
+            }
+        })
+    }
+</script>
 
 </html>

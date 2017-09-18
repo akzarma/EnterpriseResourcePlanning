@@ -18,6 +18,7 @@ for div in CollegeExtraDetail.objects.filter(branch=Branch.objects.get(branch='C
 
 print(division_list)
 
+
 class StudentForm(forms.ModelForm):
     # for field in iter(self.fields):
     #     self.fields[field].widget.attrs.update({
@@ -55,7 +56,7 @@ class StudentForm(forms.ModelForm):
     )
 
     division = forms.ChoiceField(
-        choices=[(i,i) for i in division_list]
+        choices=[(i, i) for i in division_list]
     )
 
     class Meta:

@@ -123,6 +123,5 @@ def test(request):
     return render(request, 'online_test.html')
 
 
-def get_division(request,branch):
-
+def get_division(request, branch):
     return None

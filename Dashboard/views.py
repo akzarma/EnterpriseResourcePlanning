@@ -6,7 +6,7 @@ from Registration.forms import StudentForm
 from Registration.models import Student
 
 
-# Student dahsboard
+# Student dashboard
 def student(request):
     user = request.user
     # If user exists in session (i.e. logged in)
@@ -14,7 +14,7 @@ def student(request):
     if not user.is_anonymous:
         print('logged in')
         print(user)
-        student_obj = user.studentdetails
+        student_obj = user.student
         form = StudentForm(instance=student_obj)
         return render(request, 'dashboard.html', {
             'form': form,
@@ -39,7 +39,7 @@ def test_url(request):
     if not user.is_anonymous:
         print('logged in')
         print(user)
-        student_obj = user.studentdetails
+        student_obj = user.student
         form = StudentForm(instance=student_obj)
         return render(request, 'testdash.html', {
             'form': form,

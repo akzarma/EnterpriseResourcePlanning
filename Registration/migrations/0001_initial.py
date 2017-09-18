@@ -9,7 +9,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -62,7 +61,8 @@ class Migration(migrations.Migration):
                 ('current_country', models.CharField(max_length=50)),
                 ('doc', models.FileField(upload_to=Registration.models.faculty_directory_path)),
                 ('doc_profile_pic', models.FileField(upload_to=Registration.models.faculty_directory_path)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                'user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -120,11 +120,16 @@ class Migration(migrations.Migration):
                 ('jee_max_physics', models.PositiveIntegerField(blank=True, default=0, null=True)),
                 ('jee_max_maths', models.PositiveIntegerField(blank=True, default=0, null=True)),
                 ('jee_max_chemistry', models.PositiveIntegerField(blank=True, default=0, null=True)),
-                ('doc_tenth_marksheet', models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
-                ('doc_twelfth_marksheet', models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
-                ('doc_jee_marksheet', models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
-                ('doc_profile_pic', models.ImageField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
-                ('user', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('doc_tenth_marksheet',
+                 models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
+                ('doc_twelfth_marksheet',
+                 models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
+                ('doc_jee_marksheet',
+                 models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
+                ('doc_profile_pic',
+                 models.ImageField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
+                ('user', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                              to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(

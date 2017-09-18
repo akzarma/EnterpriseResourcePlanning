@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('Registration', '0002_branch'),
     ]

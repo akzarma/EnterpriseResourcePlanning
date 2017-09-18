@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -35,7 +34,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('day', models.CharField(max_length=10)),
-                ('branch_subject', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='General.BranchSubject')),
+                ('branch_subject',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='General.BranchSubject')),
                 ('room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Timetable.Room')),
                 ('time', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Timetable.Time')),
             ],

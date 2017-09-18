@@ -169,6 +169,7 @@ class Subject(models.Model):
     code = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=100)
     short_form = models.CharField(max_length=10)
+
     def __str__(self):
         return self.name
 

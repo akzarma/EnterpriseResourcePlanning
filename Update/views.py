@@ -9,9 +9,9 @@ def update_student(request):
     user = request.user
     if not user.is_anonymous:
         if request.method == 'POST':
-            form = StudentUpdateForm(request.POST, request.FILES, instance=user.studentdetails)
+            form = StudentUpdateForm(request.POST, request.FILES, instance=user.student)
             print(request.FILES)
-            print(user.studentdetails)
+            print(user.student)
             if form.is_valid():
                 print('form valid')
                 student_obj = form.save(commit=False)
@@ -28,7 +28,7 @@ def update_student(request):
                 })
         else:
             print('got user id')
-            student_obj = user.studentdetails
+            student_obj = user.student
             form = StudentUpdateForm(instance=student_obj)
             return render(request, 'update_student.html', {
                 'form': form,
