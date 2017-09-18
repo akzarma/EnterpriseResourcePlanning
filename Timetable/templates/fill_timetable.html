@@ -269,9 +269,20 @@
             data : {
                 'csrfmiddlewaretoken' : {% csrf_token %},
                 'subject' : subjectElement.value,
-            }
+            },
             success: function (data) {
-
+                data = data.split(',');
+                    {#                    var select = document.getElementById("DropList");#}
+                    var length = facultyElement.options.length;
+                    for (i = 0; i <= length; i++) {
+                        facultyElement.options.remove(0);
+                    }
+                    for (j in data) {
+                        var option = document.createElement('option');
+                        option.text = data[j];
+                        option.value = data[j];
+                        facultyElement.add(option)
+                    }
             }
         })
     }
