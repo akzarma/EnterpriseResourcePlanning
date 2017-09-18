@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -18,24 +20,24 @@ def faculty_directory_path(instance, filename):
 # Create your models here.
 class Faculty(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=100)
+    #first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
-    last_name = models.CharField(max_length=100)
-    DOB = models.DateField(default='1976-02-11')
+    #last_name = models.CharField(max_length=100)
+    DOB = models.DateField(default='11/02/1976')
 
-    faculty_code = models.AutoField(max_length=50, primary_key=True)
+    faculty_code = models.CharField(max_length=10,primary_key=True)
 
     # account details
     salary = models.IntegerField(default=10)
 
     # teaching
-    teaching_from = models.DateField(default=0)
+    teaching_from = models.DateField(default=datetime.now)
     subjects_experience = models.CharField(max_length=250)
-    projects = models.TextField(max_length=300)
+    projects = models.TextField(max_length=300, null=True, blank=True)
 
     # personal details
     caste_type = models.CharField(max_length=20)
-    email = models.EmailField(max_length=100)
+    #email = models.EmailField(max_length=100)
     mobile = models.BigIntegerField(default=0)
     religion = models.CharField(max_length=20)
     sub_caste = models.CharField(max_length=30)
@@ -43,22 +45,22 @@ class Faculty(models.Model):
     nationality = models.CharField(max_length=50)
 
     # emergency contact
-    emergency_name = models.CharField(max_length=50)
-    emergency_mobile = models.BigIntegerField()
-    emergency_relation = models.CharField(max_length=50)
-    emergency_address = models.CharField(max_length=100)
+    emergency_name = models.CharField(max_length=50, null=True, blank=True)
+    emergency_mobile = models.BigIntegerField(null=True, blank=True)
+    emergency_relation = models.CharField(max_length=50, null=True, blank=True)
+    emergency_address = models.CharField(max_length=100, null=True, blank=True)
 
     # family
     # father
-    father_name = models.CharField(max_length=50)
-    father_profession = models.CharField(max_length=30)
-    father_designation = models.CharField(max_length=30)
+    father_name = models.CharField(max_length=50, null=True, blank=True)
+    father_profession = models.CharField(max_length=30, null=True, blank=True)
+    father_designation = models.CharField(max_length=30, null=True, blank=True)
     father_mobile = models.BigIntegerField(blank=True, null=True)
     father_email = models.EmailField(blank=True, null=True)
     # mother
-    mother_name = models.CharField(max_length=50)
-    mother_profession = models.CharField(max_length=30)
-    mother_designation = models.CharField(max_length=30)
+    mother_name = models.CharField(max_length=50, null=True, blank=True)
+    mother_profession = models.CharField(max_length=30, null=True, blank=True)
+    mother_designation = models.CharField(max_length=30, null=True, blank=True)
     mother_mobile = models.BigIntegerField(blank=True, null=True)
     mother_email = models.EmailField(null=True, blank=True)
 
@@ -70,16 +72,16 @@ class Faculty(models.Model):
     permanent_country = models.CharField(max_length=50, blank=True, null=True)
 
     # current address
-    current_address = models.CharField(max_length=100)
-    current_state = models.CharField(max_length=50)
-    current_city = models.CharField(max_length=50)
-    current_pin_code = models.PositiveIntegerField()
-    current_country = models.CharField(max_length=50)
+    current_address = models.CharField(max_length=100, null=True, blank=True)
+    current_state = models.CharField(max_length=50, null=True, blank=True)
+    current_city = models.CharField(max_length=50, null=True, blank=True)
+    current_pin_code = models.PositiveIntegerField(null=True, blank=True)
+    current_country = models.CharField(max_length=50, null=True, blank=True)
 
     # documents
 
-    doc = models.FileField(upload_to=faculty_directory_path)
-    doc_profile_pic = models.FileField(upload_to=faculty_directory_path)
+    doc = models.FileField(upload_to=faculty_directory_path, null=True, blank=True)
+    doc_profile_pic = models.FileField(upload_to=faculty_directory_path, null=True, blank=True)
 
     def __str__(self):
         return str(self.faculty_code) + ' ' + self.first_name

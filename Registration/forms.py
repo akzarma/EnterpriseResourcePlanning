@@ -26,17 +26,15 @@ shift_list = []
 for shift in Shift.objects.all():
     shift_list.append(shift)
 
+
 class StudentForm(forms.ModelForm):
-    # for field in iter(self.fields):
-    #     self.fields[field].widget.attrs.update({
-    #         'class': 'form-control'
-    #     })
     current_country = forms.ChoiceField(
         choices=countries
     )
     permanent_country = forms.ChoiceField(
         choices=countries
     )
+    email = forms.EmailField()
     # state_choices = states[0].split(',')
     first_name = forms.CharField(max_length=50)
     last_name = forms.CharField(max_length=50)
@@ -59,7 +57,7 @@ class StudentForm(forms.ModelForm):
                  ('Institute Level', 'Institute Level')]
     )
     shift = forms.ChoiceField(
-        choices=[(i,i) for i in shift_list]
+        choices=[(i, i) for i in shift_list]
     )
 
     division = forms.ChoiceField(
@@ -85,7 +83,9 @@ class FacultyForm(forms.ModelForm):
     current_country = forms.ChoiceField(
         choices=countries
     )
-
+    first_name = forms.CharField(max_length=50)
+    last_name = forms.CharField(max_length=50)
+    email = forms.EmailField()
     class Meta:
         model = Faculty
         widgets = {

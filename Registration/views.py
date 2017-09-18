@@ -6,13 +6,12 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
 
 from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear
-from Registration.models import Student, Branch
+from Registration.models import Student, Branch, Faculty
 from .forms import StudentForm, FacultyForm, SubjectForm
 from Configuration.stateConf import states
 
 
 def register_student(request):
-    print("here")
     if request.method == "POST":
         print("Register student post")
         form = StudentForm(request.POST, request.FILES)
@@ -33,18 +32,16 @@ def register_student(request):
             print(new_user)
             student.user = new_user
 
-            # student.first_name = student.first_name.title()
-            # student.middle_name = student.middle_name.title()
-            # student.last_name = student.last_name.title()
-            # student.father_name = student.father_name.title()
-            # student.mother_name = student.mother_name.title()
-            # student.emergency_name = student.emergency_name.title()
             student.save()
 
             branch_obj = Branch.objects.get(branch=branch)
             college_year_obj = CollegeYear.objects.get(year=year)
             shift_obj = Shift.objects.get(shift=shift)
-            new_student_division = StudentDivision(student=student,division=CollegeExtraDetail.objects.get(branch=branch_obj,year=college_year_obj,division=division,shift=shift_obj))
+            new_student_division = StudentDivision(student=student,
+                                                   division=CollegeExtraDetail.objects.get(branch=branch_obj,
+                                                                                           year=college_year_obj,
+                                                                                           division=division,
+                                                                                           shift=shift_obj))
             new_student_division.save()
             # print(student.pk)
             request.session['user_id'] = student.pk
@@ -67,8 +64,14 @@ def register_faculty(request):
         form = FacultyForm(request.POST, request.FILES)
         if form.is_valid():
             print("Valid")
-            form.save()
-            return HttpResponseRedirect('/register/faculty/')
+            faculty = form.save(commit=False)
+            new_user = User.objects.create_user(first_name=form.cleaned_data.get('first_name'),
+                                                last_name=form.cleaned_data.get('last_name'),
+                                                username=faculty.faculty_code,
+                                                email=form.cleaned_data.get('email'))
+            new_user.save()
+            request.session['user_id'] = faculty.pk
+            return HttpResponseRedirect('/register/faculty/success/')
             # return HttpResponse(form.errors)
         else:
             print(form.errors)
@@ -126,7 +129,30 @@ def success_student(request):
         student = Student.objects.get(pk=user_id)
         gr_number = student.gr_number
         return render(request, 'success.html', {
-            'gr_number': gr_number
+            'id': gr_number
+        })
+
+
+def success_faculty(request):
+    password = request.POST.get('password')
+    rpassword = request.POST.get('rpassword')
+    if password == rpassword:
+        user_id = request.session.get('user_id')
+        faculty = Faculty.objects.get(pk=user_id)
+        user = User.objects.get(username=faculty.faculty_code)
+        print(password)
+        user.set_password(password)
+        user.save()
+        request.session.flush()
+        print('password saved')
+        return HttpResponseRedirect('/login/')
+
+    else:
+        user_id = request.session.get('user_id')
+        faculty = Faculty.objects.get(pk=user_id)
+        faculty_code = faculty.faculty_code
+        return render(request, 'success.html', {
+            'id': faculty_code
         })
 
 
