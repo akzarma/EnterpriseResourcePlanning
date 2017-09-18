@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
 
-from Registration.models import Student
+from General.models import CollegeExtraDetail
+from Registration.models import Student, Branch
 from .forms import StudentForm, FacultyForm, SubjectForm
 from Configuration.stateConf import states
 
@@ -123,6 +124,8 @@ def test(request):
     return render(request, 'online_test.html')
 
 
-def get_division(request,branch):
-
-    return None
+def get_division(request):
+    branch = request.POST.get('branch')
+    division_list = CollegeExtraDetail.objects.filter(branch=Branch.objects.get(branch=branch)).values_list('division',
+                                                                                                flat=True)
+    return HttpResponse(division_list)
