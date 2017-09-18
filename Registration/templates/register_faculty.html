@@ -1,0 +1,273 @@
+{% extends "./base.html" %}
+
+
+{% block body %}
+    <form method="post" action="{% url 'registration:register_faculty' %}" onsubmit="return fileSizeValidate()"
+          enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="container">
+            <div class="row">
+                <fieldset class="col-lg-6">
+                    <legend>Basic Info</legend>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div id="input-file">{{ form.doc_profile_pic }}</div>
+                            <img id="myImg"
+                                 src="http://icons.iconarchive.com/icons/paomedia/small-n-flat/512/sign-add-icon.png"
+                                 alt="Uploaded image is broken"/>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.first_name.label_tag }}</label>
+                            <div class="">{{ form.first_name }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.middle_name.label_tag }}</label>
+                            <div class="">{{ form.middle_name }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.last_name.label_tag }}</label>
+                            <div class="">{{ form.last_name }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.DOB.label_tag }}</label>
+                            <div class="">{{ form.DOB }}</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+
+                        <div class="form-element">
+                            <label class="control-label">{{ form.salary.label_tag }}</label>
+                            <div class="">{{ form.salary }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.teaching_from.label_tag }}</label>
+                            <div class="">{{ form.teaching_from }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.subjects_experience.label_tag }}</label>
+                            <div class="">{{ form.subjects_experience }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.projects.label_tag }}</label>
+                            <div class="">{{ form.projects }}</div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="col-lg-6">
+                    <legend>Personal Detail</legend>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.caste_type.label_tag }}</label>
+                        <div class="">{{ form.caste_type }}</div>
+                    </div>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.email.label_tag }}</label>
+                        <div class="">{{ form.email }}</div>
+                    </div>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.mobile.label_tag }}</label>
+                        <div class="">{{ form.mobile }}</div>
+                    </div>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.religion.label_tag }}</label>
+                        <div class="">{{ form.religion }}</div>
+                    </div>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.sub_caste.label_tag }}</label>
+                        <div class="">{{ form.sub_caste }}</div>
+                    </div>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.handicapped.label_tag }}</label>
+                        <div class="">{{ form.handicapped }}</div>
+                    </div>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.nationality.label_tag }}</label>
+                        <div class="">{{ form.nationality }}</div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="row">
+                <fieldset class="col-lg-6">
+                    <legend>Family</legend>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <label class="control-label">{{ form.father_name.label_tag }}</label>
+                            <div class="">{{ form.father_name }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.father_profession.label_tag }}</label>
+                            <div class="">{{ form.father_profession }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.father_designation.label_tag }}</label>
+                            <div class="">{{ form.father_designation }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.father_mobile.label_tag }}</label>
+                            <div class="">{{ form.father_mobile }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.father_email.label_tag }}</label>
+                            <div class="">{{ form.father_email }}</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <label class="control-label">{{ form.mother_name.label_tag }}</label>
+                            <div class="">{{ form.mother_name }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.mother_profession.label_tag }}</label>
+                            <div class="">{{ form.mother_profession }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.mother_designation.label_tag }}</label>
+                            <div class="">{{ form.mother_designation }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.mother_mobile.label_tag }}</label>
+                            <div class="">{{ form.mother_mobile }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.mother_email.label_tag }}</label>
+                            <div class="">{{ form.mother_email }}</div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="col-lg-6">
+                    <legend>Emergency Contact</legend>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.emergency_name.label_tag }}</label>
+                        <div class="">{{ form.emergency_name }}</div>
+                    </div>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.emergency_mobile.label_tag }}</label>
+                        <div class="">{{ form.emergency_mobile }}</div>
+                    </div>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.emergency_relation.label_tag }}</label>
+                        <div class="">{{ form.emergency_relation }}</div>
+                    </div>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.emergency_address.label_tag }}</label>
+                        <div class="">{{ form.emergency_address }}</div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="row">
+                <fieldset class="col-lg-6">
+                    <legend>Address</legend>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <label class="control-label">{{ form.permanent_address.label_tag }}</label>
+                            <div class="">{{ form.permanent_address }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.permanent_state.label_tag }}</label>
+                            <div class="">{{ form.permanent_state }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.permanent_city.label_tag }}</label>
+                            <div class="">{{ form.permanent_city }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.permanent_pin_code.label_tag }}</label>
+                            <div class="">{{ form.permanent_pin_code }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.permanent_country.label_tag }}</label>
+                            <div class="">{{ form.permanent_country }}</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <label class="control-label">{{ form.current_address.label_tag }}</label>
+                            <div class="">{{ form.current_address }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.current_state.label_tag }}</label>
+                            <div class="">{{ form.current_state }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.current_city.label_tag }}</label>
+                            <div class="">{{ form.current_city }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.current_pin_code.label_tag }}</label>
+                            <div class="">{{ form.current_pin_code }}</div>
+                        </div>
+                        <div class="form-element">
+                            <label class="control-label">{{ form.current_country.label_tag }}</label>
+                            <div class="">{{ form.current_country }}</div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="col-lg-6">
+                    <legend>Documents</legend>
+                    <div class="form-element">
+                        <label class="control-label">{{ form.doc.label_tag }}</label>
+                        <div class="">{{ form.doc }}</div>
+                    </div>
+                </fieldset>
+            </div>
+
+        </div>
+        <div class="container ">
+            <input class="col-md-2 col-md-offset-5 btn btn-primary" type="submit">
+        </div>
+    </form>
+{% endblock body %}
+
+{% block html %}
+    <script>
+        $(function () {
+            $("#id_doc_profile_pic:hidden").change(function () {
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = imageIsLoaded;
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+
+        function imageIsLoaded(e) {
+            $('#myImg').attr('src', e.target.result);
+        }
+    </script>
+    <script>
+        $(function () {
+            $("#myImg").on('click', function (e) {
+                e.preventDefault();
+                $("#id_doc_profile_pic:hidden").trigger('click');
+            });
+        });
+    </script>
+    <script>
+        $(function () {
+            $(".datepicker").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-50:+0"
+                // You can put more options here.
+
+            });
+        });
+    </script>
+    <script>
+        function fileSizeValidate() {
+
+            var element = document.getElementById("id_doc_tenth_marksheet");
+            var size = element.files[0].size;
+            var max_size = 1024 * 1024;
+            //alert(element.files[0].size);
+            if (size > max_size) {
+                alert("File too big!");
+                return false;
+            }
+            else {
+                return true;
+            }
+
+            {#  1996-02-11#}
+        }
+    </script>
+{% endblock html %}

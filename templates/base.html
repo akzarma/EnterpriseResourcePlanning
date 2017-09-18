@@ -1,0 +1,150 @@
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Student Registration {% endblock %}</title>
+    {{ form.non_field_label_tag }}
+
+    <link href="https://fonts.googleapis.com/css?family=Merriweather:900" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet"
+          href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.min.css">
+    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+        html, body {
+            background: #fff;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        legend {
+            color: #0379C4;
+        }
+
+        .navbar {
+            box-shadow: 0 0 40px 0 rgba(0, 0, 0, 0.1);
+            background: white;
+            font-family: 'Roboto', sans-serif;
+            border-radius: 0;
+            padding: 6px;
+        }
+
+        .navbar-brand {
+            color: #0379C4 !important;
+            font-weight: bolder;
+        }
+
+        .navbar-default .navbar-nav > .active > a {
+
+        }
+
+        .navbar-default .navbar-nav > li {
+            font-weight: bold;
+        }
+
+        .navbar-default .navbar-nav > li:hover {
+            background-color: #cccccc;
+        }
+
+        .navbar-toggle {
+            border: none;
+        }
+
+        .navbar-toggle:active, .navbar-toggle:hover, .navbar-toggle:focus {
+            background: white !important;
+
+        }
+
+        .form-element {
+            margin: 15px 0;
+        }
+
+        .col-lg-6 {
+            height: 100%;
+        }
+
+        .row {
+            padding: 10px;
+        }
+
+        #myImg {
+            width: 140px;
+        }
+
+        #input-file {
+            padding-bottom: 15px;
+        }
+
+        #id_doc_profile_pic {
+            display: none;
+        }
+
+        .input-file {
+            padding-bottom: 15px;
+        }
+
+        .error {
+            color: #d9534f !important;
+        }
+
+        .navbar-nav > li > a {
+            height: 100%;
+        }
+    </style>
+    {% block style %}
+
+    {% endblock style %}
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><i class="glyphicon glyphicon-flash"></i>ERP</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a href="#">About</a></li>
+                <li><a href="#">Support</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Dropdown <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{% block body %}
+{% endblock body %}
+
+</body>
+
+{% block html %}
+{% endblock html %}
+
+
+</html>
