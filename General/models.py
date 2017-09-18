@@ -49,6 +49,9 @@ class FacultySubject(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.faculty.user.first_name + self.subject.name + self.division.division
+
 
 class StudentDivision(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
