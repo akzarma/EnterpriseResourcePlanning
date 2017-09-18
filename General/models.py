@@ -13,9 +13,15 @@ class CollegeYear(models.Model):
 class Semester(models.Model):
     semester = models.PositiveIntegerField()
 
+    def __str__(self):
+        return str(self.semester)
+
 
 class Shift(models.Model):
     shift = models.PositiveIntegerField()
+
+    def __str__(self):
+        return str(self.shift)
 
 
 class CollegeExtraDetail(models.Model):
@@ -33,6 +39,9 @@ class BranchSubject(models.Model):
     year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.branch.branch + self.subject.name
 
 
 class FacultySubject(models.Model):
