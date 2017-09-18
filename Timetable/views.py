@@ -47,3 +47,7 @@ def get_faculty(request):
     faculty = FacultySubject.objects.get(subject=Subject.objects.get(subject=subject))
     print("TT:Faculty",faculty)
     return HttpResponse(faculty)
+
+def convert_json():
+
+    return None
