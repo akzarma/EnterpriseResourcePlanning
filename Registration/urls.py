@@ -22,6 +22,8 @@ urlpatterns = [
     # /states/
     url(r'^states/India$', views.get_states, name='get_states'),
 
-    url(r'^test/$', views.test, name='test')
+    url(r'^test/$', views.test, name='test'),
+
+    url(r'^get_division/$', views.get_division, name='get_division')
 
 ]

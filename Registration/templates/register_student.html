@@ -85,7 +85,7 @@
                                     <div class="form-element">
                                         <span class="error">{{ form.branch.errors }}</span>
                                         <label class="control-label">{{ form.branch.label_tag }}</label>
-                                        <div class="">{{ form.branch }}</div>
+                                        <div class="" onchange="loadDivision()">{{ form.branch }}</div>
                                     </div>
                                     <div class="form-element">
                                         <span class="error">{{ form.division.errors }}</span>
@@ -515,6 +515,20 @@
 
             });
         });
+
+        function loadDivision() {
+            var currentElement = document.getElementById('id_branch');
+
+{#            $.ajax({#}
+{#                type : "GET",#}
+{#                url : {% url 'Registration:get_division' %},#}
+{#                data : {#}
+{#                    'branch' : currentElement.value#}
+{#                }#}
+{#            })#}
+
+        }
+
         {#    function loadStates(currentElement) {#}
         {#        var selectedCountry = currentElement.value;#}
         {#        var currentStateElement;#}

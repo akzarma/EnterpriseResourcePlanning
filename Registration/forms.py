@@ -2,6 +2,7 @@ from django import forms
 
 from Configuration.countryConf import countries
 from Configuration.stateConf import states
+from General.models import CollegeExtraDetail
 from .models import Faculty, Subject, Student, Branch
 
 branch_list = []
@@ -9,6 +10,13 @@ branch_list = []
 for branch in Branch.objects.all():
     branch_list.append(branch)
 
+division_list = []
+
+for div in CollegeExtraDetail.objects.filter(branch=Branch.objects.get(branch='Computer')).values_list('division',
+                                                                                                       flat=True):
+    division_list.append(div)
+
+print(division_list)
 
 class StudentForm(forms.ModelForm):
     # for field in iter(self.fields):
@@ -31,7 +39,7 @@ class StudentForm(forms.ModelForm):
     }
     # Setting branch only as Comp and Mech fot VU
     branch = forms.ChoiceField(
-        choices=[(i,i) for i in branch_list]
+        choices=[(i, i) for i in branch_list]
     )
     programme = forms.ChoiceField(choices=[('B.Tech', 'B.Tech'),
                                            ('M.Tech', 'M.Tech')])
@@ -46,7 +54,9 @@ class StudentForm(forms.ModelForm):
         choices=[('1', 'First-Shift'), ('2', 'Second-Shift')]
     )
 
-    division = forms.ChoiceField()
+    division = forms.ChoiceField(
+        choices=[(i,i) for i in division_list]
+    )
 
     class Meta:
         model = Student
