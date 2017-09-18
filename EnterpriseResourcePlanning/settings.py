@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'Login.apps.LoginConfig',
     'Timetable.apps.TimetableConfig',
     'Update.apps.UpdateConfig',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
