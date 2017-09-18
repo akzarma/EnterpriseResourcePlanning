@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
 
-from General.models import CollegeExtraDetail
+from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear
 from Registration.models import Student, Branch
 from .forms import StudentForm, FacultyForm, SubjectForm
 from Configuration.stateConf import states
@@ -26,6 +26,10 @@ def register_student(request):
                                                 email=form.cleaned_data.get('email'))
             print("email: ", new_user.email)
             new_user.save()
+            division = form.cleaned_data.get('division')
+            shift = form.cleaned_data.get('shift')
+            branch = form.cleaned_data.get('branch')
+            year = form.cleaned_data.get('year')
             print(new_user)
             student.user = new_user
 
@@ -36,6 +40,12 @@ def register_student(request):
             # student.mother_name = student.mother_name.title()
             # student.emergency_name = student.emergency_name.title()
             student.save()
+
+            branch_obj = Branch.objects.get(branch=branch)
+            college_year_obj = CollegeYear.objects.get(year=year)
+            shift_obj = Shift.objects.get(shift=shift)
+            new_student_division = StudentDivision(student=student,division=CollegeExtraDetail.objects.get(branch=branch_obj,year=college_year_obj,division=division,shift=shift_obj))
+            new_student_division.save()
             # print(student.pk)
             request.session['user_id'] = student.pk
             # print(request.session.get('user_id', 0))
@@ -127,5 +137,15 @@ def test(request):
 def get_division(request):
     branch = request.POST.get('branch')
     division_list = CollegeExtraDetail.objects.filter(branch=Branch.objects.get(branch=branch)).values_list('division',
-                                                                                                flat=True)
+                                                                                                            flat=True)
+    return HttpResponse(division_list)
+
+
+def get_shift(request):
+    branch = request.POST.get('branch')
+    shift = request.POST.get('shift')
+    division_list = CollegeExtraDetail.objects.filter(shift=Shift.objects.get(shift=shift),
+                                                      branch=Branch.objects.get(branch=branch)).values_list('division',
+                                                                                                            flat=True)
+    print("ksdaklfjsdivision", division_list)
     return HttpResponse(division_list)

@@ -54,23 +54,19 @@
                                         <label class="control-label">{{ form.last_name.label_tag }}</label>
                                         <div class="">{{ form.last_name }}</div>
                                     </div>
-                                </div>
-
-                                <div class="col-lg-6">
                                     <div class="form-element">
                                         <span class="error">{{ form.DOB.errors }}</span>
                                         <label class="control-label">{{ form.DOB.label_tag }}</label>
                                         <div class="">{{ form.DOB }}</div>
                                     </div>
+                                </div>
+
+                                <div class="col-lg-6">
+
                                     <div class="form-element">
                                         <span class="error">{{ form.admission_type.errors }}</span>
                                         <label class="control-label">{{ form.admission_type.label_tag }}</label>
                                         <div class="">{{ form.admission_type }}</div>
-                                    </div>
-                                    <div class="form-element">
-                                        <span class="error">{{ form.shift.errors }}</span>
-                                        <label class="control-label">{{ form.shift.label_tag }}</label>
-                                        <div class="">{{ form.shift }}</div>
                                     </div>
                                     <div class="form-element">
                                         <span class="error">{{ form.caste_type.errors }}</span>
@@ -86,6 +82,16 @@
                                         <span class="error">{{ form.branch.errors }}</span>
                                         <label class="control-label">{{ form.branch.label_tag }}</label>
                                         <div class="" onchange="loadDivision()">{{ form.branch }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.year.errors }}</span>
+                                        <label class="control-label">{{ form.year.label_tag }}</label>
+                                        <div class="">{{ form.year }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.shift.errors }}</span>
+                                        <label class="control-label">{{ form.shift.label_tag }}</label>
+                                        <div class="">{{ form.shift }}</div>
                                     </div>
                                     <div class="form-element">
                                         <span class="error">{{ form.division.errors }}</span>
@@ -489,7 +495,7 @@
     <script>
         function execute() {
             $.ajax({
-                url: "  http://ip-api.com/json",
+                url: "http://ip-api.com/json",
                 type: 'GET',
                 dataType: "jsonp",
                 success: function (response) {
@@ -529,9 +535,9 @@
                 },
                 success: function (data) {
                     data = data.split(',');
-{#                    var select = document.getElementById("DropList");#}
+                    {#                    var select = document.getElementById("DropList");#}
                     var length = divisionElement.options.length;
-                    for (i = 0; i <=length; i++) {
+                    for (i = 0; i <= length; i++) {
                         divisionElement.options.remove(0);
                     }
                     for (j in data) {
@@ -544,6 +550,41 @@
             })
 
         }
+
+
+{#        function loadDivisionFromShift() {#}
+{#            var currentElement = document.getElementById('id_shift');#}
+{#            var currentBranchElement = document.getElementById('id_branch')#}
+{#            var divisionElement = document.getElementById('id_division');#}
+{##}
+{#            $.ajax({#}
+{#                type: "POST",#}
+{#                url: '{% url 'registration:get_shift' %}',#}
+{#                data: {#}
+{#                    'csrfmiddlewaretoken': '{{ csrf_token }}',#}
+{#                    'branch' : currentBranchElement.value,#}
+{#                    'shift': currentElement.value#}
+{#                },#}
+{#                success: function (data) {#}
+{#                    alert(data);#}
+{#                    data = data.split(',');#}
+{#                    alert(data);#}
+                    {#                    var select = document.getElementById("DropList");#}
+{#                    var length = divisionElement.options.length;#}
+{#                    for (i = 0; i <= length; i++) {#}
+{#                        divisionElement.options.remove(0);#}
+{#                    }#}
+{#                    for (j in data) {#}
+{#                        var option = document.createElement('option');#}
+{#                        option.text = data[j];#}
+{#                        option.value = data[j];#}
+{#                        divisionElement.add(option)#}
+{#                    }#}
+{#                }#}
+{#            })#}
+{#        }#}
+
+
 
         {#    function loadStates(currentElement) {#}
         {#        var selectedCountry = currentElement.value;#}

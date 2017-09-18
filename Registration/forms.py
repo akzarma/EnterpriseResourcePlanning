@@ -2,7 +2,7 @@ from django import forms
 
 from Configuration.countryConf import countries
 from Configuration.stateConf import states
-from General.models import CollegeExtraDetail
+from General.models import CollegeExtraDetail, CollegeYear, Shift
 from .models import Faculty, Subject, Student, Branch
 
 branch_list = []
@@ -16,7 +16,15 @@ for div in CollegeExtraDetail.objects.filter(branch=Branch.objects.get(branch='C
                                                                                                        flat=True):
     division_list.append(div)
 
-print(division_list)
+year_list = []
+
+for year in CollegeYear.objects.all():
+    year_list.append(year)
+
+shift_list = []
+
+for shift in Shift.objects.all():
+    shift_list.append(shift)
 
 class StudentForm(forms.ModelForm):
     # for field in iter(self.fields):
@@ -51,11 +59,14 @@ class StudentForm(forms.ModelForm):
                  ('Institute Level', 'Institute Level')]
     )
     shift = forms.ChoiceField(
-        choices=[('1', 'First-Shift'), ('2', 'Second-Shift')]
+        choices=[(i,i) for i in shift_list]
     )
 
     division = forms.ChoiceField(
-        choices=[(i,i) for i in division_list]
+        choices=[(i, i) for i in division_list]
+    )
+    year = forms.ChoiceField(
+        choices=[(i, i) for i in year_list]
     )
 
     class Meta:
