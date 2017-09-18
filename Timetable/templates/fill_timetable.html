@@ -197,7 +197,7 @@
 <form method="post" action="{% url 'Timetable:fill_timetable' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <label>Subjects: </label>
-    <select id="id_subject" onchange="loadFaculty()">
+    <select id="id_subject">
         {% for subject in subjects %}
             <option>{{ subject }}</option>
         {% endfor %}
@@ -231,9 +231,10 @@
 
                                 {% if forloop.counter0 %}
                                     <td class="block">
-                                        <div id="div1">a
-                                        </div>
-                                        <div id="div2">b
+                                        <input type="checkbox" name="selected_{{ x }}" value="Bike"
+                                               onchange="getFaculty(this)">
+                                        Select
+                                        <div id="id_faculty_label">b
                                         </div>
                                         <div id="div3">c
                                         </div>
@@ -260,32 +261,37 @@
 
 </body>
 <script>
-    function loadFaculty() {
-        var facultyElement = document.getElementById('id_faculty');
-        var subjectElement = document.getElementById('id_subject');
+    function getFaculty(object) {
+        var subject = document.getElementById('id_subject');
+        var division = object.name.split('_')[1];
+        {#        alert(object.name.split('_'));#}
         $.ajax({
-            type:"POST",
-            url : '{% url 'Timetable:get_faculty' %}',
-            data : {
-                'csrfmiddlewaretoken' : {% csrf_token %},
-                'subject' : subjectElement.value,
+            type: "POST",
+            url: '{% url 'Timetable:get_faculty' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'subject': subject.value,
+                'division': division
             },
             success: function (data) {
+                {#                alert(data);#}
+                {#                alert(data);#}
+                data += ',';
                 data = data.split(',');
-                    {#                    var select = document.getElementById("DropList");#}
-                    var length = facultyElement.options.length;
-                    for (i = 0; i <= length; i++) {
-                        facultyElement.options.remove(0);
-                    }
-                    for (j in data) {
-                        var option = document.createElement('option');
-                        option.text = data[j];
-                        option.value = data[j];
-                        facultyElement.add(option)
-                    }
+                var div_to_add = object.parentNode;
+                var faculty = document.createElement('select');
+                var option;
+                for (i = 0; i < data.length - 1; i++) {
+                    option = document.createElement('option');
+                    option.text = data[i];
+                    option.value = data[i];
+                    faculty.add(option);
+                }
+                div_to_add.appendChild(faculty);
             }
         })
     }
 </script>
+
 
 </html>
