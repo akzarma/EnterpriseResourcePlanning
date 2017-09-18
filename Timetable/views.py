@@ -63,3 +63,7 @@ def get_faculty(request):
             faculty.append(each.faculty.first_name)
         print('Timetable-get_faculty:faculty', faculty)
         return HttpResponse(faculty)
+
+
+def convert_json():
+    return None
