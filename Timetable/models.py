@@ -37,3 +37,4 @@ class Timetable(models.Model):
     day = models.CharField(max_length=10)
     branch_subject = models.ForeignKey(BranchSubject, on_delete=models.CASCADE)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
+    division = models.CharField(max_length=10)

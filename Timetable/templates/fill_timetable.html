@@ -231,10 +231,10 @@
 
                                 {% if forloop.counter0 %}
                                     <td class="block">
-                                        <input type="checkbox" name="selected_{{ x }}" value="Bike"
+                                        <input type="checkbox" name="id_faculty_{{ time }}_{{ x }}_{{ z }}" value="Bike"
                                                onchange="getFaculty(this)">
                                         Select
-                                        <div id="id_faculty_label">b
+                                        <div id="id_faculty_{{ time }}_{{ x }}_{{ z }}">b
                                         </div>
                                         <div id="div3">c
                                         </div>
@@ -278,7 +278,7 @@
                 {#                alert(data);#}
                 data += ',';
                 data = data.split(',');
-                var div_to_add = object.parentNode;
+                var div_to_add = document.getElementById(object.name);
                 var faculty = document.createElement('select');
                 var option;
                 for (i = 0; i < data.length - 1; i++) {
