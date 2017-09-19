@@ -14,7 +14,7 @@ urlpatterns = [
     # /register/studentsuccess/ - Register Student
     url(r'^student/success/$', views.success_student, name='success_student'),
     #     # /register/facultysuccess/ - Register Faculty
-    url(r'^faculty/success/$', views.success_faculty, name='register_faculty'),
+    url(r'^faculty/success/$', views.success_faculty, name='success_faculty'),
     #     # /register/subjectsuccess/ - Register Subject
     #     url(r'^subject/success/$', views.register_subject, name='register_success'),
 

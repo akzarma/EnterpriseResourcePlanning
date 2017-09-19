@@ -74,7 +74,7 @@ class StudentForm(forms.ModelForm):
             'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
         }
         fields = '__all__'
-
+        exclude = ['salary','user']
 
 class FacultyForm(forms.ModelForm):
     permanent_country = forms.ChoiceField(

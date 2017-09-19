@@ -71,17 +71,18 @@ def register_faculty(request):
                                                 email=form.cleaned_data.get('email'))
             new_user.save()
             request.session['user_id'] = faculty.pk
-            return HttpResponseRedirect('/register/faculty/success/')
-            # return HttpResponse(form.errors)
+            # return HttpResponseRedirect('/register/faculty/success/')
+            return HttpResponse(form.errors)
         else:
             print(form.errors)
-            # return HttpResponse(form.errors)
+            return HttpResponse(form.errors)
         return render(request, "register_faculty.html", {'form': form})
     else:
         print("Register faculty not POST")
         form = FacultyForm(initial={'handicapped': False})
 
     return render(request, "register_faculty.html", {'form': form})
+    return HttpResponse(request.method)
 
 
 def register_subject(request):
@@ -134,20 +135,23 @@ def success_student(request):
 
 
 def success_faculty(request):
-    password = request.POST.get('password')
-    rpassword = request.POST.get('rpassword')
-    if password == rpassword:
-        user_id = request.session.get('user_id')
-        faculty = Faculty.objects.get(pk=user_id)
-        user = User.objects.get(username=faculty.faculty_code)
-        print(password)
-        user.set_password(password)
-        user.save()
-        request.session.flush()
-        print('password saved')
-        return HttpResponseRedirect('/login/')
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        rpassword = request.POST.get('rpassword')
+        if password == rpassword:
+            print("if")
+            user_id = request.session.get('user_id')
+            faculty = Faculty.objects.get(pk=user_id)
+            user = User.objects.get(username=faculty.faculty_code)
+            print(password)
+            user.set_password(password)
+            user.save()
+            request.session.flush()
+            print('password saved')
+            return HttpResponseRedirect('/login/')
 
     else:
+        print("else success!")
         user_id = request.session.get('user_id')
         faculty = Faculty.objects.get(pk=user_id)
         faculty_code = faculty.faculty_code

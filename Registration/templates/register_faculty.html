@@ -3,7 +3,7 @@
 
 
 {% block body %}
-    <form method="post" id="faculty_form" action="{% url 'registration:register_faculty' %}"
+    <form method="POST" id="faculty_form" action="{% url 'registration:register_faculty' %}"
           onsubmit="return fileSizeValidate()"
           enctype="multipart/form-data">
         {% csrf_token %}
@@ -259,7 +259,7 @@
         <div class="container">
 
             <div class="col-lg-2 col-lg-offset-5">
-                <button type="button" class="btn btn-primary">Register</button>
+                <input type="submit" class="btn btn-primary">Register</input>
             </div>
 
         </div>
@@ -317,6 +317,7 @@
                 return false;
             }
             else {
+                alert("True");
                 return true;
             }
 
