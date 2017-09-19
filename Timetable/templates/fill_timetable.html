@@ -196,19 +196,19 @@
 
 <form method="post" action="{% url 'Timetable:fill_timetable' %}" enctype="multipart/form-data">
     {% csrf_token %}
-    <label>Subjects: </label>
+    <label for="id_subject">Year: </label>
+    <select id="id_subject">
+        {% for yr in year %}
+            <option>{{ yr }}</option>
+        {% endfor %}
+    </select>
+    <label for="id_subject">Subjects: </label>
     <select id="id_subject">
         {% for subject in subjects %}
             <option>{{ subject }}</option>
         {% endfor %}
     </select>
     <br>
-    <label>Faculty: </label>
-    <select id="id_faculty">
-        {% for faculty in faculty %}
-            <option>{{ faculty }}</option>
-        {% endfor %}
-    </select>
     <div class="container">
         <table style="width:100%;">
             <tr>
@@ -323,11 +323,14 @@
             var text = document.createElement('p');
             text.value = "Faculty";
             div_to_remove.appendChild(text);
+            {#            alert('{{ divisions_js }}');#}
             var namesArray = object.name.split("_");
-            var allDivisions ={{ division }};
+            var allDivisions = '{{divisions_js}}';
+            {#            alert(allDivisions);#}
             for (var i in allDivisions) {
                 var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + allDivisions[i] + '_' + namesArray[4];
-                alert(fullName);
+                {#                alert(fullName);#}
+                document.getElementsByName(fullName)[0].disabled = false;
             }
         }
     }

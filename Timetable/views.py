@@ -14,13 +14,17 @@ from .models import Time, Room
 
 def fill_timetable(request):
     times = []
+    years = []
     # branch = Branch.objects.all()
     branch_obj = Branch.objects.get(branch='Computer')
     branch = branch_obj.branch
     for i in Time.objects.all():
         times.append(i)
 
-    divisions = CollegeExtraDetail.objects.filter(branch=branch_obj).values_list('division', flat=True)
+    for i in CollegeYear.objects.all().values_list('year',flat=True):
+        years.append(i)
+
+    divisions = list(CollegeExtraDetail.objects.filter(branch=branch_obj).values_list('division', flat=True))
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     # form = TimetableForm()
     # branch = Branch.objects.all().values_list('branch', flat=True)
@@ -30,17 +34,23 @@ def fill_timetable(request):
     subjects_obj = BranchSubject.objects.filter(branch=branch_obj)
     subjects = [i.subject.name for i in subjects_obj]
     faculty = []
-    print("Timetable:fill_timetable-subjects", subjects)
+    print("Timetable:fill_timetable-divisions", divisions)
+    divisions_js = ""
+    for i in divisions:
+        divisions_js += i
+    print(divisions_js)
     context = {
         'branch': branch,
         'times': times,
         # 'form': form,
+        'year': years,
         'days': days,
         'division': divisions,
         'number_of_division': range(len(divisions)),
         'room': room,
         'subjects': subjects,
         'faculty': faculty,
+        'divisions_js': divisions_js,
     }
     return render(request, 'fill_timetable.html', context)
 
