@@ -1,3 +1,6 @@
+import json
+
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -55,14 +58,29 @@ def get_faculty(request):
         #     faculty.append(each.faculty.first_name)
         branch_obj = Branch.objects.get(branch='Computer')
         year_obj = CollegeYear.objects.get(year='TE')
-        college_obj = CollegeExtraDetail.objects.filter(branch=branch_obj).filter(year=year_obj).filter(
-            division=division)
-        faculty_subject = FacultySubject.objects.filter(division=college_obj).filter(subject=subject_obj)
+        college_obj_general = CollegeExtraDetail.objects.filter(Q(branch=branch_obj),
+                                                                Q(year=year_obj))
+        college_obj = college_obj_general.filter(division=division)
+        # college_obj = CollegeExtraDetail.objects.filter(branch=branch_obj).filter(year=year_obj).filter(
+        #     division=division)
+        print("ajax college_object", college_obj)
+        # Right now have not handled for multiple faculty
+        faculty_subject = FacultySubject.objects.filter(Q(division=college_obj),
+                                                        Q(subject=subject_obj))
+        test = FacultySubject.objects.filter(Q(faculty=faculty_subject[0].faculty),
+                                             Q(subject=subject_obj))
+        disable_division = [i.division.division for i in test]
+        disable_division.remove(division)
+        print("Testing...", disable_division)
         faculty = []
+
         for each in faculty_subject:
-            faculty.append(each.faculty.first_name)
+            faculty.append(each.faculty.user.first_name)
+            print("each_faculty", each.faculty.user)
         print('Timetable-get_faculty:faculty', faculty)
-        return HttpResponse(faculty)
+
+        data = {'faculty': faculty, 'divisions': disable_division}
+        return HttpResponse(json.dumps(data))
 
 
 def convert_json():
