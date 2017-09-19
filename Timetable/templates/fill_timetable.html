@@ -155,6 +155,7 @@
         }
 
         #div3 {
+            width : 100%;
             background: #777;
         }
 
@@ -196,8 +197,8 @@
 
 <form method="post" action="{% url 'Timetable:fill_timetable' %}" enctype="multipart/form-data">
     {% csrf_token %}
-    <label for="id_subject">Year: </label>
-    <select id="id_subject">
+    <label for="id_year">Year: </label>
+    <select id="id_year" onchange="loadSubjects()">
         {% for yr in year %}
             <option>{{ yr }}</option>
         {% endfor %}
@@ -236,9 +237,7 @@
                                         Select
                                         <div id="id_faculty_{{ time }}_{{ x }}_{{ z }}">Faculty
                                         </div>
-                                        <div id="div3">c
-                                        </div>
-                                        <div id="div4">d
+                                        <div id="id_faculty_{{ time }}_{{ x }}_{{ z }}_room" style="background: #ABABAB;width: 100%">Room
                                         </div>
                                     </td>
                                 {% else %}
@@ -251,6 +250,10 @@
 
             {% endfor %}
         </table>
+    <br />
+    <div class="col-md-offset-6">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
     </div>
 </form>
 <br>
@@ -261,10 +264,39 @@
 
 </body>
 <script>
+
+    function loadSubjects() {
+        var subject = document.getElementById('id_subject');
+        var year = document.getElementById('id_year');
+        $.ajax({
+            type: "POST",
+            url: '{% url 'Timetable:get_subject' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'year': year.value
+            },
+            success: function (data) {
+                data = data.split(',');
+                var len = subject.options.length;
+                for (var j = 0; j < len; j++) {
+                    subject.options.remove(0);
+                }
+                for (var i = 0; i < data.length; i++) {
+                    var option = document.createElement('option');
+                    option.text = data[i];
+                    option.value = data[i];
+                    subject.append(option);
+                }
+            }
+        })
+
+    }
+
     function getFaculty(object) {
         if (object.checked) {
             var subject = document.getElementById('id_subject');
             var division = object.name.split('_')[3];
+            var year = document.getElementById('id_year');
             {#        alert(object.name.split('_'));#}
             $.ajax({
                 type: "POST",
@@ -272,48 +304,49 @@
                 data: {
                     'csrfmiddlewaretoken': '{{ csrf_token }}',
                     'subject': subject.value,
-                    'division': division
-                },
-                success: function (data) {
-                    {#                alert(data);#}
-                    {#                alert(data);#}
-                    {#                alert(data);#}
-                    {#                    alert(data);#}
-                    var parsed = JSON.parse(data);
-                    faculty = parsed.faculty;
-                    {#                    alert(faculty);#}
-                    faculty += ',';
-                    faculty = faculty.split(',');
-                    var div_to_add = document.getElementById(object.name);
-                    while (div_to_add.hasChildNodes()) {
-                        div_to_add.removeChild(div_to_add.firstChild);
-                    }
-                    {#                alert(object.name);#}
-                    var newOption = document.createElement('select');
-                    var option;
-                    for (i = 0; i < faculty.length - 1; i++) {
-                        option = document.createElement('option');
-                        option.text = faculty[i];
-                        option.value = faculty[i];
-                        newOption.add(option);
-                    }
-                    div_to_add.appendChild(newOption);
-                    var toDisable = parsed.divisions;
-                    {#                    alert(toDisable);#}
-                    if (toDisable) {
-                        {#                        alert(object.name);#}
-                        for (div in toDisable) {
-                            var namesArray = object.name.split('_');
-                            {#                        alert(namesArray);#}
-                            var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + toDisable[div] + '_' + namesArray[4];
-                            document.getElementsByName(fullName)[0].disabled = true;
-                            {#                            alert(fullName);#}
-                        }
-
+                    'division': division,
+                    'year': year.value,
+        },
+            success: function (data) {
+                {#                alert(data);#}
+                {#                alert(data);#}
+                {#                alert(data);#}
+                {#                    alert(data);#}
+                var parsed = JSON.parse(data);
+                faculty = parsed.faculty;
+                {#                    alert(faculty);#}
+                faculty += ',';
+                faculty = faculty.split(',');
+                var div_to_add = document.getElementById(object.name);
+                while (div_to_add.hasChildNodes()) {
+                    div_to_add.removeChild(div_to_add.firstChild);
+                }
+                {#                alert(object.name);#}
+                var newOption = document.createElement('select');
+                var option;
+                for (i = 0; i < faculty.length - 1; i++) {
+                    option = document.createElement('option');
+                    option.text = faculty[i];
+                    option.value = faculty[i];
+                    newOption.add(option);
+                }
+                div_to_add.appendChild(newOption);
+                var toDisable = parsed.divisions;
+                {#                    alert(toDisable);#}
+                if (toDisable) {
+                    {#                        alert(object.name);#}
+                    for (div in toDisable) {
+                        var namesArray = object.name.split('_');
+                        {#                        alert(namesArray);#}
+                        var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + toDisable[div] + '_' + namesArray[4];
+                        document.getElementsByName(fullName)[0].disabled = true;
+                        {#                            alert(fullName);#}
                     }
 
                 }
-            })
+
+            }
+        })
         }
         else {
             var div_to_remove = document.getElementById(object.name);
@@ -333,6 +366,7 @@
                 document.getElementsByName(fullName)[0].disabled = false;
             }
         }
+
     }
 </script>
 </html>

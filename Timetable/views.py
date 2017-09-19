@@ -32,7 +32,7 @@ def fill_timetable(request):
     print('Timetable-fill_timetable-rooms', room)
     print(branch)
     subjects_obj = BranchSubject.objects.filter(branch=branch_obj)
-    subjects = [i.subject.name for i in subjects_obj]
+    subjects = []
     faculty = []
     print("Timetable:fill_timetable-divisions", divisions)
     divisions_js = ""
@@ -42,7 +42,6 @@ def fill_timetable(request):
     context = {
         'branch': branch,
         'times': times,
-        # 'form': form,
         'year': years,
         'days': days,
         'division': divisions,
@@ -59,6 +58,7 @@ def get_faculty(request):
     if request.is_ajax():
         subject = request.POST.get('subject')
         division = request.POST.get('division')
+        year = request.POST.get('year')
         print("Subject:", subject)
         print('division', division)
         subject_obj = Subject.objects.get(name=subject)
@@ -67,7 +67,7 @@ def get_faculty(request):
         # for each in faculty_subject:
         #     faculty.append(each.faculty.first_name)
         branch_obj = Branch.objects.get(branch='Computer')
-        year_obj = CollegeYear.objects.get(year='TE')
+        year_obj = CollegeYear.objects.get(year=year)
         college_obj_general = CollegeExtraDetail.objects.filter(Q(branch=branch_obj),
                                                                 Q(year=year_obj))
         college_obj = college_obj_general.filter(division=division)
@@ -93,5 +93,9 @@ def get_faculty(request):
         return HttpResponse(json.dumps(data))
 
 
-def convert_json():
-    return None
+def get_subject(request):
+    year = request.POST.get('year')
+    subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year))
+    subject_list = [i.subject.name for i in subjects]
+    subject_string = ",".join(subject_list)
+    return HttpResponse(subject_string)
