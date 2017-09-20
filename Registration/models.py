@@ -19,7 +19,9 @@ def faculty_directory_path(instance, filename):
 
 # Create your models here.
 class Faculty(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    initials = models.CharField(max_length=10, blank=True, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     #first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     #last_name = models.CharField(max_length=100)
@@ -28,7 +30,7 @@ class Faculty(models.Model):
     faculty_code = models.CharField(max_length=10,primary_key=True)
 
     # account details
-    salary = models.IntegerField(default=10)
+    salary = models.IntegerField(default=10, blank=True, null=True)
 
     # teaching
     teaching_from = models.DateField(default=datetime.now)

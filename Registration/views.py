@@ -65,14 +65,25 @@ def register_faculty(request):
         if form.is_valid():
             print("Valid")
             faculty = form.save(commit=False)
+            if (request.POST.get('initials')) == '':
+                if form.cleaned_data.get('middle_name') is None:
+                    initials = str(form.cleaned_data.get('first_name'))[0]+str(form.cleaned_data.get('last_name'))[0]
+                else:
+                    initials = str(form.cleaned_data.get('first_name'))[0]+str(form.cleaned_data.get('middle_name'))[0]+str(form.cleaned_data.get('last_name'))[0]
+
+                initials = initials.upper()
+                faculty.initials = initials
             new_user = User.objects.create_user(first_name=form.cleaned_data.get('first_name'),
                                                 last_name=form.cleaned_data.get('last_name'),
                                                 username=faculty.faculty_code,
                                                 email=form.cleaned_data.get('email'))
             new_user.save()
+
             request.session['user_id'] = faculty.pk
-            # return HttpResponseRedirect('/register/faculty/success/')
-            return HttpResponse(form.errors)
+            faculty.user = new_user
+            faculty.save()
+            return HttpResponseRedirect('/register/faculty/success/')
+            # return HttpResponse(form.errors)
         else:
             print(form.errors)
             return HttpResponse(form.errors)
