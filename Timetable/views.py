@@ -21,14 +21,14 @@ def fill_timetable(request):
     for i in Time.objects.all():
         times.append(i)
 
-    for i in CollegeYear.objects.all().values_list('year',flat=True):
+    for i in CollegeYear.objects.all().values_list('year', flat=True):
         years.append(i)
 
     divisions = list(CollegeExtraDetail.objects.filter(branch=branch_obj).values_list('division', flat=True))
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     # form = TimetableForm()
     # branch = Branch.objects.all().values_list('branch', flat=True)
-    room = Room.objects.filter(branch=branch_obj).values_list('room_number')
+    room = [i.room_number for i in Room.objects.filter(branch=branch_obj)]
     print('Timetable-fill_timetable-rooms', room)
     print(branch)
     subjects_obj = BranchSubject.objects.filter(branch=branch_obj)
@@ -99,3 +99,11 @@ def get_subject(request):
     subject_list = [i.subject.name for i in subjects]
     subject_string = ",".join(subject_list)
     return HttpResponse(subject_string)
+
+
+def save_timetable(request):
+    if request.method == 'POST':
+        print(request.POST.get)
+        return HttpResponse('Saved')
+    else:
+        return HttpResponse('Not Post')

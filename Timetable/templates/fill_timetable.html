@@ -155,7 +155,7 @@
         }
 
         #div3 {
-            width : 100%;
+            width: 100%;
             background: #777;
         }
 
@@ -195,7 +195,7 @@
 
 </div>
 
-<form method="post" action="{% url 'Timetable:fill_timetable' %}" enctype="multipart/form-data">
+<form method="post" action="{% url 'Timetable:save_timetable' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <label for="id_year">Year: </label>
     <select id="id_year" onchange="loadSubjects()">
@@ -232,12 +232,13 @@
 
                                 {% if forloop.counter0 %}
                                     <td class="block">
-                                        <input type="checkbox" name="id_faculty_{{ time }}_{{ x }}_{{ z }}" value="Bike"
+                                        <input type="checkbox" name="id_room_{{ time }}_{{ x }}_{{ z }}"
                                                onchange="getFaculty(this)">
                                         Select
-                                        <div id="id_faculty_{{ time }}_{{ x }}_{{ z }}">Faculty
+                                        <div id="id_room_{{ time }}_{{ x }}_{{ z }}">Faculty
                                         </div>
-                                        <div id="id_faculty_{{ time }}_{{ x }}_{{ z }}_room" style="background: #ABABAB;width: 100%">Room
+                                        <div id="id_room_{{ time }}_{{ x }}_{{ z }}_room"
+                                             style="background: #ABABAB;width: 100%">Room
                                         </div>
                                     </td>
                                 {% else %}
@@ -250,10 +251,10 @@
 
             {% endfor %}
         </table>
-    <br />
-    <div class="col-md-offset-6">
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </div>
+        <br/>
+        <div class="col-md-offset-6">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
     </div>
 </form>
 <br>
@@ -264,7 +265,6 @@
 
 </body>
 <script>
-
     function loadSubjects() {
         var subject = document.getElementById('id_subject');
         var year = document.getElementById('id_year');
@@ -297,7 +297,6 @@
             var subject = document.getElementById('id_subject');
             var division = object.name.split('_')[3];
             var year = document.getElementById('id_year');
-            {#        alert(object.name.split('_'));#}
             $.ajax({
                 type: "POST",
                 url: '{% url 'Timetable:get_faculty' %}',
@@ -305,68 +304,203 @@
                     'csrfmiddlewaretoken': '{{ csrf_token }}',
                     'subject': subject.value,
                     'division': division,
-                    'year': year.value,
-        },
-            success: function (data) {
-                {#                alert(data);#}
-                {#                alert(data);#}
-                {#                alert(data);#}
-                {#                    alert(data);#}
-                var parsed = JSON.parse(data);
-                faculty = parsed.faculty;
-                {#                    alert(faculty);#}
-                faculty += ',';
-                faculty = faculty.split(',');
-                var div_to_add = document.getElementById(object.name);
-                while (div_to_add.hasChildNodes()) {
-                    div_to_add.removeChild(div_to_add.firstChild);
-                }
-                {#                alert(object.name);#}
-                var newOption = document.createElement('select');
-                var option;
-                for (i = 0; i < faculty.length - 1; i++) {
-                    option = document.createElement('option');
-                    option.text = faculty[i];
-                    option.value = faculty[i];
-                    newOption.add(option);
-                }
-                div_to_add.appendChild(newOption);
-                var toDisable = parsed.divisions;
-                {#                    alert(toDisable);#}
-                if (toDisable) {
-                    {#                        alert(object.name);#}
-                    for (div in toDisable) {
-                        var namesArray = object.name.split('_');
-                        {#                        alert(namesArray);#}
-                        var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + toDisable[div] + '_' + namesArray[4];
-                        document.getElementsByName(fullName)[0].disabled = true;
-                        {#                            alert(fullName);#}
+                    'year': year.value
+                },
+                success: function (data) {
+
+                    var parsed = JSON.parse(data);
+                    faculty = parsed.faculty;
+
+                    faculty += ',';
+                    faculty = faculty.split(',');
+                    var div_to_add = document.getElementById(object.name);
+                    while (div_to_add.hasChildNodes()) {
+                        div_to_add.removeChild(div_to_add.firstChild);
                     }
 
-                }
+                    var newOption = document.createElement('select');
+                    for (i = 0; i < faculty.length - 1; i++) {
+                        var option = document.createElement('option');
+                        option.text = faculty[i];
+                        option.value = faculty[i];
+                        newOption.add(option);
+                    }
+                    div_to_add.appendChild(newOption);
+                    var toDisable = parsed.divisions;
 
-            }
-        })
+
+                    {#Shibashis#}
+                    var divisions_room = '{{ divisions_js }}';
+                    var room_div_to_add = document.getElementById(object.name + '_room');
+
+                    var roomNewDiv = document.createElement('select');
+                    roomNewDiv.id = room_div_to_add.id + '_choices';
+
+                    roomNewDiv.setAttribute('onfocus', 'setPrevious(this)');
+                    roomNewDiv.setAttribute('onchange', 'refreshValue(this)');
+
+
+                    while (room_div_to_add.hasChildNodes()) {
+                        room_div_to_add.removeChild(room_div_to_add.firstChild);
+                    }
+                    var rooms = {{ room|safe }};
+
+                    var roomId = roomNewDiv.id.split('_');
+                    divisions_room = divisions_room.replace(roomId[3], "");
+
+                    for (var i = 0; i < divisions_room.length; i++) {
+                        var room_id = roomId[0] + '_' + roomId[1] + '_' + roomId[2] + '_' + divisions_room[i] + '_' + roomId[4] + '_' + roomId[5] + '_' + roomId[6];
+                        if (document.getElementById(room_id) !== null) {
+                            var room_selected = document.getElementById(room_id).value;
+                            var index = rooms.indexOf(room_selected);
+                            rooms.splice(index, 1);
+                        }
+                    }
+                    var removeFromOthers = rooms[0];
+
+                    for (var j = 0; j < rooms.length; j++) {
+                        var roomOptions = document.createElement('option');
+                        roomOptions.text = rooms[j];
+                        roomOptions.value = rooms[j];
+                        roomNewDiv.append(roomOptions);
+                    }
+                    room_div_to_add.appendChild(roomNewDiv);
+
+                    for (i = 0; i < divisions_room.length; i++) {
+                        room_id = roomId[0] + '_' + roomId[1] + '_' + roomId[2] + '_' + divisions_room[i] + '_' + roomId[4] + '_' + roomId[5] + '_' + roomId[6];
+                        var obj = document.getElementById(room_id);
+                        if (obj !== null) {
+
+                            {#                            alert(obj);#}
+
+                            var temp = obj.querySelector('option[value="' + removeFromOthers + '"]');
+                            if (temp !== null) {
+                                obj.removeChild(temp);
+
+                            }
+
+
+                        }
+                    }
+
+                    {#Shibashis#}
+                    if (toDisable) {
+                        for (div in toDisable) {
+                            var namesArray = object.name.split('_');
+                            var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + toDisable[div] + '_' + namesArray[4];
+                            document.getElementsByName(fullName)[0].disabled = true;
+                        }
+
+                    }
+                }
+            })
         }
         else {
             var div_to_remove = document.getElementById(object.name);
+
             while (div_to_remove.hasChildNodes()) {
                 div_to_remove.removeChild(div_to_remove.firstChild);
             }
-            var text = document.createElement('p');
-            text.value = "Faculty";
-            div_to_remove.appendChild(text);
-            {#            alert('{{ divisions_js }}');#}
+            var room_div_to_remove = document.getElementById(object.name + '_room');
+            var valueToAdd = document.getElementById(object.name + '_room_choices').value;
+            while (room_div_to_remove.hasChildNodes()) {
+                room_div_to_remove.removeChild(room_div_to_remove.firstChild)
+            }
+            div_to_remove.innerHTML = "Faculty";
+            room_div_to_remove.innerHTML = "Room";
             var namesArray = object.name.split("_");
             var allDivisions = '{{divisions_js}}';
-            {#            alert(allDivisions);#}
-            for (var i in allDivisions) {
+            for (i in allDivisions) {
                 var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + allDivisions[i] + '_' + namesArray[4];
-                {#                alert(fullName);#}
                 document.getElementsByName(fullName)[0].disabled = false;
             }
+
+            var div_list = '{{ divisions_js }}';
+
+
+            div_list = div_list.replace(namesArray[3], "");
+{#            alert(valueToAdd);#}
+            for (var i = 0; i < div_list.length; i++) {
+                var room_id = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + div_list[i] + '_' + namesArray[4]  + '_room' + '_choices';
+{#                alert(room_id);#}
+
+                var objToAdd = document.getElementById(room_id);
+{#                alert(objToAdd.id);#}
+                if (objToAdd !== null) {
+                    {#                    objToAdd.removeChild(objToAdd.querySelector('option[value="' + newValue + '"]'));#}
+                    var option = document.createElement('option');
+                    option.value = valueToAdd;
+                    option.text = valueToAdd;
+                    objToAdd.appendChild(option);
+                }
+            }
+
+
         }
 
     }
+
+    {#    function refreshRooms(object) {#}
+    {#        alert(object.id);#}
+    {#        var division_list = '{{ divisions_js }}';#}
+    {#        var room_select = object.id.split('_');#}
+    {##}
+    {#        division_list = division_list.replace(room_select[3], '');#}
+    {#        alert(room_select[3] + '|' + division_list);#}
+    {#        var room_selected = object.value;#}
+    {#        var room_list = {{ room|safe }};#}
+    {#        for (var i = 0; i < division_list.length; i++) {#}
+    {#            var room_select_id = room_select[0] + '_' + room_select[1] + '_' + room_select[2] + '_' + division_list[i] + '_' + room_select[4] + '_' + room_select[5] + '_' + room_select[6];#}
+    {#            alert(room_select_id);#}
+    {#                                    alert(i + "|" + room_id);#}
+    {#            if (document.getElementById(room_select_id) !== null) {#}
+    {#                alert("IN /IF");#}
+    {#                var room_selected = document.getElementById(room_select_id).value;#}
+    {#                var something = "#" + room_select_id + " option[value='" + room_selected + "']";#}
+    {#                alert(something);#}
+    {#                document.getElementById(room_select_id).removeChild(document.getElementById(room_select_id).querySelector('option[value="' + room_selected + '"]'))#}
+    {##}
+    {#                $(something).remove();#}
+    {#                                var index = rooms.indexOf(room_selected);#}
+    {#                                rooms.splice(index, 1);#}
+    {#            }#}
+    {#        }#}
+    {##}
+    {#    }#}
+
+</script>
+<script>
+    var previous;
+
+    function setPrevious(obj) {
+
+
+        previous = obj.value;
+
+
+    }
+
+    function refreshValue(obj) {
+        // Make sure the previous value is updated
+        var div_list = '{{ divisions_js }}';
+        var newValue = obj.value;
+        var roomId = obj.id.split('_');
+        div_list = div_list.replace(roomId[3], "");
+        for (var i = 0; i < div_list.length; i++) {
+            var room_id = roomId[0] + '_' + roomId[1] + '_' + roomId[2] + '_' + div_list[i] + '_' + roomId[4] + '_' + roomId[5] + '_' + roomId[6];
+            var objToAdd = document.getElementById(room_id);
+            if (objToAdd !== null) {
+                objToAdd.removeChild(objToAdd.querySelector('option[value="' + newValue + '"]'));
+                var option = document.createElement('option');
+                option.value = previous;
+                option.text = previous;
+                objToAdd.appendChild(option);
+            }
+        }
+
+        previous = obj.value;
+    }
+
+
 </script>
 </html>
