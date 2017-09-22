@@ -27,7 +27,7 @@ def update_student(request):
                     'last_name': user.last_name,
                 })
         else:
-            print('got user id')
+            print('got user id', user)
             student_obj = user.student
             form = StudentUpdateForm(instance=student_obj)
             return render(request, 'update_student.html', {
