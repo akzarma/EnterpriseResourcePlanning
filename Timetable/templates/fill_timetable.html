@@ -204,7 +204,7 @@
         {% endfor %}
     </select>
     <label for="id_subject">Subjects: </label>
-    <select id="id_subject" name="name_subject" onchange="refreshCheckbox(this)">
+    <select id="id_subject" onchange="refreshCheckbox(this)">
         {% for subject in subjects %}
             <option>{{ subject }}</option>
         {% endfor %}
@@ -315,13 +315,14 @@
                     {#                    faculty = faculty.split(',');#}
                     {#                    alert(faculty);#}
                     object.nextElementSibling.innerHTML = subject.value;
+                    object.nextElementSibling.id = object.nextElementSibling.id.replace('label',subject.value);
                     var div_to_add = document.getElementById(object.name);
                     while (div_to_add.hasChildNodes()) {
                         div_to_add.removeChild(div_to_add.firstChild);
                     }
 
                     var newOption = document.createElement('select');
-                    newOption.name = object.name + '_' + subject.value;
+                    newOption.name = object.name + '_faculty';
                     for (i = 0; i < faculty.length; i++) {
                         var tmp = faculty[i].split('-');
                         var option = document.createElement('option');
