@@ -321,7 +321,7 @@
                     }
 
                     var newOption = document.createElement('select');
-                    newOption.name = object.name;
+                    newOption.name = object.name + '_' + subject.value;
                     for (i = 0; i < faculty.length; i++) {
                         var tmp = faculty[i].split('-');
                         var option = document.createElement('option');
@@ -513,11 +513,13 @@
     function refreshCheckbox(object) {
         var times = {{ times|safe }};
         var division = {{ division|safe }};
-        for (var i in times) {
-            for (var j in division) {
+        for (var i=0;i<times.length;i++) {
+            for (var j=0;j<division.length;j++) {
                 for (var k = 2; k < 8; k++) {
                     var check = 'id_room_' + times[i] + '_' + division[j] + '_' + k;
-                    if(document.getElementsByName(check)[0])
+                    if((document.getElementsByName(check)[0].disabled)){
+                        document.getElementsByName(check)[0].disabled = false;
+                    }
                 }
             }
         }
