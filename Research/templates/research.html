@@ -1,0 +1,47 @@
+{% extends "./base.html" %}
+
+{% block title %}Faculty R&D {% endblock %}
+
+{% block body %}
+    <form method="post" action="{% url 'research:enter_paper' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="container">
+            <fieldset>
+                <legend>Register your publication</legend>
+
+{#                <div class="form-element">#}
+{#                <label class="control-label">Faculty</label>#}
+{#                <div>#}
+{#                    <select name="faculty">#}
+{#                        {% for teacher in faculty %}#}
+{#                            <option value="{{ teacher.user.first_name }}">{{ teacher.user.first_name }}</option>#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+{#                </div>#}
+{#                </div>#}
+                {% for fields in form %}
+
+                    <div class="form-element">
+                        <span class="error">{{ fields.errors }}</span>
+                        <label class="control-label"> {{ fields.label }}</label>
+                        <div class="">{{ fields }}</div>
+                    </div>
+                {% endfor %}
+
+            </fieldset>
+            <div class="form-element">
+                <input type="submit" class="btn btn-primary col-md-2 col-md-offset-5 ">
+                <br />
+                <br />
+            </div>
+        </div>
+    </form>
+{% endblock body %}
+
+{% block html %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+{% endblock html %}

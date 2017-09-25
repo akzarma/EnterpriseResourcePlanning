@@ -19,15 +19,14 @@ def faculty_directory_path(instance, filename):
 
 # Create your models here.
 class Faculty(models.Model):
-
     initials = models.CharField(max_length=10, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    #first_name = models.CharField(max_length=100)
+    # first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
-    #last_name = models.CharField(max_length=100)
+    # last_name = models.CharField(max_length=100)
     DOB = models.DateField(default='11/02/1976')
 
-    faculty_code = models.CharField(max_length=10,primary_key=True)
+    faculty_code = models.CharField(max_length=10, primary_key=True)
 
     # account details
     salary = models.IntegerField(default=10, blank=True, null=True)
@@ -39,7 +38,7 @@ class Faculty(models.Model):
 
     # personal details
     caste_type = models.CharField(max_length=20)
-    #email = models.EmailField(max_length=100)
+    # email = models.EmailField(max_length=100)
     mobile = models.BigIntegerField(default=0)
     religion = models.CharField(max_length=20)
     sub_caste = models.CharField(max_length=30)
@@ -86,7 +85,7 @@ class Faculty(models.Model):
     doc_profile_pic = models.FileField(upload_to=faculty_directory_path, null=True, blank=True)
 
     def __str__(self):
-        return  self.user.first_name + ' ' + self.faculty_code
+        return self.user.first_name + ' ' + self.faculty_code
 
 
 def student_directory_path(instance, filename):

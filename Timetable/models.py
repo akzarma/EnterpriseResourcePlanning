@@ -38,3 +38,7 @@ class Timetable(models.Model):
     branch_subject = models.ForeignKey(BranchSubject, on_delete=models.CASCADE)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     division = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.room.room_number + str(
+            self.time.starting_time) + self.day + self.branch_subject.subject.name + str(self.faculty) + self.division

@@ -7,7 +7,7 @@ from django.shortcuts import render
 from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear
 # from .forms import TimetableForm
 from Registration.models import Branch, Subject
-from .models import Time, Room
+from .models import Time, Room, Timetable
 
 
 # Create your views here.
@@ -107,3 +107,61 @@ def save_timetable(request):
         return HttpResponse('Saved')
     else:
         return HttpResponse('Not Post')
+
+
+def to_json(request):
+    full_timetable = Timetable.objects.all()
+    answer = {}
+    time = {}
+    day = {}
+    division = {}
+    branch = {}
+    year = {}
+    output = ""
+    # key = {}
+    # key['test'] = 'inner'
+    # key['test']['inner'] = 'hello'
+    # print(key)
+
+    for year in full_timetable.values_list('branch_subject__year__year', flat=True):
+        print("year", year)
+        branch_filtered = full_timetable.filter(
+            branch_subject=BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year)))
+        for branch in branch_filtered.values_list(
+                'branch_subject__branch__branch', flat=True):
+            print('branch', branch)
+            division_filtered = branch_filtered.filter(
+                branch_subject=BranchSubject.objects.filter(branch=Branch.objects.get(
+                    branch=branch)))
+            for division in division_filtered.values_list('division', flat=True):
+                print('division', division)
+                day_filtered = division_filtered.filter(division=division)
+                for day in day_filtered.values_list('day', flat=True):
+                    print('day', day)
+                    time_filtered = day_filtered.filter(day=day)
+                    for time in time_filtered.values_list('time', flat=True):
+                        print('time', time.__str__())
+
+
+    # for each in full_timetable:
+    #     # print(each)
+    #     # answer[each.branch_subject.year.year] =
+    #     time['faculty'] = each.faculty.user.first_name
+    #     time['room'] = each.room.room_number
+    #     time['subject'] = each.branch_subject.subject.name
+    #     if str(each.time.starting_time) + '-' + str(each.time.ending_time) in day:
+    #         day[str(each.time.starting_time) + '-' + str(each.time.ending_time)].append(time)
+    #     else:
+    #         day[str(each.time.starting_time) + '-' + str(each.time.ending_time)] = time
+    #         # # print(time)
+    #         print(each.day)
+    #         # if each.day in division:
+    #         #     division[str(each.day)].append(day)
+    #         # else:
+    #         division[each.day] = day
+    #         print(day)
+    #         output += str(day)
+    return HttpResponse(output)
+
+# {"800-900": {"subject": "Database Management Systems", "room": "B-101", "faculty": "Yogesh"}, "1315-1415": {"subject": "Database Management Systems", "room": "B-101", "faculty": "Yogesh"}}
+# ,{"800-900": {"subject": "Software Engineering and Project Management", "room": "B-202", "faculty": "Nitin"}, "900-1000": {"subject": "Software Engineering and Project Management", "room": "B-202", "faculty": "Nitin"}, "1315-1415": {"subject": "Software Engineering and Project Management", "room": "B-202", "faculty": "Nitin"}}
