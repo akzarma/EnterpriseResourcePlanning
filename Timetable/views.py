@@ -3,11 +3,12 @@ import json
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.contrib.auth.models import User
 
 from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear
 # from .forms import TimetableForm
-from Registration.models import Branch, Subject
-from .models import Time, Room
+from Registration.models import Branch, Subject, Faculty
+from .models import Time, Room, Timetable
 
 
 # Create your views here.
@@ -19,7 +20,7 @@ def fill_timetable(request):
     branch_obj = Branch.objects.get(branch='Computer')
     branch = branch_obj.branch
     for i in Time.objects.all():
-        times.append(i)
+        times.append(i.__str__())
 
     for i in CollegeYear.objects.all().values_list('year', flat=True):
         years.append(i)
@@ -61,7 +62,7 @@ def get_faculty(request):
         year = request.POST.get('year')
         print("Subject:", subject)
         print('division', division)
-        subject_obj = Subject.objects.get(name=subject)
+        subject_obj = Subject.objects.get(short_form=subject)
         # faculty_subject = FacultySubject.objects.filter(subject=subject_obj).filter(division=division)
         # faculty = []
         # for each in faculty_subject:
@@ -85,7 +86,7 @@ def get_faculty(request):
         faculty = []
 
         for each in faculty_subject:
-            faculty.append(each.faculty.user.first_name)
+            faculty.append((each.faculty.user.first_name + '-' +each.faculty.faculty_code))
             print("each_faculty", each.faculty.user)
         print('Timetable-get_faculty:faculty', faculty)
 
@@ -96,14 +97,46 @@ def get_faculty(request):
 def get_subject(request):
     year = request.POST.get('year')
     subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year))
-    subject_list = [i.subject.name for i in subjects]
+    subject_list = [i.subject.short_form for i in subjects]
     subject_string = ",".join(subject_list)
     return HttpResponse(subject_string)
 
 
 def save_timetable(request):
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     if request.method == 'POST':
-        print(request.POST.get)
+        # print(request.POST.get)
+        selected_list = request.POST
+
+        print(selected_list)
+        for key in selected_list:
+            starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
+            starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
+            ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
+            ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
+            # print(starting_time, ending_time)
+            time = Time.objects.filter(starting_time=starting_time,
+                                       ending_time=ending_time)
+
+            print(time, "hiiiiiiiiiiiii")
+
+            # need to be changed with faculty_code
+            faculty = Faculty.objects.filter(user=User.objects.filter(first_name=selected_list.get(key)))
+
+            print(faculty)
+
+            # need to be changed with subject code
+            branch_subject = BranchSubject.objects.filter(
+                subject=Subject.objects.filter(short_form=selected_list.get("name_subject")))
+            print(branch_subject, "subject!!!!!!!!")
+
+            division = str(key).split('_')[3]
+            print(division)
+            day = days[int(str(key).split('_')[4]) - 2]
+            print(day)
+
+            room = Room.objects.filter(room_number=selected_list.get())
+
         return HttpResponse('Saved')
     else:
         return HttpResponse('Not Post')

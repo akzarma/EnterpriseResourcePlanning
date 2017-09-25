@@ -204,7 +204,7 @@
         {% endfor %}
     </select>
     <label for="id_subject">Subjects: </label>
-    <select id="id_subject">
+    <select id="id_subject" name="name_subject" onchange="refreshCheckbox(this)">
         {% for subject in subjects %}
             <option>{{ subject }}</option>
         {% endfor %}
@@ -234,7 +234,7 @@
                                     <td class="block">
                                         <input type="checkbox" name="id_room_{{ time }}_{{ x }}_{{ z }}"
                                                onchange="getFaculty(this)">
-                                        Select
+                                        <label id="id_room_{{ time }}_{{ x }}_{{ z }}_label">Select</label>
                                         <div id="id_room_{{ time }}_{{ x }}_{{ z }}">Faculty
                                         </div>
                                         <div id="id_room_{{ time }}_{{ x }}_{{ z }}_room"
@@ -307,22 +307,26 @@
                     'year': year.value
                 },
                 success: function (data) {
-
+                    {#                    alert(data);#}
                     var parsed = JSON.parse(data);
-                    faculty = parsed.faculty;
-
-                    faculty += ',';
-                    faculty = faculty.split(',');
+                    faculty = parsed.faculty; //yaha
+                    {#                    alert(faculty);#}
+                    {#                    faculty += ',';#}            //yaha
+                    {#                    faculty = faculty.split(',');#}
+                    {#                    alert(faculty);#}
+                    object.nextElementSibling.innerHTML = subject.value;
                     var div_to_add = document.getElementById(object.name);
                     while (div_to_add.hasChildNodes()) {
                         div_to_add.removeChild(div_to_add.firstChild);
                     }
 
                     var newOption = document.createElement('select');
-                    for (i = 0; i < faculty.length - 1; i++) {
+                    newOption.name = object.name;
+                    for (i = 0; i < faculty.length; i++) {
+                        var tmp = faculty[i].split('-');
                         var option = document.createElement('option');
-                        option.text = faculty[i];
-                        option.value = faculty[i];
+                        option.text = tmp[0];
+                        option.value = tmp[1];   //yaha
                         newOption.add(option);
                     }
                     div_to_add.appendChild(newOption);
@@ -335,6 +339,7 @@
 
                     var roomNewDiv = document.createElement('select');
                     roomNewDiv.id = room_div_to_add.id + '_choices';
+                    roomNewDiv.name = room_div_to_add.id + '_choices';
 
                     roomNewDiv.setAttribute('onfocus', 'setPrevious(this)');
                     roomNewDiv.setAttribute('onchange', 'refreshValue(this)');
@@ -397,6 +402,7 @@
         }
         else {
             var div_to_remove = document.getElementById(object.name);
+            object.nextElementSibling.innerHTML = "Select";
 
             while (div_to_remove.hasChildNodes()) {
                 div_to_remove.removeChild(div_to_remove.firstChild);
@@ -419,18 +425,18 @@
 
 
             div_list = div_list.replace(namesArray[3], "");
-{#            alert(valueToAdd);#}
+            {#            alert(valueToAdd);#}
             for (var i = 0; i < div_list.length; i++) {
-                var room_id = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + div_list[i] + '_' + namesArray[4]  + '_room' + '_choices';
-{#                alert(room_id);#}
+                var room_id = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + div_list[i] + '_' + namesArray[4] + '_room' + '_choices';
+                {#                alert(room_id);#}
 
                 var objToAdd = document.getElementById(room_id);
-{#                alert(objToAdd.id);#}
+                {#                alert(objToAdd.id);#}
                 if (objToAdd !== null) {
                     {#                    objToAdd.removeChild(objToAdd.querySelector('option[value="' + newValue + '"]'));#}
                     var option = document.createElement('option');
                     option.value = valueToAdd;
-                    option.text = valueToAdd;
+                    option.text = valueToAdd
                     objToAdd.appendChild(option);
                 }
             }
@@ -502,5 +508,19 @@
     }
 
 
+</script>
+<script>
+    function refreshCheckbox(object) {
+        var times = {{ times|safe }};
+        var division = {{ division|safe }};
+        for (var i in times) {
+            for (var j in division) {
+                for (var k = 2; k < 8; k++) {
+                    var check = 'id_room_' + times[i] + '_' + division[j] + '_' + k;
+                    if(document.getElementsByName(check)[0])
+                }
+            }
+        }
+    }
 </script>
 </html>

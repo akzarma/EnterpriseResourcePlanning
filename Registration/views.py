@@ -87,13 +87,11 @@ def register_faculty(request):
         else:
             print(form.errors)
             return HttpResponse(form.errors)
-        return render(request, "register_faculty.html", {'form': form})
     else:
         print("Register faculty not POST")
         form = FacultyForm(initial={'handicapped': False})
 
     return render(request, "register_faculty.html", {'form': form})
-    return HttpResponse(request.method)
 
 
 def register_subject(request):
