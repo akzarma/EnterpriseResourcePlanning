@@ -114,32 +114,65 @@ def save_timetable(request):
 
         print(selected_list)
         for key in selected_list:
-            starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
-            starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
-            ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
-            ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
-            # print(starting_time, ending_time)
-            time = Time.objects.filter(starting_time=starting_time,
-                                       ending_time=ending_time)
+            if not (str(key).__contains__("_room_choices") or str(key).__contains__("_faculty") or str(key).__contains__('csrfmiddlewaretoken')):
+                print(key)
+                starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
+                starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
+                ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
+                ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
+                print(starting_time, ending_time)
+                time = Time.objects.get(starting_time=starting_time,
+                                           ending_time=ending_time)
+                # branch filter krni hai
+                branch_subject = BranchSubject.objects.get(
+                        subject=Subject.objects.get(short_form=selected_list.get(key)))
+                division = str(key).split('_')[3]
+                print(division)
+                day = days[int(str(key).split('_')[4]) - 2]
+                print(day)
 
-            print(time, "hiiiiiiiiiiiii")
+                faculty = Faculty.objects.get(faculty_code=selected_list.get(key+'_faculty'))
 
-            # need to be changed with faculty_code
-            faculty = Faculty.objects.filter(user=User.objects.filter(first_name=selected_list.get(key)))
+                room = Room.objects.get(room_number=selected_list.get(key+'_room_choices'))
 
-            print(faculty)
 
-            # need to be changed with subject code
-            branch_subject = BranchSubject.objects.filter(
-                subject=Subject.objects.filter(short_form=selected_list.get("name_subject")))
-            print(branch_subject, "subject!!!!!!!!")
+                timetable = Timetable(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
+                                      time=time, day=day)
+                timetable.save()
 
-            division = str(key).split('_')[3]
-            print(division)
-            day = days[int(str(key).split('_')[4]) - 2]
-            print(day)
 
-            room = Room.objects.filter(room_number=selected_list.get())
+
+            # if str(key).__contains__("_room"):
+            #     room = Room.objects.get(room_number=selected_list.get(key))
+            #
+            # elif str(key).__contains__("_faculty"):
+            #     faculty = Faculty.objects.get(faculty_code=selected_list.get(key))
+            #
+            #     division = str(key).split('_')[3]
+            #     print(division)
+            #     day = days[int(str(key).split('_')[4]) - 2]
+            #     print(day)
+            # elif str(key).__contains__("id_room_"):
+            #     branch_subject = BranchSubject.objects.filter(
+            #         subject=Subject.objects.filter(short_form=selected_list.get(key)))
+            #     starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
+            #     starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
+            #     ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
+            #     ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
+            #     # print(starting_time, ending_time)
+            #     time = Time.objects.filter(starting_time=starting_time,
+            #                                ending_time=ending_time)
+
+            # print(time, "timeeeee")
+            #
+            # print(faculty, "facultyyyyyyyyy")
+            #
+            # # need to be changed with subject code
+            # #
+            # print(branch_subject, "subject!!!!!!!!")
+
+
+
 
         return HttpResponse('Saved')
     else:
