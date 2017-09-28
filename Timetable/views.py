@@ -1,5 +1,6 @@
 import json
 
+import time
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -14,6 +15,8 @@ from .models import Time, Room, Timetable
 # Create your views here.
 
 def fill_timetable(request):
+    fac = Faculty.objects.get(initials='TOC')
+    User.objects.get(faculty=fac)
     times = []
     years = []
     # branch = Branch.objects.all()
@@ -56,6 +59,7 @@ def fill_timetable(request):
 
 
 def get_faculty(request):
+    time.sleep(5000)
     if request.is_ajax():
         subject = request.POST.get('subject')
         division = request.POST.get('division')
@@ -86,7 +90,7 @@ def get_faculty(request):
         faculty = []
 
         for each in faculty_subject:
-            faculty.append((each.faculty.user.first_name + '-' +each.faculty.faculty_code))
+            faculty.append((each.faculty.user.first_name + '-' + each.faculty.faculty_code))
             print("each_faculty", each.faculty.user)
         print('Timetable-get_faculty:faculty', faculty)
 

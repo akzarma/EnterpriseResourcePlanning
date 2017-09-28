@@ -10,7 +10,7 @@ data = {'7':'eight'}
 root = db.reference()
 # print(root.get(True))
 
-root.child('new').set({"days":[{"day":"Monday","time":[{"facultyLecture":{"batch":"B3","room":"B303","subject":"DBMS"},"time":"0800-0900"}]}],"name":"MPK"})
-root.child('FE').child('ENTC').set({
-    '8':'eight'
-})
+# root.child('new').set({"days":[{"day":"Monday","time":[{"facultyLecture":{"batch":"B3","room":"B303","subject":"DBMS"},"time":"0800-0900"}]}],"name":"qwe"})
+# root.child('FE').child('ENTC').set({
+#     '8':'eight'
+# })
