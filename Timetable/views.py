@@ -246,3 +246,21 @@ def to_json(request):
                 #         output += str(day)
     write_to_firebase(answer)
     return HttpResponse(str(answer))
+
+
+def get_all_faculty_subject(request):
+    # print(request.POST)
+    branch = request.POST.get('branch')
+    print(branch)
+    branch_obj = Branch.objects.get(branch=branch)
+    all_subjects = set(BranchSubject.objects.filter(branch=branch_obj).values_list('subject', flat=True))
+    all_subjects_obj = [Subject.objects.get(code=i) for i in all_subjects]
+    all_faculty = FacultySubject.objects.filter(subject__in=all_subjects_obj).values_list('faculty__initials',
+                                                                                          flat=True).distinct()
+    print('here')
+    print(all_faculty)
+    all_faculty_js = ""
+    for i in all_faculty:
+        all_faculty_js += i
+        all_faculty_js += ','
+    return HttpResponse(all_faculty_js)
