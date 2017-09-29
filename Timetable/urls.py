@@ -13,5 +13,7 @@ urlpatterns = [
 
     url(r'^save/$', views.save_timetable, name='save_timetable'),
 
-    url(r'^to_json/$', views.to_json, name='to_json')
+    url(r'^to_json/$', views.to_json, name='to_json'),
+
+    url(r'^get_all_faculty_subject/$',views.get_all_faculty_subject,name='get_all_faculty_subject'),
 ]

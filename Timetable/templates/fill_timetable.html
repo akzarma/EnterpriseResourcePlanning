@@ -270,6 +270,7 @@
 </body>
 <script>
     var blocked = {};
+    var facultySlots = {};
 
     function loadSubjects() {
         var subject = document.getElementById('id_subject');
@@ -334,7 +335,7 @@
                         var tmp = faculty[i].split('-');
                         var option = document.createElement('option');
                         option.text = tmp[0];
-                        option.value = tmp[1];   //yaha
+                        option.value = tmp[1];
                         newOption.add(option);
                     }
                     div_to_add.appendChild(newOption);
@@ -461,9 +462,9 @@
 
 
             for (i = 0; i < blocked[subject.value].length; i++) {
-                alert(blocked[subject.value][i]);
+{#                alert(blocked[subject.value][i]);#}
                 var objectToRemove = document.getElementsByName(blocked[subject.value][i])[0];
-                alert(objectToRemove.checked);
+{#                alert(objectToRemove.checked);#}
                 if (!objectToRemove.checked) {
                     objectToRemove.disabled = true
                 }
@@ -504,7 +505,8 @@
 
 
     function refreshCheckbox(object) {
-
+        //Logic
+        //Enable all checkbox and disable that has clashes and is not checked
         enableAllCheckbox();
         var subject = object.value;
         var arr = blocked[subject];
@@ -566,6 +568,25 @@
     {##}
     {#    }#}
 
+    $(document).ready(function () {
+        subject = document.getElementById('id_subject');
+        year = document.getElementById('id_year');
+        branch = 'Computer';
+        if (subject) {
+            $.ajax({
+                type: "POST",
+                url: '{% url 'Timetable:get_all_faculty_subject' %}',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'branch': 'Computer'
+                },
+                success: function (data) {
+{#                    alert(data);#}
+                }
+            });
+        }
+
+    })
 </script>
 <script>
     var previous;
