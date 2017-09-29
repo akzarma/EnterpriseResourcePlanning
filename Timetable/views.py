@@ -1,6 +1,6 @@
 import json
-
-import time
+import firebase_admin
+from firebase_admin import credentials, db
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -10,13 +10,15 @@ from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, Co
 # from .forms import TimetableForm
 from Registration.models import Branch, Subject, Faculty
 from .models import Time, Room, Timetable
+from Registration.models import Branch, Subject
+from .models import Time, Room, Timetable
+import copy
+from Sync.function import write_to_firebase
 
 
 # Create your views here.
 
 def fill_timetable(request):
-    fac = Faculty.objects.get(initials='TOC')
-    User.objects.get(faculty=fac)
     times = []
     years = []
     # branch = Branch.objects.all()
@@ -25,10 +27,11 @@ def fill_timetable(request):
     for i in Time.objects.all():
         times.append(i.__str__())
 
-    for i in CollegeYear.objects.all().values_list('year', flat=True):
+    for i in CollegeYear.objects.all().order_by('year').values_list('year', flat=True).distinct():
         years.append(i)
 
-    divisions = list(CollegeExtraDetail.objects.filter(branch=branch_obj).values_list('division', flat=True))
+    divisions = CollegeExtraDetail.objects.filter(branch=branch_obj).order_by('division').values_list('division',
+                                                                                                      flat=True).distinct()
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     # form = TimetableForm()
     # branch = Branch.objects.all().values_list('branch', flat=True)
@@ -59,7 +62,6 @@ def fill_timetable(request):
 
 
 def get_faculty(request):
-    time.sleep(5000)
     if request.is_ajax():
         subject = request.POST.get('subject')
         division = request.POST.get('division')
@@ -114,7 +116,8 @@ def save_timetable(request):
 
         print(selected_list)
         for key in selected_list:
-            if not (str(key).__contains__("_room_choices") or str(key).__contains__("_faculty") or str(key).__contains__('csrfmiddlewaretoken')):
+            if not (str(key).__contains__("_room_choices") or str(key).__contains__("_faculty") or str(
+                    key).__contains__('csrfmiddlewaretoken')):
                 print(key)
                 starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
                 starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
@@ -122,19 +125,18 @@ def save_timetable(request):
                 ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
                 print(starting_time, ending_time)
                 time = Time.objects.get(starting_time=starting_time,
-                                           ending_time=ending_time)
+                                        ending_time=ending_time)
                 # branch filter krni hai
                 branch_subject = BranchSubject.objects.get(
-                        subject=Subject.objects.get(short_form=selected_list.get(key)))
+                    subject=Subject.objects.get(short_form=selected_list.get(key)))
                 division = str(key).split('_')[3]
                 print(division)
                 day = days[int(str(key).split('_')[4]) - 2]
                 print(day)
 
-                faculty = Faculty.objects.get(faculty_code=selected_list.get(key+'_faculty'))
+                faculty = Faculty.objects.get(faculty_code=selected_list.get(key + '_faculty'))
 
-                room = Room.objects.get(room_number=selected_list.get(key+'_room_choices'))
-
+                room = Room.objects.get(room_number=selected_list.get(key + '_room_choices'))
 
                 timetable = Timetable(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
                                       time=time, day=day)
@@ -142,38 +144,105 @@ def save_timetable(request):
 
 
 
-            # if str(key).__contains__("_room"):
-            #     room = Room.objects.get(room_number=selected_list.get(key))
-            #
-            # elif str(key).__contains__("_faculty"):
-            #     faculty = Faculty.objects.get(faculty_code=selected_list.get(key))
-            #
-            #     division = str(key).split('_')[3]
-            #     print(division)
-            #     day = days[int(str(key).split('_')[4]) - 2]
-            #     print(day)
-            # elif str(key).__contains__("id_room_"):
-            #     branch_subject = BranchSubject.objects.filter(
-            #         subject=Subject.objects.filter(short_form=selected_list.get(key)))
-            #     starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
-            #     starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
-            #     ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
-            #     ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
-            #     # print(starting_time, ending_time)
-            #     time = Time.objects.filter(starting_time=starting_time,
-            #                                ending_time=ending_time)
+                # if str(key).__contains__("_room"):
+                #     room = Room.objects.get(room_number=selected_list.get(key))
+                #
+                # elif str(key).__contains__("_faculty"):
+                #     faculty = Faculty.objects.get(faculty_code=selected_list.get(key))
+                #
+                #     division = str(key).split('_')[3]
+                #     print(division)
+                #     day = days[int(str(key).split('_')[4]) - 2]
+                #     print(day)
+                # elif str(key).__contains__("id_room_"):
+                #     branch_subject = BranchSubject.objects.filter(
+                #         subject=Subject.objects.filter(short_form=selected_list.get(key)))
+                #     starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
+                #     starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
+                #     ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
+                #     ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
+                #     # print(starting_time, ending_time)
+                #     time = Time.objects.filter(starting_time=starting_time,
+                #                                ending_time=ending_time)
 
-            # print(time, "timeeeee")
-            #
-            # print(faculty, "facultyyyyyyyyy")
-            #
-            # # need to be changed with subject code
-            # #
-            # print(branch_subject, "subject!!!!!!!!")
-
-
-
-
+                # print(time, "timeeeee")
+                #
+                # print(faculty, "facultyyyyyyyyy")
+                #
+                # # need to be changed with subject code
+                # #
+                # print(branch_subject, "subject!!!!!!!!")
+        to_json(request)
         return HttpResponse('Saved')
     else:
         return HttpResponse('Not Post')
+
+
+def to_json(request):
+    full_timetable = Timetable.objects.all()
+    answer = {}
+    time_json = {}
+    day_json = {}
+    division_json = {}
+    branch_json = {}
+    year_json = {}
+    output = ""
+    # key = {}
+    # key['test'] = 'inner'
+    # key['test']['inner'] = 'hello'
+    # print(key)
+
+
+
+    for year in set(full_timetable.values_list('branch_subject__year__year', flat=True)):
+        # print("year", year)
+        branch_filtered = full_timetable.filter(
+            branch_subject__in=BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year)))
+        year_json = {}
+        for branch in set(branch_filtered.values_list(
+                'branch_subject__branch__branch', flat=True)):
+            # print('branch', branch)
+            division_filtered = branch_filtered.filter(
+                branch_subject__in=BranchSubject.objects.filter(branch=Branch.objects.get(
+                    branch=branch)))
+            branch_json = {}
+            for division in set(division_filtered.values_list('division', flat=True)):
+                # print('division', division)
+                day_filtered = division_filtered.filter(division=division)
+                division_json = {}
+                for day in set(day_filtered.values_list('day', flat=True)):
+                    # print('day', day)
+                    time_filtered = day_filtered.filter(day=day)
+                    day_json = {}
+                    for table in time_filtered.only('time'):
+                        # print('time', table.time)
+                        time_json['faculty'] = copy.deepcopy(table.faculty.initials)
+                        time_json['room'] = copy.deepcopy(table.room.room_number)
+                        time_json['subject'] = copy.deepcopy(table.branch_subject.subject.short_form)
+                        day_json[str(table.time.format_for_json())] = copy.deepcopy(time_json)
+                    division_json[day] = copy.deepcopy(day_json)
+                branch_json[division] = copy.deepcopy(division_json)
+                year_json[branch] = copy.deepcopy(branch_json)
+                answer[year] = year_json
+
+
+                # for each in full_timetable:
+                #     # print(each)
+                #     # answer[each.branch_subject.year.year] =
+                #     time['faculty'] = each.faculty.user.first_name
+                #     time['room'] = each.room.room_number
+                #     time['subject'] = each.branch_subject.subject.name
+                #     if str(each.time.starting_time) + '-' + str(each.time.ending_time) in day:
+                #         day[str(each.time.starting_time) + '-' + str(each.time.ending_time)].append(time)
+                #     else:
+                #         day[str(each.time.starting_time) + '-' + str(each.time.ending_time)] = time
+                #         # # print(time)
+                #         print(each.day)
+                #         # if each.day in division:
+                #         #     division[str(each.day)].append(day)
+                #         # else:
+                #         division[each.day] = day
+                #         print(day)
+                #         output += str(day)
+    write_to_firebase(answer)
+    return HttpResponse(str(answer))

@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^login/', include('Login.urls')),
     url(r'^dashboard/', include('Dashboard.urls')),
     url(r'^timetable/', include('Timetable.urls')),
+    url(r'^research/',include('Research.urls')),
 
     # url(r'^update/', include('Update.urls'))
 

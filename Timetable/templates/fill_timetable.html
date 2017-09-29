@@ -265,6 +265,8 @@
 
 </body>
 <script>
+    var blocked = {};
+
     function loadSubjects() {
         var subject = document.getElementById('id_subject');
         var year = document.getElementById('id_year');
@@ -281,11 +283,14 @@
                 for (var j = 0; j < len; j++) {
                     subject.options.remove(0);
                 }
+
                 for (var i = 0; i < data.length; i++) {
                     var option = document.createElement('option');
                     option.text = data[i];
                     option.value = data[i];
                     subject.append(option);
+                    blocked[data[i]] = [];
+                    {#                    alert(data[i]);#}
                 }
             }
         })
@@ -293,10 +298,11 @@
     }
 
     function getFaculty(object) {
+        var subject = document.getElementById('id_subject');
+        var division = object.name.split('_')[3];
+        var year = document.getElementById('id_year');
         if (object.checked) {
-            var subject = document.getElementById('id_subject');
-            var division = object.name.split('_')[3];
-            var year = document.getElementById('id_year');
+
             $.ajax({
                 type: "POST",
                 url: '{% url 'Timetable:get_faculty' %}',
@@ -310,10 +316,7 @@
                     {#                    alert(data);#}
                     var parsed = JSON.parse(data);
                     faculty = parsed.faculty; //yaha
-                    {#                    alert(faculty);#}
-                    {#                    faculty += ',';#}            //yaha
-                    {#                    faculty = faculty.split(',');#}
-                    {#                    alert(faculty);#}
+
                     object.nextElementSibling.innerHTML = subject.value;
                     object.value = subject.value;
                     var div_to_add = document.getElementById(object.name);
@@ -390,20 +393,33 @@
                     }
 
                     {#Shibashis#}
+                    var objectToDisable;
                     if (toDisable) {
                         for (div in toDisable) {
+
                             var namesArray = object.name.split('_');
                             var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + toDisable[div] + '_' + namesArray[4];
-                            document.getElementsByName(fullName)[0].disabled = true;
+
+                            objectToDisable = document.getElementsByName(fullName)[0];
+                            if (!objectToDisable.checked) {
+                                objectToDisable.disabled = true;
+                                //Below code is to maintain which slots to block for that subject
+                                {#                            alert(subject.value);#}
+
+                                {#                            alert(blocked[subject.value])#}
+
+                            }
+                            blocked[subject.value].push(fullName);
                         }
 
                     }
                 }
-            })
+            });
+            {#            console.log()#}
         }
         else {
             var div_to_remove = document.getElementById(object.name);
-            object.nextElementSibling.innerHTML = "Select";
+
 
             while (div_to_remove.hasChildNodes()) {
                 div_to_remove.removeChild(div_to_remove.firstChild);
@@ -417,14 +433,49 @@
             room_div_to_remove.innerHTML = "Room";
             var namesArray = object.name.split("_");
             var allDivisions = '{{divisions_js}}';
+            var uncheckedSubject = document.getElementById(object.name + '_label');
             for (i in allDivisions) {
                 var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + allDivisions[i] + '_' + namesArray[4];
                 document.getElementsByName(fullName)[0].disabled = false;
+                //Below code to remove from array
+                {#                alert(object.name + '_label');#}
+                {#                alert(.id);#}
+                {#                alert(uncheckedSubject.innerHTML);#}
+                var index = blocked[uncheckedSubject.innerHTML].indexOf(fullName);
+                if (index > -1) {
+                    console.log("found");
+                    blocked[uncheckedSubject.innerHTML].splice(index, 1);
+                    console.log(blocked);
+                }
+                else {
+                    console.log("Should never go here");
+                    console.log("Somethong wrongg with inserting code");
+                }
             }
-
+            object.nextElementSibling.innerHTML = "Select";
             var div_list = '{{ divisions_js }}';
 
 
+            for (i = 0; i < blocked[subject.value].length; i++) {
+                alert(blocked[subject.value][i]);
+                var objectToRemove = document.getElementsByName(blocked[subject.value][i])[0];
+                alert(objectToRemove.checked);
+                if (!objectToRemove.checked) {
+                    objectToRemove.disabled = true
+                }
+            }
+            {#            for (var key in blocked) {#}
+            {#                if (blocked.hasOwnProperty(key)) {#}
+            {#                    for (i = 0; i < blocked[key].length; i++) {#}
+            {#                        alert(key);#}
+            {#                        var objectToRemove = document.getElementsByName(blocked[key][i])[0];#}
+            {#                        alert(objectToRemove.checked);#}
+            {#                        if (!objectToRemove.checked) {#}
+            {#                            objectToRemove.disabled = true#}
+            {#                        }#}
+            {#                    }#}
+            {#                }#}
+            {#            }#}
             div_list = div_list.replace(namesArray[3], "");
             {#            alert(valueToAdd);#}
             for (var i = 0; i < div_list.length; i++) {
@@ -437,7 +488,7 @@
                     {#                    objToAdd.removeChild(objToAdd.querySelector('option[value="' + newValue + '"]'));#}
                     var option = document.createElement('option');
                     option.value = valueToAdd;
-                    option.text = valueToAdd
+                    option.text = valueToAdd;
                     objToAdd.appendChild(option);
                 }
             }
@@ -445,6 +496,42 @@
 
         }
 
+    }
+
+
+    function refreshCheckbox(object) {
+
+        enableAllCheckbox();
+        var subject = object.value;
+        var arr = blocked[subject];
+        var objectToDisable;
+        for (var i = 0; i < arr.length; i++) {
+            {#            alert(arr[i]);#}
+
+            objectToDisable = document.getElementsByName(arr[i])[0];
+            if (!objectToDisable.checked) {
+                objectToDisable.disabled = true
+            }
+        }
+
+        //Below code enables all cbs
+
+    }
+
+
+    function enableAllCheckbox() {
+        var times = {{ times|safe }};
+        var division = "{{ divisions_js }}";
+        for (var i = 0; i < times.length; i++) {
+            for (var j = 0; j < division.length; j++) {
+                for (var k = 2; k < 8; k++) {
+                    var check = 'id_room_' + times[i] + '_' + division[j] + '_' + k;
+                    if ((document.getElementsByName(check)[0].disabled)) {
+                        document.getElementsByName(check)[0].disabled = false;
+                    }
+                }
+            }
+        }
     }
 
     {#    function refreshRooms(object) {#}
@@ -510,20 +597,6 @@
 
 
 </script>
-<script>
-    function refreshCheckbox(object) {
-        var times = {{ times|safe }};
-        var division = {{ division|safe }};
-        for (var i=0;i<times.length;i++) {
-            for (var j=0;j<division.length;j++) {
-                for (var k = 2; k < 8; k++) {
-                    var check = 'id_room_' + times[i] + '_' + division[j] + '_' + k;
-                    if((document.getElementsByName(check)[0].disabled)){
-                        document.getElementsByName(check)[0].disabled = false;
-                    }
-                }
-            }
-        }
-    }
-</script>
+
+
 </html>
