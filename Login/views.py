@@ -5,6 +5,20 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
+dict_array = [{
+    'userType': 'Student',
+    'year': 'TE',
+    'branch': 'Computer',
+    'division': 'B',
+
+},
+
+    {
+        'userType': 'Faculty'
+    }]
+
+counter = 0
+
 
 def login_user(request):
     print("login user")
@@ -33,10 +47,15 @@ def login_android(request):
             user = authenticate(username=username, password=password)
             print(username)
             print(password)
+
             if user:
-                return HttpResponse(True)
+                global counter
+                counter += 1
+                counter %= 2
+                print(str(dict_array[counter]))
+                return HttpResponse(str(dict_array[counter]))
             else:
-                return HttpResponse(False)
+                return HttpResponse("{'userType': 'null'}")
         except:
             return HttpResponse("Something is wrong")
     print("inside android")
