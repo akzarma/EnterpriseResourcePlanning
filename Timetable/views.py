@@ -46,6 +46,8 @@ def fill_timetable(request):
     for i in divisions:
         divisions_js += i
     print(divisions_js)
+
+    timetables = Timetable.objects.all()
     context = {
         'branch': branch,
         'times': times,
@@ -57,6 +59,7 @@ def fill_timetable(request):
         'subjects': subjects,
         'faculty': faculty,
         'divisions_js': divisions_js,
+        'timetables': timetables
     }
     return render(request, 'fill_timetable.html', context)
 
@@ -138,9 +141,21 @@ def save_timetable(request):
 
                 room = Room.objects.get(room_number=selected_list.get(key + '_room_choices'))
 
-                timetable = Timetable(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
-                                      time=time, day=day)
-                timetable.save()
+                # timetable_exists = Timetable.objects.filter(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
+                #                       time=time, day=day)
+                timetable_exists = Timetable.objects.get(division=division,
+                                                            branch_subject=branch_subject,time=time, day=day)
+                if(timetable_exists):
+                    print("Already exists")
+                    timetable_exists.room = room
+                    timetable_exists.faculty = faculty
+
+                else:
+                    print("Not exists")
+
+                    timetable_exists = Timetable(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
+                                          time=time, day=day)
+                timetable_exists.save()
 
 
 
