@@ -1,0 +1,45 @@
+{% extends "./base.html" %}
+
+{% block body %}
+    <form method="post" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="container">
+            <div class="row">
+                <fieldset class="col-lg-12">
+                    <div class="col-lg-12">
+                        <div class="col-lg-4"></div>
+                        <div class="col-lg-4">
+                            <legend>Enter a new Password</legend>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-6">
+
+                        <div class="form-element">
+                            <span class="error">{{ form.first_name.errors }}</span>
+                            <label class="control-label">Username</label>
+                            <div class="">{{ id }}</div>
+                        </div>
+                        <label class="control-label">Password</label>
+                        <div class="form-element col-centered">
+                            <input id="password" name="password" type="password" required>
+                        </div>
+                        <label class="control-label">Re-Enter Password</label>
+                        <div class="form-element">
+                            <input id="rpassword" name="rpassword" type="password" required>
+                        </div>
+
+
+                    </div>
+
+                </fieldset>
+            </div>
+
+
+        </div>
+        <div class="container ">
+            <input class="col-md-2 col-md-offset-5 btn btn-primary" type="submit">
+        </div>
+    </form>
+{% endblock body %}
