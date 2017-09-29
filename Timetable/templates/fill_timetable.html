@@ -204,7 +204,7 @@
         {% endfor %}
     </select>
     <label for="id_subject">Subjects: </label>
-    <select id="id_subject">
+    <select id="id_subject" onchange="refreshCheckbox(this)">
         {% for subject in subjects %}
             <option>{{ subject }}</option>
         {% endfor %}
@@ -234,7 +234,7 @@
                                     <td class="block">
                                         <input type="checkbox" name="id_room_{{ time }}_{{ x }}_{{ z }}"
                                                onchange="getFaculty(this)">
-                                        Select
+                                        <label id="id_room_{{ time }}_{{ x }}_{{ z }}_label">Select</label>
                                         <div id="id_room_{{ time }}_{{ x }}_{{ z }}">Faculty
                                         </div>
                                         <div id="id_room_{{ time }}_{{ x }}_{{ z }}_room"
@@ -265,6 +265,8 @@
 
 </body>
 <script>
+    var blocked = {};
+
     function loadSubjects() {
         var subject = document.getElementById('id_subject');
         var year = document.getElementById('id_year');
@@ -281,11 +283,14 @@
                 for (var j = 0; j < len; j++) {
                     subject.options.remove(0);
                 }
+
                 for (var i = 0; i < data.length; i++) {
                     var option = document.createElement('option');
                     option.text = data[i];
                     option.value = data[i];
                     subject.append(option);
+                    blocked[data[i]] = [];
+                    {#                    alert(data[i]);#}
                 }
             }
         })
@@ -293,10 +298,11 @@
     }
 
     function getFaculty(object) {
+        var subject = document.getElementById('id_subject');
+        var division = object.name.split('_')[3];
+        var year = document.getElementById('id_year');
         if (object.checked) {
-            var subject = document.getElementById('id_subject');
-            var division = object.name.split('_')[3];
-            var year = document.getElementById('id_year');
+
             $.ajax({
                 type: "POST",
                 url: '{% url 'Timetable:get_faculty' %}',
@@ -307,22 +313,24 @@
                     'year': year.value
                 },
                 success: function (data) {
-
+                    {#                    alert(data);#}
                     var parsed = JSON.parse(data);
-                    faculty = parsed.faculty;
+                    faculty = parsed.faculty; //yaha
 
-                    faculty += ',';
-                    faculty = faculty.split(',');
+                    object.nextElementSibling.innerHTML = subject.value;
+                    object.value = subject.value;
                     var div_to_add = document.getElementById(object.name);
                     while (div_to_add.hasChildNodes()) {
                         div_to_add.removeChild(div_to_add.firstChild);
                     }
 
                     var newOption = document.createElement('select');
-                    for (i = 0; i < faculty.length - 1; i++) {
+                    newOption.name = object.name + '_faculty';
+                    for (i = 0; i < faculty.length; i++) {
+                        var tmp = faculty[i].split('-');
                         var option = document.createElement('option');
-                        option.text = faculty[i];
-                        option.value = faculty[i];
+                        option.text = tmp[0];
+                        option.value = tmp[1];   //yaha
                         newOption.add(option);
                     }
                     div_to_add.appendChild(newOption);
@@ -335,6 +343,7 @@
 
                     var roomNewDiv = document.createElement('select');
                     roomNewDiv.id = room_div_to_add.id + '_choices';
+                    roomNewDiv.name = room_div_to_add.id + '_choices';
 
                     roomNewDiv.setAttribute('onfocus', 'setPrevious(this)');
                     roomNewDiv.setAttribute('onchange', 'refreshValue(this)');
@@ -384,19 +393,33 @@
                     }
 
                     {#Shibashis#}
+                    var objectToDisable;
                     if (toDisable) {
                         for (div in toDisable) {
+
                             var namesArray = object.name.split('_');
                             var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + toDisable[div] + '_' + namesArray[4];
-                            document.getElementsByName(fullName)[0].disabled = true;
+
+                            objectToDisable = document.getElementsByName(fullName)[0];
+                            if (!objectToDisable.checked) {
+                                objectToDisable.disabled = true;
+                                //Below code is to maintain which slots to block for that subject
+                                {#                            alert(subject.value);#}
+
+                                {#                            alert(blocked[subject.value])#}
+
+                            }
+                            blocked[subject.value].push(fullName);
                         }
 
                     }
                 }
-            })
+            });
+            {#            console.log()#}
         }
         else {
             var div_to_remove = document.getElementById(object.name);
+
 
             while (div_to_remove.hasChildNodes()) {
                 div_to_remove.removeChild(div_to_remove.firstChild);
@@ -410,22 +433,57 @@
             room_div_to_remove.innerHTML = "Room";
             var namesArray = object.name.split("_");
             var allDivisions = '{{divisions_js}}';
+            var uncheckedSubject = document.getElementById(object.name + '_label');
             for (i in allDivisions) {
                 var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + allDivisions[i] + '_' + namesArray[4];
                 document.getElementsByName(fullName)[0].disabled = false;
+                //Below code to remove from array
+                {#                alert(object.name + '_label');#}
+                {#                alert(.id);#}
+                {#                alert(uncheckedSubject.innerHTML);#}
+                var index = blocked[uncheckedSubject.innerHTML].indexOf(fullName);
+                if (index > -1) {
+                    console.log("found");
+                    blocked[uncheckedSubject.innerHTML].splice(index, 1);
+                    console.log(blocked);
+                }
+                else {
+                    console.log("Should never go here");
+                    console.log("Somethong wrongg with inserting code");
+                }
             }
-
+            object.nextElementSibling.innerHTML = "Select";
             var div_list = '{{ divisions_js }}';
 
 
+            for (i = 0; i < blocked[subject.value].length; i++) {
+                alert(blocked[subject.value][i]);
+                var objectToRemove = document.getElementsByName(blocked[subject.value][i])[0];
+                alert(objectToRemove.checked);
+                if (!objectToRemove.checked) {
+                    objectToRemove.disabled = true
+                }
+            }
+            {#            for (var key in blocked) {#}
+            {#                if (blocked.hasOwnProperty(key)) {#}
+            {#                    for (i = 0; i < blocked[key].length; i++) {#}
+            {#                        alert(key);#}
+            {#                        var objectToRemove = document.getElementsByName(blocked[key][i])[0];#}
+            {#                        alert(objectToRemove.checked);#}
+            {#                        if (!objectToRemove.checked) {#}
+            {#                            objectToRemove.disabled = true#}
+            {#                        }#}
+            {#                    }#}
+            {#                }#}
+            {#            }#}
             div_list = div_list.replace(namesArray[3], "");
-{#            alert(valueToAdd);#}
+            {#            alert(valueToAdd);#}
             for (var i = 0; i < div_list.length; i++) {
-                var room_id = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + div_list[i] + '_' + namesArray[4]  + '_room' + '_choices';
-{#                alert(room_id);#}
+                var room_id = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + div_list[i] + '_' + namesArray[4] + '_room' + '_choices';
+                {#                alert(room_id);#}
 
                 var objToAdd = document.getElementById(room_id);
-{#                alert(objToAdd.id);#}
+                {#                alert(objToAdd.id);#}
                 if (objToAdd !== null) {
                     {#                    objToAdd.removeChild(objToAdd.querySelector('option[value="' + newValue + '"]'));#}
                     var option = document.createElement('option');
@@ -438,6 +496,42 @@
 
         }
 
+    }
+
+
+    function refreshCheckbox(object) {
+
+        enableAllCheckbox();
+        var subject = object.value;
+        var arr = blocked[subject];
+        var objectToDisable;
+        for (var i = 0; i < arr.length; i++) {
+            {#            alert(arr[i]);#}
+
+            objectToDisable = document.getElementsByName(arr[i])[0];
+            if (!objectToDisable.checked) {
+                objectToDisable.disabled = true
+            }
+        }
+
+        //Below code enables all cbs
+
+    }
+
+
+    function enableAllCheckbox() {
+        var times = {{ times|safe }};
+        var division = "{{ divisions_js }}";
+        for (var i = 0; i < times.length; i++) {
+            for (var j = 0; j < division.length; j++) {
+                for (var k = 2; k < 8; k++) {
+                    var check = 'id_room_' + times[i] + '_' + division[j] + '_' + k;
+                    if ((document.getElementsByName(check)[0].disabled)) {
+                        document.getElementsByName(check)[0].disabled = false;
+                    }
+                }
+            }
+        }
     }
 
     {#    function refreshRooms(object) {#}
@@ -503,4 +597,6 @@
 
 
 </script>
+
+
 </html>

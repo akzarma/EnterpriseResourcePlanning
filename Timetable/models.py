@@ -21,6 +21,18 @@ class Time(models.Model):
         end = end[:len(end) - 2] + ':' + end[len(end) - 2:]
         return start + '-' + end
 
+    def format_for_json(self):
+        start_string = str(self.starting_time)
+        start_len = start_string.__len__()
+
+        end_string = str(self.ending_time)
+        end_len = end_string.__len__()
+        if start_len < 4:
+            start_string = '0' + start_string
+        if end_len < 4:
+            end_string = '0' + end_string
+        return start_string + '-' + end_string
+
 
 class Room(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
