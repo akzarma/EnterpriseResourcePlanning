@@ -290,12 +290,15 @@ def get_timetable(request):
     timetable_assigned = {}
     actual_assigned = {}
     actual_assigned['faculty'] = []
+    tt_instance = []
     for i in branch_subject:
         for faculty in list(FacultySubject.objects.filter(subject=i.subject).values_list('faculty__initials',
                                                                                          flat=True).distinct()):
             actual_assigned['faculty'].append(faculty)
             
         for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
+            tt_instance.append(
+                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
             if j.faculty.initials not in timetable_assigned:
                 timetable_assigned[j.faculty.initials] = []
                 # timetable_assigned[j.faculty.initials].append("id_room_" + j.time.__str__() + "_" + j.division + "_" + str(
@@ -306,6 +309,7 @@ def get_timetable(request):
             # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2)
 
             print(j)
+    print("instance tt", tt_instance)
 
         # timetable = Timetable.objects.filter(branch_subject__in=branch_subject)
         #
@@ -321,3 +325,4 @@ def get_timetable(request):
             'subject_string':subjects
         }
     return HttpResponse(json.dumps(answer), 'application/javascript')
+
