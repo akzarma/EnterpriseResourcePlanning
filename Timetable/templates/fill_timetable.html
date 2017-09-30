@@ -256,18 +256,36 @@
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
 
-{#    {% for timetable in timetables %}#}
-{#        {{ timetable.branch_subject.subject.short_form }}#}
-{#    {% endfor %}#}
+    {% for timetable in timetables %}
+        {{ timetable.branch_subject.subject.short_form }}
+    {% endfor %}
+
+
     </div>
 </form>
 <br>
 <br>
 <br>
 <br>
-
+<button onclick="getTimetable('TE', 'Computer');">getTimetable()</button>
 
 </body>
+<script>
+    function getTimetable(year, branch) {
+        $.ajax({
+            type: "POST",
+            url: '{% url 'Timetable:get_timetable' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'year': year,
+                'branch': branch
+            },
+            success: function (data) {
+                alert(data);
+            }
+        })
+    }
+</script>
 <script>
     var blocked = {};
     var facultySlots = {};
