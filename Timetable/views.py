@@ -209,7 +209,7 @@ def to_json(request):
 
 
 
-    for year in set(full_timetable.values_list('branch_subject__year__year', flat=True)):
+    for year in full_timetable.values_list('branch_subject__year__year', flat=True).distinct():
         # print("year", year)
         branch_filtered = full_timetable.filter(
             branch_subject__in=BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year)))
