@@ -105,14 +105,6 @@ def get_faculty(request):
         return HttpResponse(json.dumps(data))
 
 
-def get_subject(request):
-    year = request.POST.get('year')
-    subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year))
-    subject_list = [i.subject.short_form for i in subjects]
-    subject_string = ",".join(subject_list)
-    return HttpResponse(subject_string)
-
-
 def save_timetable(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     if request.method == 'POST':
@@ -320,8 +312,12 @@ def get_timetable(request):
         # subjects = timetable.values_list('subject')
 
         # print(timetable, "Timetble!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year))
+    subject_list = [i.subject.short_form for i in subjects]
+    subject_string = ",".join(subject_list)
     answer = {
             'timetable_assigned': timetable_assigned,
-            'actual_assigned': actual_assigned
+            'actual_assigned': actual_assigned,
+            'subject_string':subjects
         }
     return HttpResponse(json.dumps(answer), 'application/javascript')
