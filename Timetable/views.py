@@ -303,7 +303,7 @@ def get_timetable(request):
         for faculty in list(FacultySubject.objects.filter(subject=i.subject).values_list('faculty__initials',
                                                                                          flat=True).distinct()):
             actual_assigned['faculty'].append(faculty)
-            
+
         for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
             tt_instance.append(
                 "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
@@ -319,14 +319,34 @@ def get_timetable(request):
             print(j)
     print("instance tt", tt_instance)
 
-        # timetable = Timetable.objects.filter(branch_subject__in=branch_subject)
-        #
-        # subjects = timetable.values_list('subject')
+    # timetable = Timetable.objects.filter(branch_subject__in=branch_subject)
+    #
+    # subjects = timetable.values_list('subject')
 
-        # print(timetable, "Timetble!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    # print(timetable, "Timetble!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     answer = {
-            'timetable_assigned': timetable_assigned,
-            'actual_assigned': actual_assigned
-        }
+        'timetable_assigned': timetable_assigned,
+        'actual_assigned': actual_assigned
+    }
     return HttpResponse(json.dumps(answer), 'application/javascript')
 
+
+def get_instance(request):
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    year = request.POST.get('year')
+    print(year, "get_timetable")
+
+    branch = request.POST.get('branch')
+    clg_year = CollegeYear.objects.get(year=year)
+    branch_obj = Branch.objects.get(branch=branch)
+    branch_subject = BranchSubject.objects.filter(year=clg_year, branch=branch_obj).distinct()
+    print(branch_subject)
+    tt_instance = []
+    for i in branch_subject:
+        for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
+            tt_instance.append(j.branch_subject.subject.short_form+"**"+j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
+                               "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+
+    print("instance tt", tt_instance)
+
+    return HttpResponse(str(tt_instance))

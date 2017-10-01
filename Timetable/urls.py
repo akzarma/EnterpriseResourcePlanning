@@ -18,4 +18,6 @@ urlpatterns = [
     url(r'^get_all_faculty_subject/$', views.get_all_faculty_subject, name='get_all_faculty_subject'),
 
     url(r'get_timetable/$', views.get_timetable, name='get_timetable'),
+
+    url(r'^get_instance/$', views.get_instance, name='get_instance')
 ]
