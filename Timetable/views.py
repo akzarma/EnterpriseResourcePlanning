@@ -4,7 +4,7 @@ from collections import defaultdict
 import firebase_admin
 from firebase_admin import credentials, db
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
 
@@ -283,46 +283,65 @@ def get_timetable(request):
     print(year, "get_timetable")
 
     branch = request.POST.get('branch')
+    all_year = list(CollegeYear.objects.all())
     clg_year = CollegeYear.objects.get(year=year)
+    all_year.remove(clg_year)
     branch_obj = Branch.objects.get(branch=branch)
     branch_subject = BranchSubject.objects.filter(year=clg_year, branch=branch_obj).distinct()
+    remove_subjects = BranchSubject.objects.filter(year__in=all_year, branch=branch_obj).distinct()
     print(branch_subject)
     timetable_assigned = {}
-    actual_assigned = {}
-    actual_assigned['faculty'] = []
+    timetable_assigned_blocked = {}
+    actual_assigned = {'faculty': []}
+
+    actual_assigned_blocked = {'faculty': []}
     tt_instance = []
     for i in branch_subject:
         for faculty in list(FacultySubject.objects.filter(subject=i.subject).values_list('faculty__initials',
                                                                                          flat=True).distinct()):
             actual_assigned['faculty'].append(faculty)
-            
+
         for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
             tt_instance.append(
                 "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
             if j.faculty.initials not in timetable_assigned:
                 timetable_assigned[j.faculty.initials] = []
-                # timetable_assigned[j.faculty.initials].append("id_room_" + j.time.__str__() + "_" + j.division + "_" + str(
-                #     days.index(j.day) + 2))
             timetable_assigned[j.faculty.initials].append(
                 "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
 
             # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2)
 
-            print(j)
+    for i in remove_subjects:
+        for faculty in list(FacultySubject.objects.filter(subject=i.subject).values_list('faculty__initials',
+                                                                                         flat=True).distinct()):
+            actual_assigned_blocked['faculty'].append(faculty)
+
+        for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
+            tt_instance.append(
+                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+            if j.faculty.initials not in timetable_assigned:
+                timetable_assigned_blocked[j.faculty.initials] = []
+            timetable_assigned_blocked[j.faculty.initials].append(
+                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+
+            # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2)
+
     print("instance tt", tt_instance)
 
-        # timetable = Timetable.objects.filter(branch_subject__in=branch_subject)
-        #
-        # subjects = timetable.values_list('subject')
+    # timetable = Timetable.objects.filter(branch_subject__in=branch_subject)
+    #
+    # subjects = timetable.values_list('subject')
 
-        # print(timetable, "Timetble!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year))
-    subject_list = [i.subject.short_form for i in subjects]
-    subject_string = ",".join(subject_list)
+    # print(timetable, "Timetble!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    subjects = list(
+        BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj).values_list(
+            'subject__short_form', flat=True))
+
     answer = {
-            'timetable_assigned': timetable_assigned,
-            'actual_assigned': actual_assigned,
-            'subject_string':subjects
-        }
-    return HttpResponse(json.dumps(answer), 'application/javascript')
-
+        'timetable_assigned': timetable_assigned,
+        'actual_assigned': actual_assigned,
+        'timetable_assigned_blocked': timetable_assigned_blocked,
+        'actual_assigned_blocked': actual_assigned_blocked,
+        'subjects': subjects,
+    }
+    return JsonResponse(answer)
