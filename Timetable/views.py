@@ -348,16 +348,18 @@ def get_timetable(request):
     # subjects = timetable.values_list('subject')
 
     # print(timetable, "Timetble!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    subjects = list(
-        BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj).values_list(
-            'subject__short_form', flat=True))
-
+    subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj)
+    subjects_theory = list(subjects.filter(subject__is_practical=False).values_list(
+        'subject__short_form', flat=True))
+    subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
+        'subject__short_form', flat=True))
     answer = {
         'timetable_assigned': timetable_assigned,
         'actual_assigned': actual_assigned,
         'timetable_assigned_blocked': timetable_assigned_blocked,
         'actual_assigned_blocked': actual_assigned_blocked,
-        'subjects': subjects,
+        'subjects_theory': subjects_theory,
+        'subjects_practical': subjects_practical,
         'tt_instance': str(tt_instance)
     }
     return JsonResponse(answer)
