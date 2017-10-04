@@ -9,8 +9,6 @@ urlpatterns = [
 
     url(r'^get_faculty/$', views.get_faculty, name='get_faculty'),
 
-    url(r'^get_subject/$', views.get_subject, name='get_subject'),
-
     url(r'^save/$', views.save_timetable, name='save_timetable'),
 
     url(r'^to_json/$', views.to_json, name='to_json'),

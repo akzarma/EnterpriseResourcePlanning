@@ -326,36 +326,67 @@
 </script>
 <script>
     var blocked = {};
-    var facultySlots = {};
+
 
     function loadSubjects() {
         var subject = document.getElementById('id_subject');
         var year = document.getElementById('id_year');
+        var allFaculty = "";
         $.ajax({
             type: "POST",
-            url: '{% url 'Timetable:get_subject' %}',
+            url: '{% url 'Timetable:get_timetable' %}',
             data: {
                 'csrfmiddlewaretoken': '{{ csrf_token }}',
-                'year': year.value
+                'year': year.value,
+                'branch': 'Computer'
             },
             success: function (data) {
-                data = data.split(',');
+                {#                alert();#}
+                //Below code for loading subjects
+                allFaculty = data['actual_assigned_blocked']['faculty'];
+                {#                for(i in allFaculty){#}
+                {#                    alert(allFaculty[i]);#}
+                {#                }#}
+                var facultySlots = data['timetable_assigned_blocked'];
+                {#                alert(data['timetable_assigned']);#}
+                {#                console.log('facultySlots');#}
+                {#                console.log(facultySlots);#}
+                blockSlots(facultySlots, allFaculty);
+
+                subjects = data['subjects'];
+                alert(data[subjects]);
                 var len = subject.options.length;
                 for (var j = 0; j < len; j++) {
                     subject.options.remove(0);
                 }
 
-                for (var i = 0; i < data.length; i++) {
+                for (var i = 0; i < subjects.length; i++) {
                     var option = document.createElement('option');
-                    option.text = data[i];
-                    option.value = data[i];
+                    option.text = subjects[i];
+                    option.value = subjects[i];
                     subject.append(option);
-                    blocked[data[i]] = [];
-                    {#                    alert(data[i]);#}
+                    blocked[subjects[i]] = [];
+                    {#                    alert(subjects[i]);#}
                 }
             }
         })
 
+    }
+
+    function blockSlots(slots, allFaculty) {
+        {#        alert(allFaculty);#}
+        {#        alert(slots);#}
+        {#        console.log(slots);#}
+        for (eachFaculty in allFaculty) {
+            {#            alert('in for');#}
+            {#            alert(eachFaculty);#}
+            var slotsToRemove = slots[allFaculty[eachFaculty]];
+            {#            alert(slotsToRemove);#}
+            for (eachSlot in slotsToRemove) {
+                document.getElementsByName(slotsToRemove[eachSlot])[0].disabled = true;
+                {#                alert(eachSlot);#}
+            }
+        }
     }
 
     function getFaculty(object, subject=false) {
