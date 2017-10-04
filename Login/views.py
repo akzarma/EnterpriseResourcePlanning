@@ -53,7 +53,7 @@ def login_android(request):
                 counter += 1
                 counter %= 2
                 print(str(dict_array[counter]))
-                return HttpResponse(str(dict_array[0]))
+                return HttpResponse(str(dict_array[1]))
             else:
                 return HttpResponse("{'userType': 'null'}")
         except:

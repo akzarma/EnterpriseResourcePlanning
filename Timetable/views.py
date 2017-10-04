@@ -396,7 +396,7 @@ def get_excel(request):
                 worksheet.write(curr_row, curr_col,
                                 tt.faculty.initials + " " + tt.branch_subject.subject.short_form + " " +
                                 tt.room.room_number)
-
+            workbook.close()
 
 
         elif request.POST.get('button_type') == 'UG':
@@ -423,10 +423,12 @@ def get_excel(request):
                 time_index[time] = time_row
                 time_row += 1
 
+
             divs = timetable.values_list('division', flat=True).distinct().order_by('division')
             total_divs = divs.__len__()
             div_index = {}
             div_col = 0
+
             for div in divs:
                 div_index[div] = div_col
                 div_col += 1
@@ -435,16 +437,20 @@ def get_excel(request):
             row = 0
             col = 0
             for tt in timetable:
-                curr_col = days.index(tt.day) + 2
-                curr_row = time_index.get(tt.time.starting_time)
+                curr_col = days.index(tt.day) + 1
+                curr_row = time_index.get(tt.time.starting_time)+1
+
+                worksheet.set_column(firstcol=0, lastcol=30, width= 15)
 
                 worksheet.write(row, curr_col * total_divs, tt.day)
 
                 worksheet.write(curr_row, col, tt.time.__str__())
 
-                worksheet.write(curr_row, curr_col + div_index.get(tt.division),
+                worksheet.write(row+1, curr_col * total_divs + div_index.get(tt.division),
+                                tt.division)
+                worksheet.write(curr_row, curr_col*total_divs + div_index.get(tt.division),
                                 tt.faculty.initials + " " + tt.branch_subject.subject.short_form + " " +
                                 tt.room.room_number)
 
-        workbook.close()
+            workbook.close()
         return HttpResponse('Done')
