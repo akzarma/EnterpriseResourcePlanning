@@ -407,7 +407,10 @@
         }
     }
 
-    function getFaculty(object, subject=false, room=false) {
+    function getFaculty(object, subject, room) {
+        subject = subject || false;
+        room = room || false;
+
         if(subject==false) {
             var subject = document.getElementById('id_subject');
             subject = subject.value;
