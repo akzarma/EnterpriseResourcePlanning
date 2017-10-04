@@ -13,9 +13,10 @@ class ResearchForm(forms.ModelForm):
     faculty_name = forms.ChoiceField(
         choices=[(i, i) for i in faculty_list]
     )
-    widgets = {
-        'publication_date': forms.DateInput(attrs={'class': 'datepicker'})
-    }
+
+    # widgets = {
+    #     'publication_date': forms.DateInput(attrs={'class': 'datepicker'})
+    # }
 
     type = forms.ChoiceField(
         choices=[('Paid', 'Paid'), ('Unpaid', 'Unpaid')]
@@ -36,4 +37,3 @@ class ResearchForm(forms.ModelForm):
             'publication_date': forms.DateInput(attrs={'class': 'datepicker'})
         }
         fields = '__all__'
-        exclude = ['faculty']

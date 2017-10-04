@@ -2,6 +2,7 @@ import json
 from collections import defaultdict
 
 import firebase_admin
+from django.http.response import HttpResponseRedirect
 from firebase_admin import credentials, db
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
@@ -17,6 +18,8 @@ from .models import Time, Room, Timetable
 import copy
 from Sync.function import write_to_firebase
 
+import xlsxwriter
+
 
 # Create your views here.
 
@@ -26,7 +29,7 @@ def fill_timetable(request):
     # branch = Branch.objects.all()
     branch_obj = Branch.objects.get(branch='Computer')
     branch = branch_obj.branch
-    for i in Time.objects.all():
+    for i in Time.objects.all().order_by('starting_time'):
         times.append(i.__str__())
 
     for i in CollegeYear.objects.all().order_by('year').values_list('year', flat=True).distinct():
@@ -141,9 +144,9 @@ def save_timetable(request):
                                                             branch_subject=branch_subject, time=time, day=day).first()
                 if (timetable_exists):
                     print("Already exists")
-                    timetable_exists[0].room = room
-                    timetable_exists[0].faculty = faculty
-                    timetable_exists[0].save()
+                    timetable_exists.room = room
+                    timetable_exists.faculty = faculty
+                    timetable_exists.save()
 
                 else:
                     print("Not exists")
@@ -291,6 +294,7 @@ def get_timetable(request):
     remove_subjects = BranchSubject.objects.filter(year__in=all_year, branch=branch_obj).distinct()
     print(branch_subject)
     timetable_assigned = {}
+
     timetable_assigned_blocked = {}
     actual_assigned = {'faculty': []}
 
@@ -345,6 +349,105 @@ def get_timetable(request):
         'subjects': subjects,
     }
     return JsonResponse(answer)
+
+
+def get_excel(request):
+    if request.method == 'GET':
+        return render(request, 'get_excel.html')
+    else:
+        print(request.POST)
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        if request.POST.get('button_type') == 'Generate':
+            year = request.POST.get('year')
+            branch = request.POST.get('branch')
+            division = request.POST.get('division')
+            print(year, branch, division)
+
+            branch_obj = Branch.objects.get(branch=branch)
+            college_year = CollegeYear.objects.filter(year=year).first()
+            timetable = Timetable.objects.filter(branch_subject__year=college_year, branch_subject__branch=branch_obj,
+                                                 division=division).order_by('time__starting_time')
+
+            print(timetable)
+
+            workbook = xlsxwriter.Workbook(
+                'media/documents/Timetable_' + year + "_" + branch + "_" + division + '.xlsx')
+            worksheet = workbook.add_worksheet()
+
+            offset_x = 0
+            offset_y = 0
+
+            times = timetable.values_list('time__starting_time', flat=True).order_by('time__starting_time').distinct()
+            print(times)
+            time_index = {}
+            time_row = 1
+            for time in times:
+                time_index[time] = time_row
+                time_row += 1
+            row = 0
+            col = 0
+            for tt in timetable:
+                curr_col = days.index(tt.day) + 2
+                curr_row = time_index.get(tt.time.starting_time)
+                worksheet.write(row, curr_col, tt.day)
+
+                worksheet.write(curr_row, col, tt.time.__str__())
+
+                worksheet.write(curr_row, curr_col,
+                                tt.faculty.initials + " " + tt.branch_subject.subject.short_form + " " +
+                                tt.room.room_number)
+
+
+
+        elif request.POST.get('button_type') == 'UG':
+            year = request.POST.get('year')
+            branch = request.POST.get('branch')
+            branch_obj = Branch.objects.get(branch=branch)
+            college_year = CollegeYear.objects.filter(year=year).first()
+            timetable = Timetable.objects.filter(branch_subject__year=college_year,
+                                                 branch_subject__branch=branch_obj).order_by('time__starting_time')
+
+            print(timetable)
+            workbook = xlsxwriter.Workbook(
+                'media/documents/Timetable_' + year + "_" + branch + '.xlsx')
+            worksheet = workbook.add_worksheet()
+
+            offset_x = 0
+            offset_y = 0
+
+            times = timetable.values_list('time__starting_time', flat=True).order_by('time__starting_time').distinct()
+            print(times)
+            time_index = {}
+            time_row = 1
+            for time in times:
+                time_index[time] = time_row
+                time_row += 1
+
+            divs = timetable.values_list('division', flat=True).distinct().order_by('division')
+            total_divs = divs.__len__()
+            div_index = {}
+            div_col = 0
+            for div in divs:
+                div_index[div] = div_col
+                div_col += 1
+            print(divs, total_divs, "total===============")
+
+            row = 0
+            col = 0
+            for tt in timetable:
+                curr_col = days.index(tt.day) + 2
+                curr_row = time_index.get(tt.time.starting_time)
+
+                worksheet.write(row, curr_col * total_divs, tt.day)
+
+                worksheet.write(curr_row, col, tt.time.__str__())
+
+                worksheet.write(curr_row, curr_col + div_index.get(tt.division),
+                                tt.faculty.initials + " " + tt.branch_subject.subject.short_form + " " +
+                                tt.room.room_number)
+
+        workbook.close()
+        return HttpResponse('Done')
 
 def get_instance(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']

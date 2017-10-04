@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generate Excel</title>
+
+    <form method="post" action="{% url 'Timetable:get_excel' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="text" id="year" name="year">
+        <input type="text" id="branch" name="branch">
+        <input type="text" id="division" name="division">
+        <input type="submit" name="button_type" value="Generate">
+        <input type="submit" name="button_type" value="UG">
+    </form>
+</head>
+<body>
+
+</body>
+</html>
