@@ -270,8 +270,46 @@
 <br>
 <br>
 <button onclick="getTimetable('TE', 'Computer');">getTimetable()</button>
+<button onclick="instance('TE', 'Computer');">instance()</button>
 
 </body>
+
+<script>
+    function instance(year) {
+        $.ajax({
+            type: "POST",
+            url: '{% url 'Timetable:get_instance' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'year': year,
+                'branch': branch
+            },
+            success: function (data) {
+
+                data = data.replace(/'/g, '"');
+                data = JSON.parse(data);
+{#                document.getElementsByName(data[0]).checked = true;#}
+
+                for (i in data) {
+                    temp = data[i].split("**");
+                    sub = temp[0];
+                    fac_id = temp[1];
+                    fac_initials = temp[2];
+                    element_id = temp[3];
+{#                    alert(sub);#}
+                    document.getElementsByName(element_id)[0].checked = true;
+                    getFaculty(document.getElementsByName(element_id)[0], sub);
+{#                    alert(element_id+'_faculty');#}
+{#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
+{#                    faculty_ele.value = fac_id;#}
+{#                    faculty_ele.text = fac_initials;#}
+{#                    alert(faculty_ele.value);#}
+                }
+            }
+        })
+    }
+
+</script>
 <script>
     function getTimetable(year, branch) {
         $.ajax({
@@ -353,8 +391,11 @@
         }
     }
 
-    function getFaculty(object) {
-        var subject = document.getElementById('id_subject');
+    function getFaculty(object, subject=false) {
+        if(subject==false) {
+            var subject = document.getElementById('id_subject');
+            subject = subject.value;
+        }
         var division = object.name.split('_')[3];
         var year = document.getElementById('id_year');
         if (object.checked) {
@@ -364,7 +405,7 @@
                 url: '{% url 'Timetable:get_faculty' %}',
                 data: {
                     'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    'subject': subject.value,
+                    'subject': subject,
                     'division': division,
                     'year': year.value
                 },
@@ -465,7 +506,7 @@
                                 {#                            alert(blocked[subject.value])#}
 
                             }
-                            blocked[subject.value].push(fullName);
+                            blocked[subject].push(fullName);
                         }
 
                     }

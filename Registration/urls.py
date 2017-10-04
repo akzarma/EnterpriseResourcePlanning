@@ -26,6 +26,7 @@ urlpatterns = [
 
     url(r'^get_division/$', views.get_division, name='get_division'),
 
-    url(r'^get_shift/$', views.get_shift, name='get_shift')
+    url(r'^get_shift/$', views.get_shift, name='get_shift'),
+
 
 ]

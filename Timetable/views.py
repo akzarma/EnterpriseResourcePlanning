@@ -454,3 +454,23 @@ def get_excel(request):
 
             workbook.close()
         return HttpResponse('Done')
+
+def get_instance(request):
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    year = request.POST.get('year')
+    print(year, "get_timetable")
+
+    branch = request.POST.get('branch')
+    clg_year = CollegeYear.objects.get(year=year)
+    branch_obj = Branch.objects.get(branch=branch)
+    branch_subject = BranchSubject.objects.filter(year=clg_year, branch=branch_obj).distinct()
+    print(branch_subject)
+    tt_instance = []
+    for i in branch_subject:
+        for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
+            tt_instance.append(j.branch_subject.subject.short_form+"**"+j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
+                               "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+
+    print("instance tt", tt_instance)
+
+    return HttpResponse(str(tt_instance))
