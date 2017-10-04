@@ -9,7 +9,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
 
-from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear
+from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch
 # from .forms import TimetableForm
 from Registration.models import Branch, Subject, Faculty
 from .models import Time, Room, Timetable
@@ -85,7 +85,7 @@ def get_faculty(request):
         year_obj = CollegeYear.objects.get(year=year)
         college_obj_general = CollegeExtraDetail.objects.filter(Q(branch=branch_obj),
                                                                 Q(year=year_obj))
-        college_obj = college_obj_general.filter(division=division)
+        college_obj = college_obj_general.get(division=division)
         # college_obj = CollegeExtraDetail.objects.filter(branch=branch_obj).filter(year=year_obj).filter(
         #     division=division)
         print("ajax college_object", college_obj)
@@ -103,8 +103,12 @@ def get_faculty(request):
             faculty.append((each.faculty.user.first_name + '-' + each.faculty.faculty_code))
             print("each_faculty", each.faculty.user)
         print('Timetable-get_faculty:faculty', faculty)
+        is_practical = subject_obj.is_practical
 
-        data = {'faculty': faculty, 'divisions': disable_division}
+        data = {'faculty': faculty, 'divisions': disable_division, 'practical': is_practical}
+        if is_practical is True:
+            print("Batches: ", college_obj.batch_set)
+            data['batches'] = list(college_obj.batch_set.values_list('batch_name', flat=True))
         return HttpResponse(json.dumps(data))
 
 
@@ -127,6 +131,7 @@ def save_timetable(request):
                 time = Time.objects.get(starting_time=starting_time,
                                         ending_time=ending_time)
                 # branch filter krni hai
+                branch_obj = Branch.objects.get(branch='Computer')
                 branch_subject = BranchSubject.objects.get(
                     subject=Subject.objects.get(short_form=selected_list.get(key)))
                 division = str(key).split('_')[3]
@@ -140,8 +145,12 @@ def save_timetable(request):
 
                 # timetable_exists = Timetable.objects.filter(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
                 #                       time=time, day=day)
-                timetable_exists = Timetable.objects.filter(division=division,
+                # shift ka bacha hai. ho jana chahiye
+                division_object = CollegeExtraDetail.objects.get(branch=branch_obj, year=branch_subject.year,
+                                                                 division=division)
+                timetable_exists = Timetable.objects.filter(division=division_object,
                                                             branch_subject=branch_subject, time=time, day=day).first()
+                timetable_obj = []
                 if (timetable_exists):
                     print("Already exists")
                     timetable_exists.room = room
@@ -151,11 +160,12 @@ def save_timetable(request):
                 else:
                     print("Not exists")
 
-                    timetable_exists = Timetable(room=room, faculty=faculty, division=division,
+                    timetable_exists = Timetable(room=room, faculty=faculty, division=division_object,
                                                  branch_subject=branch_subject,
                                                  time=time, day=day)
-                timetable_exists.save()
+                    timetable_obj.append(timetable_exists)
 
+                Timetable.objects.bulk_create(timetable_obj)
 
 
                 # if str(key).__contains__("_room"):
@@ -294,6 +304,7 @@ def get_timetable(request):
     remove_subjects = BranchSubject.objects.filter(year__in=all_year, branch=branch_obj).distinct()
     print(branch_subject)
     timetable_assigned = {}
+
     timetable_assigned_blocked = {}
     actual_assigned = {'faculty': []}
 
@@ -311,9 +322,9 @@ def get_timetable(request):
             if j.faculty.initials not in timetable_assigned:
                 timetable_assigned[j.faculty.initials] = []
             timetable_assigned[j.faculty.initials].append(
-                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+                "id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2))
 
-            # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2)
+            # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2)
 
     for i in remove_subjects:
         for faculty in list(FacultySubject.objects.filter(subject=i.subject).values_list('faculty__initials',
@@ -321,6 +332,8 @@ def get_timetable(request):
             actual_assigned_blocked['faculty'].append(faculty)
 
         for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
+            tt_instance.append(
+                "id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2))
             if j.faculty.initials not in timetable_assigned:
                 timetable_assigned_blocked[j.faculty.initials] = []
             timetable_assigned_blocked[j.faculty.initials].append(
@@ -468,3 +481,13 @@ def get_instance(request):
     print("instance tt", tt_instance)
 
     return HttpResponse(str(tt_instance))
+
+
+def get_practical_info(request):
+    branch = request.POST.get('branch')
+    year = request.POST.get('year')
+    division = request.POST.get('division')
+    data={}
+    batches = list(Batch.objects.filter(division=CollegeExtraDetail.objects.get(division=division)).values_list('batch_name',flat=True))
+    data['batches'] = batches
+    return HttpResponse(json.dumps(data))

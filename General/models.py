@@ -24,6 +24,7 @@ class Shift(models.Model):
         return str(self.shift)
 
 
+# Will be known as division
 class CollegeExtraDetail(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
@@ -32,6 +33,13 @@ class CollegeExtraDetail(models.Model):
 
     def __str__(self):
         return self.branch.branch + ' ' + str(self.year) + ' ' + self.division + str(self.shift)
+
+
+class Batch(models.Model):
+    division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
+    batch_name = models.CharField(max_length=10)
+    starting_roll_number = models.PositiveIntegerField()
+    ending_roll_number = models.PositiveIntegerField()
 
 
 class BranchSubject(models.Model):

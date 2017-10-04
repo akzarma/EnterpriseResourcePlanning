@@ -1,6 +1,6 @@
 from django.db import models
 from Registration.models import Faculty
-from General.models import BranchSubject
+from General.models import BranchSubject, CollegeExtraDetail, Batch
 
 # from Attendance.models import Division
 from Registration.models import Faculty, Subject, Branch
@@ -49,8 +49,10 @@ class Timetable(models.Model):
     day = models.CharField(max_length=10)
     branch_subject = models.ForeignKey(BranchSubject, on_delete=models.CASCADE)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
-    division = models.CharField(max_length=10)
+    division = models.ForeignKey(CollegeExtraDetail, max_length=10)
+    # is_practical = models.BooleanField(default=False)
+    batch = models.ForeignKey(Batch, null=True)
 
     def __str__(self):
         return self.room.room_number + str(
-            self.time.starting_time) + self.day + self.branch_subject.subject.name + str(self.faculty) + self.division
+            self.time.starting_time) + self.day + self.branch_subject.subject.name + str(self.faculty)
