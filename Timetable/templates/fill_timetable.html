@@ -292,13 +292,14 @@
 
                 for (i in data) {
                     temp = data[i].split("**");
-                    sub = temp[0];
-                    fac_id = temp[1];
-                    fac_initials = temp[2];
-                    element_id = temp[3];
+                    room = temp[0];
+                    sub = temp[1];
+                    fac_id = temp[2];
+                    fac_initials = temp[3];
+                    element_id = temp[4];
 {#                    alert(sub);#}
                     document.getElementsByName(element_id)[0].checked = true;
-                    getFaculty(document.getElementsByName(element_id)[0], sub);
+                    getFaculty(document.getElementsByName(element_id)[0], sub, room);
 {#                    alert(element_id+'_faculty');#}
 {#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
 {#                    faculty_ele.value = fac_id;#}
@@ -343,6 +344,21 @@
                 'branch': 'Computer'
             },
             success: function (data) {
+                data['tt_instance'] = data['tt_instance'].replace(/'/g, '"');
+                data['tt_instance'] = JSON.parse(data['tt_instance']);
+
+                for (i in data['tt_instance']) {
+                    temp = data['tt_instance'][i].split("**");
+                    room = temp[0];
+                    sub = temp[1];
+                    fac_id = temp[2];
+                    fac_initials = temp[3];
+                    element_id = temp[4];
+{#                                        alert(temp);#}
+                    document.getElementsByName(element_id)[0].checked = true;
+                    getFaculty(document.getElementsByName(element_id)[0], sub, room);
+                }
+
                 {#                alert();#}
                 //Below code for loading subjects
                 allFaculty = data['actual_assigned_blocked']['faculty'];
@@ -356,7 +372,7 @@
                 blockSlots(facultySlots, allFaculty);
 
                 subjects = data['subjects'];
-                alert(data[subjects]);
+{#                alert(data[subjects]);#}
                 var len = subject.options.length;
                 for (var j = 0; j < len; j++) {
                     subject.options.remove(0);
@@ -391,11 +407,12 @@
         }
     }
 
-    function getFaculty(object, subject=false) {
+    function getFaculty(object, subject=false, room=false) {
         if(subject==false) {
             var subject = document.getElementById('id_subject');
             subject = subject.value;
         }
+
         var division = object.name.split('_')[3];
         var year = document.getElementById('id_year');
         if (object.checked) {
@@ -414,8 +431,8 @@
                     var parsed = JSON.parse(data);
                     faculty = parsed.faculty; //yaha
 
-                    object.nextElementSibling.innerHTML = subject.value;
-                    object.value = subject.value;
+                    object.nextElementSibling.innerHTML = subject;
+                    object.value = subject;
                     var div_to_add = document.getElementById(object.name);
                     while (div_to_add.hasChildNodes()) {
                         div_to_add.removeChild(div_to_add.firstChild);
