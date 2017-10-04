@@ -304,6 +304,7 @@ def get_timetable(request):
     remove_subjects = BranchSubject.objects.filter(year__in=all_year, branch=branch_obj).distinct()
     print(branch_subject)
     timetable_assigned = {}
+
     timetable_assigned_blocked = {}
     actual_assigned = {'faculty': []}
 
@@ -316,7 +317,8 @@ def get_timetable(request):
 
         for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
             tt_instance.append(
-                "id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2))
+                j.room.room_number + "**" + j.branch_subject.subject.short_form + "**" + j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
+                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
             if j.faculty.initials not in timetable_assigned:
                 timetable_assigned[j.faculty.initials] = []
             timetable_assigned[j.faculty.initials].append(
@@ -335,9 +337,9 @@ def get_timetable(request):
             if j.faculty.initials not in timetable_assigned:
                 timetable_assigned_blocked[j.faculty.initials] = []
             timetable_assigned_blocked[j.faculty.initials].append(
-                "id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2))
+                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
 
-            # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2)
+            # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2)
 
     print("instance tt", tt_instance)
 
@@ -346,18 +348,17 @@ def get_timetable(request):
     # subjects = timetable.values_list('subject')
 
     # print(timetable, "Timetble!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj)
-    subjects_theory = list(subjects.filter(subject__is_practical=False).values_list(
-        'subject__short_form', flat=True))
-    subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
-        'subject__short_form', flat=True))
+    subjects = list(
+        BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj).values_list(
+            'subject__short_form', flat=True))
+
     answer = {
         'timetable_assigned': timetable_assigned,
         'actual_assigned': actual_assigned,
         'timetable_assigned_blocked': timetable_assigned_blocked,
         'actual_assigned_blocked': actual_assigned_blocked,
-        'subjects_theory': subjects_theory,
-        'subjects_practical': subjects_practical,
+        'subjects': subjects,
+        'tt_instance': str(tt_instance)
     }
     return JsonResponse(answer)
 
@@ -473,8 +474,9 @@ def get_instance(request):
     tt_instance = []
     for i in branch_subject:
         for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
-            tt_instance.append(j.branch_subject.subject.short_form+"**"+j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
-                               "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+            tt_instance.append(
+                j.room.room_number + "**" + j.branch_subject.subject.short_form + "**" + j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
+                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
 
     print("instance tt", tt_instance)
 
