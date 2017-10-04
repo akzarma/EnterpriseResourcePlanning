@@ -18,4 +18,9 @@ urlpatterns = [
     url(r'get_timetable/$', views.get_timetable, name='get_timetable'),
 
     url(r'get_practical_info/$', views.get_practical_info, name='get_practical_info'),
+
+    url(r'^get_instance/$', views.get_instance, name='get_instance')
+
+    url(r'get_excel/$', views.get_excel, name='get_excel'),
+
 ]

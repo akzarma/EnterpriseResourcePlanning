@@ -267,6 +267,7 @@
     </h4>
 
 </div>
+
 <form method="post" action="{% url 'Timetable:save_timetable' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <label for="id_year">Year: </label>
@@ -378,8 +379,46 @@
 <br>
 <br>
 <button onclick="getTimetable('TE', 'Computer');">getTimetable()</button>
+<button onclick="instance('TE', 'Computer');">instance()</button>
 
 </body>
+
+<script>
+    function instance(year) {
+        $.ajax({
+            type: "POST",
+            url: '{% url 'Timetable:get_instance' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'year': year,
+                'branch': branch
+            },
+            success: function (data) {
+
+                data = data.replace(/'/g, '"');
+                data = JSON.parse(data);
+{#                document.getElementsByName(data[0]).checked = true;#}
+
+                for (i in data) {
+                    temp = data[i].split("**");
+                    sub = temp[0];
+                    fac_id = temp[1];
+                    fac_initials = temp[2];
+                    element_id = temp[3];
+{#                    alert(sub);#}
+                    document.getElementsByName(element_id)[0].checked = true;
+                    getFaculty(document.getElementsByName(element_id)[0], sub);
+{#                    alert(element_id+'_faculty');#}
+{#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
+{#                    faculty_ele.value = fac_id;#}
+{#                    faculty_ele.text = fac_initials;#}
+{#                    alert(faculty_ele.value);#}
+                }
+            }
+        })
+    }
+
+</script>
 <script>
     function getTimetable(year, branch) {
         $.ajax({
@@ -465,11 +504,14 @@
         }
     }
 
-    function getFaculty(object) {
-        var subject = document.getElementById('id_subject');
+    function getFaculty(object, subject=false) {
+        if(subject==false) {
+            subject = document.getElementById('id_subject');
+            subject = subject.value;
+        }
         var division = object.name.split('_')[3];
         var year = document.getElementById('id_year');
-        if (subject.value === 'Practical') {
+        if (subject === 'Practical') {
             <!-- mod -->
             $.ajax({
                 type: "POST",
@@ -511,50 +553,26 @@
         else {
             if (object.checked) {
 
-                $.ajax({
-                        type: "POST",
-                        url: '{% url 'Timetable:get_faculty' %}',
-                        data: {
-                            'csrfmiddlewaretoken': '{{ csrf_token }}',
-                            'subject': subject.value,
-                            'division': division,
-                            'year': year.value
-                        },
-                        success: function (data) {
-                            alert(data);
-                            var parsed = JSON.parse(data);
-                            faculty = parsed.faculty; //yaha
-                            {#                        var is_practical = parsed.practical;#}
-                            {#                        if (is_practical) {#}
-                            {#                            $('#exampleModalLong').modal('show');#}
-                            {#                            document.getElementById('exampleModalLongTitle').innerHTML = subject.value;#}
-                            {#                            var batches = parsed.batches;#}
-                            {#                            var labDiv = "";#}
-                            {#                            for (var j = 0; j < batches.length; j++) {#}
-                            {#                                labDiv += '<div class="row">';#}
-                            {#                                labDiv += '<div class="col-md-4">' + batches[j] + '</div>';#}
-                            {##}
-                            {#                                var facultyLab = "<select>";#}
-                            {#                                for (i = 0; i < faculty.length; i++) {#}
-                            {#                                    var tmp = faculty[i].split('-');#}
-                            {#                                    facultyLab += '<option value="' + tmp[1] + '">' + tmp[0] + '</option>';#}
-                            {#                                }#}
-                            {#                                facultyLab += '</select>';#}
-                            {##}
-                            {#                                labDiv += '<div class="col-md-4">' + facultyLab + '</div>';#}
-                            {#                                labDiv += '<div class="col-md-4"> + Room + </div>';#}
-                            {#                                labDiv += '</div>';#}
-                            {#                            }#}
-                            {#                            document.getElementById('modal_body').innerHTML = labDiv;#}
-                            {#                        }#}
-                            {#                        else {#}
-                            object.nextElementSibling.innerHTML = subject.value;
-                            object.value = subject.value;
+            $.ajax({
+                type: "POST",
+                url: '{% url 'Timetable:get_faculty' %}',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'subject': subject,
+                    'division': division,
+                    'year': year.value
+                },
+                success: function (data) {
+                    {#                    alert(data);#}
+                    var parsed = JSON.parse(data);
+                    faculty = parsed.faculty; //yaha
 
-                            var div_to_add = document.getElementById(object.name);
-                            while (div_to_add.hasChildNodes()) {
-                                div_to_add.removeChild(div_to_add.firstChild);
-                            }
+                    object.nextElementSibling.innerHTML = subject.value;
+                    object.value = subject.value;
+                    var div_to_add = document.getElementById(object.name);
+                    while (div_to_add.hasChildNodes()) {
+                        div_to_add.removeChild(div_to_add.firstChild);
+                    }
 
                             var newOption = document.createElement('select');
                             newOption.name = object.name + '_faculty';
@@ -641,12 +659,10 @@
 
                                         {#                            alert(blocked[subject.value])#}
 
-                                    }
-                                    blocked[subject.value].push(fullName);
-                                }
-
                             }
+                            blocked[subject].push(fullName);
                         }
+
 
                     }
                 );
@@ -733,6 +749,7 @@
 
             }
         }
+
     }
 
 
