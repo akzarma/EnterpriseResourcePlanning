@@ -12,7 +12,7 @@ def faculty_papers_path(instance, filename):
 
 class Paper(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, blank=True)
-    publication_year = models.PositiveIntegerField()
+    publication_year = models.PositiveIntegerField(default=datetime.now().year)
     publication_date = models.DateField(default=datetime.now)
     type = models.CharField(max_length=10)
     title = models.CharField(max_length=150)
