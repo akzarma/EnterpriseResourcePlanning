@@ -1,8 +1,11 @@
 import json
+from collections import defaultdict
+
 import firebase_admin
+from django.http.response import HttpResponseRedirect
 from firebase_admin import credentials, db
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
 
@@ -15,6 +18,8 @@ from .models import Time, Room, Timetable
 import copy
 from Sync.function import write_to_firebase
 
+import xlsxwriter
+
 
 # Create your views here.
 
@@ -24,7 +29,7 @@ def fill_timetable(request):
     # branch = Branch.objects.all()
     branch_obj = Branch.objects.get(branch='Computer')
     branch = branch_obj.branch
-    for i in Time.objects.all():
+    for i in Time.objects.all().order_by('starting_time'):
         times.append(i.__str__())
 
     for i in CollegeYear.objects.all().order_by('year').values_list('year', flat=True).distinct():
@@ -103,14 +108,6 @@ def get_faculty(request):
         return HttpResponse(json.dumps(data))
 
 
-def get_subject(request):
-    year = request.POST.get('year')
-    subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year))
-    subject_list = [i.subject.short_form for i in subjects]
-    subject_string = ",".join(subject_list)
-    return HttpResponse(subject_string)
-
-
 def save_timetable(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     if request.method == 'POST':
@@ -143,50 +140,52 @@ def save_timetable(request):
 
                 # timetable_exists = Timetable.objects.filter(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
                 #                       time=time, day=day)
-                timetable_exists = Timetable.objects.get(division=division,
-                                                            branch_subject=branch_subject,time=time, day=day)
-                if(timetable_exists):
+                timetable_exists = Timetable.objects.filter(division=division,
+                                                            branch_subject=branch_subject, time=time, day=day).first()
+                if (timetable_exists):
                     print("Already exists")
                     timetable_exists.room = room
                     timetable_exists.faculty = faculty
+                    timetable_exists.save()
 
                 else:
                     print("Not exists")
 
-                    timetable_exists = Timetable(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
-                                          time=time, day=day)
-                timetable_exists.save()
+                    timetable_exists = Timetable(room=room, faculty=faculty, division=division,
+                                                 branch_subject=branch_subject,
+                                                 time=time, day=day)
+                    timetable_exists.save()
 
 
 
-                # if str(key).__contains__("_room"):
-                #     room = Room.objects.get(room_number=selected_list.get(key))
-                #
-                # elif str(key).__contains__("_faculty"):
-                #     faculty = Faculty.objects.get(faculty_code=selected_list.get(key))
-                #
-                #     division = str(key).split('_')[3]
-                #     print(division)
-                #     day = days[int(str(key).split('_')[4]) - 2]
-                #     print(day)
-                # elif str(key).__contains__("id_room_"):
-                #     branch_subject = BranchSubject.objects.filter(
-                #         subject=Subject.objects.filter(short_form=selected_list.get(key)))
-                #     starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
-                #     starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
-                #     ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
-                #     ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
-                #     # print(starting_time, ending_time)
-                #     time = Time.objects.filter(starting_time=starting_time,
-                #                                ending_time=ending_time)
+                    # if str(key).__contains__("_room"):
+                    #     room = Room.objects.get(room_number=selected_list.get(key))
+                    #
+                    # elif str(key).__contains__("_faculty"):
+                    #     faculty = Faculty.objects.get(faculty_code=selected_list.get(key))
+                    #
+                    #     division = str(key).split('_')[3]
+                    #     print(division)
+                    #     day = days[int(str(key).split('_')[4]) - 2]
+                    #     print(day)
+                    # elif str(key).__contains__("id_room_"):
+                    #     branch_subject = BranchSubject.objects.filter(
+                    #         subject=Subject.objects.filter(short_form=selected_list.get(key)))
+                    #     starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
+                    #     starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
+                    #     ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
+                    #     ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
+                    #     # print(starting_time, ending_time)
+                    #     time = Time.objects.filter(starting_time=starting_time,
+                    #                                ending_time=ending_time)
 
-                # print(time, "timeeeee")
-                #
-                # print(faculty, "facultyyyyyyyyy")
-                #
-                # # need to be changed with subject code
-                # #
-                # print(branch_subject, "subject!!!!!!!!")
+                    # print(time, "timeeeee")
+                    #
+                    # print(faculty, "facultyyyyyyyyy")
+                    #
+                    # # need to be changed with subject code
+                    # #
+                    # print(branch_subject, "subject!!!!!!!!")
         to_json(request)
         return HttpResponse('Saved')
     else:
@@ -209,7 +208,7 @@ def to_json(request):
 
 
 
-    for year in set(full_timetable.values_list('branch_subject__year__year', flat=True)):
+    for year in full_timetable.values_list('branch_subject__year__year', flat=True).distinct():
         # print("year", year)
         branch_filtered = full_timetable.filter(
             branch_subject__in=BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year)))
@@ -279,3 +278,173 @@ def get_all_faculty_subject(request):
         all_faculty_js += i
         all_faculty_js += ','
     return HttpResponse(all_faculty_js)
+
+
+def get_timetable(request):
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    year = request.POST.get('year')
+    print(year, "get_timetable")
+
+    branch = request.POST.get('branch')
+    all_year = list(CollegeYear.objects.all())
+    clg_year = CollegeYear.objects.get(year=year)
+    all_year.remove(clg_year)
+    branch_obj = Branch.objects.get(branch=branch)
+    branch_subject = BranchSubject.objects.filter(year=clg_year, branch=branch_obj).distinct()
+    remove_subjects = BranchSubject.objects.filter(year__in=all_year, branch=branch_obj).distinct()
+    print(branch_subject)
+    timetable_assigned = {}
+
+    timetable_assigned_blocked = {}
+    actual_assigned = {'faculty': []}
+
+    actual_assigned_blocked = {'faculty': []}
+    tt_instance = []
+    for i in branch_subject:
+        for faculty in list(FacultySubject.objects.filter(subject=i.subject).values_list('faculty__initials',
+                                                                                         flat=True).distinct()):
+            actual_assigned['faculty'].append(faculty)
+
+        for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
+            tt_instance.append(
+                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+            if j.faculty.initials not in timetable_assigned:
+                timetable_assigned[j.faculty.initials] = []
+            timetable_assigned[j.faculty.initials].append(
+                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+
+            # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2)
+
+    for i in remove_subjects:
+        for faculty in list(FacultySubject.objects.filter(subject=i.subject).values_list('faculty__initials',
+                                                                                         flat=True).distinct()):
+            actual_assigned_blocked['faculty'].append(faculty)
+
+        for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
+            tt_instance.append(
+                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+            if j.faculty.initials not in timetable_assigned:
+                timetable_assigned_blocked[j.faculty.initials] = []
+            timetable_assigned_blocked[j.faculty.initials].append(
+                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+
+            # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2)
+
+    print("instance tt", tt_instance)
+
+    # timetable = Timetable.objects.filter(branch_subject__in=branch_subject)
+    #
+    # subjects = timetable.values_list('subject')
+
+    # print(timetable, "Timetble!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    subjects = list(
+        BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj).values_list(
+            'subject__short_form', flat=True))
+
+    answer = {
+        'timetable_assigned': timetable_assigned,
+        'actual_assigned': actual_assigned,
+        'timetable_assigned_blocked': timetable_assigned_blocked,
+        'actual_assigned_blocked': actual_assigned_blocked,
+        'subjects': subjects,
+    }
+    return JsonResponse(answer)
+
+
+def get_excel(request):
+    if request.method == 'GET':
+        return render(request, 'get_excel.html')
+    else:
+        print(request.POST)
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        if request.POST.get('button_type') == 'Generate':
+            year = request.POST.get('year')
+            branch = request.POST.get('branch')
+            division = request.POST.get('division')
+            print(year, branch, division)
+
+            branch_obj = Branch.objects.get(branch=branch)
+            college_year = CollegeYear.objects.filter(year=year).first()
+            timetable = Timetable.objects.filter(branch_subject__year=college_year, branch_subject__branch=branch_obj,
+                                                 division=division).order_by('time__starting_time')
+
+            print(timetable)
+
+            workbook = xlsxwriter.Workbook(
+                'media/documents/Timetable_' + year + "_" + branch + "_" + division + '.xlsx')
+            worksheet = workbook.add_worksheet()
+
+            offset_x = 0
+            offset_y = 0
+
+            times = timetable.values_list('time__starting_time', flat=True).order_by('time__starting_time').distinct()
+            print(times)
+            time_index = {}
+            time_row = 1
+            for time in times:
+                time_index[time] = time_row
+                time_row += 1
+            row = 0
+            col = 0
+            for tt in timetable:
+                curr_col = days.index(tt.day) + 2
+                curr_row = time_index.get(tt.time.starting_time)
+                worksheet.write(row, curr_col, tt.day)
+
+                worksheet.write(curr_row, col, tt.time.__str__())
+
+                worksheet.write(curr_row, curr_col,
+                                tt.faculty.initials + " " + tt.branch_subject.subject.short_form + " " +
+                                tt.room.room_number)
+
+
+
+        elif request.POST.get('button_type') == 'UG':
+            year = request.POST.get('year')
+            branch = request.POST.get('branch')
+            branch_obj = Branch.objects.get(branch=branch)
+            college_year = CollegeYear.objects.filter(year=year).first()
+            timetable = Timetable.objects.filter(branch_subject__year=college_year,
+                                                 branch_subject__branch=branch_obj).order_by('time__starting_time')
+
+            print(timetable)
+            workbook = xlsxwriter.Workbook(
+                'media/documents/Timetable_' + year + "_" + branch + '.xlsx')
+            worksheet = workbook.add_worksheet()
+
+            offset_x = 0
+            offset_y = 0
+
+            times = timetable.values_list('time__starting_time', flat=True).order_by('time__starting_time').distinct()
+            print(times)
+            time_index = {}
+            time_row = 1
+            for time in times:
+                time_index[time] = time_row
+                time_row += 1
+
+            divs = timetable.values_list('division', flat=True).distinct().order_by('division')
+            total_divs = divs.__len__()
+            div_index = {}
+            div_col = 0
+            for div in divs:
+                div_index[div] = div_col
+                div_col += 1
+            print(divs, total_divs, "total===============")
+
+            row = 0
+            col = 0
+            for tt in timetable:
+                curr_col = days.index(tt.day) + 2
+                curr_row = time_index.get(tt.time.starting_time)
+
+                worksheet.write(row, curr_col * total_divs, tt.day)
+
+                worksheet.write(curr_row, col, tt.time.__str__())
+
+                worksheet.write(curr_row, curr_col + div_index.get(tt.division),
+                                tt.faculty.initials + " " + tt.branch_subject.subject.short_form + " " +
+                                tt.room.room_number)
+
+        workbook.close()
+        return HttpResponse('Done')

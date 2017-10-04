@@ -1,3 +1,4 @@
+xlsxwriter
 django
 django-widget-tweaks
 Pillow

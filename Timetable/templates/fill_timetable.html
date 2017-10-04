@@ -40,6 +40,7 @@
             font-weight: bolder;
         }
 
+
         .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover {
             background: white;
         }
@@ -50,6 +51,7 @@
 
         .navbar-default .navbar-nav > li:hover {
             box-shadow: 0 0 40px 0 rgba(0, 0, 0, 0.1);
+
 
         }
 
@@ -256,50 +258,99 @@
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
 
-{#    {% for timetable in timetables %}#}
-{#        {{ timetable.branch_subject.subject.short_form }}#}
-{#    {% endfor %}#}
+        {% for timetable in timetables %}
+            {{ timetable.branch_subject.subject.short_form }}
+        {% endfor %}
+
+
     </div>
 </form>
 <br>
 <br>
 <br>
 <br>
-
+<button onclick="getTimetable('TE', 'Computer');">getTimetable()</button>
 
 </body>
 <script>
+    function getTimetable(year, branch) {
+        $.ajax({
+            type: "POST",
+            url: '{% url 'Timetable:get_timetable' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'year': year,
+                'branch': branch
+            },
+            success: function (data) {
+                alert(data);
+            }
+        })
+    }
+</script>
+<script>
     var blocked = {};
-    var facultySlots = {};
+
 
     function loadSubjects() {
         var subject = document.getElementById('id_subject');
         var year = document.getElementById('id_year');
+        var allFaculty = "";
         $.ajax({
             type: "POST",
-            url: '{% url 'Timetable:get_subject' %}',
+            url: '{% url 'Timetable:get_timetable' %}',
             data: {
                 'csrfmiddlewaretoken': '{{ csrf_token }}',
-                'year': year.value
+                'year': year.value,
+                'branch': 'Computer'
             },
             success: function (data) {
-                data = data.split(',');
+                {#                alert();#}
+                //Below code for loading subjects
+                allFaculty = data['actual_assigned_blocked']['faculty'];
+                {#                for(i in allFaculty){#}
+                {#                    alert(allFaculty[i]);#}
+                {#                }#}
+                var facultySlots = data['timetable_assigned_blocked'];
+                {#                alert(data['timetable_assigned']);#}
+                {#                console.log('facultySlots');#}
+                {#                console.log(facultySlots);#}
+                blockSlots(facultySlots, allFaculty);
+
+                subjects = data['subjects'];
+                alert(data[subjects]);
                 var len = subject.options.length;
                 for (var j = 0; j < len; j++) {
                     subject.options.remove(0);
                 }
 
-                for (var i = 0; i < data.length; i++) {
+                for (var i = 0; i < subjects.length; i++) {
                     var option = document.createElement('option');
-                    option.text = data[i];
-                    option.value = data[i];
+                    option.text = subjects[i];
+                    option.value = subjects[i];
                     subject.append(option);
-                    blocked[data[i]] = [];
-                    {#                    alert(data[i]);#}
+                    blocked[subjects[i]] = [];
+                    {#                    alert(subjects[i]);#}
                 }
             }
         })
 
+    }
+
+    function blockSlots(slots, allFaculty) {
+        {#        alert(allFaculty);#}
+        {#        alert(slots);#}
+        {#        console.log(slots);#}
+        for (eachFaculty in allFaculty) {
+            {#            alert('in for');#}
+            {#            alert(eachFaculty);#}
+            var slotsToRemove = slots[allFaculty[eachFaculty]];
+            {#            alert(slotsToRemove);#}
+            for (eachSlot in slotsToRemove) {
+                document.getElementsByName(slotsToRemove[eachSlot])[0].disabled = true;
+                {#                alert(eachSlot);#}
+            }
+        }
     }
 
     function getFaculty(object) {
@@ -462,9 +513,9 @@
 
 
             for (i = 0; i < blocked[subject.value].length; i++) {
-{#                alert(blocked[subject.value][i]);#}
+                {#                alert(blocked[subject.value][i]);#}
                 var objectToRemove = document.getElementsByName(blocked[subject.value][i])[0];
-{#                alert(objectToRemove.checked);#}
+                {#                alert(objectToRemove.checked);#}
                 if (!objectToRemove.checked) {
                     objectToRemove.disabled = true
                 }
@@ -581,7 +632,7 @@
                     'branch': 'Computer'
                 },
                 success: function (data) {
-{#                    alert(data);#}
+                    {#                    alert(data);#}
                 }
             });
         }
