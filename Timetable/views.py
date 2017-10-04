@@ -154,38 +154,38 @@ def save_timetable(request):
                     timetable_exists = Timetable(room=room, faculty=faculty, division=division,
                                                  branch_subject=branch_subject,
                                                  time=time, day=day)
-                    timetable_exists.save()
+                timetable_exists.save()
 
 
 
-                    # if str(key).__contains__("_room"):
-                    #     room = Room.objects.get(room_number=selected_list.get(key))
-                    #
-                    # elif str(key).__contains__("_faculty"):
-                    #     faculty = Faculty.objects.get(faculty_code=selected_list.get(key))
-                    #
-                    #     division = str(key).split('_')[3]
-                    #     print(division)
-                    #     day = days[int(str(key).split('_')[4]) - 2]
-                    #     print(day)
-                    # elif str(key).__contains__("id_room_"):
-                    #     branch_subject = BranchSubject.objects.filter(
-                    #         subject=Subject.objects.filter(short_form=selected_list.get(key)))
-                    #     starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
-                    #     starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
-                    #     ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
-                    #     ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
-                    #     # print(starting_time, ending_time)
-                    #     time = Time.objects.filter(starting_time=starting_time,
-                    #                                ending_time=ending_time)
+                # if str(key).__contains__("_room"):
+                #     room = Room.objects.get(room_number=selected_list.get(key))
+                #
+                # elif str(key).__contains__("_faculty"):
+                #     faculty = Faculty.objects.get(faculty_code=selected_list.get(key))
+                #
+                #     division = str(key).split('_')[3]
+                #     print(division)
+                #     day = days[int(str(key).split('_')[4]) - 2]
+                #     print(day)
+                # elif str(key).__contains__("id_room_"):
+                #     branch_subject = BranchSubject.objects.filter(
+                #         subject=Subject.objects.filter(short_form=selected_list.get(key)))
+                #     starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
+                #     starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
+                #     ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
+                #     ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
+                #     # print(starting_time, ending_time)
+                #     time = Time.objects.filter(starting_time=starting_time,
+                #                                ending_time=ending_time)
 
-                    # print(time, "timeeeee")
-                    #
-                    # print(faculty, "facultyyyyyyyyy")
-                    #
-                    # # need to be changed with subject code
-                    # #
-                    # print(branch_subject, "subject!!!!!!!!")
+                # print(time, "timeeeee")
+                #
+                # print(faculty, "facultyyyyyyyyy")
+                #
+                # # need to be changed with subject code
+                # #
+                # print(branch_subject, "subject!!!!!!!!")
         to_json(request)
         return HttpResponse('Saved')
     else:
@@ -294,7 +294,6 @@ def get_timetable(request):
     remove_subjects = BranchSubject.objects.filter(year__in=all_year, branch=branch_obj).distinct()
     print(branch_subject)
     timetable_assigned = {}
-
     timetable_assigned_blocked = {}
     actual_assigned = {'faculty': []}
 
@@ -307,6 +306,7 @@ def get_timetable(request):
 
         for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
             tt_instance.append(
+                j.room.room_number + "**" + j.branch_subject.subject.short_form + "**" + j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
                 "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
             if j.faculty.initials not in timetable_assigned:
                 timetable_assigned[j.faculty.initials] = []
@@ -321,8 +321,6 @@ def get_timetable(request):
             actual_assigned_blocked['faculty'].append(faculty)
 
         for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
-            tt_instance.append(
-                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
             if j.faculty.initials not in timetable_assigned:
                 timetable_assigned_blocked[j.faculty.initials] = []
             timetable_assigned_blocked[j.faculty.initials].append(
@@ -347,6 +345,7 @@ def get_timetable(request):
         'timetable_assigned_blocked': timetable_assigned_blocked,
         'actual_assigned_blocked': actual_assigned_blocked,
         'subjects': subjects,
+        'tt_instance': str(tt_instance)
     }
     return JsonResponse(answer)
 
@@ -468,8 +467,9 @@ def get_instance(request):
     tt_instance = []
     for i in branch_subject:
         for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
-            tt_instance.append(j.branch_subject.subject.short_form+"**"+j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
-                               "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+            tt_instance.append(
+                j.room.room_number + "**" + j.branch_subject.subject.short_form + "**" + j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
+                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
 
     print("instance tt", tt_instance)
 
