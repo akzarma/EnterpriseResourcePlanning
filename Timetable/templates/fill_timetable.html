@@ -397,7 +397,7 @@
 
                 data = data.replace(/'/g, '"');
                 data = JSON.parse(data);
-{#                document.getElementsByName(data[0]).checked = true;#}
+                {#                document.getElementsByName(data[0]).checked = true;#}
 
                 for (i in data) {
                     temp = data[i].split("**");
@@ -405,14 +405,14 @@
                     fac_id = temp[1];
                     fac_initials = temp[2];
                     element_id = temp[3];
-{#                    alert(sub);#}
+                    {#                    alert(sub);#}
                     document.getElementsByName(element_id)[0].checked = true;
                     getFaculty(document.getElementsByName(element_id)[0], sub);
-{#                    alert(element_id+'_faculty');#}
-{#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
-{#                    faculty_ele.value = fac_id;#}
-{#                    faculty_ele.text = fac_initials;#}
-{#                    alert(faculty_ele.value);#}
+                    {#                    alert(element_id+'_faculty');#}
+                    {#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
+                    {#                    faculty_ele.value = fac_id;#}
+                    {#                    faculty_ele.text = fac_initials;#}
+                    {#                    alert(faculty_ele.value);#}
                 }
             }
         })
@@ -505,7 +505,7 @@
     }
 
     function getFaculty(object, subject=false) {
-        if(subject==false) {
+        if (subject == false) {
             subject = document.getElementById('id_subject');
             subject = subject.value;
         }
@@ -553,119 +553,120 @@
         else {
             if (object.checked) {
 
-            $.ajax({
-                type: "POST",
-                url: '{% url 'Timetable:get_faculty' %}',
-                data: {
-                    'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    'subject': subject,
-                    'division': division,
-                    'year': year.value
-                },
-                success: function (data) {
-                    {#                    alert(data);#}
-                    var parsed = JSON.parse(data);
-                    faculty = parsed.faculty; //yaha
+                $.ajax({
+                    type: "POST",
+                    url: '{% url 'Timetable:get_faculty' %}',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'subject': subject,
+                        'division': division,
+                        'year': year.value
+                    },
+                    success: function (data) {
+                        {#                    alert(data);#}
+                        var parsed = JSON.parse(data);
+                        faculty = parsed.faculty; //yaha
 
-                    object.nextElementSibling.innerHTML = subject.value;
-                    object.value = subject.value;
-                    var div_to_add = document.getElementById(object.name);
-                    while (div_to_add.hasChildNodes()) {
-                        div_to_add.removeChild(div_to_add.firstChild);
-                    }
-
-                            var newOption = document.createElement('select');
-                            newOption.name = object.name + '_faculty';
-                            newOption.className = "teacher";
-                            for (i = 0; i < faculty.length; i++) {
-                                var tmp = faculty[i].split('-');
-                                var option = document.createElement('option');
-                                option.text = tmp[0];
-                                option.value = tmp[1];
-                                newOption.add(option);
-                            }
-                            div_to_add.appendChild(newOption);
-                            var toDisable = parsed.divisions;
-
-
-                            {#Shibashis#}
-                            var divisions_room = '{{ divisions_js }}';
-                            var room_div_to_add = document.getElementById(object.name + '_room');
-
-                            var roomNewDiv = document.createElement('select');
-                            roomNewDiv.id = room_div_to_add.id + '_choices';
-                            roomNewDiv.name = room_div_to_add.id + '_choices';
-                            roomNewDiv.className = "room-nos";
-                            roomNewDiv.setAttribute('onfocus', 'setPrevious(this)');
-                            roomNewDiv.setAttribute('onchange', 'refreshValue(this)');
-
-
-                            while (room_div_to_add.hasChildNodes()) {
-                                room_div_to_add.removeChild(room_div_to_add.firstChild);
-                            }
-                            var rooms = {{ room|safe }};
-
-                            var roomId = roomNewDiv.id.split('_');
-                            divisions_room = divisions_room.replace(roomId[3], "");
-
-                            for (var i = 0; i < divisions_room.length; i++) {
-                                var room_id = roomId[0] + '_' + roomId[1] + '_' + roomId[2] + '_' + divisions_room[i] + '_' + roomId[4] + '_' + roomId[5] + '_' + roomId[6];
-                                if (document.getElementById(room_id) !== null) {
-                                    var room_selected = document.getElementById(room_id).value;
-                                    var index = rooms.indexOf(room_selected);
-                                    rooms.splice(index, 1);
-                                }
-                            }
-                            var removeFromOthers = rooms[0];
-
-                            for (var j = 0; j < rooms.length; j++) {
-                                var roomOptions = document.createElement('option');
-                                roomOptions.text = rooms[j];
-                                roomOptions.value = rooms[j];
-                                roomNewDiv.append(roomOptions);
-                            }
-                            room_div_to_add.appendChild(roomNewDiv);
-
-                            for (i = 0; i < divisions_room.length; i++) {
-                                room_id = roomId[0] + '_' + roomId[1] + '_' + roomId[2] + '_' + divisions_room[i] + '_' + roomId[4] + '_' + roomId[5] + '_' + roomId[6];
-                                var obj = document.getElementById(room_id);
-                                if (obj !== null) {
-
-                                    {#                            alert(obj);#}
-
-                                    var temp = obj.querySelector('option[value="' + removeFromOthers + '"]');
-                                    if (temp !== null) {
-                                        obj.removeChild(temp);
-
-                                    }
-
-
-                                }
-                            }
-
-                            {#Shibashis#}
-                            var objectToDisable;
-                            if (toDisable) {
-                                for (div in toDisable) {
-
-                                    var namesArray = object.name.split('_');
-                                    var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + toDisable[div] + '_' + namesArray[4];
-
-                                    objectToDisable = document.getElementsByName(fullName)[0];
-                                    if (!objectToDisable.checked) {
-                                        objectToDisable.disabled = true;
-                                        //Below code is to maintain which slots to block for that subject
-                                        {#                            alert(subject.value);#}
-
-                                        {#                            alert(blocked[subject.value])#}
-
-                            }
-                            blocked[subject].push(fullName);
+                        object.nextElementSibling.innerHTML = subject.value;
+                        object.value = subject.value;
+                        var div_to_add = document.getElementById(object.name);
+                        while (div_to_add.hasChildNodes()) {
+                            div_to_add.removeChild(div_to_add.firstChild);
                         }
 
+                        var newOption = document.createElement('select');
+                        newOption.name = object.name + '_faculty';
+                        newOption.className = "teacher";
+                        for (i = 0; i < faculty.length; i++) {
+                            var tmp = faculty[i].split('-');
+                            var option = document.createElement('option');
+                            option.text = tmp[0];
+                            option.value = tmp[1];
+                            newOption.add(option);
+                        }
+                        div_to_add.appendChild(newOption);
+                        var toDisable = parsed.divisions;
 
+
+                        {#Shibashis#}
+                        var divisions_room = '{{ divisions_js }}';
+                        var room_div_to_add = document.getElementById(object.name + '_room');
+
+                        var roomNewDiv = document.createElement('select');
+                        roomNewDiv.id = room_div_to_add.id + '_choices';
+                        roomNewDiv.name = room_div_to_add.id + '_choices';
+                        roomNewDiv.className = "room-nos";
+                        roomNewDiv.setAttribute('onfocus', 'setPrevious(this)');
+                        roomNewDiv.setAttribute('onchange', 'refreshValue(this)');
+
+
+                        while (room_div_to_add.hasChildNodes()) {
+                            room_div_to_add.removeChild(room_div_to_add.firstChild);
+                        }
+                        var rooms = {{ room|safe }};
+
+                        var roomId = roomNewDiv.id.split('_');
+                        divisions_room = divisions_room.replace(roomId[3], "");
+
+                        for (var i = 0; i < divisions_room.length; i++) {
+                            var room_id = roomId[0] + '_' + roomId[1] + '_' + roomId[2] + '_' + divisions_room[i] + '_' + roomId[4] + '_' + roomId[5] + '_' + roomId[6];
+                            if (document.getElementById(room_id) !== null) {
+                                var room_selected = document.getElementById(room_id).value;
+                                var index = rooms.indexOf(room_selected);
+                                rooms.splice(index, 1);
+                            }
+                        }
+                        var removeFromOthers = rooms[0];
+
+                        for (var j = 0; j < rooms.length; j++) {
+                            var roomOptions = document.createElement('option');
+                            roomOptions.text = rooms[j];
+                            roomOptions.value = rooms[j];
+                            roomNewDiv.append(roomOptions);
+                        }
+                        room_div_to_add.appendChild(roomNewDiv);
+
+                        for (i = 0; i < divisions_room.length; i++) {
+                            room_id = roomId[0] + '_' + roomId[1] + '_' + roomId[2] + '_' + divisions_room[i] + '_' + roomId[4] + '_' + roomId[5] + '_' + roomId[6];
+                            var obj = document.getElementById(room_id);
+                            if (obj !== null) {
+
+                                {#                            alert(obj);#}
+
+                                var temp = obj.querySelector('option[value="' + removeFromOthers + '"]');
+                                if (temp !== null) {
+                                    obj.removeChild(temp);
+
+                                }
+
+
+                            }
+                        }
+
+                        {#Shibashis#}
+                        var objectToDisable;
+                        if (toDisable) {
+                            for (div in toDisable) {
+
+                                var namesArray = object.name.split('_');
+                                var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + toDisable[div] + '_' + namesArray[4];
+
+                                objectToDisable = document.getElementsByName(fullName)[0];
+                                if (!objectToDisable.checked) {
+                                    objectToDisable.disabled = true;
+                                    //Below code is to maintain which slots to block for that subject
+                                    {#                            alert(subject.value);#}
+
+                                    {#                            alert(blocked[subject.value])#}
+
+                                }
+                                blocked[subject].push(fullName);
+                            }
+
+
+                        }
                     }
-                );
+                });
 
             }
                 {#            console.log()#}
