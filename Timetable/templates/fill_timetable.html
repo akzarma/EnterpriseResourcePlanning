@@ -332,6 +332,8 @@
         <div class="col-md-offset-6">
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
+    </div>
+    </form>
 
         <!-- Modal -->
         <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog"
@@ -349,17 +351,15 @@
                             </button>
                         </div>
                     </div>
+                    <form method="post" action="{% url 'Timetable:save_practical' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+                        <div id="modal_body" class="modal-body" style="text-align: center;">
 
-                    <div id="modal_body" class="modal-body" style="text-align: center;">
-
-                    </div>
-                    <div class="modal-footer">
-                        <button id="set-winner" name="get_user_name" data-dismiss="modal">
-                            {#                                value="{{ user_name }}">#}
-                            OK
-                        </button>
-
-                    </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
                 </div>
 
             </div>
@@ -370,8 +370,8 @@
         {#    {% for timetable in timetables %}#}
         {#        {{ timetable.branch_subject.subject.short_form }}#}
         {#    {% endfor %}#}
-    </div>
-</form>
+
+
 <br>
 <br>
 <br>
@@ -529,7 +529,8 @@
 
         var division = object.name.split('_')[3];
         var year = document.getElementById('id_year');
-        if (subject === 'Practical') {
+
+        if (subject === 'Practical' && object.checked) {
             <!-- mod -->
             $.ajax({
                 type: "POST",
@@ -544,6 +545,7 @@
                     alert(data);
                     var parsed = JSON.parse(data);
                     var batches = parsed.batches;
+                    var batchesArray = new Array(batches);
                     var subjects = parsed.subjects;
                     var rooms = parsed.rooms;
                     {#                    alert(rooms);#}
@@ -571,8 +573,9 @@
                         subjectDiv.className = 'col-md-3';
                         {#                            "<select onload='getPracticalFaculty(this)' onchange='getPracticalFaculty(this)'>";#}
                         var subjectSelect = document.createElement('select');
-                        subjectSelect.setAttribute('onload', 'getPracticalFaculty(this)');
-                        subjectSelect.setAttribute('onchange', 'getPracticalFaculty(this)');
+                        subjectSelect.id = 'modal_subject_' + batches[j];
+                        subjectSelect.setAttribute('onload', 'getPracticalFaculty(this,"' + division + '","' + batches[j] + '")');
+                        subjectSelect.setAttribute('onchange', 'getPracticalFaculty(this,"' + division + '","' + batches[j] + '")');
                         for (var k = 0; k < subjects.length; k++) {
                             var option = document.createElement('option');
                             option.text = subjects[k];
@@ -584,8 +587,10 @@
                         var facultyDiv = document.createElement('div');
                         facultyDiv.className = 'col-md-3';
                         var facultySelect = document.createElement('select');
-                        {#                        facultySelect.onload('getPracticalFaculty(this)');#}
-                        {#                        subjectSelect.onchange('getPracticalFaculty(this)');#}
+                        facultySelect.id = 'modal_faculty_' + batches[j];
+{#                        facultySelect.setAttribute('onload', 'checkFacultyClash((this,' + '"' + batchesArray + '"' + ')');#}
+                        facultySelect.setAttribute('onfocus', 'setPreviousFaculty(this)');
+                        facultySelect.setAttribute('onchange', 'checkFacultyClash(this,' + '"' + batchesArray + '"' + ')');
                         {#                        for (var k = 0; k < subjects.length; k++) {#}
                         {#                            var option = document.createElement('option');#}
                         {#                            option.text = subjects[k];#}
@@ -598,36 +603,34 @@
                         var roomDiv = document.createElement('div');
                         roomDiv.className = 'col-md-3';
                         var roomSelect = document.createElement('select');
-                        roomSelect.id = 'modal_room_' + j;
+                        roomSelect.id = 'modal_room_' + batches[j];
                         roomSelect.setAttribute('onfocus', 'setPreviousLab(this)');
-                        roomSelect.setAttribute('onchange', 'refreshLab(this,' + batches.length + ')');
-                        for (var k = 0; k < rooms.length; k++) {
+                        roomSelect.setAttribute('onchange', 'refreshLab(this,' + '"' + batchesArray + '"' + ')');
+                        for (k = 0; k < rooms.length; k++) {
                             var option = document.createElement('option');
                             option.text = rooms[k];
                             option.value = rooms[k];
                             roomSelect.append(option);
                         }
+
+
                         roomDiv.append(roomSelect);
-                        {#                        subjectLab += '</select>';#}
-                        {##}
-                        {#                        labDiv += '<div class="col-md-3">' + subjectLab + '</div>';#}
-                        {#                        labDiv += '<div class="col-md-3"><select></select></div>';#}
-                        {##}
-                        {#                        var roomLab = "<select onfocus='setPreviousLab(this)' onchange='refreshLab(this," + batches.length + ")' id='modal_room_" + j + "'>";#}
-                        {#                        for (var k = 0; k < rooms.length; k++) {#}
-                        {#                            roomLab += '<option value="' + rooms[k] + '">' + rooms[k] + '</option>';#}
-                        {#                        }#}
-                        {#                        roomLab += '</select>';#}
-                        {##}
-                        {#                        labDiv += '<div class="col-md-3">' + roomLab + '</div>';#}
-                        {#                        labDiv += '</div>';#}
                         newRow.appendChild(batchDiv);
                         newRow.appendChild(subjectDiv);
                         newRow.appendChild(facultyDiv);
                         newRow.appendChild(roomDiv);
                         document.getElementById('modal_body').appendChild(newRow);
-                    }
 
+                    }
+                    for (j = 0; j < batches.length; j++) {
+                        var currentRoom = document.getElementById('modal_room_' + batches[j]);
+                        for (k = 0; k < batches.length; k++) {
+                            if (k != j) {
+                                var object = document.getElementById('modal_room_' + batches[k]);
+                                object.removeChild(object.querySelector('option[value="' + currentRoom.value + '"]'));
+                            }
+                        }
+                    }
                 }
             });
 
@@ -725,9 +728,9 @@
 
                             }
                         }
-{#                        if(room=='B-301'){#}
-{#                            alert(room);#}
-{#                        }#}
+                        {#                        if(room=='B-301'){#}
+                        {#                            alert(room);#}
+                        {#                        }#}
                         if (room !== false) {
                             roomNewDiv.value = room;
                         }
@@ -842,21 +845,65 @@
 
     }
 
-    function getPracticalFaculty(object) {
-        alert("here");
+    function getPracticalFaculty(object, division, batch_name) {
         $.ajax({
-            type: "POST",
-            url: '{% url 'Timetable:get_practical_faculty' %}',
-            data: {
-                'csrfmiddlewaretoken': '{{ csrf_token }}',
-                'subject': object.value,
-                'branch': 'Computer',
-                'year': document.getElementById('id_year').value,
-            },
-            success: function (data) {
-                alert(data)
+                type: "POST",
+                url: '{% url 'Timetable:get_practical_faculty' %}',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'subject': object.value,
+                    'branch': 'Computer',
+                    'year': document.getElementById('id_year').value,
+                    'division': division
+                },
+                success: function (data) {
+                    var object = document.getElementById('modal_faculty_' + batch_name);
+                    var parsed = JSON.parse(data);
+                    var faculty = parsed.faculty;
+                    while (object.hasChildNodes()) {
+
+                        object.removeChild(object.firstChild);
+                    }
+                    for (var i = 0; i < faculty.length; i++) {
+                        var tmp = faculty[i].split('*.*');
+                        var option = document.createElement('option');
+                        option.text = tmp[0];
+                        option.value = tmp[1];
+                        object.append(option);
+
+                    }
+
+                }
             }
-        });
+        );
+    }
+</script>
+<script>
+    var previousFaculty;
+    function setPreviousFaculty(obj) {
+        previousFaculty = obj.value;
+    }
+
+    function checkFacultyClash(object, batch) {
+        batch = batch.split(',');
+        var currentFaculty = object.id.split('_');
+        alert(currentFaculty);
+        var currentSubject = document.getElementById('modal_subject_' + currentFaculty[2]);
+        var index = batch.indexOf(currentFaculty[2]);
+        batch.splice(index, 1);
+        for (var i = 0; i < batch.length; i++) {
+            var subject_id = 'modal_subject_' + batch[i];
+            if (subject_id.value === currentSubject.value) {
+                var objToAdd = document.getElementById('modal_faculty_' + batch[i]);
+                if (objToAdd !== null) {
+                    objToAdd.removeChild(objToAdd.querySelector('option[value="' + object.value + '"]'));
+                    var option = document.createElement('option');
+                    option.value = previousFaculty;
+                    option.text = previousFaculty;
+                    objToAdd.appendChild(option);
+                }
+            }
+        }
     }
 </script>
 <script>
@@ -873,15 +920,15 @@
     function refreshLab(obj, batch) {
         // Make sure the previous value is updated
         var newValue = obj.value;
+        batch = batch.split(',');
         var roomId = obj.id.split('_');
-        var iList = "";
-        for (var z = 0; z < batch; z++) {
-            iList += z;
-        }
-        iList = iList.replace(roomId[2], "");
+        alert(batch);
         {#        alert(iList);#}
-        for (var i = 0; i < iList.length; i++) {
-            var room_id = roomId[0] + '_' + roomId[1] + '_' + iList[i];
+
+        var index = batch.indexOf(roomId[2]);
+        batch.splice(index, 1);
+        for (var i = 0; i < batch.length; i++) {
+            var room_id = roomId[0] + '_' + roomId[1] + '_' + batch[i];
             var objToAdd = document.getElementById(room_id);
             if (objToAdd !== null) {
                 objToAdd.removeChild(objToAdd.querySelector('option[value="' + newValue + '"]'));
@@ -938,33 +985,6 @@
         }
     }
 
-    {#    function refreshRooms(object) {#}
-    {#        alert(object.id);#}
-    {#        var division_list = '{{ divisions_js }}';#}
-    {#        var room_select = object.id.split('_');#}
-    {##}
-    {#        division_list = division_list.replace(room_select[3], '');#}
-    {#        alert(room_select[3] + '|' + division_list);#}
-    {#        var room_selected = object.value;#}
-    {#        var room_list = {{ room|safe }};#}
-    {#        for (var i = 0; i < division_list.length; i++) {#}
-    {#            var room_select_id = room_select[0] + '_' + room_select[1] + '_' + room_select[2] + '_' + division_list[i] + '_' + room_select[4] + '_' + room_select[5] + '_' + room_select[6];#}
-    {#            alert(room_select_id);#}
-    {#                                    alert(i + "|" + room_id);#}
-    {#            if (document.getElementById(room_select_id) !== null) {#}
-    {#                alert("IN /IF");#}
-    {#                var room_selected = document.getElementById(room_select_id).value;#}
-    {#                var something = "#" + room_select_id + " option[value='" + room_selected + "']";#}
-    {#                alert(something);#}
-    {#                document.getElementById(room_select_id).removeChild(document.getElementById(room_select_id).querySelector('option[value="' + room_selected + '"]'))#}
-    {##}
-    {#                $(something).remove();#}
-    {#                                var index = rooms.indexOf(room_selected);#}
-    {#                                rooms.splice(index, 1);#}
-    {#            }#}
-    {#        }#}
-    {##}
-    {#    }#}
 
     $(document).ready(function () {
         subject = document.getElementById('id_subject');

@@ -219,8 +219,6 @@ def to_json(request):
     # key['test']['inner'] = 'hello'
     # print(key)
 
-
-
     for year in full_timetable.values_list('branch_subject__year__year', flat=True).distinct():
         # print("year", year)
         branch_filtered = full_timetable.filter(
@@ -288,7 +286,7 @@ def to_json(request):
     answer2 = {}
     faculty_json = {}
     temp = {}
-    for faculty in full_timetable.values_list('faculty__initials',flat=True).distinct():
+    for faculty in full_timetable.values_list('faculty__initials', flat=True).distinct():
         print(faculty)
         temp_full = full_timetable.filter(faculty=Faculty.objects.get(initials=faculty))
         for day in set(temp_full.values_list('day', flat=True)):
@@ -427,7 +425,7 @@ def get_excel(request):
                 'media/documents/Timetable_' + year + "_" + branch + "_" + division + '.xlsx')
             worksheet = workbook.add_worksheet()
 
-            worksheet.set_column(0,9,16)
+            worksheet.set_column(0, 9, 16)
 
             offset_x = 0
             offset_y = 0
@@ -442,7 +440,7 @@ def get_excel(request):
             row = 0
             col = 0
             for tt in timetable:
-                curr_col = days.index(tt.day) + 2
+                curr_col = days.index(tt.day) + 1
                 curr_row = time_index.get(tt.time.starting_time)
                 worksheet.write(row, curr_col, tt.day)
 
@@ -478,8 +476,7 @@ def get_excel(request):
                 time_index[time] = time_row
                 time_row += 1
 
-
-            divs = timetable.values_list('division', flat=True).distinct().order_by('division')
+            divs = timetable.values_list('division__division', flat=True).distinct().order_by('division__division')
             total_divs = divs.__len__()
             div_index = {}
             div_col = 0
@@ -492,23 +489,24 @@ def get_excel(request):
             row = 0
             col = 0
             for tt in timetable:
-                curr_col = days.index(tt.day) + 1
-                curr_row = time_index.get(tt.time.starting_time)+1
+                curr_col = days.index(tt.day)
+                curr_row = time_index.get(tt.time.starting_time) + 1
 
-                worksheet.set_column(firstcol=0, lastcol=30, width= 15)
+                worksheet.set_column(firstcol=0, lastcol=30, width=15)
 
-                worksheet.write(row, curr_col * total_divs, tt.day)
+                worksheet.write(row, curr_col * total_divs +1, tt.day)
 
-                worksheet.write(curr_row, col, tt.time.__str__())
+                worksheet.write(curr_row+1, col, tt.time.__str__())
 
-                worksheet.write(row+1, curr_col * total_divs + div_index.get(tt.division),
-                                tt.division)
-                worksheet.write(curr_row, curr_col*total_divs + div_index.get(tt.division),
+                worksheet.write(row + 1, curr_col * total_divs + div_index.get(tt.division.division)+1,
+                                tt.division.division)
+                worksheet.write(curr_row, curr_col * total_divs + div_index.get(tt.division.division)+1,
                                 tt.faculty.initials + " " + tt.branch_subject.subject.short_form + " " +
                                 tt.room.room_number)
 
             workbook.close()
         return HttpResponse('Done')
+
 
 def get_instance(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -522,7 +520,8 @@ def get_instance(request):
     print(branch_subject)
     tt_instance = []
     for i in branch_subject:
-        for j in list(Timetable.objects.filter(branch_subject=i).distinct().order_by('room__room_number')):
+        for j in list(Timetable.objects.filter(branch_subject=i).distinct().order_by('day', 'time__starting_time',
+                                                                                     'division__division')):
             tt_instance.append(
                 j.room.room_number + "**" + j.branch_subject.subject.short_form + "**" + j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
                 "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
@@ -536,25 +535,41 @@ def get_practical_info(request):
     branch = request.POST.get('branch')
     year = request.POST.get('year')
     division = request.POST.get('division')
-    data={}
-    batches = list(Batch.objects.filter(division=CollegeExtraDetail.objects.get(division=division)).values_list('batch_name',flat=True))
+    data = {}
+    batches = list(
+        Batch.objects.filter(division=CollegeExtraDetail.objects.get(division=division)).values_list('batch_name',
+                                                                                                     flat=True))
     data['batches'] = batches
     branch_obj = Branch.objects.get(branch=branch)
     subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj)
     subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
         'subject__short_form', flat=True))
-    rooms = list(Room.objects.filter(branch=branch_obj,lab=True).values_list('room_number',flat=True))
-    data['subjects'] =  subjects_practical
+    rooms = list(Room.objects.filter(branch=branch_obj, lab=True).values_list('room_number', flat=True))
+    data['subjects'] = subjects_practical
     data['rooms'] = rooms
     return HttpResponse(json.dumps(data))
 
 
 def get_practical_faculty(request):
+    faculty = []
     branch = request.POST.get('branch')
     year = request.POST.get('year')
     subject = request.POST.get('subject')
+    division = request.POST.get('division')
     year_obj = CollegeYear.objects.get(year=year)
     subject_obj = Subject.objects.get(short_form=subject)
     branch_obj = Branch.objects.get(branch=branch)
-    faculty = FacultySubject.objects.filter(division__branch=branch_obj ,subject=subject_obj, division__year=year_obj).values_list('faculty__user__first_name',flat=True)
-    return HttpResponse(faculty)
+    division_obj = CollegeExtraDetail.objects.get(division=division, year=year_obj, branch=branch_obj)
+    faculty_subject = FacultySubject.objects.filter(Q(division=division_obj),
+                                                    Q(subject=subject_obj))
+    for each in faculty_subject:
+        faculty.append((each.faculty.first_name + '*.*' + each.faculty.faculty_code))
+
+    data = {}
+    data['faculty'] = faculty
+    return HttpResponse(json.dumps(data))
+
+
+def save_practical(request):
+
+    return HttpResponse("ok")
