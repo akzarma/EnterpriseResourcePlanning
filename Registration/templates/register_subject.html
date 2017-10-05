@@ -1,0 +1,68 @@
+{% extends "./base.html" %}
+
+{% block title %}Subject Registration {% endblock %}
+
+{% block body %}
+    <form method="post" action="{% url 'registration:register_subject' %}">
+        {% csrf_token %}
+        <div class="container">
+            <fieldset>
+                <legend>Register a subjects</legend>
+                <div class="form-element">
+                    <span class="error">{{ form.subject_code.errors }}</span>
+                    <label class="control-label">{{ form.subject_code.label_tag }}</label>
+                    <div class="">{{ form.subject_code }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.subject_name.errors }}</span>
+                    <label class="control-label">{{ form.subject_name.label_tag }}</label>
+                    <div class="">{{ form.subject_name }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.year.errors }}</span>
+                    <label class="control-label">{{ form.year.label_tag }}</label>
+                    <div class="">{{ form.year }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.branch.errors }}</span>
+                    <label class="control-label">{{ form.branch.label_tag }}</label>
+                    <div class="">{{ form.branch }}</div>
+                </div>
+            </fieldset>
+            <div class="form-element">
+                <input type="submit" class="btn btn-primary col-md-2 col-md-offset-5 ">
+            </div>
+        </div>
+    </form>
+{% endblock body %}
+
+{% block html %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <script>
+        $(function () {
+            $(":file").change(function () {
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = imageIsLoaded;
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+
+        function imageIsLoaded(e) {
+            $('#myImg').attr('src', e.target.result);
+        };
+    </script>
+
+    <script>
+        $(function () {
+            $("#myImg").on('click', function (e) {
+                e.preventDefault();
+                $("#id_doc_profile_pic:hidden").trigger('click');
+            });
+        });
+    </script>
+{% endblock html %}

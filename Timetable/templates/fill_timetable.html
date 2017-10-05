@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Timetable</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet"
+          href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.min.css">
+    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+    <style>
+        html, body {
+            background: #fff;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        legend {
+            color: #0379C4;
+        }
+
+        .navbar {
+            box-shadow: 0 0 40px 0 rgba(0, 0, 0, 0.1);
+            background: white;
+            font-family: 'Roboto', sans-serif;
+            border: 0;
+            padding: 10px;
+        }
+
+        .navbar-brand {
+            color: #0379C4 !important;
+            font-weight: bolder;
+        }
+
+
+        .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover {
+            background: white;
+        }
+
+        .navbar-default .navbar-nav > li {
+            font-weight: bold;
+        }
+
+        .navbar-default .navbar-nav > li:hover {
+            box-shadow: 0 0 40px 0 rgba(0, 0, 0, 0.1);
+
+
+        }
+
+        .navbar-toggle {
+            border: none;
+        }
+
+        .navbar-toggle:active, .navbar-toggle:hover, .navbar-toggle:focus {
+
+            background: white !important;
+
+        }
+
+        .form-element {
+            margin: 15px 0;
+        }
+
+        .col-lg-6 {
+            height: 100%;
+        }
+
+        .row {
+            padding: 10px;
+        }
+
+        #myImg {
+            width: 140px;
+        }
+
+        #input-file {
+            padding-bottom: 15px;
+        }
+
+        #id_doc_profile_pic {
+            display: none;
+        }
+
+        #id_projects {
+            width: 170px;
+            height: 190px;
+        }
+
+        .error {
+            color: #d9534f !important;
+        }
+
+        .my-border-1 {
+            border: 1px black solid;
+            padding: 0;
+        }
+
+        .top-border {
+            border-top: 1px black solid;
+        }
+
+        .content .row {
+            border-top: 1px black solid;
+            border-top: 1px black solid;
+
+        }
+
+        .vertical-div {
+            height: 40px;
+            width: 1px;
+            background: red;
+            display: inline-block;
+        }
+
+        .vertical-divider {
+            clear: both;
+            position: relative;
+        }
+
+        .vertical-divider:after {
+            clear: both;
+            content: " ";
+            display: block;
+            height: 0;
+            visibility: hidden;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .block div {
+            color: black;
+            width: 50%;
+            height: 50%;
+            float: left;
+            padding: 0;
+        }
+
+        #div1 {
+            background: #DDD;
+        }
+
+        #div2 {
+            background: #AAA;
+        }
+
+        #div3 {
+            width: 100%;
+            background: #777;
+        }
+
+        #div4 {
+            background: #444;
+        }
+    </style>
+    <script>
+
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><i class="glyphicon glyphicon-flash"></i>ERP</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">About</a></li>
+                <li><a href="#">Support</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div>
+    <h4>
+        Branch:{{ branch }}
+    </h4>
+
+</div>
+
+<form method="post" action="{% url 'Timetable:save_timetable' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="id_year">Year: </label>
+    <select id="id_year" onchange="loadSubjects()">
+        {% for yr in year %}
+            <option>{{ yr }}</option>
+        {% endfor %}
+    </select>
+    <label for="id_subject">Subjects: </label>
+    <select id="id_subject" onchange="refreshCheckbox(this)">
+        {% for subject in subjects %}
+            <option>{{ subject }}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <div class="container">
+        <table style="width:100%;">
+            <tr>
+                <th colspan="2">Time</th>
+                {% for day in days %}
+                    <th>
+                        {{ day }}
+                    </th>
+                {% endfor %}
+            </tr>
+            {% for time in times %}
+                <tr>
+                    <th rowspan="4">
+                        {{ time }}
+                    </th>
+
+                    {% for x in division %}
+                        <tr>
+                            {% for z in '1234567' %}
+
+                                {% if forloop.counter0 %}
+                                    <td class="block">
+                                        <input type="checkbox" name="id_room_{{ time }}_{{ x }}_{{ z }}"
+                                               onchange="getFaculty(this)">
+                                        <label id="id_room_{{ time }}_{{ x }}_{{ z }}_label">Select</label>
+                                        <div id="id_room_{{ time }}_{{ x }}_{{ z }}">Faculty
+                                        </div>
+                                        <div id="id_room_{{ time }}_{{ x }}_{{ z }}_room"
+                                             style="background: #ABABAB;width: 100%">Room
+                                        </div>
+                                    </td>
+                                {% else %}
+                                    <td>{{ x }}</td>
+                                {% endif %}
+                            {% endfor %}
+
+                        </tr>
+                    {% endfor %}
+
+            {% endfor %}
+        </table>
+        <br/>
+        <div class="col-md-offset-6">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+
+        {% for timetable in timetables %}
+            {{ timetable.branch_subject.subject.short_form }}
+        {% endfor %}
+
+
+    </div>
+</form>
+<br>
+<br>
+<br>
+<br>
+<button onclick="getTimetable('TE', 'Computer');">getTimetable()</button>
+<button onclick="instance('TE', 'Computer');">instance()</button>
+
+</body>
+
+<script>
+    function instance(year) {
+        $.ajax({
+            type: "POST",
+            url: '{% url 'Timetable:get_instance' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'year': year,
+                'branch': branch
+            },
+            success: function (data) {
+
+                data = data.replace(/'/g, '"');
+                data = JSON.parse(data);
+{#                document.getElementsByName(data[0]).checked = true;#}
+
+                for (i in data) {
+                    temp = data[i].split("**");
+                    room = temp[0];
+                    sub = temp[1];
+                    fac_id = temp[2];
+                    fac_initials = temp[3];
+                    element_id = temp[4];
+{#                    alert(sub);#}
+                    document.getElementsByName(element_id)[0].checked = true;
+                    getFaculty(document.getElementsByName(element_id)[0], sub, room);
+{#                    alert(element_id+'_faculty');#}
+{#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
+{#                    faculty_ele.value = fac_id;#}
+{#                    faculty_ele.text = fac_initials;#}
+{#                    alert(faculty_ele.value);#}
+                }
+            }
+        })
+    }
+
+</script>
+<script>
+    function getTimetable(year, branch) {
+        $.ajax({
+            type: "POST",
+            url: '{% url 'Timetable:get_timetable' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'year': year,
+                'branch': branch
+            },
+            success: function (data) {
+                alert(data);
+            }
+        })
+    }
+</script>
+<script>
+    var blocked = {};
+
+
+    function loadSubjects() {
+        var subject = document.getElementById('id_subject');
+        var year = document.getElementById('id_year');
+        var allFaculty = "";
+        $.ajax({
+            type: "POST",
+            url: '{% url 'Timetable:get_timetable' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'year': year.value,
+                'branch': 'Computer'
+            },
+            success: function (data) {
+                data['tt_instance'] = data['tt_instance'].replace(/'/g, '"');
+                data['tt_instance'] = JSON.parse(data['tt_instance']);
+
+                for (i in data['tt_instance']) {
+                    temp = data['tt_instance'][i].split("**");
+                    room = temp[0];
+                    sub = temp[1];
+                    fac_id = temp[2];
+                    fac_initials = temp[3];
+                    element_id = temp[4];
+{#                                        alert(temp);#}
+                    document.getElementsByName(element_id)[0].checked = true;
+                    getFaculty(document.getElementsByName(element_id)[0], sub, room);
+                }
+
+                {#                alert();#}
+                //Below code for loading subjects
+                allFaculty = data['actual_assigned_blocked']['faculty'];
+                {#                for(i in allFaculty){#}
+                {#                    alert(allFaculty[i]);#}
+                {#                }#}
+                var facultySlots = data['timetable_assigned_blocked'];
+                {#                alert(data['timetable_assigned']);#}
+                {#                console.log('facultySlots');#}
+                {#                console.log(facultySlots);#}
+                blockSlots(facultySlots, allFaculty);
+
+                subjects = data['subjects'];
+{#                alert(data[subjects]);#}
+                var len = subject.options.length;
+                for (var j = 0; j < len; j++) {
+                    subject.options.remove(0);
+                }
+
+                for (var i = 0; i < subjects.length; i++) {
+                    var option = document.createElement('option');
+                    option.text = subjects[i];
+                    option.value = subjects[i];
+                    subject.append(option);
+                    blocked[subjects[i]] = [];
+                    {#                    alert(subjects[i]);#}
+                }
+            }
+        })
+
+    }
+
+    function blockSlots(slots, allFaculty) {
+        {#        alert(allFaculty);#}
+        {#        alert(slots);#}
+        {#        console.log(slots);#}
+        for (eachFaculty in allFaculty) {
+            {#            alert('in for');#}
+            {#            alert(eachFaculty);#}
+            var slotsToRemove = slots[allFaculty[eachFaculty]];
+            {#            alert(slotsToRemove);#}
+            for (eachSlot in slotsToRemove) {
+                document.getElementsByName(slotsToRemove[eachSlot])[0].disabled = true;
+                {#                alert(eachSlot);#}
+            }
+        }
+    }
+
+    function getFaculty(object, subject=false, room=false) {
+        if(subject==false) {
+            var subject = document.getElementById('id_subject');
+            subject = subject.value;
+        }
+
+        var division = object.name.split('_')[3];
+        var year = document.getElementById('id_year');
+        if (object.checked) {
+
+            $.ajax({
+                type: "POST",
+                url: '{% url 'Timetable:get_faculty' %}',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'subject': subject,
+                    'division': division,
+                    'year': year.value
+                },
+                success: function (data) {
+                    {#                    alert(data);#}
+                    var parsed = JSON.parse(data);
+                    faculty = parsed.faculty; //yaha
+
+                    object.nextElementSibling.innerHTML = subject;
+                    object.value = subject;
+                    var div_to_add = document.getElementById(object.name);
+                    while (div_to_add.hasChildNodes()) {
+                        div_to_add.removeChild(div_to_add.firstChild);
+                    }
+
+                    var newOption = document.createElement('select');
+                    newOption.name = object.name + '_faculty';
+                    for (i = 0; i < faculty.length; i++) {
+                        var tmp = faculty[i].split('-');
+                        var option = document.createElement('option');
+                        option.text = tmp[0];
+                        option.value = tmp[1];
+                        newOption.add(option);
+                    }
+                    div_to_add.appendChild(newOption);
+                    var toDisable = parsed.divisions;
+
+
+                    {#Shibashis#}
+                    var divisions_room = '{{ divisions_js }}';
+                    var room_div_to_add = document.getElementById(object.name + '_room');
+
+                    var roomNewDiv = document.createElement('select');
+                    roomNewDiv.id = room_div_to_add.id + '_choices';
+                    roomNewDiv.name = room_div_to_add.id + '_choices';
+
+                    roomNewDiv.setAttribute('onfocus', 'setPrevious(this)');
+                    roomNewDiv.setAttribute('onchange', 'refreshValue(this)');
+
+
+                    while (room_div_to_add.hasChildNodes()) {
+                        room_div_to_add.removeChild(room_div_to_add.firstChild);
+                    }
+                    var rooms = {{ room|safe }};
+
+                    var roomId = roomNewDiv.id.split('_');
+                    divisions_room = divisions_room.replace(roomId[3], "");
+
+                    for (var i = 0; i < divisions_room.length; i++) {
+                        var room_id = roomId[0] + '_' + roomId[1] + '_' + roomId[2] + '_' + divisions_room[i] + '_' + roomId[4] + '_' + roomId[5] + '_' + roomId[6];
+                        if (document.getElementById(room_id) !== null) {
+                            var room_selected = document.getElementById(room_id).value;
+                            var index = rooms.indexOf(room_selected);
+                            rooms.splice(index, 1);
+                        }
+                    }
+                    var removeFromOthers = rooms[0];
+
+                    for (var j = 0; j < rooms.length; j++) {
+                        var roomOptions = document.createElement('option');
+                        roomOptions.text = rooms[j];
+                        roomOptions.value = rooms[j];
+                        roomNewDiv.append(roomOptions);
+                    }
+                    room_div_to_add.appendChild(roomNewDiv);
+
+                    for (i = 0; i < divisions_room.length; i++) {
+                        room_id = roomId[0] + '_' + roomId[1] + '_' + roomId[2] + '_' + divisions_room[i] + '_' + roomId[4] + '_' + roomId[5] + '_' + roomId[6];
+                        var obj = document.getElementById(room_id);
+                        if (obj !== null) {
+
+                            {#                            alert(obj);#}
+
+                            var temp = obj.querySelector('option[value="' + removeFromOthers + '"]');
+                            if (temp !== null) {
+                                obj.removeChild(temp);
+
+                            }
+
+
+                        }
+                    }
+
+                    {#Shibashis#}
+                    var objectToDisable;
+                    if (toDisable) {
+                        for (div in toDisable) {
+
+                            var namesArray = object.name.split('_');
+                            var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + toDisable[div] + '_' + namesArray[4];
+
+                            objectToDisable = document.getElementsByName(fullName)[0];
+                            if (!objectToDisable.checked) {
+                                objectToDisable.disabled = true;
+                                //Below code is to maintain which slots to block for that subject
+                                {#                            alert(subject.value);#}
+
+                                {#                            alert(blocked[subject.value])#}
+
+                            }
+                            blocked[subject].push(fullName);
+                        }
+
+                    }
+                }
+            });
+            {#            console.log()#}
+        }
+        else {
+            var div_to_remove = document.getElementById(object.name);
+
+
+            while (div_to_remove.hasChildNodes()) {
+                div_to_remove.removeChild(div_to_remove.firstChild);
+            }
+            var room_div_to_remove = document.getElementById(object.name + '_room');
+            var valueToAdd = document.getElementById(object.name + '_room_choices').value;
+            while (room_div_to_remove.hasChildNodes()) {
+                room_div_to_remove.removeChild(room_div_to_remove.firstChild)
+            }
+            div_to_remove.innerHTML = "Faculty";
+            room_div_to_remove.innerHTML = "Room";
+            var namesArray = object.name.split("_");
+            var allDivisions = '{{divisions_js}}';
+            var uncheckedSubject = document.getElementById(object.name + '_label');
+            for (i in allDivisions) {
+                var fullName = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + allDivisions[i] + '_' + namesArray[4];
+                document.getElementsByName(fullName)[0].disabled = false;
+                //Below code to remove from array
+                {#                alert(object.name + '_label');#}
+                {#                alert(.id);#}
+                {#                alert(uncheckedSubject.innerHTML);#}
+                var index = blocked[uncheckedSubject.innerHTML].indexOf(fullName);
+                if (index > -1) {
+                    console.log("found");
+                    blocked[uncheckedSubject.innerHTML].splice(index, 1);
+                    console.log(blocked);
+                }
+                else {
+                    console.log("Should never go here");
+                    console.log("Somethong wrongg with inserting code");
+                }
+            }
+            object.nextElementSibling.innerHTML = "Select";
+            var div_list = '{{ divisions_js }}';
+
+
+            for (i = 0; i < blocked[subject.value].length; i++) {
+                {#                alert(blocked[subject.value][i]);#}
+                var objectToRemove = document.getElementsByName(blocked[subject.value][i])[0];
+                {#                alert(objectToRemove.checked);#}
+                if (!objectToRemove.checked) {
+                    objectToRemove.disabled = true
+                }
+            }
+            {#            for (var key in blocked) {#}
+            {#                if (blocked.hasOwnProperty(key)) {#}
+            {#                    for (i = 0; i < blocked[key].length; i++) {#}
+            {#                        alert(key);#}
+            {#                        var objectToRemove = document.getElementsByName(blocked[key][i])[0];#}
+            {#                        alert(objectToRemove.checked);#}
+            {#                        if (!objectToRemove.checked) {#}
+            {#                            objectToRemove.disabled = true#}
+            {#                        }#}
+            {#                    }#}
+            {#                }#}
+            {#            }#}
+            div_list = div_list.replace(namesArray[3], "");
+            {#            alert(valueToAdd);#}
+            for (var i = 0; i < div_list.length; i++) {
+                var room_id = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + div_list[i] + '_' + namesArray[4] + '_room' + '_choices';
+                {#                alert(room_id);#}
+
+                var objToAdd = document.getElementById(room_id);
+                {#                alert(objToAdd.id);#}
+                if (objToAdd !== null) {
+                    {#                    objToAdd.removeChild(objToAdd.querySelector('option[value="' + newValue + '"]'));#}
+                    var option = document.createElement('option');
+                    option.value = valueToAdd;
+                    option.text = valueToAdd;
+                    objToAdd.appendChild(option);
+                }
+            }
+
+
+        }
+
+    }
+
+
+    function refreshCheckbox(object) {
+        //Logic
+        //Enable all checkbox and disable that has clashes and is not checked
+        enableAllCheckbox();
+        var subject = object.value;
+        var arr = blocked[subject];
+        var objectToDisable;
+        for (var i = 0; i < arr.length; i++) {
+            {#            alert(arr[i]);#}
+
+            objectToDisable = document.getElementsByName(arr[i])[0];
+            if (!objectToDisable.checked) {
+                objectToDisable.disabled = true
+            }
+        }
+
+        //Below code enables all cbs
+
+    }
+
+
+    function enableAllCheckbox() {
+        var times = {{ times|safe }};
+        var division = "{{ divisions_js }}";
+        for (var i = 0; i < times.length; i++) {
+            for (var j = 0; j < division.length; j++) {
+                for (var k = 2; k < 8; k++) {
+                    var check = 'id_room_' + times[i] + '_' + division[j] + '_' + k;
+                    if ((document.getElementsByName(check)[0].disabled)) {
+                        document.getElementsByName(check)[0].disabled = false;
+                    }
+                }
+            }
+        }
+    }
+
+    {#    function refreshRooms(object) {#}
+    {#        alert(object.id);#}
+    {#        var division_list = '{{ divisions_js }}';#}
+    {#        var room_select = object.id.split('_');#}
+    {##}
+    {#        division_list = division_list.replace(room_select[3], '');#}
+    {#        alert(room_select[3] + '|' + division_list);#}
+    {#        var room_selected = object.value;#}
+    {#        var room_list = {{ room|safe }};#}
+    {#        for (var i = 0; i < division_list.length; i++) {#}
+    {#            var room_select_id = room_select[0] + '_' + room_select[1] + '_' + room_select[2] + '_' + division_list[i] + '_' + room_select[4] + '_' + room_select[5] + '_' + room_select[6];#}
+    {#            alert(room_select_id);#}
+    {#                                    alert(i + "|" + room_id);#}
+    {#            if (document.getElementById(room_select_id) !== null) {#}
+    {#                alert("IN /IF");#}
+    {#                var room_selected = document.getElementById(room_select_id).value;#}
+    {#                var something = "#" + room_select_id + " option[value='" + room_selected + "']";#}
+    {#                alert(something);#}
+    {#                document.getElementById(room_select_id).removeChild(document.getElementById(room_select_id).querySelector('option[value="' + room_selected + '"]'))#}
+    {##}
+    {#                $(something).remove();#}
+    {#                                var index = rooms.indexOf(room_selected);#}
+    {#                                rooms.splice(index, 1);#}
+    {#            }#}
+    {#        }#}
+    {##}
+    {#    }#}
+
+    $(document).ready(function () {
+        subject = document.getElementById('id_subject');
+        year = document.getElementById('id_year');
+        branch = 'Computer';
+        if (subject) {
+            $.ajax({
+                type: "POST",
+                url: '{% url 'Timetable:get_all_faculty_subject' %}',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'branch': 'Computer'
+                },
+                success: function (data) {
+                    {#                    alert(data);#}
+                }
+            });
+        }
+
+    })
+</script>
+<script>
+    var previous;
+
+    function setPrevious(obj) {
+
+
+        previous = obj.value;
+
+
+    }
+
+    function refreshValue(obj) {
+        // Make sure the previous value is updated
+        var div_list = '{{ divisions_js }}';
+        var newValue = obj.value;
+        var roomId = obj.id.split('_');
+        div_list = div_list.replace(roomId[3], "");
+        for (var i = 0; i < div_list.length; i++) {
+            var room_id = roomId[0] + '_' + roomId[1] + '_' + roomId[2] + '_' + div_list[i] + '_' + roomId[4] + '_' + roomId[5] + '_' + roomId[6];
+            var objToAdd = document.getElementById(room_id);
+            if (objToAdd !== null) {
+                objToAdd.removeChild(objToAdd.querySelector('option[value="' + newValue + '"]'));
+                var option = document.createElement('option');
+                option.value = previous;
+                option.text = previous;
+                objToAdd.appendChild(option);
+            }
+        }
+
+        previous = obj.value;
+    }
+
+
+</script>
+
+
+</html>

@@ -1,0 +1,5 @@
+xlsxwriter
+django
+django-widget-tweaks
+Pillow
+firebase_admin
