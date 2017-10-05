@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
-from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -11,6 +10,7 @@ from django.db import models
 # Faculty (Entity)
 # Student (Entity)
 # Subject (Entity)
+from UserModel.models import User
 
 
 def faculty_directory_path(instance, filename):
@@ -21,9 +21,9 @@ def faculty_directory_path(instance, filename):
 class Faculty(models.Model):
     initials = models.CharField(max_length=10, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    # first_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
-    # last_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     DOB = models.DateField(default='11/02/1976')
 
     faculty_code = models.CharField(max_length=10, primary_key=True)
@@ -85,7 +85,7 @@ class Faculty(models.Model):
     doc_profile_pic = models.FileField(upload_to=faculty_directory_path, null=True, blank=True)
 
     def __str__(self):
-        return self.user.first_name + ' ' + self.faculty_code
+        return self.first_name + ' ' + self.faculty_code
 
 
 def student_directory_path(instance, filename):
@@ -97,9 +97,9 @@ def student_directory_path(instance, filename):
 class Student(models.Model):
     # Basic Details
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    # first_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, null=True, blank=True)
-    # last_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     DOB = models.DateField(default='1996-02-11')
     admission_type = models.CharField(max_length=50)
     shift = models.CharField(max_length=1)
@@ -164,14 +164,15 @@ class Student(models.Model):
     doc_jee_marksheet = models.FileField(upload_to=student_directory_path, null=True, blank=True)
     doc_profile_pic = models.ImageField(upload_to=student_directory_path, null=True, blank=True)
 
-    def __str__(self):
-        return self.user.first_name + ' ' + str(self.pk)
+    # def __str__(self):
+    #     return self.first_name + ' ' + str(self.pk)
 
 
 class Subject(models.Model):
     code = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=100)
     short_form = models.CharField(max_length=10)
+    is_practical = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

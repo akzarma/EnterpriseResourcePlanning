@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
 
 from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear
 from Registration.models import Student, Branch, Faculty
+from UserModel.models import User
 from .forms import StudentForm, FacultyForm, SubjectForm
 from Configuration.stateConf import states
 
@@ -19,10 +19,9 @@ def register_student(request):
             print("Valid")
             student = form.save(commit=False)
             print(student.gr_number)
-            new_user = User.objects.create_user(first_name=form.cleaned_data.get('first_name'),
-                                                last_name=form.cleaned_data.get('last_name'),
-                                                username=student.gr_number,
-                                                email=form.cleaned_data.get('email'))
+            new_user = User.objects.create_user(username=student.gr_number,
+                                                email=form.cleaned_data.get('email'),
+                                                role='Student')
             print("email: ", new_user.email)
             new_user.save()
             division = form.cleaned_data.get('division')
@@ -127,6 +126,7 @@ def success_student(request):
             user_id = request.session.get('user_id')
             student = Student.objects.get(pk=user_id)
             user = User.objects.get(username=student.gr_number)
+            user.role = 'Student'
             print(password)
             user.set_password(password)
             user.save()
@@ -152,6 +152,7 @@ def success_faculty(request):
             user_id = request.session.get('user_id')
             faculty = Faculty.objects.get(pk=user_id)
             user = User.objects.get(username=faculty.faculty_code)
+            user.role = 'Faculty'
             print(password)
             user.set_password(password)
             user.save()

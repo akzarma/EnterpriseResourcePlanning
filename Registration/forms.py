@@ -36,8 +36,6 @@ class StudentForm(forms.ModelForm):
     )
     email = forms.EmailField()
     # state_choices = states[0].split(',')
-    first_name = forms.CharField(max_length=50)
-    last_name = forms.CharField(max_length=50)
     # current_state = forms.ChoiceField(choices=state_choices)
     # permanent_state = forms.ChoiceField(choices=state_choices)
     widgets = {
@@ -83,8 +81,6 @@ class FacultyForm(forms.ModelForm):
     current_country = forms.ChoiceField(
         choices=countries
     )
-    first_name = forms.CharField(max_length=50)
-    last_name = forms.CharField(max_length=50)
     email = forms.EmailField()
     class Meta:
         model = Faculty
