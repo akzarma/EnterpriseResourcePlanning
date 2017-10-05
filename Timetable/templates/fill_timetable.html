@@ -381,43 +381,46 @@
 
 </body>
 
-<script>
-    function instance(year) {
-        $.ajax({
-            type: "POST",
-            url: '{% url 'Timetable:get_instance' %}',
-            data: {
-                'csrfmiddlewaretoken': '{{ csrf_token }}',
-                'year': year,
-                'branch': branch
-            },
-            success: function (data) {
 
-                data = data.replace(/'/g, '"');
-                data = JSON.parse(data);
-                {#                document.getElementsByName(data[0]).checked = true;#}
-
-                for (i in data) {
-                    temp = data[i].split("**");
-                    room = temp[0];
-                    sub = temp[1];
-                    fac_id = temp[2];
-                    fac_initials = temp[3];
-                    element_id = temp[4];
-                    {#                    alert(sub);#}
-                    document.getElementsByName(element_id)[0].checked = true;
-                    getFaculty(document.getElementsByName(element_id)[0], sub, room);
-                    {#                    alert(element_id+'_faculty');#}
-                    {#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
-                    {#                    faculty_ele.value = fac_id;#}
-                    {#                    faculty_ele.text = fac_initials;#}
-                    {#                    alert(faculty_ele.value);#}
-                }
-            }
-        })
-    }
-
-</script>
+{#not needed right now#}
+{#<script>#}
+{#    function instance(year) {#}
+{#        $.ajax({#}
+{#            type: "POST",#}
+{#            url: '{% url 'Timetable:get_instance' %}',#}
+{#            data: {#}
+{#                'csrfmiddlewaretoken': '{{ csrf_token }}',#}
+{#                'year': year,#}
+{#                'branch': branch#}
+{#            },#}
+{#            success: function (data) {#}
+{##}
+{#                data = data.replace(/'/g, '"');#}
+{#                data = JSON.parse(data);#}
+{#                document.getElementsByName(data[0]).checked = true;#}
+{##}
+{#                for (i in data) {#}
+{#                    temp = data[i].split("**");#}
+{#                    room = temp[0];#}
+{#                    sub = temp[1];#}
+{#                    fac_id = temp[2];#}
+{#                    fac_initials = temp[3];#}
+{#                    element_id = temp[4];#}
+{#                    alert(sub);#}
+{#                    document.getElementsByName(element_id)[0].checked = true;#}
+{#                    getFaculty(document.getElementsByName(element_id)[0], sub, room);#}
+{#                    alert('here');#}
+{#                    alert(element_id+'_faculty');#}
+{#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
+{#                    faculty_ele.value = fac_id;#}
+{#                    faculty_ele.text = fac_initials;#}
+{#                    alert(faculty_ele.value);#}
+{#                }#}
+{#            }#}
+{#        })#}
+{#    }#}
+{##}
+{#</script>#}
 <script>
     function getTimetable(year, branch) {
         $.ajax({
@@ -721,6 +724,12 @@
 
 
                             }
+                        }
+{#                        if(room=='B-301'){#}
+{#                            alert(room);#}
+{#                        }#}
+                        if (room !== false) {
+                            roomNewDiv.value = room;
                         }
 
                         {#Shibashis#}
