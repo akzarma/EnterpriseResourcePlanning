@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
 
 from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear
 from Registration.models import Student, Branch, Faculty
+from UserModel.models import User
 from .forms import StudentForm, FacultyForm, SubjectForm
 from Configuration.stateConf import states
 
