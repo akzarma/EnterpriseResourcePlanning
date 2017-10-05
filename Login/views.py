@@ -8,19 +8,6 @@ from django.views.decorators.csrf import csrf_exempt
 from Registration.models import Faculty, Student
 from UserModel.models import User
 
-dict_array = [{
-    'userType': 'Student',
-    'year': 'TE',
-    'branch': 'Computer',
-    'division': 'B',
-
-},
-
-    {
-        'userType': 'Faculty'
-    }]
-
-counter = 0
 
 
 def login_user(request):
@@ -53,11 +40,23 @@ def login_android(request):
 
 
             if user:
+
                 user = User.objects.get(username=username)
                 if user.role == 'Faculty':
-                    return HttpResponse(str(dict_array[1]))
+                    faculty_response =[
+                    {
+                        'userType': 'Faculty'
+                    }]
+                    return HttpResponse(str(faculty_response[0]))
                 elif user.role == 'Student':
-                    return HttpResponse(str(dict_array[0]))
+                    student_response = [{
+                        'userType': 'Student',
+                        'year': 'TE',
+                        'branch': 'Computer',
+                        'division': 'B',
+
+                    }]
+                    return HttpResponse(str(student_response[0]))
             else:
                 return HttpResponse("{'userType': 'null'}")
         except:

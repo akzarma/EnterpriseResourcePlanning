@@ -304,8 +304,8 @@ def to_json(request):
                 time_json['year'] = copy.deepcopy(table.branch_subject.year.year)
                 day_json[str(table.time.format_for_json())] = copy.deepcopy(time_json)
 
-            faculty_json[day] = day_json
-            temp[faculty] = faculty_json
+            faculty_json[day] = copy.deepcopy(day_json)
+            temp[faculty] = copy.deepcopy(faculty_json)
     write_to_firebase(temp, 'Faculty')
     print(faculty_json)
     return HttpResponse(str(answer))

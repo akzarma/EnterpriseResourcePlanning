@@ -66,3 +66,9 @@ def update_student(request):
     else:
         print('Redirecting to login')
         return HttpResponseRedirect('/login/')
+
+
+def update_role(request):
+    if request.method == 'GET':
+        return render(request, 'update_role.html', context={'facultys'})
+    return None
