@@ -300,6 +300,8 @@ def to_json(request):
                 time_json['room'] = copy.deepcopy(table.room.room_number)
                 time_json['subject'] = copy.deepcopy(table.branch_subject.subject.short_form)
                 time_json['branch'] = copy.deepcopy(table.branch_subject.branch.branch)
+                time_json['division'] = copy.deepcopy(table.division.division)
+                time_json['year'] = copy.deepcopy(table.branch_subject.year.year)
                 day_json[str(table.time.format_for_json())] = copy.deepcopy(time_json)
 
             faculty_json[day] = day_json
