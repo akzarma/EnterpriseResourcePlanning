@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'Login.apps.LoginConfig',
     'Timetable.apps.TimetableConfig',
     'Update.apps.UpdateConfig',
-    'Research.apps.ResearchConfig',
     'UserModel.apps.UsermodelConfig',
     'widget_tweaks',
 ]
