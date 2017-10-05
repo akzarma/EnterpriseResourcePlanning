@@ -25,4 +25,7 @@ urlpatterns = [
 
     url(r'get_practical_faculty/$', views.get_practical_faculty, name='get_practical_faculty'),
 
+    url(r'save/practical/$', views.save_practical, name='save_practical'),
+
+
 ]
