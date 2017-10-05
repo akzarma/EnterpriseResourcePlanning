@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 
 from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch
 # from .forms import TimetableForm
-from Registration.models import Branch, Subject, Faculty
+from Registration.models import Branch, Subject, Faculty, Student
 from .models import Time, Room, Timetable
 from Registration.models import Branch, Subject
 from .models import Time, Room, Timetable
@@ -116,6 +116,9 @@ def save_timetable(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     if request.method == 'POST':
         # print(request.POST.get)
+
+
+
         selected_list = request.POST
 
         print(selected_list)
