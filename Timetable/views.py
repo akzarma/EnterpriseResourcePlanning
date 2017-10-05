@@ -348,16 +348,18 @@ def get_timetable(request):
     # subjects = timetable.values_list('subject')
 
     # print(timetable, "Timetble!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    subjects = list(
-        BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj).values_list(
-            'subject__short_form', flat=True))
-
+    subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj)
+    subjects_theory = list(subjects.filter(subject__is_practical=False).values_list(
+        'subject__short_form', flat=True))
+    subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
+        'subject__short_form', flat=True))
     answer = {
         'timetable_assigned': timetable_assigned,
         'actual_assigned': actual_assigned,
         'timetable_assigned_blocked': timetable_assigned_blocked,
         'actual_assigned_blocked': actual_assigned_blocked,
-        'subjects': subjects,
+        'subjects_theory': subjects_theory,
+        'subjects_practical': subjects_practical,
         'tt_instance': str(tt_instance)
     }
     return JsonResponse(answer)
@@ -490,4 +492,22 @@ def get_practical_info(request):
     data={}
     batches = list(Batch.objects.filter(division=CollegeExtraDetail.objects.get(division=division)).values_list('batch_name',flat=True))
     data['batches'] = batches
+    branch_obj = Branch.objects.get(branch=branch)
+    subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj)
+    subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
+        'subject__short_form', flat=True))
+    rooms = list(Room.objects.filter(branch=branch_obj,lab=True).values_list('room_number',flat=True))
+    data['subjects'] =  subjects_practical
+    data['rooms'] = rooms
     return HttpResponse(json.dumps(data))
+
+
+def get_practical_faculty(request):
+    branch = request.POST.get('branch')
+    year = request.POST.get('year')
+    subject = request.POST.get('subject')
+    year_obj = CollegeYear.objects.get(year=year)
+    subject_obj = Subject.objects.get(short_form=subject)
+    branch_obj = Branch.objects.get(branch=branch)
+    faculty = FacultySubject.objects.filter(division__branch=branch_obj ,subject=subject_obj, division__year=year_obj).values_list('faculty__user__first_name',flat=True)
+    return HttpResponse(faculty)

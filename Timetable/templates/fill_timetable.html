@@ -41,7 +41,6 @@
             font-weight: bolder;
         }
 
-
         .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover {
             background: white;
         }
@@ -52,7 +51,6 @@
 
         .navbar-default .navbar-nav > li:hover {
             box-shadow: 0 0 40px 0 rgba(0, 0, 0, 0.1);
-
 
         }
 
@@ -406,14 +404,14 @@
                     fac_id = temp[2];
                     fac_initials = temp[3];
                     element_id = temp[4];
-{#                    alert(sub);#}
+                    {#                    alert(sub);#}
                     document.getElementsByName(element_id)[0].checked = true;
                     getFaculty(document.getElementsByName(element_id)[0], sub, room);
-{#                    alert(element_id+'_faculty');#}
-{#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
-{#                    faculty_ele.value = fac_id;#}
-{#                    faculty_ele.text = fac_initials;#}
-{#                    alert(faculty_ele.value);#}
+                    {#                    alert(element_id+'_faculty');#}
+                    {#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
+                    {#                    faculty_ele.value = fac_id;#}
+                    {#                    faculty_ele.text = fac_initials;#}
+                    {#                    alert(faculty_ele.value);#}
                 }
             }
         })
@@ -463,7 +461,7 @@
                     fac_id = temp[2];
                     fac_initials = temp[3];
                     element_id = temp[4];
-{#                                        alert(temp);#}
+                    {#                                        alert(temp);#}
                     document.getElementsByName(element_id)[0].checked = true;
                     getFaculty(document.getElementsByName(element_id)[0], sub, room);
                 }
@@ -521,9 +519,7 @@
     }
 
     function getFaculty(object, subject=false, room=false) {
-
-
-        if(subject==false) {
+        if (subject == false) {
             var subject = document.getElementById('id_subject');
             subject = subject.value;
         }
@@ -544,23 +540,42 @@
                 success: function (data) {
                     var parsed = JSON.parse(data);
                     var batches = parsed.batches;
+                    var subjects = parsed.subjects;
+                    var rooms = parsed.rooms;
+                    alert(rooms);
                     $('#exampleModalLong').modal('show');
                     document.getElementById('exampleModalLongTitle').innerHTML = 'Practical';
-                    var labDiv = "";
+                    var labDiv = "<div class=\"row\">\n" +
+                        "                            <div class=\"col-md-3\">Batch</div>\n" +
+                        "                            <div class=\"col-md-3\">Subject</div>\n" +
+                        "                            <div class=\"col-md-3\">Faculty</div>\n" +
+                        "                            <div class=\"col-md-3\">Room</div>\n" +
+                        "                        </div>";
+                    var batch_list = "";
+                    for(var batch in batches){
+                        batch_list += batch;
+                    }
+                    alert(batch_list)
                     for (var j = 0; j < batches.length; j++) {
                         labDiv += '<div class="row">';
                         labDiv += '<div class="col-md-3">' + batches[j] + '</div>';
 
-                        {#                            var facultyLab = "<select>";#}
-                        {#                            for (i = 0; i < faculty.length; i++) {#}
-                        {#                                var tmp = faculty[i].split('-');#}
-                        {#                                facultyLab += '<option value="' + tmp[1] + '">' + tmp[0] + '</option>';#}
-                        {#                            }#}
-                        {#                            facultyLab += '</select>';#}
+                        var subjectLab = "<select onload='getPracticalFaculty(this)' onchange='getPracticalFaculty(this)'>";
+                        for (var k = 0; k < subjects.length; k++) {
+                            subjectLab += '<option value="' + subjects[k] + '">' + subjects[k] + '</option>';
+                        }
+                        subjectLab += '</select>';
 
-                        labDiv += '<div class="col-md-3"> + subject + </div>';
-                        labDiv += '<div class="col-md-3"> + facultyLab + </div>';
-                        labDiv += '<div class="col-md-3"> + Room + </div>';
+                        labDiv += '<div class="col-md-3">' + subjectLab + '</div>';
+                        labDiv += '<div class="col-md-3"><select></select></div>';
+
+{#                        var roomLab = "<select onfocus='setPreviousLab(this)' onchange='refreshLab(this," + \" + batch_list(yaha batch list ki string bhejni hai) + \" + ")' id='modal_room_" + j + "'>";#}
+{#                        for (var k = 0; k < rooms.length; k++) {#}
+{#                            roomLab += '<option value="' + rooms[k] + '">' + rooms[k] + '</option>';#}
+{#                        }#}
+                        roomLab += '</select>';
+
+                        labDiv += '<div class="col-md-3">' + roomLab + '</div>';
                         labDiv += '</div>';
                     }
                     document.getElementById('modal_body').innerHTML = labDiv;
@@ -586,12 +601,12 @@
                         var parsed = JSON.parse(data);
                         faculty = parsed.faculty; //yaha
 
-                    object.nextElementSibling.innerHTML = subject;
-                    object.value = subject;
-                    var div_to_add = document.getElementById(object.name);
-                    while (div_to_add.hasChildNodes()) {
-                        div_to_add.removeChild(div_to_add.firstChild);
-                    }
+                        object.nextElementSibling.innerHTML = subject;
+                        object.value = subject;
+                        var div_to_add = document.getElementById(object.name);
+                        while (div_to_add.hasChildNodes()) {
+                            div_to_add.removeChild(div_to_add.firstChild);
+                        }
 
                         var newOption = document.createElement('select');
                         newOption.name = object.name + '_faculty';
@@ -772,12 +787,66 @@
 
     }
 
+    function getPracticalFaculty(object) {
+        alert("here");
+        $.ajax({
+            type: "POST",
+            url: '{% url 'Timetable:get_practical_faculty' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'subject': object.value,
+                'branch': 'Computer',
+                'year': document.getElementById('id_year').value,
+            },
+            success: function (data) {
+                alert(data)
+            }
+        });
+    }
+</script>
+<script>
+    var previousLab;
+
+    function setPreviousLab(obj) {
+
+
+        previousLab = obj.value;
+
+
+
+    }
+
+    function refreshLab(obj, batch) {
+        // Make sure the previous value is updated
+        var newValue = obj.value;
+        var roomId = obj.id.split('_');
+        alert(batch);
+        batch = batch.replace(roomId[3], "");
+        for (var i = 0; i < batch.length; i++) {
+            var room_id = roomId[0] + '_' + roomId[1] + '_' + i;
+            var objToAdd = document.getElementById(room_id);
+            if (objToAdd !== null) {
+                objToAdd.removeChild(objToAdd.querySelector('option[value="' + newValue + '"]'));
+                var option = document.createElement('option');
+                option.value = previousLab;
+                option.text = previousLab;
+                objToAdd.appendChild(option);
+            }
+        }
+
+        previousLab = obj.value;
+    }
+
+</script>
+<script>
+
 
     function refreshCheckbox(object) {
+        enableAllCheckbox();
         if (object.value !== 'Practical') {
-            //Logic
-            //Enable all checkbox and disable that has clashes and is not checked
-            enableAllCheckbox();
+//Logic
+//Enable all checkbox and disable that has clashes and is not checked
+
             var subject = object.value;
             var arr = blocked[subject];
             var objectToDisable;
@@ -790,7 +859,7 @@
                 }
             }
 
-            //Below code enables all cbs
+//Below code enables all cbs
 
         }
     }

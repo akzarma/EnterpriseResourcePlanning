@@ -23,4 +23,6 @@ urlpatterns = [
 
     url(r'get_excel/$', views.get_excel, name='get_excel'),
 
+    url(r'get_practical_faculty/$', views.get_practical_faculty, name='get_practical_faculty'),
+
 ]
