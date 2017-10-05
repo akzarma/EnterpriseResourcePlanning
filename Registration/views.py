@@ -19,11 +19,9 @@ def register_student(request):
             print("Valid")
             student = form.save(commit=False)
             print(student.gr_number)
-            new_user = User.objects.create_user(first_name=form.cleaned_data.get('first_name'),
-                                                last_name=form.cleaned_data.get('last_name'),
-                                                username=student.gr_number,
+            new_user = User.objects.create_user(username=student.gr_number,
                                                 email=form.cleaned_data.get('email'),
-                                                roles='Student')
+                                                role='Student')
             print("email: ", new_user.email)
             new_user.save()
             division = form.cleaned_data.get('division')
