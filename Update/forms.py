@@ -44,3 +44,26 @@ class StudentUpdateForm(forms.ModelForm):
             'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
         }
         fields = '__all__'
+
+class FacultyUpdateForm(forms.ModelForm):
+    current_country = forms.ChoiceField(
+        choices=countries
+    )
+    permanent_country = forms.ChoiceField(
+        choices=countries
+    )
+    # state_choices = states[0].split(',')
+    caste_type = forms.CharField(disabled=True)
+    # current_state = forms.ChoiceField(choices=state_choices)
+    # permanent_state = forms.ChoiceField(choices=state_choices)
+
+    # Setting branch only as Comp and Mech fot VU
+    DOB = forms.CharField(disabled=True)
+
+    class Meta:
+        model = Faculty
+
+        widgets = {
+            'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
+        }
+        fields = '__all__'

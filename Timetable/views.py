@@ -100,7 +100,7 @@ def get_faculty(request):
         faculty = []
 
         for each in faculty_subject:
-            faculty.append((each.faculty.user.first_name + '-' + each.faculty.faculty_code))
+            faculty.append((each.faculty.first_name + '-' + each.faculty.faculty_code))
             print("each_faculty", each.faculty.user)
         print('Timetable-get_faculty:faculty', faculty)
         is_practical = subject_obj.is_practical

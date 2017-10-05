@@ -126,6 +126,7 @@ def success_student(request):
             user_id = request.session.get('user_id')
             student = Student.objects.get(pk=user_id)
             user = User.objects.get(username=student.gr_number)
+            user.role = 'Student'
             print(password)
             user.set_password(password)
             user.save()
@@ -151,6 +152,7 @@ def success_faculty(request):
             user_id = request.session.get('user_id')
             faculty = Faculty.objects.get(pk=user_id)
             user = User.objects.get(username=faculty.faculty_code)
+            user.role = 'Faculty'
             print(password)
             user.set_password(password)
             user.save()

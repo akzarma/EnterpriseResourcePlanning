@@ -7,4 +7,3 @@ from django.db import models
 class User(AbstractUser):
     role = models.CharField(max_length=100)
     objects = UserManager()
-    test = models.CharField(max_length=10)
