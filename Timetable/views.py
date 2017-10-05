@@ -318,7 +318,7 @@ def get_timetable(request):
         for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
             tt_instance.append(
                 j.room.room_number + "**" + j.branch_subject.subject.short_form + "**" + j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
-                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+                "id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2))
             if j.faculty.initials not in timetable_assigned:
                 timetable_assigned[j.faculty.initials] = []
             timetable_assigned[j.faculty.initials].append(
