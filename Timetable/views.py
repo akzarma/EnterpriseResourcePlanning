@@ -230,9 +230,9 @@ def to_json(request):
                 branch_subject__in=BranchSubject.objects.filter(branch=Branch.objects.get(
                     branch=branch)))
             branch_json = {}
-            for division in set(division_filtered.values_list('division', flat=True)):
+            for division in division_filtered.values_list('division__division', flat=True):
                 # print('division', division)
-                day_filtered = division_filtered.filter(division=division)
+                day_filtered = division_filtered.filter(division__division=division)
                 division_json = {}
                 for day in set(day_filtered.values_list('day', flat=True)):
                     # print('day', day)
@@ -380,13 +380,15 @@ def get_excel(request):
             branch_obj = Branch.objects.get(branch=branch)
             college_year = CollegeYear.objects.filter(year=year).first()
             timetable = Timetable.objects.filter(branch_subject__year=college_year, branch_subject__branch=branch_obj,
-                                                 division=division).order_by('time__starting_time')
+                                                 division__division=division).order_by('time__starting_time')
 
             print(timetable)
 
             workbook = xlsxwriter.Workbook(
                 'media/documents/Timetable_' + year + "_" + branch + "_" + division + '.xlsx')
             worksheet = workbook.add_worksheet()
+
+            worksheet.set_column(0,9,16)
 
             offset_x = 0
             offset_y = 0
