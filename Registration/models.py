@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
-from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -11,6 +10,7 @@ from django.db import models
 # Faculty (Entity)
 # Student (Entity)
 # Subject (Entity)
+from UserModel.models import User
 
 
 def faculty_directory_path(instance, filename):
