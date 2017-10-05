@@ -19,6 +19,6 @@ app = firebase_admin.initialize_app(cred, {
 })
 
 
-def write_to_firebase(json_string):
+def write_to_firebase(json_string,next_child):
     root = db.reference()
-    root.child('Student').set(json_string)
+    root.child(next_child).set(json_string)

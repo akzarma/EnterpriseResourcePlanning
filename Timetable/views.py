@@ -271,7 +271,43 @@ def to_json(request):
                 #         division[each.day] = day
                 #         print(day)
                 #         output += str(day)
-    write_to_firebase(answer)
+    write_to_firebase(answer, 'Student')
+
+    full_timetable = Timetable.objects.all()
+    # answer = {}
+    time_json = {}
+    day_json = {}
+    division_json = {}
+    branch_json = {}
+    year_json = {}
+    output = ""
+    # key = {}
+    # key['test'] = 'inner'
+    # key['test']['inner'] = 'hello'
+    # print(key)
+    answer2 = {}
+    faculty_json = {}
+    temp = {}
+    for faculty in full_timetable.values_list('faculty__initials',flat=True).distinct():
+        print(faculty)
+        temp_full = full_timetable.filter(faculty=Faculty.objects.get(initials=faculty))
+        for day in set(temp_full.values_list('day', flat=True)):
+            # print('day', day)
+            time_filtered = temp_full.filter(day=day)
+            day_json = {}
+            for table in time_filtered.only('time'):
+                # print('time', table.time)
+                time_json['room'] = copy.deepcopy(table.room.room_number)
+                time_json['subject'] = copy.deepcopy(table.branch_subject.subject.short_form)
+                time_json['branch'] = copy.deepcopy(table.branch_subject.branch.branch)
+                time_json['division'] = copy.deepcopy(table.division.division)
+                time_json['year'] = copy.deepcopy(table.branch_subject.year.year)
+                day_json[str(table.time.format_for_json())] = copy.deepcopy(time_json)
+
+            faculty_json[day] = day_json
+            temp[faculty] = faculty_json
+    write_to_firebase(temp, 'Faculty')
+    print(faculty_json)
     return HttpResponse(str(answer))
 
 
