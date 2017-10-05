@@ -318,7 +318,7 @@ def get_timetable(request):
         for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
             tt_instance.append(
                 j.room.room_number + "**" + j.branch_subject.subject.short_form + "**" + j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
-                "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
+                "id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2))
             if j.faculty.initials not in timetable_assigned:
                 timetable_assigned[j.faculty.initials] = []
             timetable_assigned[j.faculty.initials].append(
@@ -492,4 +492,22 @@ def get_practical_info(request):
     data={}
     batches = list(Batch.objects.filter(division=CollegeExtraDetail.objects.get(division=division)).values_list('batch_name',flat=True))
     data['batches'] = batches
+    branch_obj = Branch.objects.get(branch=branch)
+    subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj)
+    subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
+        'subject__short_form', flat=True))
+    rooms = list(Room.objects.filter(branch=branch_obj,lab=True).values_list('room_number',flat=True))
+    data['subjects'] =  subjects_practical
+    data['rooms'] = rooms
     return HttpResponse(json.dumps(data))
+
+
+def get_practical_faculty(request):
+    branch = request.POST.get('branch')
+    year = request.POST.get('year')
+    subject = request.POST.get('subject')
+    year_obj = CollegeYear.objects.get(year=year)
+    subject_obj = Subject.objects.get(short_form=subject)
+    branch_obj = Branch.objects.get(branch=branch)
+    faculty = FacultySubject.objects.filter(division__branch=branch_obj ,subject=subject_obj, division__year=year_obj).values_list('faculty__user__first_name',flat=True)
+    return HttpResponse(faculty)
