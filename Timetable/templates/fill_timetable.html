@@ -381,43 +381,46 @@
 
 </body>
 
-<script>
-    function instance(year) {
-        $.ajax({
-            type: "POST",
-            url: '{% url 'Timetable:get_instance' %}',
-            data: {
-                'csrfmiddlewaretoken': '{{ csrf_token }}',
-                'year': year,
-                'branch': branch
-            },
-            success: function (data) {
 
-                data = data.replace(/'/g, '"');
-                data = JSON.parse(data);
-                {#                document.getElementsByName(data[0]).checked = true;#}
-
-                for (i in data) {
-                    temp = data[i].split("**");
-                    room = temp[0];
-                    sub = temp[1];
-                    fac_id = temp[2];
-                    fac_initials = temp[3];
-                    element_id = temp[4];
-                    {#                    alert(sub);#}
-                    document.getElementsByName(element_id)[0].checked = true;
-                    getFaculty(document.getElementsByName(element_id)[0], sub, room);
-                    {#                    alert(element_id+'_faculty');#}
-                    {#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
-                    {#                    faculty_ele.value = fac_id;#}
-                    {#                    faculty_ele.text = fac_initials;#}
-                    {#                    alert(faculty_ele.value);#}
-                }
-            }
-        })
-    }
-
-</script>
+{#not needed right now#}
+{#<script>#}
+{#    function instance(year) {#}
+{#        $.ajax({#}
+{#            type: "POST",#}
+{#            url: '{% url 'Timetable:get_instance' %}',#}
+{#            data: {#}
+{#                'csrfmiddlewaretoken': '{{ csrf_token }}',#}
+{#                'year': year,#}
+{#                'branch': branch#}
+{#            },#}
+{#            success: function (data) {#}
+{##}
+{#                data = data.replace(/'/g, '"');#}
+{#                data = JSON.parse(data);#}
+{#                document.getElementsByName(data[0]).checked = true;#}
+{##}
+{#                for (i in data) {#}
+{#                    temp = data[i].split("**");#}
+{#                    room = temp[0];#}
+{#                    sub = temp[1];#}
+{#                    fac_id = temp[2];#}
+{#                    fac_initials = temp[3];#}
+{#                    element_id = temp[4];#}
+{#                    alert(sub);#}
+{#                    document.getElementsByName(element_id)[0].checked = true;#}
+{#                    getFaculty(document.getElementsByName(element_id)[0], sub, room);#}
+{#                    alert('here');#}
+{#                    alert(element_id+'_faculty');#}
+{#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
+{#                    faculty_ele.value = fac_id;#}
+{#                    faculty_ele.text = fac_initials;#}
+{#                    alert(faculty_ele.value);#}
+{#                }#}
+{#            }#}
+{#        })#}
+{#    }#}
+{##}
+{#</script>#}
 <script>
     function getTimetable(year, branch) {
         $.ajax({
@@ -538,47 +541,93 @@
                     'year': year.value
                 },
                 success: function (data) {
+                    alert(data);
                     var parsed = JSON.parse(data);
                     var batches = parsed.batches;
                     var subjects = parsed.subjects;
                     var rooms = parsed.rooms;
-                    alert(rooms);
+                    {#                    alert(rooms);#}
                     $('#exampleModalLong').modal('show');
                     document.getElementById('exampleModalLongTitle').innerHTML = 'Practical';
+
+                    {#                    var titleDiv = document.createElement('div');#}
+                    {#                    titleDiv#}
                     var labDiv = "<div class=\"row\">\n" +
                         "                            <div class=\"col-md-3\">Batch</div>\n" +
                         "                            <div class=\"col-md-3\">Subject</div>\n" +
                         "                            <div class=\"col-md-3\">Faculty</div>\n" +
                         "                            <div class=\"col-md-3\">Room</div>\n" +
                         "                        </div>";
-                    var batch_list = "";
-                    for(var batch in batches){
-                        batch_list += batch;
-                    }
-                    alert(batch_list)
-                    for (var j = 0; j < batches.length; j++) {
-                        labDiv += '<div class="row">';
-                        labDiv += '<div class="col-md-3">' + batches[j] + '</div>';
-
-                        var subjectLab = "<select onload='getPracticalFaculty(this)' onchange='getPracticalFaculty(this)'>";
-                        for (var k = 0; k < subjects.length; k++) {
-                            subjectLab += '<option value="' + subjects[k] + '">' + subjects[k] + '</option>';
-                        }
-                        subjectLab += '</select>';
-
-                        labDiv += '<div class="col-md-3">' + subjectLab + '</div>';
-                        labDiv += '<div class="col-md-3"><select></select></div>';
-
-{#                        var roomLab = "<select onfocus='setPreviousLab(this)' onchange='refreshLab(this," + \" + batch_list(yaha batch list ki string bhejni hai) + \" + ")' id='modal_room_" + j + "'>";#}
-{#                        for (var k = 0; k < rooms.length; k++) {#}
-{#                            roomLab += '<option value="' + rooms[k] + '">' + rooms[k] + '</option>';#}
-{#                        }#}
-                        roomLab += '</select>';
-
-                        labDiv += '<div class="col-md-3">' + roomLab + '</div>';
-                        labDiv += '</div>';
-                    }
                     document.getElementById('modal_body').innerHTML = labDiv;
+
+                    for (var j = 0; j < batches.length; j++) {
+                        var newRow = document.createElement('div');
+                        newRow.className = 'row';
+                        var batchDiv = document.createElement('div');
+                        batchDiv.className = 'col-md-3';
+                        batchDiv.innerHTML = batches[j];
+
+                        var subjectDiv = document.createElement('div');
+                        subjectDiv.className = 'col-md-3';
+                        {#                            "<select onload='getPracticalFaculty(this)' onchange='getPracticalFaculty(this)'>";#}
+                        var subjectSelect = document.createElement('select');
+                        subjectSelect.setAttribute('onload', 'getPracticalFaculty(this)');
+                        subjectSelect.setAttribute('onchange', 'getPracticalFaculty(this)');
+                        for (var k = 0; k < subjects.length; k++) {
+                            var option = document.createElement('option');
+                            option.text = subjects[k];
+                            option.value = subjects[k];
+                            subjectSelect.append(option);
+                        }
+                        subjectDiv.append(subjectSelect);
+
+                        var facultyDiv = document.createElement('div');
+                        facultyDiv.className = 'col-md-3';
+                        var facultySelect = document.createElement('select');
+                        {#                        facultySelect.onload('getPracticalFaculty(this)');#}
+                        {#                        subjectSelect.onchange('getPracticalFaculty(this)');#}
+                        {#                        for (var k = 0; k < subjects.length; k++) {#}
+                        {#                            var option = document.createElement('option');#}
+                        {#                            option.text = subjects[k];#}
+                        {#                            option.value = subjects[k];#}
+                        {#                            subjectSelect.append(option);#}
+                        {#                        }#}
+                        facultyDiv.append(facultySelect);
+
+
+                        var roomDiv = document.createElement('div');
+                        roomDiv.className = 'col-md-3';
+                        var roomSelect = document.createElement('select');
+                        roomSelect.id = 'modal_room_' + j;
+                        roomSelect.setAttribute('onfocus', 'setPreviousLab(this)');
+                        roomSelect.setAttribute('onchange', 'refreshLab(this,' + batches.length + ')');
+                        for (var k = 0; k < rooms.length; k++) {
+                            var option = document.createElement('option');
+                            option.text = rooms[k];
+                            option.value = rooms[k];
+                            roomSelect.append(option);
+                        }
+                        roomDiv.append(roomSelect);
+                        {#                        subjectLab += '</select>';#}
+                        {##}
+                        {#                        labDiv += '<div class="col-md-3">' + subjectLab + '</div>';#}
+                        {#                        labDiv += '<div class="col-md-3"><select></select></div>';#}
+                        {##}
+                        {#                        var roomLab = "<select onfocus='setPreviousLab(this)' onchange='refreshLab(this," + batches.length + ")' id='modal_room_" + j + "'>";#}
+                        {#                        for (var k = 0; k < rooms.length; k++) {#}
+                        {#                            roomLab += '<option value="' + rooms[k] + '">' + rooms[k] + '</option>';#}
+                        {#                        }#}
+                        {#                        roomLab += '</select>';#}
+                        {##}
+                        {#                        labDiv += '<div class="col-md-3">' + roomLab + '</div>';#}
+                        {#                        labDiv += '</div>';#}
+                        newRow.appendChild(batchDiv);
+                        newRow.appendChild(subjectDiv);
+                        newRow.appendChild(facultyDiv);
+                        newRow.appendChild(roomDiv);
+                        document.getElementById('modal_body').appendChild(newRow);
+                    }
+
                 }
             });
 
@@ -675,6 +724,12 @@
 
 
                             }
+                        }
+{#                        if(room=='B-301'){#}
+{#                            alert(room);#}
+{#                        }#}
+                        if (room !== false) {
+                            roomNewDiv.value = room;
                         }
 
                         {#Shibashis#}
@@ -813,17 +868,20 @@
         previousLab = obj.value;
 
 
-
     }
 
     function refreshLab(obj, batch) {
         // Make sure the previous value is updated
         var newValue = obj.value;
         var roomId = obj.id.split('_');
-        alert(batch);
-        batch = batch.replace(roomId[3], "");
-        for (var i = 0; i < batch.length; i++) {
-            var room_id = roomId[0] + '_' + roomId[1] + '_' + i;
+        var iList = "";
+        for (var z = 0; z < batch; z++) {
+            iList += z;
+        }
+        iList = iList.replace(roomId[2], "");
+        {#        alert(iList);#}
+        for (var i = 0; i < iList.length; i++) {
+            var room_id = roomId[0] + '_' + roomId[1] + '_' + iList[i];
             var objToAdd = document.getElementById(room_id);
             if (objToAdd !== null) {
                 objToAdd.removeChild(objToAdd.querySelector('option[value="' + newValue + '"]'));

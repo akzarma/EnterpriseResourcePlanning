@@ -522,7 +522,7 @@ def get_instance(request):
     print(branch_subject)
     tt_instance = []
     for i in branch_subject:
-        for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
+        for j in list(Timetable.objects.filter(branch_subject=i).distinct().order_by('room__room_number')):
             tt_instance.append(
                 j.room.room_number + "**" + j.branch_subject.subject.short_form + "**" + j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
                 "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
