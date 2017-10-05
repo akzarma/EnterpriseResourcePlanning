@@ -21,9 +21,9 @@ def faculty_directory_path(instance, filename):
 class Faculty(models.Model):
     initials = models.CharField(max_length=10, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    first_name = models.CharField(max_length=100,null=True)
+    first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
-    last_name = models.CharField(max_length=100,null=True)
+    last_name = models.CharField(max_length=100)
     DOB = models.DateField(default='11/02/1976')
 
     faculty_code = models.CharField(max_length=10, primary_key=True)
@@ -97,9 +97,9 @@ def student_directory_path(instance, filename):
 class Student(models.Model):
     # Basic Details
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    first_name = models.CharField(max_length=100,null=True)
+    first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, null=True, blank=True)
-    last_name = models.CharField(max_length=100,null=True)
+    last_name = models.CharField(max_length=100)
     DOB = models.DateField(default='1996-02-11')
     admission_type = models.CharField(max_length=50)
     shift = models.CharField(max_length=1)
