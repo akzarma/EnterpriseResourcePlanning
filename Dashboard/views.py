@@ -39,7 +39,7 @@ def test_url(request):
     if not user.is_anonymous:
         print('logged in')
         print(user)
-        student_obj = user.student
+        student_obj = Student.objects.get(user=user)
         form = StudentForm(instance=student_obj)
         return render(request, 'testdash.html', {
             'form': form,
