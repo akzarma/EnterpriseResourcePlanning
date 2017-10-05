@@ -262,7 +262,7 @@ def to_json(request):
                 #     if str(each.time.starting_time) + '-' + str(each.time.ending_time) in day:
                 #         day[str(each.time.starting_time) + '-' + str(each.time.ending_time)].append(time)
                 #     else:
-                #         day[str(each.time.starting_time) + '-' + str(each.time.ending_time)] = time
+                #         day[str(each.time.starting_time) + '-' + str(each.time.ending_timgie)] = time
                 #         # # print(time)
                 #         print(each.day)
                 #         # if each.day in division:
