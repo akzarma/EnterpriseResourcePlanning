@@ -333,51 +333,51 @@
             <button type="submit" class="btn btn-primary">Submit</button>
         </div>
     </div>
-    </form>
+</form>
 
-        <!-- Modal -->
-        <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog"
-             aria-labelledby="exampleModalLongTitle"
-             aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <div class="col-md-10">
-                            <h5 class="modal-title" id="exampleModalLongTitle"></h5>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    </div>
-                    <form method="post" action="{% url 'Timetable:save_practical' %}" enctype="multipart/form-data">
-    {% csrf_token %}
-                        <div id="modal_body" class="modal-body" style="text-align: center;">
-
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </div>
-                    </form>
+<!-- Modal -->
+<div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog"
+     aria-labelledby="exampleModalLongTitle"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="col-md-10">
+                    <h5 class="modal-title" id="exampleModalLongTitle"></h5>
                 </div>
-
+                <div class="col-md-2">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
             </div>
+            <form method="post" action="#" enctype="multipart/form-data" id="modal_practical">
+                {% csrf_token %}
+                <div id="modal_body" class="modal-body" style="text-align: center;">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" onclick="savePractical()">Save</button>
+                </div>
+            </form>
         </div>
 
-        <!--End Modal -->
+    </div>
+</div>
 
-        {#    {% for timetable in timetables %}#}
-        {#        {{ timetable.branch_subject.subject.short_form }}#}
-        {#    {% endfor %}#}
+<!--End Modal -->
+
+{#    {% for timetable in timetables %}#}
+{#        {{ timetable.branch_subject.subject.short_form }}#}
+{#    {% endfor %}#}
 
 
 <br>
 <br>
 <br>
 <br>
-<button onclick="getTimetable('TE', 'Computer');">getTimetable()</button>
-<button onclick="instance('TE', 'Computer');">instance()</button>
+{#<button onclick="getTimetable('TE', 'Computer');">getTimetable()</button>#}
+{#<button onclick="instance('TE', 'Computer');">instance()</button>#}
 
 </body>
 
@@ -521,17 +521,19 @@
         }
     }
 
-    function getFaculty(object, subject=false, room=false) {
+    function getFaculty(object, subject = false, room = false) {
         if (subject == false) {
             var subject = document.getElementById('id_subject');
             subject = subject.value;
         }
-
+        var object_id = object.id;
+{#        alert(object_id)#}
         var division = object.name.split('_')[3];
         var year = document.getElementById('id_year');
 
         if (subject === 'Practical' && object.checked) {
             <!-- mod -->
+
             $.ajax({
                 type: "POST",
                 url: '{% url 'Timetable:get_practical_info' %}',
@@ -542,7 +544,7 @@
                     'year': year.value
                 },
                 success: function (data) {
-                    alert(data);
+{#                    alert(data);#}
                     var parsed = JSON.parse(data);
                     var batches = parsed.batches;
                     var batchesArray = new Array(batches);
@@ -551,6 +553,7 @@
                     {#                    alert(rooms);#}
                     $('#exampleModalLong').modal('show');
                     document.getElementById('exampleModalLongTitle').innerHTML = 'Practical';
+                    {#                    document.getElementById('exampleModalLongTitle').name = object.id;#}
 
                     {#                    var titleDiv = document.createElement('div');#}
                     {#                    titleDiv#}
@@ -561,6 +564,10 @@
                         "                            <div class=\"col-md-3\">Room</div>\n" +
                         "                        </div>";
                     document.getElementById('modal_body').innerHTML = labDiv;
+                    var hidden_ele = document.createElement('input');
+                    hidden_ele.setAttribute('hidden', 'true');
+                    hidden_ele.setAttribute('name', object_id);
+                    document.getElementById('modal_body').append(hidden_ele);
 
                     for (var j = 0; j < batches.length; j++) {
                         var newRow = document.createElement('div');
@@ -574,6 +581,7 @@
                         {#                            "<select onload='getPracticalFaculty(this)' onchange='getPracticalFaculty(this)'>";#}
                         var subjectSelect = document.createElement('select');
                         subjectSelect.id = 'modal_subject_' + batches[j];
+                        subjectSelect.name = 'modal_subject_' + batches[j];
                         subjectSelect.setAttribute('onload', 'getPracticalFaculty(this,"' + division + '","' + batches[j] + '")');
                         subjectSelect.setAttribute('onchange', 'getPracticalFaculty(this,"' + division + '","' + batches[j] + '")');
                         for (var k = 0; k < subjects.length; k++) {
@@ -588,7 +596,8 @@
                         facultyDiv.className = 'col-md-3';
                         var facultySelect = document.createElement('select');
                         facultySelect.id = 'modal_faculty_' + batches[j];
-{#                        facultySelect.setAttribute('onload', 'checkFacultyClash((this,' + '"' + batchesArray + '"' + ')');#}
+                        facultySelect.name = 'modal_faculty_' + batches[j];
+                        {#                        facultySelect.setAttribute('onload', 'checkFacultyClash((this,' + '"' + batchesArray + '"' + ')');#}
                         facultySelect.setAttribute('onfocus', 'setPreviousFaculty(this)');
                         facultySelect.setAttribute('onchange', 'checkFacultyClash(this,' + '"' + batchesArray + '"' + ')');
                         {#                        for (var k = 0; k < subjects.length; k++) {#}
@@ -604,6 +613,7 @@
                         roomDiv.className = 'col-md-3';
                         var roomSelect = document.createElement('select');
                         roomSelect.id = 'modal_room_' + batches[j];
+                        roomSelect.name = 'modal_room_' + batches[j];
                         roomSelect.setAttribute('onfocus', 'setPreviousLab(this)');
                         roomSelect.setAttribute('onchange', 'refreshLab(this,' + '"' + batchesArray + '"' + ')');
                         for (k = 0; k < rooms.length; k++) {
@@ -879,7 +889,24 @@
     }
 </script>
 <script>
+    function savePractical(){
+        form = $('#modal_practical');
+        $.ajax({
+            type: "POST",
+            url: '{% url 'Timetable:save_practical' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'form': form.serialize()
+            },
+            success: function (data) {
+                alert(data);
+            }
+        });
+    }
+</script>
+<script>
     var previousFaculty;
+
     function setPreviousFaculty(obj) {
         previousFaculty = obj.value;
     }

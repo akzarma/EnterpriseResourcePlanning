@@ -28,8 +28,11 @@ def register_student(request):
             shift = form.cleaned_data.get('shift')
             branch = form.cleaned_data.get('branch')
             year = form.cleaned_data.get('year')
+
+
             print(new_user)
             student.user = new_user
+
 
             student.save()
 

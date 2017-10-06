@@ -302,8 +302,8 @@ def to_json(request):
                 time_json['year'] = copy.deepcopy(table.branch_subject.year.year)
                 day_json[str(table.time.format_for_json())] = copy.deepcopy(time_json)
 
-            faculty_json[day] = day_json
-            temp[faculty] = faculty_json
+            faculty_json[day] = copy.deepcopy(day_json)
+            temp[faculty] = copy.deepcopy(faculty_json)
     write_to_firebase(temp, 'Faculty')
     print(faculty_json)
     return HttpResponse(str(answer))
@@ -572,4 +572,77 @@ def get_practical_faculty(request):
 
 def save_practical(request):
     print(request.POST)
-    return HttpResponse("ok")
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    if request.method == 'POST':
+        # print(request.POST.get)
+
+
+
+        selected_list = request.POST
+
+        division = ''
+
+        print(selected_list)
+        for key in selected_list:
+            if str(key).__contains__('id_room_'):
+
+                print(key)
+
+                starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
+                starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
+                ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
+                ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
+                print(starting_time, ending_time)
+                time = Time.objects.get(starting_time=starting_time,
+                                        ending_time=ending_time)
+
+                division = str(key).split('_')[3]
+                print(division)
+                day = days[int(str(key).split('_')[4]) - 2]
+                print(day)
+        for key in selected_list:
+                # branch filter krni hai
+            if str(key).__contains__("modal_"):
+                key_arr = str(key).split('_')
+
+                branch_obj = Branch.objects.get(branch='Computer')
+                branch_subject = BranchSubject.objects.get(
+                    subject=Subject.objects.get(short_form=selected_list.get(key_arr[0]+'_subject_'+key_arr[2])))
+
+
+
+                faculty = Faculty.objects.get(faculty_code=selected_list.get(key_arr[0]+'_faculty_'+key_arr[2]))
+
+
+
+                room = Room.objects.get(room_number=selected_list.get(key_arr[0]+'_room_'+key_arr[2]))
+
+                # timetable_exists = Timetable.objects.filter(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
+                #                       time=time, day=day)
+                # shift ka bacha hai. ho jana chahiye
+
+                division_object = CollegeExtraDetail.objects.get(branch=branch_obj, year=branch_subject.year,
+                                                                 division=division)
+                batch = Batch.objects.get(batch_name=key_arr[2], division=division_object)
+                timetable_exists = Timetable.objects.filter(division=division_object,
+                                                            branch_subject=branch_subject, time=time, day=day, batch=batch).first()
+                timetable_obj = []
+                if (timetable_exists):
+                    print("Already exists")
+                    timetable_exists.room = room
+                    timetable_exists.faculty = faculty
+                    timetable_exists.save()
+
+                else:
+                    print("Not exists")
+
+                    timetable_exists = Timetable(room=room, faculty=faculty, division=division_object,
+                                                 branch_subject=branch_subject,
+                                                 time=time, day=day, batch=batch)
+                    timetable_obj.append(timetable_exists)
+
+                Timetable.objects.bulk_create(timetable_obj)
+
+        return HttpResponse('Saved')
+    else:
+        return HttpResponse('Not Post')
