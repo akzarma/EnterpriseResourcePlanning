@@ -571,5 +571,5 @@ def get_practical_faculty(request):
 
 
 def save_practical(request):
-
+    print(request.POST)
     return HttpResponse("ok")
