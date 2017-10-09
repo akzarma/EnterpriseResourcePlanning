@@ -137,27 +137,10 @@
 
         .block div {
             color: black;
-            width: 50%;
-            height: 50%;
+            width: 33%;
+            height: 100%;
             float: left;
             padding: 0;
-        }
-
-        #div1 {
-            background: #DDD;
-        }
-
-        #div2 {
-            background: #AAA;
-        }
-
-        #div3 {
-            width: 100%;
-            background: #777;
-        }
-
-        #div4 {
-            background: #444;
         }
 
         .sidebar {
@@ -202,7 +185,7 @@
 
         .cbx_label {
             position: relative;
-            bottom: 3px;
+            top: -1px;
 
         }
 
@@ -214,8 +197,9 @@
 
         .room {
             position: relative;
-            left: 25%;
-            right: 25%;
+            top: 4px;
+{#            left: 2.5%;#}
+{#            right: 25%;#}
         }
 
         .teacher {
@@ -260,28 +244,32 @@
     </div>
 </nav>
 <div>
-    <h4>
-        Branch:{{ branch }}
-    </h4>
-
+    <center>
+        <h4>
+            Branch:{{ branch }}
+        </h4>
+    </center>
 </div>
 
 <form method="post" action="{% url 'Timetable:save_timetable' %}" enctype="multipart/form-data">
     {% csrf_token %}
-    <label for="id_year">Year: </label>
-    <select id="id_year" onchange="loadSubjects()">
-        {% for yr in year %}
-            <option>{{ yr }}</option>
-        {% endfor %}
-    </select>
-    <label for="id_subject">Subjects: </label>
-    <select id="id_subject" onchange="refreshCheckbox(this)">
-        {% for subject in subjects %}
-            <option>{{ subject }}</option>
-        {% endfor %}
-    </select>
+    <center>
+        <label for="id_year">Year: </label>
+
+        <select id="id_year" onchange="loadSubjects()">
+            {% for yr in year %}
+                <option>{{ yr }}</option>
+            {% endfor %}
+        </select>
+        <label for="id_subject">Subjects: </label>
+        <select id="id_subject" onchange="refreshCheckbox(this)">
+            {% for subject in subjects %}
+                <option>{{ subject }}</option>
+            {% endfor %}
+        </select>
+    </center>
     <br>
-    <div class="container">
+    <div class="container-fluid">
         <table style="width:100%;" id="time-tab">
             <tr>
                 <th colspan="2" class="titlebar">Time</th>
@@ -351,7 +339,7 @@
                     </button>
                 </div>
             </div>
-            <form method="post" action="#" enctype="multipart/form-data" id="modal_practical">
+            <form method="post" action="{% url 'Timetable:save_practical' %}" enctype="multipart/form-data" id="modal_practical">
                 {% csrf_token %}
                 <div id="modal_body" class="modal-body" style="text-align: center;">
 
@@ -527,7 +515,7 @@
             subject = subject.value;
         }
         var object_id = object.id;
-{#        alert(object_id)#}
+        {#        alert(object_id)#}
         var division = object.name.split('_')[3];
         var year = document.getElementById('id_year');
 
@@ -544,7 +532,7 @@
                     'year': year.value
                 },
                 success: function (data) {
-{#                    alert(data);#}
+                    {#                    alert(data);#}
                     var parsed = JSON.parse(data);
                     var batches = parsed.batches;
                     var batchesArray = new Array(batches);
@@ -889,19 +877,21 @@
     }
 </script>
 <script>
-    function savePractical(){
-        form = $('#modal_practical');
-        $.ajax({
-            type: "POST",
-            url: '{% url 'Timetable:save_practical' %}',
-            data: {
-                'csrfmiddlewaretoken': '{{ csrf_token }}',
-                'form': form.serialize()
-            },
-            success: function (data) {
+    function savePractical() {
+        var form = $('#modal_practical');
+        form.submit(function (ev) {
+
+            var formData = form.serialize();
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: formData
+            }).done(function (data) {
                 alert(data);
-            }
+            });
+            ev.preventDefault();
         });
+
     }
 </script>
 <script>
