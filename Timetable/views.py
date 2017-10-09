@@ -100,7 +100,7 @@ def get_faculty(request):
         faculty = []
 
         for each in faculty_subject:
-            faculty.append((each.faculty.first_name + '-' + each.faculty.faculty_code))
+            faculty.append((each.faculty.initials + '-' + each.faculty.faculty_code))
             print("each_faculty", each.faculty.user)
         print('Timetable-get_faculty:faculty', faculty)
         is_practical = subject_obj.is_practical
@@ -563,7 +563,7 @@ def get_practical_faculty(request):
     faculty_subject = FacultySubject.objects.filter(Q(division=division_obj),
                                                     Q(subject=subject_obj))
     for each in faculty_subject:
-        faculty.append((each.faculty.first_name + '*.*' + each.faculty.faculty_code))
+        faculty.append((each.faculty.initials + '*.*' + each.faculty.faculty_code))
 
     data = {}
     data['faculty'] = faculty
@@ -582,7 +582,7 @@ def save_practical(request):
 
         division = ''
 
-        print(selected_list)
+        print(selected_list,'=========================================')
         for key in selected_list:
             if str(key).__contains__('id_room_'):
 
@@ -600,9 +600,10 @@ def save_practical(request):
                 print(division)
                 day = days[int(str(key).split('_')[4]) - 2]
                 print(day)
+                break
         for key in selected_list:
                 # branch filter krni hai
-            if str(key).__contains__("modal_"):
+            if str(key).__contains__("modal_room"):
                 key_arr = str(key).split('_')
 
                 branch_obj = Branch.objects.get(branch='Computer')
