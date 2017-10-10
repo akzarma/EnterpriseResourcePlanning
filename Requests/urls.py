@@ -2,10 +2,10 @@ from django.conf.urls import url
 
 from . import views
 
-app_name = 'Timetable'
+app_name = 'Requests'
 
 urlpatterns = [
-    url(r'request/vacant_room$', views.vacant_room, name='vacant_room'),
+    url(r'vacant_room$', views.vacant_room, name='vacant_room'),
 
 
 

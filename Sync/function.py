@@ -13,7 +13,7 @@ import os
 # })
 cwd = os.getcwd()
 print(cwd)
-cred = credentials.Certificate(cwd + '/EnterpriseResourcePlanning/Sync/cert.json')
+cred = credentials.Certificate(cwd + '/Sync/cert.json')
 app = firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://viit-1cbaf.firebaseio.com/'
 })
