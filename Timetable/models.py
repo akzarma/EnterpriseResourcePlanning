@@ -50,7 +50,7 @@ class Timetable(models.Model):
     branch_subject = models.ForeignKey(BranchSubject, on_delete=models.CASCADE)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     division = models.ForeignKey(CollegeExtraDetail, max_length=10)
-    # is_practical = models.BooleanField(default=False)
+    is_practical = models.BooleanField(default=False)
     batch = models.ForeignKey(Batch, null=True)
 
     def __str__(self):
