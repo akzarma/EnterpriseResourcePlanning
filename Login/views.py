@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from General.models import StudentDivision
 from Registration.models import Faculty, Student
 from UserModel.models import User
+import json
 
 
 
@@ -30,6 +31,9 @@ def login_user(request):
 
 @csrf_exempt
 def login_android(request):
+    response = [{
+                    'userType': 'null'
+                    }]
     if request.method == 'POST':
         print(request.POST)
         try:
@@ -59,8 +63,8 @@ def login_android(request):
                     }]
                     return HttpResponse(str(student_response[0]))
             else:
-                return HttpResponse("{'userType': 'null'}")
+                return HttpResponse(str(response[0]))
         except:
-            return HttpResponse("Something is wrong")
-    print("inside android")
-    return HttpResponse("got")
+
+            return HttpResponse(str(response[0]))
+    return HttpResponse(str(response[0]))
