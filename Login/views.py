@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import json
+
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
@@ -64,6 +66,7 @@ def login_android(request):
                     return HttpResponse(str(student_response[0]))
             else:
                 return HttpResponse(str(response[0]))
+
         except:
 
             return HttpResponse(str(response[0]))
