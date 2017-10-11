@@ -40,7 +40,7 @@ def fill_timetable(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     # form = TimetableForm()
     # branch = Branch.objects.all().values_list('branch', flat=True)
-    room = [i.room_number for i in Room.objects.filter(branch=branch_obj,lab=False)]
+    room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=False)]
     # print('Timetable-fill_timetable-rooms', room)
     # print(branch)
     subjects_obj = BranchSubject.objects.filter(branch=branch_obj)
@@ -67,7 +67,7 @@ def fill_timetable(request):
         'faculty': faculty,
         'divisions_js': divisions_js,
         'timetables': timetables,
-        'timetable_prac' : timetable_prac
+        'timetable_prac': timetable_prac
     }
     return render(request, 'fill_timetable.html', context)
 
@@ -516,13 +516,13 @@ def get_excel(request):
 
                 worksheet.set_column(firstcol=0, lastcol=30, width=15)
 
-                worksheet.write(row, curr_col * total_divs +1, tt.day)
+                worksheet.write(row, curr_col * total_divs + 1, tt.day)
 
-                worksheet.write(curr_row+1, col, tt.time.__str__())
+                worksheet.write(curr_row + 1, col, tt.time.__str__())
 
-                worksheet.write(row + 1, curr_col * total_divs + div_index.get(tt.division.division)+1,
+                worksheet.write(row + 1, curr_col * total_divs + div_index.get(tt.division.division) + 1,
                                 tt.division.division)
-                worksheet.write(curr_row, curr_col * total_divs + div_index.get(tt.division.division)+1,
+                worksheet.write(curr_row, curr_col * total_divs + div_index.get(tt.division.division) + 1,
                                 tt.faculty.initials + " " + tt.branch_subject.subject.short_form + " " +
                                 tt.room.room_number)
 
@@ -607,7 +607,6 @@ def save_practical(request):
         # print(selected_list,'=========================================')
         for key in selected_list:
             if str(key).__contains__('id_room_'):
-
                 # print(key)
 
                 starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
@@ -624,21 +623,17 @@ def save_practical(request):
                 # print(day)
                 break
         for key in selected_list:
-                # branch filter krni hai
+            # branch filter krni hai
             if str(key).__contains__("modal_room"):
                 key_arr = str(key).split('_')
 
                 branch_obj = Branch.objects.get(branch='Computer')
                 branch_subject = BranchSubject.objects.get(
-                    subject=Subject.objects.get(short_form=selected_list.get(key_arr[0]+'_subject_'+key_arr[2])))
+                    subject=Subject.objects.get(short_form=selected_list.get(key_arr[0] + '_subject_' + key_arr[2])))
 
+                faculty = Faculty.objects.get(faculty_code=selected_list.get(key_arr[0] + '_faculty_' + key_arr[2]))
 
-
-                faculty = Faculty.objects.get(faculty_code=selected_list.get(key_arr[0]+'_faculty_'+key_arr[2]))
-
-
-
-                room = Room.objects.get(room_number=selected_list.get(key_arr[0]+'_room_'+key_arr[2]))
+                room = Room.objects.get(room_number=selected_list.get(key_arr[0] + '_room_' + key_arr[2]))
 
                 # timetable_exists = Timetable.objects.filter(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
                 #                       time=time, day=day)
@@ -648,7 +643,8 @@ def save_practical(request):
                                                                  division=division)
                 batch = Batch.objects.get(batch_name=key_arr[2], division=division_object)
                 timetable_exists = Timetable.objects.filter(division=division_object,
-                                                            branch_subject=branch_subject, time=time, day=day, batch=batch).first()
+                                                            branch_subject=branch_subject, time=time, day=day,
+                                                            batch=batch).first()
                 timetable_obj = []
                 if (timetable_exists):
                     # print("Already exists")
@@ -662,7 +658,7 @@ def save_practical(request):
 
                     timetable_exists = Timetable(room=room, faculty=faculty, division=division_object,
                                                  branch_subject=branch_subject,
-                                                 time=time, day=day, batch=batch,is_practical=True)
+                                                 time=time, day=day, batch=batch, is_practical=True)
                     timetable_obj.append(timetable_exists)
 
                 Timetable.objects.bulk_create(timetable_obj)
