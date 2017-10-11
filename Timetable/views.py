@@ -340,7 +340,7 @@ def get_timetable(request):
     clg_year = CollegeYear.objects.get(year=year)
     all_year.remove(clg_year)
     branch_obj = Branch.objects.get(branch=branch)
-    branch_subject = BranchSubject.objects.filter(year=clg_year, branch=branch_obj).distinct()
+    branch_subject = BranchSubject.objects.filter(year=clg_year, branch=branch_obj,subject__is_practical=False).distinct()
     remove_subjects = BranchSubject.objects.filter(year__in=all_year, branch=branch_obj).distinct()
     # print(branch_subject)
     timetable_assigned = {}
@@ -363,6 +363,25 @@ def get_timetable(request):
                 timetable_assigned[j.faculty.initials] = []
             timetable_assigned[j.faculty.initials].append(
                 "id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2))
+
+
+
+    branch_subject = BranchSubject.objects.filter(year=clg_year, branch=branch_obj,
+                                                  subject__is_practical=True).distinct()
+    for i in branch_subject:
+        for faculty in list(FacultySubject.objects.filter(subject=i.subject).values_list('faculty__initials',
+                                                                                         flat=True).distinct()):
+            actual_assigned['faculty'].append(faculty)
+
+        for j in list(Timetable.objects.filter(branch_subject=i).distinct()):
+            tt_instance_practical.append(
+                j.room.room_number + "**" + j.branch_subject.subject.short_form + "**" + j.faculty.faculty_code + "**" + j.faculty.initials + "**" +
+                "id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2))
+            if j.faculty.initials not in timetable_assigned:
+                timetable_assigned[j.faculty.initials] = []
+            timetable_assigned[j.faculty.initials].append(
+                "id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2))
+
 
             # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2)
 

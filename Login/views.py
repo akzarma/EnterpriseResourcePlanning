@@ -64,5 +64,5 @@ def login_android(request):
                 return HttpResponse(json.dumps("{'userType': 'null'}"))
         except:
             return HttpResponse("Something is wrong")
-    print("inside android")
+    # print("inside android")
     return HttpResponse("got")
