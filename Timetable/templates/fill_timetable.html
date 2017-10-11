@@ -198,8 +198,7 @@
         .room {
             position: relative;
             top: 4px;
-{#            left: 2.5%;#}
-{#            right: 25%;#}
+        {#            left: 2.5%;#}{#            right: 25%;#}
         }
 
         .teacher {
@@ -339,7 +338,8 @@
                     </button>
                 </div>
             </div>
-            <form method="post" action="{% url 'Timetable:save_practical' %}" enctype="multipart/form-data" id="modal_practical">
+            <form method="post" action="{% url 'Timetable:save_practical' %}" enctype="multipart/form-data"
+                  id="modal_practical">
                 {% csrf_token %}
                 <div id="modal_body" class="modal-body" style="text-align: center;">
 
@@ -442,6 +442,24 @@
                 'branch': 'Computer'
             },
             success: function (data) {
+                for (var i in data['tt_instance_practical']) {
+{#                    alert(data['tt_instance_practical'][i]);#}
+                    var obj_id = data['tt_instance_practical'][i];
+                    var obj = document.getElementById(obj_id + '_cbx');
+                    obj.checked = true;
+
+                    document.getElementById(obj_id + '_room').parentElement.removeChild(document.getElementById(obj_id + '_room'));
+                    document.getElementById(obj_id + '_label').parentElement.removeChild(document.getElementById(obj_id + '_label'));
+                    document.getElementById(obj_id).parentElement.removeChild(document.getElementById(obj_id));
+                    var viewButton = document.createElement('button');
+                    viewButton.type = 'button';
+                    viewButton.innerHTML = 'View Practical';
+                    viewButton.setAttribute('data-target', '#exampleModalLong');
+                    viewButton.setAttribute('data-toggle', 'modal');
+                    obj.parentElement.append(viewButton);
+                    viewButton.setAttribute('onclick','viewPractical("'+ obj_id +'")');
+
+                }
                 data['tt_instance'] = data['tt_instance'].replace(/'/g, '"');
                 data['tt_instance'] = JSON.parse(data['tt_instance']);
 
@@ -509,7 +527,7 @@
         }
     }
 
-    function getFaculty(object, subject = false, room = false) {
+    function getFaculty(object, subject = false, room = false, day=false, starting_time=false) {
         if (subject == false) {
             var subject = document.getElementById('id_subject');
             subject = subject.value;
@@ -529,7 +547,9 @@
                     'csrfmiddlewaretoken': '{{ csrf_token }}',
                     'branch': 'Computer',
                     'division': division,
-                    'year': year.value
+                    'year': year.value,
+                    'prac_day': day,
+                    'prac_starting_time': starting_time,
                 },
                 success: function (data) {
                     {#                    alert(data);#}
@@ -570,7 +590,7 @@
                         var subjectSelect = document.createElement('select');
                         subjectSelect.id = 'modal_subject_' + batches[j];
                         subjectSelect.name = 'modal_subject_' + batches[j];
-                        subjectSelect.setAttribute('onload', 'getPracticalFaculty(this,"' + division + '","' + batches[j] + '")');
+                        subjectSelect.onload = 'getPracticalFaculty(this,"' + division + '","' + batches[j] + '")';
                         subjectSelect.setAttribute('onchange', 'getPracticalFaculty(this,"' + division + '","' + batches[j] + '")');
                         for (var k = 0; k < subjects.length; k++) {
                             var option = document.createElement('option');
@@ -628,6 +648,18 @@
                                 object.removeChild(object.querySelector('option[value="' + currentRoom.value + '"]'));
                             }
                         }
+                    }
+                    if(day){
+                        var selected_practicals = parsed.selected;
+                        for(i in batches){
+                            var subject_box = document.getElementById('modal_subject_' + batches[i]);
+                            subject_box.querySelector('option[value="' + selected_practicals[batches[i]]['subject'] + '"]').selected = true;
+                            var room_box = document.getElementById('modal_room_' + batches[i]);
+                            room_box.querySelector('option[value="' + selected_practicals[batches[i]]['room'] + '"]').selected = true;
+                            var faculty_box = document.getElementById('modal_faculty_'+batches[i]);
+{#                            faculty_box.querySelector('option[value="' + selected_practicals[batches[i]]['faculty'] + '"]').selected = true;#}
+                        }
+
                     }
                 }
             });
@@ -820,7 +852,7 @@
                 {#                    }#}
                 {#                }#}
                 {#            }#}
-                div_list = div_list.replace(namesArray[3], "");
+                div_list = div_list.replace(namobjesArray[3], "");
                 {#            alert(valueToAdd);#}
                 for (var i = 0; i < div_list.length; i++) {
                     var room_id = namesArray[0] + '_' + namesArray[1] + '_' + namesArray[2] + '_' + div_list[i] + '_' + namesArray[4] + '_room' + '_choices';
@@ -1058,8 +1090,17 @@
 
 </script>
 <script>
-    function getVacantRooms(){
 
+
+    function viewPractical(obj_id) {
+        var obj = document.getElementById(obj_id + '_cbx');
+        obj_id = obj_id.split('_');
+        var days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        var day = days[obj_id[4]-2];
+        var start = obj_id[2].split('-')[0].split(':');
+        var starting_time = Number(start[0])*100+Number(start[1]);
+
+        getFaculty(obj,'Practical',false,day,starting_time);
     }
 </script>
 
