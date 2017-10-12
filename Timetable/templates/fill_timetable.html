@@ -143,6 +143,23 @@
             padding: 0;
         }
 
+        #div1 {
+            background: #DDD;
+        }
+
+        #div2 {
+            background: #AAA;
+        }
+
+        #div3 {
+            width: 100%;
+            background: #777;
+        }
+
+        #div4 {
+            background: #444;
+        }
+
         .sidebar {
             color: #5e5e5e;
             border-bottom: 1px grey solid;
@@ -197,9 +214,8 @@
 
         .room {
             position: relative;
-            top: 4px;
-{#            left: 2.5%;#}
-{#            right: 25%;#}
+            left: 25%;
+            right: 25%;
         }
 
         .teacher {
@@ -249,13 +265,13 @@
             Branch:{{ branch }}
         </h4>
     </center>
+
 </div>
 
 <form method="post" action="{% url 'Timetable:save_timetable' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <center>
         <label for="id_year">Year: </label>
-
         <select id="id_year" onchange="loadSubjects()">
             {% for yr in year %}
                 <option>{{ yr }}</option>
@@ -269,7 +285,7 @@
         </select>
     </center>
     <br>
-    <div class="container-fluid">
+    <div class="container">
         <table style="width:100%;" id="time-tab">
             <tr>
                 <th colspan="2" class="titlebar">Time</th>
@@ -394,10 +410,8 @@
 {#                    fac_id = temp[2];#}
 {#                    fac_initials = temp[3];#}
 {#                    element_id = temp[4];#}
-{#                    alert(sub);#}
 {#                    document.getElementsByName(element_id)[0].checked = true;#}
 {#                    getFaculty(document.getElementsByName(element_id)[0], sub, room);#}
-{#                    alert('here');#}
 {#                    alert(element_id+'_faculty');#}
 {#                    var faculty_ele = document.getElementsByName(element_id+'_faculty')[0];#}
 {#                    faculty_ele.value = fac_id;#}
@@ -578,6 +592,7 @@
                             option.value = subjects[k];
                             subjectSelect.append(option);
                         }
+                        getPracticalFaculty(subjectSelect,division,batches[j]);
                         subjectDiv.append(subjectSelect);
 
                         var facultyDiv = document.createElement('div');
@@ -844,6 +859,7 @@
     }
 
     function getPracticalFaculty(object, division, batch_name) {
+        alert("on load/change");
         $.ajax({
                 type: "POST",
                 url: '{% url 'Timetable:get_practical_faculty' %}',
