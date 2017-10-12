@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'Timetable.apps.TimetableConfig',
     'Update.apps.UpdateConfig',
     'UserModel.apps.UsermodelConfig',
+    'Requests.apps.RequestsConfig',
     'widget_tweaks',
 ]
 

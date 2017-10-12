@@ -41,6 +41,9 @@ class Batch(models.Model):
     starting_roll_number = models.PositiveIntegerField()
     ending_roll_number = models.PositiveIntegerField()
 
+    def __str__(self):
+        return self.batch_name
+
 
 class BranchSubject(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
