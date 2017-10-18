@@ -17,12 +17,14 @@ class PublicationForm(forms.ModelForm):
     conference_attended = forms.ChoiceField(
         choices=[('True', 'Yes'), ('False', 'No')],
         widget=forms.RadioSelect,
-        required=False
+        required=False,
+        label='Have you attended the conference?'
     )
 
     first_author = forms.ChoiceField(
         choices=[('True', 'Yes'), ('False', 'No')],
         widget=forms.RadioSelect,
+        label='Are you the first author?'
     )
 
     medium = forms.ChoiceField(
@@ -49,7 +51,8 @@ class PublicationForm(forms.ModelForm):
         model = Paper
 
         widgets = {
-            'date': forms.DateInput(attrs={'class': 'datepicker'})
+            'date': forms.DateInput(attrs={'class': 'datepicker'}),
+            'other_info' : forms.Textarea
         }
 
         fields = '__all__'

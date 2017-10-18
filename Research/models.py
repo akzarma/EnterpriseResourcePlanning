@@ -6,6 +6,9 @@ from django.utils import timezone
 from Registration.models import Faculty
 
 
+def faculty_directory_path(instance, filename):
+    return 'Media/Faculty/{0}/Research/{1}'.format(instance.faculty.faculty_code, filename)
+
 class Paper(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     year = models.PositiveIntegerField(default=timezone.now().year)
@@ -26,3 +29,5 @@ class Paper(models.Model):
     first_author = models.BooleanField()
     funds_from_college = models.PositiveIntegerField()
     other_info = models.CharField(max_length=200)
+    files = models.FileField(upload_to=faculty_directory_path, null=True, blank=True)
+

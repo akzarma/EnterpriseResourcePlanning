@@ -32,7 +32,7 @@
             list-style: none
         }
 
-        ul#id_conference_attended li, ul#id_distribution li, ul#id_peer_reviewed li {
+        ul#id_conference_attended li, ul#id_distribution li, ul#id_peer_reviewed li, ul#id_first_author li {
             display: inline;
             margin-right: 5px;
         }
@@ -351,6 +351,17 @@
                             </div>
                             <div class="col-lg-8">
                                 {{ form.other_info }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <span class="error">{{ form.files.errors }}</span>
+                            <div class="col-lg-4">
+                                {{ form.files.label_tag }}
+                            </div>
+                            <div class="col-lg-8">
+                                {{ form.files }}
                             </div>
                         </div>
                     </div>
