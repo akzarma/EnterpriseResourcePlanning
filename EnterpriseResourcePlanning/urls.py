@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^dashboard/', include('Dashboard.urls')),
     url(r'^timetable/', include('Timetable.urls')),
     url(r'^request/', include('Requests.urls')),
+    url(r'^research/', include('Research.urls')),
 
     # url(r'^update/', include('Update.urls'))
 
