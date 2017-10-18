@@ -13,10 +13,7 @@ from UserModel.models import User
 def student(request):
     user = request.user
     # If user exists in session (i.e. logged in)
-    print(user)
     if not user.is_anonymous:
-        print('logged in')
-        print(user)
         student_obj = user.student
         form = StudentForm(instance=student_obj)
         return render(request, 'dashboard.html', {
@@ -26,7 +23,6 @@ def student(request):
 
         })
     else:
-        print('not logged in')
         return HttpResponseRedirect('/login/')
 
 
@@ -38,10 +34,7 @@ def logout_user(request):
 def test_url(request):
     user = request.user
     # If user exists in session (i.e. logged in)
-    print(user)
     if not user.is_anonymous:
-        print('logged in')
-        print(user)
         if user.role=='Student':
             student_obj = user.student
             form = StudentForm(instance=student_obj)

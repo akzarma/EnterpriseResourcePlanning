@@ -57,6 +57,10 @@ def login_android(request):
                 elif user.role == 'Student':
                     student_division = StudentDivision.objects.get(student=user.student)
 
+
+
+
+
                     student_response = [{
                         'userType': 'Student',
                         'year': student_division.division.year.year,

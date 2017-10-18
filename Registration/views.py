@@ -13,16 +13,12 @@ from Configuration.stateConf import states
 
 def register_student(request):
     if request.method == "POST":
-        print("Register student post")
         form = StudentForm(request.POST, request.FILES)
         if form.is_valid():
-            print("Valid")
             student = form.save(commit=False)
-            print(student.gr_number)
             new_user = User.objects.create_user(username=student.gr_number,
                                                 email=form.cleaned_data.get('email'),
                                                 role='Student')
-            print("email: ", new_user.email)
             new_user.save()
             division = form.cleaned_data.get('division')
             shift = form.cleaned_data.get('shift')
@@ -30,7 +26,6 @@ def register_student(request):
             year = form.cleaned_data.get('year')
 
 
-            print(new_user)
             student.user = new_user
 
 
@@ -45,9 +40,7 @@ def register_student(request):
                                                                                            division=division,
                                                                                            shift=shift_obj))
             new_student_division.save()
-            # print(student.pk)
             request.session['user_id'] = student.pk
-            # print(request.session.get('user_id', 0))
             return HttpResponseRedirect('/register/student/success/')
             # return HttpResponse(form.errors)
         else:
@@ -55,17 +48,14 @@ def register_student(request):
             # return HttpResponse(form.errors)
         return render(request, "register_student.html", {'form': form})
     else:
-        print("Register student not POST")
         form = StudentForm(initial={'handicapped': False})
         return render(request, "register_student.html", {'form': form})
 
 
 def register_faculty(request):
     if request.method == "POST":
-        print("Register faculty post")
         form = FacultyForm(request.POST, request.FILES)
         if form.is_valid():
-            print("Valid")
             faculty = form.save(commit=False)
             if (request.POST.get('initials')) == '':
                 if form.cleaned_data.get('middle_name') is None:
@@ -87,10 +77,8 @@ def register_faculty(request):
             return HttpResponseRedirect('/register/faculty/success/')
             # return HttpResponse(form.errors)
         else:
-            print(form.errors)
             return HttpResponse(form.errors)
     else:
-        print("Register faculty not POST")
         form = FacultyForm(initial={'handicapped': False})
 
     return render(request, "register_faculty.html", {'form': form})
@@ -98,10 +86,8 @@ def register_faculty(request):
 
 def register_subject(request):
     if request.method == "POST":
-        print("Register subject post")
         form = SubjectForm(request.POST, request.FILES)
         if form.is_valid():
-            print("Valid")
             form.save()
             return HttpResponseRedirect('/register/subject/')
             # return HttpResponse(form.errors)
@@ -110,14 +96,12 @@ def register_subject(request):
             # return HttpResponse(form.errors)
         return render(request, "register_subject.html", {'form': form})
     else:
-        print("Register subject not POST")
         form = SubjectForm()
 
     return render(request, "register_subject.html", {'form': form})
 
 
 def get_states(request):
-    print(states)
     return HttpResponse(states)
 
 
@@ -130,12 +114,10 @@ def success_student(request):
             student = Student.objects.get(pk=user_id)
             user = User.objects.get(username=student.gr_number)
             user.role = 'Student'
-            print(password)
             user.set_password(password)
             user.save()
             request.session.flush()
             # student.save()
-            print('password saved')
             return HttpResponseRedirect('/login/')
     else:
         user_id = request.session.get('user_id')
@@ -151,20 +133,16 @@ def success_faculty(request):
         password = request.POST.get('password')
         rpassword = request.POST.get('rpassword')
         if password == rpassword:
-            print("if")
             user_id = request.session.get('user_id')
             faculty = Faculty.objects.get(pk=user_id)
             user = User.objects.get(username=faculty.faculty_code)
             user.role = 'Faculty'
-            print(password)
             user.set_password(password)
             user.save()
             request.session.flush()
-            print('password saved')
             return HttpResponseRedirect('/login/')
 
     else:
-        print("else success!")
         user_id = request.session.get('user_id')
         faculty = Faculty.objects.get(pk=user_id)
         faculty_code = faculty.faculty_code
@@ -190,5 +168,4 @@ def get_shift(request):
     division_list = CollegeExtraDetail.objects.filter(shift=Shift.objects.get(shift=shift),
                                                       branch=Branch.objects.get(branch=branch)).values_list('division',
                                                                                                             flat=True)
-    print("ksdaklfjsdivision", division_list)
     return HttpResponse(division_list)
