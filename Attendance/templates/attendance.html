@@ -189,31 +189,43 @@
         {#            </div>#}
 
         <div class="row" style="text-align: center">
-            <label>
-                <select name="selected_faculty_subject">
 
-                    {% for each in faculty_subject %}
-                        {% if each == selected_faculty_subject %}
-                        <option value="{{ each.id }}" selected>{{ each.subject.short_form }} {{ each.division.year.year }} {{ each.division.division }}
-                        </option>
-                        {% else %}
-                        <option value="{{ each.id }}">{{ each.subject.short_form }} {{ each.division.year.year }} {{ each.division.division }}
-                        </option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </label>
+
         </div>
     </div>
 
 
 </form>
+
+<form action="{% url 'attendance:attendance' %}" method="post" id="change_form">
+    {% csrf_token %}
+    <label>
+        <select name="selected_faculty_subject" onchange="this.form.submit()">
+
+            {% for each in faculty_subject %}
+                {% if each == selected_faculty_subject %}
+                    <option value="{{ each.id }}"
+                            selected>{{ each.subject.short_form }} {{ each.division.year.year }} {{ each.division.division }}
+                    </option>
+                {% else %}
+                    <option value="{{ each.id }}">{{ each.subject.short_form }} {{ each.division.year.year }} {{ each.division.division }}
+                    </option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </label>
+</form>
+
+
 </body>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
 <script>
+
+
     function selectAll() {
         var but = document.getElementById("toggle");
 
@@ -228,4 +240,5 @@
         }
     }
 </script>
+
 </html>
