@@ -108,8 +108,6 @@ def save_timetable(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     if request.method == 'POST':
 
-
-
         selected_list = request.POST
 
         for key in selected_list:
@@ -122,38 +120,43 @@ def save_timetable(request):
                 time = Time.objects.get(starting_time=starting_time,
                                         ending_time=ending_time)
                 # branch filter krni hai
-                branch_obj = Branch.objects.get(branch='Computer')
-                branch_subject = BranchSubject.objects.get(
-                    subject=Subject.objects.get(short_form=selected_list.get(key)))
-                division = str(key).split('_')[3]
-                day = days[int(str(key).split('_')[4]) - 2]
+                try:
+                    branch_obj = Branch.objects.get(branch='Computer')
+                    branch_subject = BranchSubject.objects.get(
+                        subject=Subject.objects.get(short_form=selected_list.get(key)))
+                    division = str(key).split('_')[3]
+                    day = days[int(str(key).split('_')[4]) - 2]
 
-                faculty = Faculty.objects.get(faculty_code=selected_list.get(key + '_faculty'))
+                    faculty = Faculty.objects.get(faculty_code=selected_list.get(key + '_faculty'))
 
-                room = Room.objects.get(room_number=selected_list.get(key + '_room_choices'))
+                    room = Room.objects.get(room_number=selected_list.get(key + '_room_choices'))
 
-                # timetable_exists = Timetable.objects.filter(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
-                #                       time=time, day=day)
-                # shift ka bacha hai. ho jana chahiye
-                division_object = CollegeExtraDetail.objects.get(branch=branch_obj, year=branch_subject.year,
-                                                                 division=division)
-                timetable_exists = Timetable.objects.filter(division=division_object,
-                                                            branch_subject=branch_subject, time=time, day=day).first()
-                timetable_obj = []
-                if (timetable_exists):
-                    print("Already exists")
-                    timetable_exists.room = room
-                    timetable_exists.faculty = faculty
-                    timetable_exists.is_practical = True
-                    timetable_exists.save()
+                    # timetable_exists = Timetable.objects.filter(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
+                    #                       time=time, day=day)
+                    # shift ka bacha hai. ho jana chahiye
+                    division_object = CollegeExtraDetail.objects.get(branch=branch_obj, year=branch_subject.year,
+                                                                     division=division)
+                    timetable_exists = Timetable.objects.filter(division=division_object,
+                                                                branch_subject=branch_subject, time=time,
+                                                                day=day).first()
+                    timetable_obj = []
+                    if (timetable_exists):
+                        # print("Already exists")
+                        timetable_exists.room = room
+                        timetable_exists.faculty = faculty
+                        timetable_exists.is_practical = True
+                        timetable_exists.save()
 
-                else:
+                    else:
 
-                    timetable_exists = Timetable(room=room, faculty=faculty, division=division_object,
-                                                 branch_subject=branch_subject,
-                                                 time=time, day=day)
-                    timetable_obj.append(timetable_exists)
+                        timetable_exists = Timetable(room=room, faculty=faculty, division=division_object,
+                                                     branch_subject=branch_subject,
+                                                     time=time, day=day)
+                        timetable_obj.append(timetable_exists)
+                except:
+                    {
 
+                    }
                 Timetable.objects.bulk_create(timetable_obj)
 
 
@@ -180,7 +183,7 @@ def save_timetable(request):
                 # # need to be changed with subject code
                 # #
         to_json(request)
-        return HttpResponse('Saved')
+        return fill_timetable(request)
     else:
         return HttpResponse('Not Post')
 
@@ -340,7 +343,7 @@ def get_timetable(request):
         tt_instance_practical = list(set(tt_instance_practical))
 
 
-            # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2)
+        # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2)
 
     for i in remove_subjects:
         for faculty in list(FacultySubject.objects.filter(subject=i.subject).values_list('faculty__initials',
@@ -356,7 +359,6 @@ def get_timetable(request):
                 "id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2))
 
             # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division + "_" + str(days.index(j.day) + 2)
-
 
     # timetable = Timetable.objects.filter(branch_subject__in=branch_subject)
     #
@@ -394,7 +396,6 @@ def get_excel(request):
             college_year = CollegeYear.objects.filter(year=year).first()
             timetable = Timetable.objects.filter(branch_subject__year=college_year, branch_subject__branch=branch_obj,
                                                  division__division=division).order_by('time__starting_time')
-
 
             workbook = xlsxwriter.Workbook(
                 'media/documents/Timetable_' + year + "_" + branch + "_" + division + '.xlsx')
@@ -505,7 +506,7 @@ def get_instance(request):
 
 def get_practical_info(request):
     day = request.POST.get('prac_day')
-    day=str(day)
+    day = str(day)
     start_time = request.POST.get('prac_starting_time')
     branch = request.POST.get('branch')
     year = request.POST.get('year')
@@ -514,7 +515,7 @@ def get_practical_info(request):
     data = {}
     batches = list(
         Batch.objects.filter(division=division_obj).values_list('batch_name',
-                                                                                                     flat=True))
+                                                                flat=True))
     data['batches'] = batches
     branch_obj = Branch.objects.get(branch=branch)
     subjects = BranchSubject.objects.filter(year=CollegeYear.objects.get(year=year), branch=branch_obj)
@@ -523,16 +524,16 @@ def get_practical_info(request):
     rooms = list(Room.objects.filter(branch=branch_obj, lab=True).values_list('room_number', flat=True))
     data['subjects'] = subjects_practical
     data['rooms'] = rooms
-    if day!= 'false':
+    if day != 'false':
         time_obj = Time.objects.get(starting_time=start_time)
         temp = {}
-        for i in Timetable.objects.filter(time=time_obj,day=day,division= division_obj,is_practical=True):
+        for i in Timetable.objects.filter(time=time_obj, day=day, division=division_obj, is_practical=True):
             temp[i.batch.batch_name] = {
-                'faculty':i.faculty.initials,
-                'subject':i.branch_subject.subject.short_form,
+                'faculty': i.faculty.initials,
+                'subject': i.branch_subject.subject.short_form,
                 'room': i.room.room_number
             }
-        data['selected']=temp
+        data['selected'] = temp
     return HttpResponse(json.dumps(data))
 
 
@@ -561,8 +562,6 @@ def save_practical(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     if request.method == 'POST':
 
-
-
         selected_list = request.POST
 
         division = ''
@@ -570,8 +569,6 @@ def save_practical(request):
         # print(selected_list,'=========================================')
         for key in selected_list:
             if str(key).__contains__('id_room_'):
-
-
                 starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
                 starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
                 ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
@@ -610,7 +607,7 @@ def save_practical(request):
                                                             batch=batch).first()
                 timetable_obj = []
                 if (timetable_exists):
-                    # print("Already exists")
+                    print("Already exists")
                     timetable_exists.room = room
                     timetable_exists.faculty = faculty
                     timetable_exists.is_practical = True
