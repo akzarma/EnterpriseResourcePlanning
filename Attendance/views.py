@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from __future__ import unicode_literals
 
 import datetime
@@ -9,6 +8,8 @@ from django.shortcuts import render
 
 from General.models import FacultySubject, StudentDivision
 from Registration.models import Student, Subject, Faculty
+from General.models import FacultySubject
+from Registration.models import Student, Subject
 from .models import StudentAttendance, DailyAttendance
 
 
@@ -71,3 +72,21 @@ def save(request):
     else:
         print("Not here because of post")
     return HttpResponse("Here")
+
+
+def select_cat(request):
+    user = request.user
+    if not user.is_anonymous:
+        if user.role == 'Faculty':
+            if request.method == 'POST':
+                form = FacultySubject(request.POST, request.FILES, instance=user.faculty)
+            else:
+                faculty= user.faculty
+                faculty_subject_list =faculty.facultysubject_set.all()
+                print(FacultySubject.objects.filter(faculty=user.faculty))
+                return render(request, 'select_cat.html', {'faculty_subject': faculty_subject_list})
+
+        else:
+            return HttpResponse("Not Faculty")
+    else:
+        return HttpResponse("Not Logged in.")
