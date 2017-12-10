@@ -11,7 +11,6 @@ Login/__pycache__/
 Login/migrations/__pycache__/
 Registration/__pycache__/
 Registration/migrations/__pycache__/
-Research/
 Sync/__pycache__/
 Timetable/__pycache__/
 Timetable/migrations/__pycache__/
@@ -20,3 +19,5 @@ Update/migrations/__pycache__/
 UserModel/__pycache__/
 UserModel/migrations/__pycache__/
 media/documents/.~lock.Timetable_TE_Computer.xlsx#
+Requests/__pycache__/
+Requests/migrations/__pycache__/
