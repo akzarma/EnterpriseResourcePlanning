@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'Update.apps.UpdateConfig',
     'UserModel.apps.UsermodelConfig',
     'Requests.apps.RequestsConfig',
+    'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
     'widget_tweaks',
 ]
