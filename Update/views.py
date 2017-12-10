@@ -5,7 +5,7 @@ from .forms import StudentUpdateForm, FacultyUpdateForm
 from Registration.models import Student
 
 
-def update_student(request):
+def update(request):
     user = request.user
     if not user.is_anonymous:
         if request.method == 'POST':
@@ -18,11 +18,11 @@ def update_student(request):
                     student_obj = form.save(commit=False)
                     student_obj.user = user
                     student_obj.save()
-                    return HttpResponseRedirect('/dashboard/student/')
+                    return HttpResponseRedirect('/dashboard/')
                 else:
                     print('form not valid')
                     print(form.errors)
-                    return render(request, 'update_student.html', {
+                    return render(request, 'update.html', {
                         'form': form,
                         'first_name': user.first_name,
                         'last_name': user.last_name,
@@ -37,11 +37,11 @@ def update_student(request):
                     faculty_obj = form.save(commit=False)
                     faculty_obj.user = user
                     faculty_obj.save()
-                    return HttpResponseRedirect('/dashboard/student/')
+                    return HttpResponseRedirect('/dashboard/')
                 else:
                     print('form not valid')
                     print(form.errors)
-                    return render(request, 'update_student.html', {
+                    return render(request, 'update.html', {
                         'form': form,
                         'first_name': user.first_name,
                         'last_name': user.last_name,
@@ -50,15 +50,17 @@ def update_student(request):
         else:
             print('got user id', user)
             if user.role=='Faculty':
+                print('in update faculty')
                 obj = user.faculty
                 form = FacultyUpdateForm(instance=obj)
             elif user.role=='Student':
+                print('in update student')
                 obj = user.student
                 form = StudentUpdateForm(instance=obj)
             else:
                 return HttpResponse("User has no role")
 
-            return render(request, 'update_student.html', {
+            return render(request, 'update.html', {
                 'form': form,
                 'first_name': user.first_name,
                 'last_name': user.last_name,
