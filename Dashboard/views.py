@@ -31,7 +31,7 @@ def logout_user(request):
     return HttpResponseRedirect('/login/')
 
 
-def test_url(request):
+def show_dashboard(request):
     user = request.user
     # If user exists in session (i.e. logged in)
     if not user.is_anonymous:
