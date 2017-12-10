@@ -492,21 +492,23 @@
     </script>
     <script>
         function execute() {
-            $.ajax({
-                url: "http://ip-api.com/json",
-                type: 'GET',
-                dataType: "jsonp",
-                success: function (response) {
-                    alert(response);
-                    var form = document.getElementById('student_form');
+            var form = document.getElementById('student_form');
                     form.submit();
-                    console.log(response); // server response
-                },
-                error: function (a, b, c) {
-                    alert("error");
-                }
-
-            });
+            {#$.ajax({#}
+            {#    url: "http://ip-api.com/json",#}
+            {#    type: 'GET',#}
+            {#    dataType: "jsonp",#}
+            {#    success: function (response) {#}
+            {#        alert(response);#}
+            {#        var form = document.getElementById('student_form');#}
+            {#        form.submit();#}
+            {#        console.log(response); // server response#}
+            {#    },#}
+            {#    error: function (a, b, c) {#}
+            {#        alert("error");#}
+            {#    }#}
+            {##}
+            {#});#}
         }
     </script>
     <script>
