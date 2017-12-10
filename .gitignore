@@ -21,3 +21,5 @@ UserModel/migrations/__pycache__/
 media/documents/.~lock.Timetable_TE_Computer.xlsx#
 Requests/__pycache__/
 Requests/migrations/__pycache__/
+Research/__pycache__/
+Research/migrations/__pycache__/
