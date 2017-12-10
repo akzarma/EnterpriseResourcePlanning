@@ -2,7 +2,7 @@ from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from Registration.forms import StudentForm
+from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student
 
 
@@ -38,13 +38,13 @@ def show_dashboard(request):
         if user.role=='Student':
             student_obj = user.student
             form = StudentForm(instance=student_obj)
-            return render(request, 'testdash.html', {
+            return render(request, 'dashboard_student.html', {
                 'form': form,
             })
         elif user.role=='Faculty':
             faculty_obj = user.faculty
-            form = StudentForm(instance=faculty_obj)
-            return render(request, 'testdash.html', {
+            form = FacultyForm(instance=faculty_obj)
+            return render(request, 'dashboard_faculty.html', {
                 'form': form,
             })
     else:
