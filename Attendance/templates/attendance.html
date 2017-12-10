@@ -165,7 +165,11 @@
             <select id="subject" class="btn btn-info " name="subject">
                 <datalist>
                     {% for subject in all_subjects %}
-                        <option>{{ subject.subject_code }}</option>
+                        {% if subject == selected_subject %}
+                            <option selected="selected">{{ subject.subject_code }}</option>
+                        {% else %}
+                            <option>{{ subject.subject_code }}</option>
+                        {% endif %}
                     {% endfor %}
                 </datalist>
             </select>

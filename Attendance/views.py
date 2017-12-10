@@ -8,16 +8,26 @@ from django.shortcuts import render
 
 from General.models import CollegeYear, CollegeExtraDetail, StudentDivision
 from Registration.models import Student, Subject, Branch
+from General.models import FacultySubject, StudentDivision
+from Registration.models import Student, Subject, Faculty
+from General.models import FacultySubject
+from Registration.models import Student, Subject
 from .models import StudentAttendance, DailyAttendance
 
 
 # Create your views here.
 def index(request):
-    all_students = Student.objects.all()
-    all_subjects = Subject.objects.all()
+    user = request.user
+    selected_faculty_subject = request.POST.get('selected_faculty_subject')
+    selected_faculty_subject_obj = FacultySubject.objects.get(pk=selected_faculty_subject)
+    faculty_obj = Faculty.objects.get(user=user)
+    all_students = StudentDivision.objects.filter(division=selected_faculty_subject_obj.division)
+    all_subjects = [i.subject for i in FacultySubject.objects.filter(faculty=faculty_obj)]
     return render(request, "attendance.html", {
         'all_students': all_students,
-        'all_subjects': all_subjects
+        'all_subjects': all_subjects,
+        'selected_subject' : selected_faculty_subject_obj.subject.short_form,
+        'selected_division' : selected_faculty_subject_obj.division.division,
     })
 
 
@@ -86,3 +96,21 @@ def save(request):
     else:
         print('user no logged in')
         return HttpResponse("User is not logged in")
+
+
+def select_cat(request):
+    user = request.user
+    if not user.is_anonymous:
+        if user.role == 'Faculty':
+            if request.method == 'POST':
+                form = FacultySubject(request.POST, request.FILES, instance=user.faculty)
+            else:
+                faculty= user.faculty
+                faculty_subject_list =faculty.facultysubject_set.all()
+                print(FacultySubject.objects.filter(faculty=user.faculty))
+                return render(request, 'select_cat.html', {'faculty_subject': faculty_subject_list})
+
+        else:
+            return HttpResponse("Not Faculty")
+    else:
+        return HttpResponse("Not Logged in.")

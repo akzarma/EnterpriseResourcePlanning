@@ -24,12 +24,10 @@ def update(request):
                     print(form.errors)
                     return render(request, 'update.html', {
                         'form': form,
-                        'first_name': user.first_name,
-                        'last_name': user.last_name,
                     })
 
             elif user.role=='Faculty':
-                form = StudentUpdateForm(request.POST, request.FILES, instance=user.faculty)
+                form = FacultyUpdateForm(request.POST, request.FILES, instance=user.faculty)
                 print(request.FILES)
                 print(user.faculty)
                 if form.is_valid():
@@ -43,8 +41,6 @@ def update(request):
                     print(form.errors)
                     return render(request, 'update.html', {
                         'form': form,
-                        'first_name': user.first_name,
-                        'last_name': user.last_name,
                     })
 
         else:
