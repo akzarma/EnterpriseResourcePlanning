@@ -15,18 +15,34 @@ from .models import StudentAttendance, DailyAttendance
 
 # Create your views here.
 def index(request):
+    # user = request.user
+    # selected_faculty_subject = request.POST.get('selected_faculty_subject')
+    # faculty = user.faculty
+    # faculty_subject_list = faculty.facultysubject_set.all()
+    # print(FacultySubject.objects.filter(faculty=user.faculty))
+    # selected_faculty_subject_obj = FacultySubject.objects.get(pk=selected_faculty_subject)
+    # faculty = user.faculty
+    # all_students = StudentDivision.objects.filter(division=selected_faculty_subject_obj.division).all()
     user = request.user
-    selected_faculty_subject = request.POST.get('selected_faculty_subject')
-    selected_faculty_subject_obj = FacultySubject.objects.get(pk=selected_faculty_subject)
-    faculty_obj = Faculty.objects.get(user=user)
-    all_students = StudentDivision.objects.filter(division=selected_faculty_subject_obj.division)
-    all_subjects = [i.subject for i in FacultySubject.objects.filter(faculty=faculty_obj)]
-    return render(request, "attendance.html", {
-        'all_students': all_students,
-        'all_subjects': all_subjects,
-        'selected_subject' : selected_faculty_subject_obj.subject.short_form,
-        'selected_division' : selected_faculty_subject_obj.division.division,
-    })
+    if not user.is_anonymous:
+        if user.role == 'Faculty':
+            faculty = user.faculty
+            selected_faculty_subject = request.POST.get('selected_faculty_subject')
+            selected_faculty_subject_obj = FacultySubject.objects.get(pk=selected_faculty_subject)
+            all_students = StudentDivision.objects.filter(division=selected_faculty_subject_obj.division).all()
+            print(FacultySubject.objects.filter(faculty=user.faculty))
+            faculty_subject_list = faculty.facultysubject_set.all()
+            return render(request, "attendance.html", {
+                'all_students': all_students,
+                'selected_subject': selected_faculty_subject_obj.subject.short_form,
+                'selected_division': selected_faculty_subject_obj.division.division,
+                'faculty_subject': faculty_subject_list
+            })
+
+        else:
+            return HttpResponse("Not Faculty")
+    else:
+        return HttpResponse("Not Logged in.")
 
 
 def save(request):
@@ -81,8 +97,8 @@ def select_cat(request):
             if request.method == 'POST':
                 form = FacultySubject(request.POST, request.FILES, instance=user.faculty)
             else:
-                faculty= user.faculty
-                faculty_subject_list =faculty.facultysubject_set.all()
+                faculty = user.faculty
+                faculty_subject_list = faculty.facultysubject_set.all()
                 print(FacultySubject.objects.filter(faculty=user.faculty))
                 return render(request, 'select_cat.html', {'faculty_subject': faculty_subject_list})
 

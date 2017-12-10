@@ -160,32 +160,44 @@
 
     <div class="container" style="text-align: right">
 
+    </div>
+    <div class="row">
+        {#            <div class="row" style="text-align: center">#}
+        {#                <label for="subject">Select subjects</label>#}
+        {#                <select id="subject" class="btn btn-info " name="subject">#}
+        {#                    <datalist>#}
+        {#                        {% for subject in all_subjects %}#}
+        {#                            {% if subject == selected_subject %}#}
+        {#                                <option selected="selected">{{ subject}}</option>#}
+        {#                            {% else %}#}
+        {#                                <option>{{ subject}}</option>#}
+        {#                            {% endif %}#}
+        {#                        {% endfor %}#}
+        {#                    </datalist>#}
+        {#                </select>#}
+        {#                <label for="division">Select Division</label>#}
+        {#                <select id="division" class="btn btn-info" name="division">#}
+        {#                    <datalist>#}
+        {#                        <option>A</option>#}
+        {##}
+        {#                        <option>B</option>#}
+        {##}
+        {#                        <option>C</option>#}
+        {#                    </datalist>#}
+        {#                </select>#}
+        {#                <input type="submit" class="btn btn-success" value="Save">#}
+        {#            </div>#}
+
         <div class="row" style="text-align: center">
-            <label for="subject">Select subjects</label>
-            <select id="subject" class="btn btn-info " name="subject">
-                <datalist>
-                    {% for subject in all_subjects %}
-                        {% if subject == selected_subject %}
-                            <option selected="selected">{{ subject.subject_code }}</option>
-                        {% else %}
-                            <option>{{ subject.subject_code }}</option>
-                        {% endif %}
+            <label>
+                <select name="selected_faculty_subject">
+
+                    {% for each in faculty_subject %}
+                        <option value="{{ each.id }}">{{ each.subject.short_form }} {{ each.division.year.year }} {{ each.division.division }}
+                        </option>
                     {% endfor %}
-                </datalist>
-            </select>
-            <label for="division">Select Division</label>
-            <select id="division" class="btn btn-info" name="division">
-                <datalist>
-                    <option>A</option>
-
-                    <option>B</option>
-
-                    <option>C</option>
-                </datalist>
-            </select>
-        </div>
-        <div class="row">
-            <input type="submit" class="btn btn-success" value="Save">
+                </select>
+            </label>
         </div>
     </div>
 
