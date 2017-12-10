@@ -36,8 +36,7 @@ def index(request):
             faculty_subject_list = faculty.facultysubject_set.all()
             return render(request, "attendance.html", {
                 'all_students': all_students,
-                'selected_subject': selected_faculty_subject_obj.subject.short_form,
-                'selected_division': selected_faculty_subject_obj.division.division,
+                'selected_faculty_subject': selected_faculty_subject_obj,
                 'faculty_subject': faculty_subject_list
             })
 

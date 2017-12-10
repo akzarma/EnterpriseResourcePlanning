@@ -193,8 +193,13 @@
                 <select name="selected_faculty_subject">
 
                     {% for each in faculty_subject %}
+                        {% if each == selected_faculty_subject %}
+                        <option value="{{ each.id }}" selected>{{ each.subject.short_form }} {{ each.division.year.year }} {{ each.division.division }}
+                        </option>
+                        {% else %}
                         <option value="{{ each.id }}">{{ each.subject.short_form }} {{ each.division.year.year }} {{ each.division.division }}
                         </option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </label>
