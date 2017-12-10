@@ -25,7 +25,7 @@ def login_user(request):
         print(user)
         if user is not None:
             login(request, user)
-            return HttpResponseRedirect('/dashboard/student/')
+            return HttpResponseRedirect('/dashboard/')
         else:
             return HttpResponseRedirect('/login/')
     return render(request, 'login.html')

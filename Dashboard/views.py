@@ -10,20 +10,20 @@ from Registration.models import Student
 from UserModel.models import User
 
 
-def student(request):
-    user = request.user
-    # If user exists in session (i.e. logged in)
-    if not user.is_anonymous:
-        student_obj = user.student
-        form = StudentForm(instance=student_obj)
-        return render(request, 'dashboard.html', {
-            'form': form,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-
-        })
-    else:
-        return HttpResponseRedirect('/login/')
+# def student(request):
+#     user = request.user
+#     # If user exists in session (i.e. logged in)
+#     if not user.is_anonymous:
+#         student_obj = user.student
+#         form = StudentForm(instance=student_obj)
+#         return render(request, 'dashboard.html', {
+#             'form': form,
+#             'first_name': user.first_name,
+#             'last_name': user.last_name,
+#
+#         })
+#     else:
+#         return HttpResponseRedirect('/login/')
 
 
 def logout_user(request):
@@ -31,7 +31,7 @@ def logout_user(request):
     return HttpResponseRedirect('/login/')
 
 
-def test_url(request):
+def show_dashboard(request):
     user = request.user
     # If user exists in session (i.e. logged in)
     if not user.is_anonymous:
