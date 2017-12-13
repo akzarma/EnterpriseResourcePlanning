@@ -13,7 +13,7 @@ from Registration.models import Student, Subject, Faculty
 from General.models import FacultySubject
 from Registration.models import Student, Subject
 from Timetable.models import Timetable
-from .models import StudentAttendance, DailyAttendance
+from .models import StudentAttendance
 
 
 # Create your views here.
@@ -47,9 +47,9 @@ def index(request):
 
             # should be faculty....alert on login page with proper message.
 
-            return render(request,'login.html', {'info':'That page is only for Faculty'})
+            return render(request, 'login.html', {'info': 'That page is only for Faculty'})
     else:
-        return render(request,'login.html', {'error': 'Login first'})
+        return render(request, 'login.html', {'error': 'Login first'})
 
 
 def save(request):
@@ -64,10 +64,9 @@ def save(request):
                 print("present student list")
                 print(present)
                 print(request.POST)
-                faculty_subject = FacultySubject.objects.get(pk=int(request.POST.get('selected_faculty_subject')))
-                division_obj = faculty_subject.division
-                all_students = StudentDivision.objects.filter(division=division_obj).values_list('student__pk',
-                                                                                                 flat=True)
+                timetable = Timetable.objects.get(pk=int(request.POST.get('selected_class')))
+                division_obj = timetable.division
+                all_students = StudentDivision.objects.filter(division=division_obj).values_list('student__pk', flat=True)
                 # all_students = StudentDetails.objects.all().values_list('pk', flat=True)
                 print(all_students)
                 print(request.POST)
@@ -77,34 +76,27 @@ def save(request):
                 absent = list(set(all_students) - set(present))
                 print(absent)
                 whole = []
-                whole_daily = []
                 for student in present:
-                    print(faculty_subject, Student.objects.get(pk=student))
-                    new = StudentAttendance(student=Student.objects.get(pk=student), faculty_subject=faculty_subject)
+                    print(timetable, Student.objects.get(pk=student))
+                    new = StudentAttendance(student=Student.objects.get(pk=student), timetable=timetable,
+                                            attended=True, date=datetime.datetime.today())
                     whole.append(new)
-                    new.save()
-                    new_daily = DailyAttendance(attendance=new, date=datetime.datetime.today(), attended=True)
-                    whole_daily.append(new_daily)
                 for student in absent:
-                    new = StudentAttendance(student=Student.objects.get(pk=student), faculty_subject=faculty_subject)
+                    new = StudentAttendance(student=Student.objects.get(pk=student), timetable=timetable,
+                                            attended=False, date=datetime.datetime.today())
                     whole.append(new)
-                    new.save()
-                    new_daily = DailyAttendance(attendance=new, date=datetime.datetime.today(), attended=False)
-                    whole_daily.append(new_daily)
-                print(whole_daily)
                 print(whole)
                 # StudentAttendance.objects.bulk_create(whole)
-                DailyAttendance.objects.bulk_create(whole_daily)
-                # print(request.POST.get)
-                # all_students = StudentDetails.objects.all().values_list('id')
-                # for i in request.POST:
-                #     if i!='csrfmiddlewaretoken':
-                #         print(i)
+                StudentAttendance.objects.bulk_create(whole)
 
-                # if i!=
+                faculty = user.faculty
+                timetables = faculty.timetable_set.all()
+                return render(request, 'select_cat.html', {'success': 'Attendance saved successfully',
+                                                           'faculty_subject': timetables})
+
             else:
-                print("Not here because of post")
-            return HttpResponse("Here")
+                return HttpResponseRedirect('/attendance/select')
+
         else:
             print('User not faculty')
             print(user.role)

@@ -195,8 +195,6 @@
     </div>
 
 
-</form>
-
 <form action="{% url 'attendance:attendance' %}" method="post" id="change_form">
     {% csrf_token %}
     <label>
@@ -215,6 +213,9 @@
         </select>
     </label>
 </form>
+
+</form>
+
 
 
 </body>
@@ -240,5 +241,7 @@
         }
     }
 </script>
+
+
 
 </html>

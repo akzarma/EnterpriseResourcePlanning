@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from datetime import timezone, datetime
+
 from django.db import models
 
 from General.models import FacultySubject
@@ -10,21 +12,26 @@ from Registration.models import Student, Subject, Faculty
 # Contains
 # StudentAttendance - Relation(Student,Subject) + attendance details
 # Daily Attendance - date,time,attended(Derived from student attendance)
+from Timetable.models import Timetable
 
 
 class StudentAttendance(models.Model):
-    student = models.ForeignKey(Student)
-    faculty_subject = models.ForeignKey(FacultySubject)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    # faculty_subject = models.ForeignKey(FacultySubject)
+    timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=datetime.now)
+    # time = models.TimeField()
+    attended = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.student.first_name + self.faculty_subject.subject.name + self.faculty_subject.division.division
+        return self.student.first_name
 
 
-class DailyAttendance(models.Model):
-    date = models.DateTimeField()
-    # time = models.TimeField()
-    attended = models.BooleanField()
-    attendance = models.ForeignKey(StudentAttendance)
+# class DailyAttendance(models.Model):
+#     date = models.DateTimeField()
+#     # time = models.TimeField()
+#     attended = models.BooleanField()
+#     attendance = models.ForeignKey(StudentAttendance)
 
 
 class FacultyAttendance(models.Model):
