@@ -24,7 +24,7 @@ class Faculty(models.Model):
     first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField(null=True)
+    email = models.EmailField(null=True,max_length=100)
     DOB = models.DateField(default='11/02/1976')
 
     faculty_code = models.CharField(max_length=10, primary_key=True)
@@ -102,6 +102,7 @@ class Student(models.Model):
     middle_name = models.CharField(max_length=100, null=True, blank=True)
     last_name = models.CharField(max_length=100)
     DOB = models.DateField(default='1996-02-11')
+
     admission_type = models.CharField(max_length=50)
     shift = models.CharField(max_length=1)
     caste_type = models.CharField(max_length=20)
@@ -109,7 +110,7 @@ class Student(models.Model):
     gr_number = models.CharField(max_length=15, primary_key=True)
     programme = models.CharField(max_length=10)
     # personal details
-    # email = models.EmailField(max_length=100)
+    email = models.EmailField(max_length=100,null=True)
     mobile = models.BigIntegerField(default=0)
     religion = models.CharField(max_length=20, blank=True, null=True)
     sub_caste = models.CharField(max_length=30, null=True, blank=True)
