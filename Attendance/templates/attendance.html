@@ -189,11 +189,10 @@
         {#            </div>#}
 
         <div class="row" style="text-align: center">
-
-
+            <input type="hidden" name="selected_class" value="{{ selected_class.id }}">
         </div>
     </div>
-
+</form>
 
 <form action="{% url 'attendance:attendance' %}" method="post" id="change_form">
     {% csrf_token %}
@@ -212,8 +211,6 @@
             {% endfor %}
         </select>
     </label>
-</form>
-
 </form>
 
 
