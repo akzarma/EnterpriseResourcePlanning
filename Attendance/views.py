@@ -35,11 +35,11 @@ def index(request):
             all_students = StudentDivision.objects.filter(division=selected_class_obj.division).values_list(
                 'student', flat=True)
             print(FacultySubject.objects.filter(faculty=user.faculty))
-            faculty_subject_list = faculty.facultysubject_set.all()
+            timetables = faculty.timetable_set.all()
             return render(request, "attendance.html", {
                 'all_students': all_students,
-                'selected_faculty_subject': selected_class_obj,
-                'faculty_subject': faculty_subject_list
+                'selected_class': selected_class_obj,
+                'faculty_subject': timetables
             })
 
 
