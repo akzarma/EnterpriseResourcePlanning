@@ -28,6 +28,16 @@ def login_user(request):
             return HttpResponseRedirect('/dashboard/')
         else:
             return HttpResponseRedirect('/login/')
+    elif request.method == "GET":
+        user = request.user
+        print(user)
+        if user.is_anonymous:
+            return render(request, 'login.html')
+        else:
+            return HttpResponseRedirect('/dashboard/')
+
+
+
     return render(request, 'login.html')
 
 

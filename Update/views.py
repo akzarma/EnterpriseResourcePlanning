@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 
+from UserModel.models import User
 from .forms import StudentUpdateForm, FacultyUpdateForm
 from Registration.models import Student
 
@@ -27,20 +28,29 @@ def update(request):
                     })
 
             elif user.role=='Faculty':
-                form = FacultyUpdateForm(request.POST, request.FILES, instance=user.faculty)
+                form = FacultyUpdateForm(request.POST or None, request.FILES or None, instance=user.faculty)
+
+                faculty = user.faculty
                 print(request.FILES)
-                print(user.faculty)
+                print(user.faculty.first_name)
+
                 if form.is_valid():
                     print('form valid')
+
                     faculty_obj = form.save(commit=False)
                     faculty_obj.user = user
                     faculty_obj.save()
-                    return HttpResponseRedirect('/dashboard/')
+                    return render(request, 'update.html', {
+                        'form': form,
+                        'success': 'Successfully updated.'
+                    })
                 else:
                     print('form not valid')
+                    #print validation error
                     print(form.errors)
                     return render(request, 'update.html', {
                         'form': form,
+                        'error': 'Updating failed.'
                     })
 
         else:
@@ -48,7 +58,9 @@ def update(request):
             if user.role=='Faculty':
                 print('in update faculty')
                 obj = user.faculty
+                print(user.email,"sdfevsrdvsdvrsdbvfbrff")
                 form = FacultyUpdateForm(instance=obj)
+
             elif user.role=='Student':
                 print('in update student')
                 obj = user.student
@@ -58,8 +70,6 @@ def update(request):
 
             return render(request, 'update.html', {
                 'form': form,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
             })
     else:
         print('Redirecting to login')

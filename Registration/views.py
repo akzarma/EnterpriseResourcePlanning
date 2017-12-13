@@ -55,6 +55,7 @@ def register_student(request):
 def register_faculty(request):
     if request.method == "POST":
         form = FacultyForm(request.POST, request.FILES)
+
         if form.is_valid():
             faculty = form.save(commit=False)
             if (request.POST.get('initials')) == '':

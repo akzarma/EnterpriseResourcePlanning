@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import datetime
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 from General.models import CollegeYear, CollegeExtraDetail, StudentDivision
@@ -32,7 +32,7 @@ def index(request):
             selected_faculty_subject = request.POST.get('selected_faculty_subject')
             selected_faculty_subject_obj = FacultySubject.objects.get(pk=selected_faculty_subject)
             all_students = StudentDivision.objects.filter(division=selected_faculty_subject_obj.division).values_list(
-                'student',flat=True)
+                'student', flat=True)
             print(FacultySubject.objects.filter(faculty=user.faculty))
             faculty_subject_list = faculty.facultysubject_set.all()
             return render(request, "attendance.html", {
@@ -41,10 +41,14 @@ def index(request):
                 'faculty_subject': faculty_subject_list
             })
 
+
         else:
-            return HttpResponse("Not Faculty")
+
+            # should be faculty....alert on login page with proper message.
+
+            return HttpResponseRedirect('/login/')
     else:
-        return HttpResponse("Not Logged in.")
+        return HttpResponseRedirect('/login/')
 
 
 def save(request):
@@ -61,7 +65,8 @@ def save(request):
                 print(request.POST)
                 faculty_subject = FacultySubject.objects.get(pk=int(request.POST.get('selected_faculty_subject')))
                 division_obj = faculty_subject.division
-                all_students = StudentDivision.objects.filter(division=division_obj).values_list('student__pk', flat=True)
+                all_students = StudentDivision.objects.filter(division=division_obj).values_list('student__pk',
+                                                                                                 flat=True)
                 # all_students = StudentDetails.objects.all().values_list('pk', flat=True)
                 print(all_students)
                 print(request.POST)
@@ -73,7 +78,7 @@ def save(request):
                 whole = []
                 whole_daily = []
                 for student in present:
-                    print(faculty_subject,Student.objects.get(pk=student))
+                    print(faculty_subject, Student.objects.get(pk=student))
                     new = StudentAttendance(student=Student.objects.get(pk=student), faculty_subject=faculty_subject)
                     whole.append(new)
                     new.save()
@@ -106,7 +111,7 @@ def save(request):
 
     else:
         print('user no logged in')
-        return HttpResponse("User is not logged in")
+        return HttpResponseRedirect('/login/')
 
 
 def select_cat(request):
@@ -122,6 +127,8 @@ def select_cat(request):
                 return render(request, 'select_cat.html', {'faculty_subject': faculty_subject_list})
 
         else:
-            return HttpResponse("Not Faculty")
+            # should be faculty....alert on login page with proper message.
+            return HttpResponseRedirect('/login/')
     else:
-        return HttpResponse("Not Logged in.")
+        print('user no logged in')
+        return HttpResponseRedirect('/login/')

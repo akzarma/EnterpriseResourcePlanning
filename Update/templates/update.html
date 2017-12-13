@@ -74,23 +74,27 @@
                                  alt="Uploaded image is broken"/>
                         </div>
 
-                        <div class="form-element">
-                            <span class="error">{{ form.gr_number.errors }}</span>
-                            <label class="control-label">{{ form.gr_number.label_tag }}</label>
-                            <div class="">{{ form.gr_number.value }}</div>
+                         <div class="form-element">
+                            <span class="error">{{ form.initials.errors }}</span>
+                            <label class="control-label">{{ form.initials.label_tag }}</label>
+                            <div class="">{{ form.initials }}</div>
                         </div>
                         <div class="form-element">
-                            <label class="control-label">First Name</label>
-                            <div class="">{{ form.first_name.value }}</div>
+                            <span class="error">{{ form.first_name.errors }}</span>
+                            <label class="control-label">{{ form.first_name.label_tag }}</label>
+                            <div class="">{{ form.first_name }}</div>
                         </div>
+                        {% if form.middle_name %}
                         <div class="form-element">
                             <span class="error">{{ form.middle_name.errors }}</span>
                             <label class="control-label">{{ form.middle_name.label_tag }}</label>
-                            <div class="">{{ form.middle_name.value }}</div>
+                            <div class="">{{ form.middle_name }}</div>
                         </div>
+                        {% endif %}
                         <div class="form-element">
-                            <label class="control-label">Last Name</label>
-                            <div class="">{{ form.last_name.value }}</div>
+                            <span class="error">{{ form.last_name.errors }}</span>
+                            <label class="control-label">{{ form.last_name.label_tag }}</label>
+                            <div class="">{{ form.last_name }}</div>
                         </div>
                     </div>
 
@@ -98,28 +102,30 @@
                         <div class="form-element">
                             <span class="error">{{ form.DOB.errors }}</span>
                             <label class="control-label">{{ form.DOB.label_tag }}</label>
-                            <div class="">{{ form.DOB.value }}</div>
+                            <div class="">{{ form.DOB }}</div>
                         </div>
+
                         <div class="form-element">
-                            <span class="error">{{ form.admission_type.errors }}</span>
-                            <label class="control-label">{{ form.admission_type.label_tag }}</label>
-                            <div class="">{{ form.admission_type.value }}</div>
-                        </div>
-                        <div class="form-element">
-                            <span class="error">{{ form.shift.errors }}</span>
-                            <label class="control-label">{{ form.shift.label_tag }}</label>
-                            <div class="">{{ form.shift.value }}</div>
+                            <span class="error">{{ form.faculty_code.errors }}</span>
+                            <label class="control-label">{{ form.faculty_code.label_tag }}</label>
+                            <div class="">{{ form.faculty_code }}</div>
                         </div>
                         <div class="form-element">
                             <span class="error">{{ form.caste_type.errors }}</span>
                             <label class="control-label">{{ form.caste_type.label_tag }}</label>
-                            <div class="">{{ form.caste_type.value }}</div>
+                            <div class="">{{ form.caste_type }}</div>
                         </div>
                         <div class="form-element">
-                            <span class="error">{{ form.branch.errors }}</span>
-                            <label class="control-label">{{ form.branch.label_tag }}</label>
-                            <div class="">{{ form.branch.value }}</div>
+                            <span class="error">{{ form.teaching_from.errors }}</span>
+                            <label class="control-label">{{ form.subjects_experience.label_tag }}</label>
+                            <div class="">{{ form.subjects_experience }}</div>
                         </div>
+                        <div class="form-element">
+                            <span class="error">{{ form.teaching_from.errors }}</span>
+                            <label class="control-label">{{ form.projects.label_tag }}</label>
+                            <div class="">{{ form.projects }}</div>
+                        </div>
+
                     </div>
 
                 </fieldset>
@@ -128,7 +134,7 @@
                     <div class="form-element">
                         <span class="error">{{ form.email.errors }}</span>
                         <label class="control-label">{{ form.email.label_tag }}</label>
-                        <div class="">{{ form.email.value }}</div>
+                        <div class="">{{ form.email }}</div>
                     </div>
                     <div class="form-element">
                         <span class="error">{{ form.mobile.errors }}</span>
@@ -250,22 +256,22 @@
                         <div class="form-element">
                             <span class="error">{{ form.permanent_address.errors }}</span>
                             <label class="control-label">{{ form.permanent_address.label_tag }}</label>
-                            <div class="">{{ form.permanent_address.value }}</div>
+                            <div class="">{{ form.permanent_address }}</div>
                         </div>
                         <div class="form-element">
                             <span class="error">{{ form.permanent_state.errors }}</span>
                             <label class="control-label">{{ form.permanent_state.label_tag }}</label>
-                            <div class="">{{ form.permanent_state.value }}</div>
+                            <div class="">{{ form.permanent_state }}</div>
                         </div>
                         <div class="form-element">
                             <span class="error">{{ form.permanent_city.errors }}</span>
                             <label class="control-label">{{ form.permanent_city.label_tag }}</label>
-                            <div class="">{{ form.permanent_city.value }}</div>
+                            <div class="">{{ form.permanent_city }}</div>
                         </div>
                         <div class="form-element">
                             <span class="error">{{ form.permanent_pin_code.errors }}</span>
                             <label class="control-label">{{ form.permanent_pin_code.label_tag }}</label>
-                            <div class="">{{ form.permanent_pin_code.value }}</div>
+                            <div class="">{{ form.permanent_pin_code }}</div>
                         </div>
                         <div class="form-element">
                             <span class="error">{{ form.permanent_country.errors }}</span>
