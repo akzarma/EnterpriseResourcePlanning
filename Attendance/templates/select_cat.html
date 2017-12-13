@@ -6,7 +6,7 @@
         <label>
             <select name="selected_faculty_subject">
                 {% for each in faculty_subject %}
-                <option value="{{ each.id }}">{{ each.subject.short_form }} {{ each.division.year.year }} {{each.division.division }}
+                <option value="{{ each.id }}"> {{ each.division.year.year }} {{each.division.division }} {{ each.branch_subject.subject.short_form }} {{ each.day }} {{ each.time.starting_time }}-{{ each.time.ending_time }} {{ each.room.room_number }}
                 </option>
                 {% endfor %}
             </select>
