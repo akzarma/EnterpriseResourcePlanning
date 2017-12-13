@@ -1,6 +1,6 @@
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student
@@ -49,7 +49,7 @@ def show_dashboard(request):
             })
     else:
         print('not logged in')
-        return HttpResponseRedirect('/login/')
+        return redirect('/login/')
 
 
 def view_profile(request):

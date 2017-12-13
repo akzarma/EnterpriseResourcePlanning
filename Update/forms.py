@@ -55,10 +55,11 @@ class FacultyUpdateForm(forms.ModelForm):
     # state_choices = states[0].split(',')
     caste_type = forms.CharField(disabled=True)
     first_name = forms.CharField(disabled=True)
-    middle_name = forms.CharField(disabled=True)
+    middle_name = forms.CharField(disabled=True, required=False)
     last_name = forms.CharField(disabled=True)
     faculty_code = forms.CharField(disabled=True)
     initials = forms.CharField(disabled=True)
+    email = forms.EmailField(disabled=True)
     DOB = forms.CharField(disabled=True)
     teaching_from = forms.CharField(disabled=True)
 
