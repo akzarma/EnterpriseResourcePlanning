@@ -1,6 +1,5 @@
 {% extends './base.html' %}
 
-
 {% block style %}
     <style>
         html, body {
@@ -228,18 +227,18 @@
 
     </style>
 {% endblock style %}
+
 {% block body %}
     <form method="post" action="{% url 'Timetable:save_timetable' %}" enctype="multipart/form-data">
         {% csrf_token %}
-
         <label for="id_year">Year: </label>
-        <select id="id_year" onchange="loadSubjects()">
+        <select id="id_year">
             {% for yr in year %}
                 <option>{{ yr }}</option>
             {% endfor %}
         </select>
         <label for="id_subject">Subjects: </label>
-        <select id="id_subject" onchange="refreshCheckbox(this)">
+        <select id="id_subject">
             {% for subject in subjects %}
                 <option>{{ subject }}</option>
             {% endfor %}
@@ -270,7 +269,6 @@
                                         <td class="block border-left">
                                             <input type="checkbox" class="cbx"
                                                    name="id_room_{{ time }}_{{ x }}_{{ z }}"
-                                                   onchange="getFaculty(this)"
                                                    id="id_room_{{ time }}_{{ x }}_{{ z }}_cbx">
                                             {#                                        <label id="id_room_{{ time }}_{{ x }}_{{ z }}_label"#}
                                             {#                                               for="id_room_{{ time }}_{{ x }}_{{ z }}_cbx"#}
@@ -287,7 +285,6 @@
                                         <td class="sidebar">{{ x }}</td>
                                     {% endif %}
                                 {% endfor %}
-
                             </tr>
                         {% endfor %}
 
