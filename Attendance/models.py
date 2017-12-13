@@ -19,7 +19,7 @@ class StudentAttendance(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     # faculty_subject = models.ForeignKey(FacultySubject)
     timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
-    date = models.DateTimeField(default=datetime.now)
+    date = models.DateField(default=datetime.today())
     # time = models.TimeField()
     attended = models.BooleanField(default=False)
 

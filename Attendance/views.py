@@ -113,6 +113,7 @@ def select_cat(request):
         if user.role == 'Faculty':
             if request.method == 'POST':
                 form = FacultySubject(request.POST, request.FILES, instance=user.faculty)
+                return HttpResponse('Where are you going?')
             else:
                 faculty = user.faculty
                 timetables = faculty.timetable_set.all()
@@ -125,3 +126,22 @@ def select_cat(request):
     else:
         print('user no logged in')
         return HttpResponseRedirect('/login/')
+
+
+def check_attendance(request):
+    user = request.user
+    if not user.is_anonymous:
+        if user.role == 'Faculty':
+            if request.method == 'POST':
+                faculty = user.faculty
+                current_tt = request.POST.get('selected_class')
+                current_tt_obj = Timetable.objects.get(pk=current_tt)
+                all_students = StudentAttendance.objects.filter(timetable=current_tt_obj,date=datetime.datetime.today())
+                return render(request, "check_attendance.html", {
+                    'all_students': all_students,
+                })
+            elif request.method == "GET":
+                faculty = user.faculty
+                timetables = faculty.timetable_set.all()
+                print(timetables)
+                return render(request, 'select_cat.html', {'faculty_subject': timetables, 'check': 1})
