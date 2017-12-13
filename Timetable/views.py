@@ -48,8 +48,17 @@ def fill_timetable(request):
     for i in divisions:
         divisions_js += i
 
-    timetables = Timetable.objects.filter(is_practical=False)
-    timetable_prac = Timetable.objects.filter(is_practical=True)
+    # timetables = Timetable.objects.filter(is_practical=False)
+    # timetable_prac = Timetable.objects.filter(is_practical=True)
+    subjects_json = {}
+    subjects = BranchSubject.objects.filter(branch=branch_obj)
+
+    for each
+    subjects_theory = list(subjects.filter(subject__is_practical=False).values_list(
+        'subject__short_form', flat=True))
+    subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
+        'subject__short_form', flat=True))
+
 
     context = {
         'branch': branch,
@@ -65,7 +74,7 @@ def fill_timetable(request):
         'timetables': timetables,
         'timetable_prac': timetable_prac
     }
-    return render(request, 'fill_timetable.html', context)
+    return render(request, 'test_timetable.html', context)
 
 
 def get_faculty(request):
