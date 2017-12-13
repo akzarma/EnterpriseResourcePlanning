@@ -54,7 +54,7 @@ def index(request):
 def save(request):
     user = request.user
 
-    if user is not user.is_anonymous:
+    if not user.is_anonymous:
         if user.role == 'Faculty':
             if request.method == 'POST':
                 faculty = user.faculty
@@ -110,7 +110,7 @@ def save(request):
             return HttpResponse('User not faculty')
 
     else:
-        print('user no logged in')
+        print('user not logged in')
         return HttpResponseRedirect('/login/')
 
 
