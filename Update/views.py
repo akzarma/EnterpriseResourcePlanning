@@ -11,32 +11,28 @@ def update(request):
     if not user.is_anonymous:
         if request.method == 'POST':
             if user.role=='Student':
-                form = StudentUpdateForm(request.POST, request.FILES, instance=user.student)
-                print(request.FILES)
-                print(user.student)
+                form = StudentUpdateForm(request.POST or None, request.FILES or None, instance=user.student)
                 if form.is_valid():
                     print('form valid')
                     student_obj = form.save(commit=False)
                     student_obj.user = user
                     student_obj.save()
-                    return HttpResponseRedirect('/update/')
+                    return render(request, 'update_student.html', {
+                        'form': form,
+                        'success': 'Successfully updated.'
+                    })
                 else:
                     print('form not valid')
                     print(form.errors)
-                    return render(request, 'update_student.html', {
+                    return render(request, 'update_faculty.html', {
                         'form': form,
+                        'error': 'Updating failed.'
                     })
 
             elif user.role=='Faculty':
                 form = FacultyUpdateForm(request.POST or None, request.FILES or None, instance=user.faculty)
-
-                faculty = user.faculty
-                print(request.FILES)
-                print(user.faculty.first_name)
-
                 if form.is_valid():
                     print('form valid')
-
                     faculty_obj = form.save(commit=False)
                     faculty_obj.user = user
                     faculty_obj.save()
