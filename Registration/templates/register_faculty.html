@@ -1,7 +1,6 @@
 {% extends "./base.html" %}
 {% block title %}Faculty Registration {% endblock %}
 
-
 {% block body %}
     <form method="POST" id="faculty_form" action="{% url 'registration:register_faculty' %}"
           onsubmit="return fileSizeValidate()"

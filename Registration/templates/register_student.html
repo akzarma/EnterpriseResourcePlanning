@@ -1,5 +1,6 @@
 {% extends "./base.html" %}
 
+
 {% block body %}
     <form id="student_form" action="{% url 'registration:register_student' %}" onsubmit="return fileSizeValidate()"
           method="post"
@@ -20,10 +21,8 @@
                     <div class="panel-body">
                         <div class="row">
                             <fieldset class="col-lg-6">
-                                <legend>Basic Info:</legend>
-
+                                <legend>Basic Info</legend>
                                 <div class="col-lg-6">
-
                                     <div class="form-element">
                                         <span class="error">{{ form.doc_profile_pic.errors }}</span>
                                         {{ form.doc_profile_pic.label_tag }}
@@ -32,8 +31,6 @@
                                              src="http://icons.iconarchive.com/icons/paomedia/small-n-flat/512/sign-add-icon.png"
                                              alt="Uploaded image is broken"/>
                                     </div>
-
-
                                     <div class="form-element">
                                         <span class="error">{{ form.gr_number.errors }}</span>
                                         <label class="control-label">{{ form.gr_number.label_tag }}</label>
@@ -432,7 +429,7 @@
     </script>
     <script>
         function loadSameAddress(e) {
-            if (document.getElementById('sameAddress').checked == true) {
+            if (document.getElementById('sameAddress').checked === true) {
                 var enteredValue = e.value;
                 var splitId = e.id.split('_');
                 var targetId = splitId[0] + "_current_" + splitId[2];
@@ -446,7 +443,7 @@
         function stateChanged(e) {
             var permanent = ['country', 'state', 'city', 'address', 'pin_code'];
             for (var i = 0; i < permanent.length; document.getElementById("id_current_" + permanent[i]).disabled = true, i++) ;
-            if (e.checked == true) {
+            if (e.checked === true) {
                 loadSameAddress(document.getElementById('id_permanent_country'));
                 loadSameAddress(document.getElementById('id_permanent_state'));
                 loadSameAddress(document.getElementById('id_permanent_city'));
@@ -508,7 +505,6 @@
             {#        alert("error");#}
             {#    }#}
             {##}
-            {#});#}
         }
     </script>
     <script>
