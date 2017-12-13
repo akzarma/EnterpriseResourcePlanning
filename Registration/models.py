@@ -24,6 +24,7 @@ class Faculty(models.Model):
     first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100)
+    email = models.EmailField(null=True)
     DOB = models.DateField(default='11/02/1976')
 
     faculty_code = models.CharField(max_length=10, primary_key=True)
