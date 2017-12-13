@@ -51,13 +51,9 @@ def fill_timetable(request):
     # timetables = Timetable.objects.filter(is_practical=False)
     # timetable_prac = Timetable.objects.filter(is_practical=True)
     subjects_json = {}
-    subjects = BranchSubject.objects.filter(branch=branch_obj)
 
-    for each
-    subjects_theory = list(subjects.filter(subject__is_practical=False).values_list(
-        'subject__short_form', flat=True))
-    subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
-        'subject__short_form', flat=True))
+    for each_year in years:
+        theory = Subject.objects.filter()
 
 
     context = {
