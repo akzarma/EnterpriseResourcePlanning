@@ -69,7 +69,7 @@ def view_profile(request):
                 else:
                     print('form not valid')
                     print(form.errors)
-                    return render(request, 'profile.html', {
+                    return render(request, 'profile_student.html', {
                         'form': form,
                     })
 
@@ -86,7 +86,7 @@ def view_profile(request):
                 else:
                     print('form not valid')
                     print(form.errors)
-                    return render(request, 'profile.html', {
+                    return render(request, 'profile_faculty.html', {
                         'form': form,
                     })
 
@@ -96,18 +96,22 @@ def view_profile(request):
                 print('in update faculty')
                 obj = user.faculty
                 form = FacultyUpdateForm(instance=obj)
+                return render(request, 'profile_faculty.html', {
+                    'form': form,
+                })
+
             elif user.role == 'Student':
                 print('in update student')
                 obj = user.student
                 form = StudentUpdateForm(instance=obj)
+                return render(request, 'profile_student.html', {
+                    'form': form,
+                })
+
             else:
                 return HttpResponse("User has no role")
 
-            return render(request, 'profile.html', {
-                'form': form,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-            })
+
     else:
         print('Redirecting to login')
         return HttpResponseRedirect('/login/')

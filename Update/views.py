@@ -19,11 +19,11 @@ def update(request):
                     student_obj = form.save(commit=False)
                     student_obj.user = user
                     student_obj.save()
-                    return HttpResponseRedirect('/dashboard/')
+                    return HttpResponseRedirect('/update/')
                 else:
                     print('form not valid')
                     print(form.errors)
-                    return render(request, 'update.html', {
+                    return render(request, 'update_student.html', {
                         'form': form,
                     })
 
@@ -40,7 +40,7 @@ def update(request):
                     faculty_obj = form.save(commit=False)
                     faculty_obj.user = user
                     faculty_obj.save()
-                    return render(request, 'update.html', {
+                    return render(request, 'update_faculty.html', {
                         'form': form,
                         'success': 'Successfully updated.'
                     })
@@ -48,7 +48,7 @@ def update(request):
                     print('form not valid')
                     #print validation error
                     print(form.errors)
-                    return render(request, 'update.html', {
+                    return render(request, 'update_faculty.html', {
                         'form': form,
                         'error': 'Updating failed.'
                     })
@@ -60,17 +60,21 @@ def update(request):
                 obj = user.faculty
                 print(user.email,"sdfevsrdvsdvrsdbvfbrff")
                 form = FacultyUpdateForm(instance=obj)
+                return render(request, 'update_faculty.html', {
+                    'form': form,
+                })
 
             elif user.role=='Student':
                 print('in update student')
                 obj = user.student
                 form = StudentUpdateForm(instance=obj)
+                return render(request, 'update_student.html', {
+                    'form': form,
+                })
             else:
                 return HttpResponse("User has no role")
 
-            return render(request, 'update.html', {
-                'form': form,
-            })
+
     else:
         print('Redirecting to login')
         return HttpResponseRedirect('/login/')
