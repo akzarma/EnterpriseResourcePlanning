@@ -180,6 +180,16 @@
 
 {% endblock style %}
 
+{% block navbar-right %}
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+       aria-expanded="false" style="text-transform: uppercase;">{{ form.first_name.value.capitalize }}</a>
+    <ul class="dropdown-menu">
+        <li><h5>Faculty Code: {{ form.faculty_code.value }}</h5></li>
+        <li><a href="{% url 'dashboard:profile' %}">View Profile</a></li>
+        <li><a href="{% url 'dashboard:logout' %}"><span class="glyphicon glyphicon-off"></span>Logout</a></li>
+    </ul>
+
+{% endblock navbar-right %}
 {% block body %}
     <div class="wrapper">
         <!-- Sidebar Holder -->

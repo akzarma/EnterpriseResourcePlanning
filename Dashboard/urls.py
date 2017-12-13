@@ -9,6 +9,8 @@ urlpatterns = [
 
     url(r'logout/$', views.logout_user, name="logout"),
 
+    url(r'profile/$', views.view_profile, name="profile"),
+
     # url(r'^update/', include('Update.urls'))
 
 ]
