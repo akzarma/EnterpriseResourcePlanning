@@ -123,9 +123,9 @@ def select_cat(request):
                 form = FacultySubject(request.POST, request.FILES, instance=user.faculty)
             else:
                 faculty = user.faculty
-                faculty_subject_list = faculty.facultysubject_set.all()
-                print(FacultySubject.objects.filter(faculty=user.faculty))
-                return render(request, 'select_cat.html', {'faculty_subject': faculty_subject_list})
+                timetables = faculty.timetable_set.all()
+                print(timetables)
+                return render(request, 'select_cat.html', {'faculty_subject': timetables})
 
         else:
             # should be faculty....alert on login page with proper message.

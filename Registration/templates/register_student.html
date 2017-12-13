@@ -1,15 +1,15 @@
 {% extends "./base.html" %}
-
+{% block title %}Student Registration {% endblock %}
 
 {% block body %}
-    <form id="student_form" action="{% url 'registration:register_student' %}" onsubmit="return fileSizeValidate()"
-          method="post"
+    <form method="POST" id="student_form" action="{% url 'registration:register_student' %}"
+          onsubmit="return fileSizeValidate()"
           enctype="multipart/form-data">
         {% csrf_token %}
         <div class="panel-group" id="accordion">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <a class="pad accordion-toggle" data-toggle="collapse" data-parent="#accordion"
+                  <a class="pad accordion-toggle" data-toggle="collapse" data-parent="#accordion"
                        href="#collapseOne">
                         <h4 class="panel-title">
                             Personal Info
@@ -470,6 +470,17 @@
         });
     </script>
     <script>
+        $(function () {
+            $(".datepicker").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-50:+0"
+                // You can put more options here.
+
+            });
+        });
+    </script>
+    <script>
         function fileSizeValidate() {
 
             var element = document.getElementById("id_doc_tenth_marksheet");
@@ -481,6 +492,7 @@
                 return false;
             }
             else {
+                alert("True");
                 return true;
             }
 
