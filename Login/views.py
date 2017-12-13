@@ -16,6 +16,7 @@ import json
 
 def login_user(request):
     print("login user")
+    user = request.user
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -27,7 +28,7 @@ def login_user(request):
             login(request, user)
             return HttpResponseRedirect('/dashboard/')
         else:
-            return HttpResponseRedirect('/login/')
+            return render(request, 'login.html', {'error': 'Invalid credentials'})
     elif request.method == "GET":
         user = request.user
         print(user)
@@ -35,7 +36,6 @@ def login_user(request):
             return render(request, 'login.html')
         else:
             return HttpResponseRedirect('/dashboard/')
-
 
 
     return render(request, 'login.html')
