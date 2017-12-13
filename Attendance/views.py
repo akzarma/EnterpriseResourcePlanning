@@ -12,6 +12,7 @@ from General.models import FacultySubject, StudentDivision
 from Registration.models import Student, Subject, Faculty
 from General.models import FacultySubject
 from Registration.models import Student, Subject
+from Timetable.models import Timetable
 from .models import StudentAttendance, DailyAttendance
 
 
@@ -29,16 +30,16 @@ def index(request):
     if not user.is_anonymous:
         if user.role == 'Faculty':
             faculty = user.faculty
-            selected_faculty_subject = request.POST.get('selected_faculty_subject')
-            selected_faculty_subject_obj = FacultySubject.objects.get(pk=selected_faculty_subject)
-            all_students = StudentDivision.objects.filter(division=selected_faculty_subject_obj.division).values_list(
+            selected_class = request.POST.get('selected_class')
+            selected_class_obj = Timetable.objects.get(pk=selected_class)
+            all_students = StudentDivision.objects.filter(division=selected_class_obj.division).values_list(
                 'student', flat=True)
             print(FacultySubject.objects.filter(faculty=user.faculty))
-            faculty_subject_list = faculty.facultysubject_set.all()
+            timetables = faculty.timetable_set.all()
             return render(request, "attendance.html", {
                 'all_students': all_students,
-                'selected_faculty_subject': selected_faculty_subject_obj,
-                'faculty_subject': faculty_subject_list
+                'selected_class': selected_class_obj,
+                'faculty_subject': timetables
             })
 
 
