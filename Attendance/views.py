@@ -46,9 +46,9 @@ def index(request):
 
             # should be faculty....alert on login page with proper message.
 
-            return HttpResponseRedirect('/login/')
+            return render(request,'login.html', {'info':'That page is only for Faculty'})
     else:
-        return HttpResponseRedirect('/login/')
+        return render(request,'login.html', {'error': 'Login first'})
 
 
 def save(request):
