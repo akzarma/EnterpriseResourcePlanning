@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 urlpatterns = [
+    url(r'^$', include('Login.urls')),
     url(r'^update/', include('Update.urls')),
     url(r'^register/', include('Registration.urls')),
     url(r'^attendance/', include('Attendance.urls')),
