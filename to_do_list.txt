@@ -1,0 +1,19 @@
+Student Portal
+Teacher Portal
+Parent Portal
+Staff Portal
+Modules
+Academic Information System
+Student Management System
+Fee Management System
+Examination Management System
+Mess & Hostel Management System
+Transport Management System
+Time Table (Student & Teachers)
+Attendance Management system (Student & Employee)
+Alumni System
+Library Management System
+PIS & Payroll
+(HR Management System)
+Financial Accounting System
+Store & Inventory Management System
