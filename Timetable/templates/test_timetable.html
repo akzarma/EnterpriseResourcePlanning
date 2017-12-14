@@ -182,6 +182,7 @@
             width: 15px; /*Desired width*/
             height: 15px; /*Desired height*/
             cursor: pointer;
+            text-align: center !important;
         }
 
         .cbx_label {
@@ -221,79 +222,355 @@
         }
 
         input[type="checkbox"] {
-            width: 30px; /*Desired width*/
-            height: 30px; /*Desired height*/
+            width: 30px;
+            height: 30px;
         }
+
+        .checked-cbx {
+            width: 15px !important;
+            height: 15px !important;
+
+        {#position: relative;#}{#left:-40%;#}
+        }
+
+        .checked-cbx-parent {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            text-align: left;
+        }
+
+        .red {
+            background: red !important;
+        }
+
+        /*
+
+            #timetable_FE {
+                background: #5bc0de;
+            }
+
+            #timetable_SE {
+                background: #0379C4;
+            }
+
+            #timetable_TE {
+                background: darkgrey;
+            }
+
+            #timetable_BE {
+                background: cyan;
+            }
+        */
 
     </style>
 {% endblock style %}
 
 {% block body %}
-    <form method="post" action="{% url 'Timetable:save_timetable' %}" enctype="multipart/form-data">
+    <form method="post" action="{% url 'Timetable:save_timetable' %}">
         {% csrf_token %}
         <label for="id_year">Year: </label>
-        <select id="id_year">
+        <select id="id_year" onchange="set_subject()">
             {% for yr in year %}
                 <option>{{ yr }}</option>
             {% endfor %}
         </select>
         <label for="id_subject">Subjects: </label>
-        <select id="id_subject">
-            {% for subject in subjects %}
-                <option>{{ subject }}</option>
-            {% endfor %}
+
+
+        <select id="id_subject" onchange="change_selected_subject(this)">
         </select>
 
         <br>
-        <div class="container">
-            <table style="width:100%;" id="time-tab">
-                <tr>
-                    <th colspan="2" class="titlebar">Time</th>
-                    {% for day in days %}
-                        <th class="titlebar">
-                            {{ day }}
-                        </th>
-                    {% endfor %}
-                </tr>
-                {% for time in times %}
-                    <tr class="border-down">
-                        <th rowspan="4" class="sidebar time">
-                            {{ time }}
-                        </th>
-
-                        {% for x in division %}
-                            <tr class="content border-down" style="">
-                                {% for z in '1234567' %}
-
-                                    {% if forloop.counter0 %}
-                                        <td class="block border-left">
-                                            <input type="checkbox" class="cbx"
-                                                   name="id_room_{{ time }}_{{ x }}_{{ z }}"
-                                                   id="id_room_{{ time }}_{{ x }}_{{ z }}_cbx">
-                                            {#                                        <label id="id_room_{{ time }}_{{ x }}_{{ z }}_label"#}
-                                            {#                                               for="id_room_{{ time }}_{{ x }}_{{ z }}_cbx"#}
-                                            {#                                               class="cbx_label">Select</label>#}
-                                            {#                                        <div id="id_room_{{ time }}_{{ x }}_{{ z }}" class="faculty">#}
-                                            {#                                            Faculty#}
-                                            {#                                        </div>#}
-                                            {#                                        <div id="id_room_{{ time }}_{{ x }}_{{ z }}_room"#}
-                                            {#                                             style="text-align: center" class="room">#}
-                                            {#                                            Room#}
-                                            {#                                        </div>#}
-                                        </td>
-                                    {% else %}
-                                        <td class="sidebar">{{ x }}</td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
+        {% for yr in year %}
+            {#                <option>{{ yr }}</option>#}
+            <div class="container hidden" id="timetable_{{ yr }}">
+                <table style="width:100%;" id="time_tab_{{ yr }}">
+                    <tr>
+                        <th colspan="2" class="titlebar">Time</th>
+                        {% for day in days %}
+                            <th class="titlebar">
+                                {{ day }}
+                            </th>
                         {% endfor %}
+                    </tr>
+                    {% for time in times %}
+                        <tr class="border-down">
+                            <th rowspan="4" class="sidebar time">
+                                {{ time }}
+                            </th>
 
-                {% endfor %}
-            </table>
-            <br/>
-            <div class="col-md-offset-6">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                            {% for x in division %}
+                                <tr class="content border-down" style="">
+                                    {% for z in '1234567' %}
+
+                                        {% if forloop.counter0 %}
+                                            <td class="block border-left">
+                                                <input type="checkbox" class="cbx"
+                                                       name="id_room_{{ time }}_{{ x }}_{{ z }}_{{ yr }}"
+                                                       id="id_room_{{ time }}_{{ x }}_{{ z }}_{{ yr }}_cbx"
+                                                       onchange="add_remove_from_dictionary(this)" >
+
+                                            </td>
+                                        {% else %}
+                                            <td class="sidebar">{{ x }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+
+                    {% endfor %}
+                </table>
+                <br/>
+
             </div>
+        {% endfor %}
+        <div class="col-md-offset-6">
+            <button type="submit" class="btn btn-primary">Submit</button>
         </div>
     </form>
 {% endblock body %}
+
+{% block html %}
+
+
+
+    {#    Make Selected year timetable visible#}
+    <script>
+        var all_years = {{ year|safe }};
+
+        function make_timetable_visible() {
+            for (i = 0; i < all_years.length; i++) {
+                document.getElementById('timetable_' + all_years[i]).classList.add("hidden");
+            }
+            let year = document.getElementById("id_year").value;
+            let timetable_object = document.getElementById('timetable_' + year);
+            timetable_object.classList.remove("hidden");
+        }
+
+    </script>
+
+    <script>
+        //Gets subject of theory and practical for current year.
+        var subjects_json = {{ subject_json|safe }};
+
+        var configuration = {
+            "time_index": 2,
+            "division_index": 3,
+            "day_index": 4,
+            "year_index": 5
+        };
+
+        var global_current_subject = "";
+
+        //Sets option of combo box with subjects_json
+        function set_subject() {
+
+            var selected_year = document.getElementById("id_year").value;
+            var current_subjects_theory = subjects_json[selected_year]["theory"];
+            var current_subjects_practical = subjects_json[selected_year]["practical"];
+
+            //clears select options
+            $('#id_subject').find('option').remove();
+            //add theory subject
+            $.each(current_subjects_theory, function (i, el) {
+                $('#id_subject').append(new Option(el, el))
+            });
+            //add practical subject
+            $.each(current_subjects_practical, function (i, el) {
+                $('#id_subject').append(new Option(el, el))
+            });
+
+            make_timetable_visible();
+
+            block_all_current_subject(document.getElementById('id_subject').value, true);
+        }
+
+        global_current_subject = document.getElementById('id_subject').value;
+
+        //Mark current year checked boxes on year change
+        /*function mark_current_year(selected_year) {
+
+            let subjects = subjects_json[selected_year];
+            for (i = 0; i < subjects.length(); i++) {
+                let to_check = subject_teacher_json[subjects[i]];
+                for (j = 0; j < to_check.length(); j++) {
+                    document.getElementById(to_check[j]).checked = true;
+                }
+            }
+        }*/
+    </script>
+
+
+    <script>
+        //keep tracks of subject where they are checked for division,day,time slot.
+        var subject_dictionary = [];
+        var subject_teacher_json ={{ subject_teacher_json|safe }};
+        var all_divisions = {{ division|safe }};
+
+        function create_subject_dictionary() {
+
+            var all_subjects = {{ all_subjects|safe }};
+            $.each(all_subjects, function (i, element) {
+                subject_dictionary[element] = [];
+            });
+        }
+
+        {#Checkbox checked#}
+
+        function add_remove_from_dictionary(checkbox_object) {
+            if (document.getElementById("id_subject").value !== "") {
+
+
+                let id = checkbox_object.id;
+                let selected_subject = document.getElementById("id_subject").value;
+                let id_splilt_array = id.split('_');
+                let division = id_splilt_array[configuration['division_index']];
+                let time = id_splilt_array[configuration['time_index']];
+                let day = id_splilt_array[configuration['day_index']];
+                let year = id_splilt_array[configuration['year_index']];
+                if (checkbox_object.checked) {
+                    checkbox_object.classList.add("checked-cbx");
+                    subject_dictionary[selected_subject].push(id);
+                    let checkbox_parent_object = checkbox_object.parentElement;
+
+                    //add <span> Subject</span>
+                    let subject_object = document.createElement("span");
+                    let subject_text = document.createTextNode(selected_subject);
+                    subject_object.appendChild(subject_text);
+                    subject_object.id = "id_subject_" + time + "_" + division + "_" + day;
+                    checkbox_parent_object.appendChild(subject_object);
+
+                    //add <select> Teacher </select>
+                    let teacher_object = document.createElement("select");
+                    checkbox_parent_object.appendChild(teacher_object);
+                    let teachers = subject_teacher_json[selected_subject][division];
+                    teacher_object.id = "id_teacher_" + time + "_" + division + "_" + day;
+
+                    $.each(teachers, function (i, element) {
+                        let option = document.createElement("option");
+                        option.value = element;
+                        option.text = element;
+                        teacher_object.appendChild(option);
+                    });
+                    checkbox_parent_object.classList.add("checked-cbx-parent");
+                    block_checkbox(checkbox_object, teachers, selected_subject, time, year, day, division);
+
+
+                }
+                else {
+                    let index = subject_dictionary[selected_subject].indexOf(id);
+                    subject_dictionary[selected_subject].splice(index, 1);
+                    checkbox_object.classList.remove("checked-cbx");
+                    checkbox_object.parentElement.classList.remove("checked-cbx-parent");
+                    checkbox_object.parentElement.removeChild(document.getElementById("id_teacher_" + time + "_" + division + "_" + day));
+                    checkbox_object.parentElement.removeChild(document.getElementById("id_subject_" + time + "_" + division + "_" + day));
+
+                }
+
+            }
+        }
+    </script>
+
+
+    {#    Subject combobox onchange function#}
+    <script>
+        function change_selected_subject(subject_obj) {
+
+            let current_subject = subject_obj.value;
+            block_all_current_subject(current_subject, true);
+
+        }
+    </script>
+
+
+
+    {#    Document on loading function#}
+    <script>
+        function on_document_loading() {
+            create_subject_dictionary();
+            set_subject();
+        }
+    </script>
+
+
+    {#    Bind document on ready to function#}
+    <script>
+        $(document).ready(on_document_loading());
+    </script>
+
+
+    {#Create blocking list selected subject#}
+    <script>
+        var block_list = {};
+        for (subject in subject_teacher_json) {
+            if (subject_teacher_json.hasOwnProperty(subject)) {
+                block_list[subject] = []
+            }
+        }
+
+
+        function block_checkbox(checkbox_object, teachers, current_subject, time, year, day, current_division) {
+            {#alert(subject_teacher_json.length);#}
+            for (subject in subject_teacher_json) {
+                if (subject_teacher_json.hasOwnProperty(subject)) {
+                    for (division in subject_teacher_json[subject]) {
+                        if (subject_teacher_json[subject].hasOwnProperty(division)) {
+                            if (subject_teacher_json[subject][division][0] === teachers[0]) {
+                                if (!(subject === current_subject && current_division === division)) {
+                                    let subject_year = "";
+                                    for (each_year in subjects_json) {
+                                        if (subjects_json.hasOwnProperty(each_year)) {
+                                            if ((subjects_json[each_year]['practical'].indexOf(subject) !== -1) || (subjects_json[each_year]['theory'].indexOf(subject) !== -1)) {
+                                                subject_year = each_year;
+                                                break;
+                                            }
+
+                                        }
+                                    }
+                                    if (subject_year !== "") {
+                                        let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_cbx';
+                                        block_list[subject].push(id);
+                                        {#alert(subject + current_subject + current_division + division);#}
+                                    }
+
+
+                                    {#document.getElementById(id).disabled = true;#}
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            block_all_current_subject(current_subject, false);
+        }
+
+
+        function block_all_current_subject(current_subject, previous_unblock) {
+
+            {#alert(previous_unblock);#}
+            let current_block_list = block_list[current_subject];
+
+
+            for (i = 0; i < current_block_list.length; i++) {
+                document.getElementById(current_block_list[i]).disabled = true;
+            }
+
+
+
+            if (previous_unblock == true && global_current_subject != "") {
+                unblock_previous_subject();
+            }
+
+            global_current_subject = current_subject;
+        }
+
+
+        function unblock_previous_subject() {
+            let previous_block_list = block_list[global_current_subject];
+            for (i = 0; i < previous_block_list.length; i++) {
+                document.getElementById(previous_block_list[i]).disabled = false;
+            }
+        }
+    </script>
+{% endblock html %}

@@ -51,9 +51,48 @@ def fill_timetable(request):
     # timetables = Timetable.objects.filter(is_practical=False)
     # timetable_prac = Timetable.objects.filter(is_practical=True)
     subjects_json = {}
+    all_subjects = BranchSubject.objects.filter(branch=branch_obj)
+    for year in years:
+        subjects = all_subjects.filter(year=CollegeYear.objects.get(year=year))
+        subjects_theory = list(subjects.filter(subject__is_practical=False).values_list(
+            'subject__short_form', flat=True))
+        subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
+            'subject__short_form', flat=True))
+        subjects_json[year] = {
+            'theory': subjects_theory,
+            'practical': subjects_practical
+        }
 
-    for each_year in years:
-        theory = Subject.objects.filter()
+    # Create dict of subject teacher binding
+    # eg
+    # TOC:{
+    #     A:[DMV,HVD]
+    #     B:[DV]
+    #     C:[]
+    # }
+
+    subject_teacher_json = {}
+
+    for each_subject in all_subjects:
+
+        subject_teacher_json[each_subject.subject.short_form] = {}
+        for each_division in divisions:
+            division_object = CollegeExtraDetail.objects.get(branch=branch_obj, division=each_division,
+                                                             year=each_subject.year)
+            faculty_subjects_division = FacultySubject.objects.filter(subject=each_subject.subject,
+                                                                      division=division_object).values_list(
+                'faculty__initials', flat=True)
+
+            subject_teacher_json[each_subject.subject.short_form][each_division] = list(faculty_subjects_division)
+
+    all_subjects = list(all_subjects.values_list('subject__short_form', flat=True))
+    print('just print')
+
+
+    subject_year = {}
+
+    # for year in years:
+
 
 
     context = {
@@ -61,14 +100,14 @@ def fill_timetable(request):
         'times': times,
         'year': years,
         'days': days,
-        'division': divisions,
+        'division': list(divisions),
         'number_of_division': range(len(divisions)),
         'room': room,
-        'subjects': subjects,
         'faculty': faculty,
         'divisions_js': divisions_js,
-        'timetables': timetables,
-        'timetable_prac': timetable_prac
+        'subject_json': json.dumps(subjects_json),
+        'all_subjects': all_subjects,
+        'subject_teacher_json': json.dumps(subject_teacher_json),
     }
     return render(request, 'test_timetable.html', context)
 
@@ -164,7 +203,6 @@ def save_timetable(request):
                     }
                 Timetable.objects.bulk_create(timetable_obj)
 
-
                 # if str(key).__contains__("_room"):
                 #     room = Room.objects.get(room_number=selected_list.get(key))
                 #
@@ -231,7 +269,6 @@ def to_json(request):
                 branch_json[division] = copy.deepcopy(division_json)
                 year_json[branch] = copy.deepcopy(branch_json)
                 answer[year] = year_json
-
 
                 # for each in full_timetable:
                 #     # answer[each.branch_subject.year.year] =
@@ -346,7 +383,6 @@ def get_timetable(request):
                 "id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2))
 
         tt_instance_practical = list(set(tt_instance_practical))
-
 
         # timetable_assigned[j.faculty.initials] ="id_room_" + j.time.__str__() + "_" + j.division.division + "_" + str(days.index(j.day) + 2)
 
