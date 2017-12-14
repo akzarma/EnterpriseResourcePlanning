@@ -1,8 +1,7 @@
 {% extends "./dashboard_faculty.html" %}
 
 {% block content %}
-
-        <form action="{% url 'attendance:attendance' %}" method="post">
+        <form action="{% url 'attendance:check_attendance' %}" method="post">
 
 {% csrf_token %}
 <label>
@@ -14,6 +13,7 @@
         {% endfor %}
     </select>
 </label>
-<button name="GO">Go</button>
+<button name="go" value="1">Go</button>
+<button name="check_attendance_button" value="1">Lecture attendance</button>
 </form>
 {% endblock content %}

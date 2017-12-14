@@ -5,6 +5,7 @@ import datetime
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.utils.dateparse import parse_date
 
 from General.models import CollegeYear, CollegeExtraDetail, StudentDivision
 from Registration.models import Student, Subject, Branch
@@ -32,8 +33,8 @@ def index(request):
             faculty = user.faculty
             selected_class = request.POST.get('selected_class')
             selected_class_obj = Timetable.objects.get(pk=selected_class)
-
-            attendance = StudentAttendance.objects.filter(timetable=selected_class_obj, date= datetime.datetime.today())
+            selected_date = request.POST.get('selected_date')
+            attendance = StudentAttendance.objects.filter(timetable=selected_class_obj, date= parse_date(selected_date)).order_by('student__gr_number')
             if attendance:
                 all_students = attendance
                 att = 1
@@ -47,7 +48,8 @@ def index(request):
                 'all_students': all_students,
                 'selected_class': selected_class_obj,
                 'faculty_subject': timetables,
-                'att': att
+                'att': att,
+                'selected_date': selected_date
             })
 
 
@@ -69,8 +71,9 @@ def save(request):
                 faculty = user.faculty
                 print("Saving Student")
                 present = request.POST.getlist('present')
-                print("present student list")
-                print(present)
+                selected_date = request.POST.get('selected_date')
+
+                print("present student list ",present)
                 print(request.POST)
                 timetable = Timetable.objects.get(pk=int(request.POST.get('selected_class')))
                 division_obj = timetable.division
@@ -83,16 +86,29 @@ def save(request):
                 print(present)
                 absent = list(set(all_students) - set(present))
                 print(absent)
+
                 whole = []
                 for student in present:
                     print(timetable, Student.objects.get(pk=student))
-                    new = StudentAttendance(student=Student.objects.get(pk=student), timetable=timetable,
-                                            attended=True, date=datetime.datetime.today())
-                    whole.append(new)
+                    new = StudentAttendance.objects.filter(student=Student.objects.get(pk=student), timetable=timetable,
+                                         date=parse_date(selected_date)).first()
+                    if new:
+                        new.attended = True
+                        new.save()
+                    else:
+                        new = StudentAttendance(student=Student.objects.get(pk=student), timetable=timetable,
+                                                attended=True, date=parse_date(selected_date))
+                        whole.append(new)
                 for student in absent:
-                    new = StudentAttendance(student=Student.objects.get(pk=student), timetable=timetable,
-                                            attended=False, date=datetime.datetime.today())
-                    whole.append(new)
+                    new = StudentAttendance.objects.filter(student=Student.objects.get(pk=student), timetable=timetable,
+                                             date=parse_date(selected_date)).first()
+                    if new:
+                        new.attended = False
+                        new.save()
+                    else:
+                        new = StudentAttendance(student=Student.objects.get(pk=student), timetable=timetable,
+                                                attended=False, date=parse_date(selected_date))
+                        whole.append(new)
                 print(whole)
                 # StudentAttendance.objects.bulk_create(whole)
                 StudentAttendance.objects.bulk_create(whole)
@@ -126,7 +142,7 @@ def select_cat(request):
                 faculty = user.faculty
                 timetables = faculty.timetable_set.all()
                 print(timetables)
-                return render(request, 'select_cat.html', {'faculty_subject': timetables})
+                return render(request, 'select_cat.html', {'faculty_subject': timetables  })
 
         else:
             # should be faculty....alert on login page with proper message.
@@ -141,18 +157,30 @@ def check_attendance(request):
     if not user.is_anonymous:
         if user.role == 'Faculty':
             if request.method == 'POST':
-                faculty = user.faculty
-                current_tt = request.POST.get('selected_class')
-                current_tt_obj = Timetable.objects.get(pk=current_tt)
-                all_students = StudentAttendance.objects.filter(timetable=current_tt_obj,date=datetime.datetime.today()).order_by('student__gr_number')
-                return render(request, "check_attendance.html", {
-                    'all_students': all_students,
-                })
+                if request.POST.get('go'):
+                    selected_date = request.POST.get('selected_date')
+                    faculty = user.faculty
+                    current_tt = request.POST.get('selected_class')
+                    current_tt_obj = Timetable.objects.get(pk=current_tt)
+                    count = 0
+                    all_students = StudentAttendance.objects.filter(timetable=current_tt_obj,date=parse_date(selected_date)).order_by('student__gr_number')
+                    for i in all_students:
+                        if i.attended:
+                            count += 1
+                    present_percent = 0
+                    if all_students.count():
+                        present_percent = count / all_students.count()
+                    return render(request, "check_attendance.html", {
+                        'all_students': all_students,
+                        'present' : present_percent*100
+                    })
+            elif request.POST.get('check_attendance_button'):
+                {}
             elif request.method == "GET":
                 faculty = user.faculty
                 timetables = faculty.timetable_set.all()
                 print(timetables)
-                return render(request, 'select_cat.html', {'faculty_subject': timetables, 'check': 1})
+                return render(request, 'select_check_attendance.html', {'faculty_subject': timetables, })
         else:
             return HttpResponseRedirect('/login/')
     else:

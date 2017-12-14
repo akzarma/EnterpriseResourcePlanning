@@ -1,62 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Student Registration</title>
+{% extends 'dashboard_faculty.html' %}
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <style>
-        html, body {
-            background: #fff;
-            font-family: 'Roboto', sans-serif;
-        }
+{% block extra_style %}
+ /* .squaredOne */
 
-        legend {
-            color: #0379C4;
-        }
-
-        .navbar {
-            box-shadow: 0 0 40px 0 rgba(0, 0, 0, 0.1);
-            background: white;
-            font-family: 'Roboto', sans-serif;
-            border: 0;
-            padding: 10px;
-        }
-
-        .navbar-brand {
-            color: #0379C4 !important;
-            font-weight: bolder;
-        }
-
-        .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover {
-            background: white;
-        }
-
-        .navbar-default .navbar-nav > li {
-            font-weight: bold;
-        }
-
-        .navbar-default .navbar-nav > li:hover {
-            box-shadow: 0 0 40px 0 rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar-toggle {
-            border: none;
-        }
-
-        .navbar-toggle:active, .navbar-toggle:hover, .navbar-toggle:focus {
-            background: white !important;
-        }
-
-        .row {
-            margin: 15px;
-        }
-
-        /* .squaredOne */
         .squaredOne {
             width: 50px;
             height: 50px;
@@ -103,40 +49,21 @@
         }
 
         /* end .squaredOne */
-        .col-lg-1 {
-            margin: 5px 0;
-        }
-    </style>
-</head>
-<body>
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#"><i class="glyphicon glyphicon-flash"></i>ERP</a>
-        </div>
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="#">About</a></li>
-                <li><a href="#">Support</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+{% endblock extra_style %}
+
+{% block content %}
+
+
 <div class="container">
     <div class="col-md-1" style="text-align: center">
         <button class="btn btn-info " value="togle" onclick="selectAll()" id="toggle">Select all</button>
 
     </div>
+    <div class="col-md-3 col-md-offset-8"><h5>Selected Date: {{ selected_date }}</h5></div>
 </div>
 <form action="{% url 'attendance:save' %}" method="post">
     {% csrf_token %}
+    <input type="hidden" name="selected_date" value="{{ selected_date }}">
 
 
     <div class="container">
@@ -208,6 +135,8 @@
 
 <form action="{% url 'attendance:attendance' %}" method="post" id="change_form">
     {% csrf_token %}
+
+    <input type="hidden" name="selected_date" value="{{ selected_date }}">
     <label>
         <select name="selected_class" onchange="this.form.submit()">
 
@@ -226,7 +155,6 @@
 </form>
 
 
-</body>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
@@ -250,5 +178,4 @@
     }
 </script>
 
-
-</html>
+{% endblock content %}
