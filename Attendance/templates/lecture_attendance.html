@@ -87,16 +87,12 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for i in all_students %}
+                {% for key,value in individual_attendance.items %}
 
                     <tr>
-                        <td>{{ i.student.gr_number }}</td>
+                        <td>{{ key }}</td>
                         <td>{{ i.student.first_name }} {{ i.student.last_name }}</td>
-                        {% if i.attended %}
-                            <td>Present</td>
-                        {% else %}
-                            <td>Absent</td>
-                        {% endif %}
+                        <td>{{ value }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
