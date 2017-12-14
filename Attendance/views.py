@@ -198,6 +198,7 @@ def check_attendance(request):
                     all_students_count = 0
                     all_students_present = 0
                     individual_attendance = {}
+                    all_students_present_object = []
 
                     count_present = 0
                     for i in current_tt_obj:  # For days in week
@@ -205,7 +206,9 @@ def check_attendance(request):
                             selected_from_date, selected_to_date))  # For the day in every week in given date range
                         all_students_count += all_students_obj.count()
                         all_students_present += all_students_obj.filter(attended=True).count()
-                        y = all_students_obj.filter(attended=True).values('student').annotate(total=Count('id')).values('total')[0]
+                        all_students_present_object += all_students_obj.filter(attended=True)
+
+                    y = all_students_present_object.values('student__gr_number').annotate(lectures=Count('student'))
 
                     if all_students_count:
                         lecture_percentage += all_students_present/ all_students_count * 100
