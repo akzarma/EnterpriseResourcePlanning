@@ -145,3 +145,7 @@ def check_attendance(request):
                 timetables = faculty.timetable_set.all()
                 print(timetables)
                 return render(request, 'select_cat.html', {'faculty_subject': timetables, 'check': 1})
+        else:
+            return HttpResponseRedirect('/login/')
+    else:
+        return HttpResponseRedirect('/login/')
