@@ -40,7 +40,8 @@ def fill_timetable(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     # form = TimetableForm()
     # branch = Branch.objects.all().values_list('branch', flat=True)
-    room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=False)]
+    theory_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=False)]
+    practical_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=True)]
     subjects_obj = BranchSubject.objects.filter(branch=branch_obj)
     subjects = []
     faculty = []
@@ -102,7 +103,8 @@ def fill_timetable(request):
         'days': days,
         'division': list(divisions),
         'number_of_division': range(len(divisions)),
-        'room': room,
+        'theory_room': theory_room,
+        'practical_room': practical_room,
         'faculty': faculty,
         'divisions_js': divisions_js,
         'subject_json': json.dumps(subjects_json),

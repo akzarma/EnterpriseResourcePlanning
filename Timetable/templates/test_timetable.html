@@ -404,8 +404,13 @@
     <script>
         //keep tracks of subject where they are checked for division,day,time slot.
         var subject_dictionary = [];
+        var block_room_list = {};
         var subject_teacher_json ={{ subject_teacher_json|safe }};
         var all_divisions = {{ division|safe }};
+
+        var theory_room = {{ theory_room|safe }};
+        var practical_room = {{ practical_room|safe }};
+
 
         function create_subject_dictionary() {
 
@@ -413,7 +418,20 @@
             $.each(all_subjects, function (i, element) {
                 subject_dictionary[element] = [];
             });
+        };
+
+        function create_room_dictionary() {
+            {#alert('up');#}
+            $.each(theory_room, function (i, element) {
+                {#alert('here0');#}
+                block_room_list[element] = [];
+            });
+            $.each(practical_room, function (i, element) {
+                {#alert('here0');#}
+                block_room_list[element] = [];
+            });
         }
+
 
         {#Checkbox checked#}
 
@@ -437,14 +455,14 @@
                     let subject_object = document.createElement("span");
                     let subject_text = document.createTextNode(selected_subject);
                     subject_object.appendChild(subject_text);
-                    subject_object.id = "id_subject_" + time + "_" + division + "_" + day;
+                    subject_object.id = "id_subject_" + time + "_" + division + "_" + day + "_" + year;
                     checkbox_parent_object.appendChild(subject_object);
 
                     //add <select> Teacher </select>
                     let teacher_object = document.createElement("select");
                     checkbox_parent_object.appendChild(teacher_object);
                     let teachers = subject_teacher_json[selected_subject][division];
-                    teacher_object.id = "id_teacher_" + time + "_" + division + "_" + day;
+                    teacher_object.id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year;
 
                     $.each(teachers, function (i, element) {
                         let option = document.createElement("option");
@@ -454,6 +472,20 @@
                     });
                     checkbox_parent_object.classList.add("checked-cbx-parent");
                     block_checkbox(checkbox_object, teachers, selected_subject, time, year, day, division);
+
+                    //add <select> Room </select>
+                    let room_object = document.createElement("select");
+                    checkbox_parent_object.appendChild(room_object);
+                    room_object.id = "id_room_" + time + "_" + division + "_" + day + "_" + year;
+
+                    $.each(theory_room, function (i, element) {
+                        let option = document.createElement("option");
+                        option.value = element;
+                        option.text = element;
+                        room_object.appendChild(option);
+                    });
+                    let current_room = room_object.value;
+                    block_room(checkbox_object.id, current_room);
 
 
                 }
@@ -467,6 +499,23 @@
 
                 }
 
+            }
+        }
+    </script>
+
+    <script>
+        function block_room(cbx_id, current_room) {
+            {#alert(current_room);#}
+            let cbx = cbx_id.split('_');
+            for (let yr in all_years) {
+                {#alert(yr);#}
+                for (let div in all_divisions) {
+                    {#alert(current_room);#}
+                    let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + all_divisions[div] + '_' + cbx[4] + '_' + all_years[yr];
+                    if (!(all_divisions[div] === cbx[configuration['division_index']] && all_years[yr] === cbx[configuration['year_index']])) {
+                        block_room_list[current_room].push(block_id);
+                    }
+                }
             }
         }
     </script>
@@ -487,8 +536,10 @@
     {#    Document on loading function#}
     <script>
         function on_document_loading() {
+            create_room_dictionary();
             create_subject_dictionary();
             set_subject();
+
         }
     </script>
 
