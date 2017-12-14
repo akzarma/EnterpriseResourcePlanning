@@ -28,7 +28,7 @@ DEBUG = True
 # Custom User Model
 AUTH_USER_MODEL = 'UserModel.User'
 
-ALLOWED_HOSTS = ['192.168.0.110', '192.168.0.106', '192.168.43.155','127.0.0.1','172.20.10.3']
+ALLOWED_HOSTS = ['192.168.0.110', '192.168.0.106', '192.168.43.155', '127.0.0.1', '172.20.10.3']
 
 # Application definition
 
@@ -130,9 +130,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
-#session conf
+MEDIA_URL = '/'
+MEDIA_ROOT = os.path.join(BASE_DIR, '')
+# session conf
 minutes = 30
-SESSION_EXPIRE_AT_BROWSER_CLOSE=True
-SESSION_SAVE_EVERY_REQUEST=True
-SESSION_COOKIE_AGE=minutes*60
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_AGE = minutes * 60

@@ -83,7 +83,7 @@ class Faculty(models.Model):
     # documents
 
     doc = models.FileField(upload_to=faculty_directory_path, null=True, blank=True)
-    doc_profile_pic = models.FileField(upload_to=faculty_directory_path, null=True, blank=True)
+    doc_profile_pic = models.ImageField(upload_to=faculty_directory_path, null=True, blank=True)
 
     def __str__(self):
         return self.first_name + ' ' + self.faculty_code

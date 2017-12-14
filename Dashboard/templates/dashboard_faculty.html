@@ -199,8 +199,9 @@
         <ul class="dropdown-menu">
             <li><a href="#">Faculty Code: {{ form.faculty_code.value }}</a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="#"><span class="glyphicon glyphicon-user"></span> View Profile</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-off"></span> Logout</a></li>
+            <li><a href="{% url 'dashboard:profile' %}"><span class="glyphicon glyphicon-user"></span> View Profile</a>
+            </li>
+            <li><a href="{% url 'dashboard:logout' %}"><span class="glyphicon glyphicon-off"></span> Logout</a></li>
         </ul>
     </li>
 {% endblock navbar-right %}
