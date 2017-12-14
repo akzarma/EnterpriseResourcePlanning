@@ -1,0 +1,106 @@
+{% extends "./dashboard_faculty.html" %}
+{% block extra_style %}
+    /* .squaredOne */
+
+    .squaredOne {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    z-index: 0;
+    background: rgb(186, 188, 182);
+    color: white;
+    }
+
+    .squaredOne label {
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    cursor: pointer;
+    padding-top: 20%;
+    text-align: center;
+
+    }
+
+    .squaredOne label:after {
+    content: ' ';
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    background: #5bc0de;
+    z-index: -1;
+    opacity: 0;
+    }
+
+    .squaredOne label:hover::after {
+    opacity: 0.3;
+    }
+
+    .squaredOne input[type=checkbox] {
+    visibility: hidden;
+    }
+
+    .squaredOne input[type=checkbox]:checked + label:after {
+    opacity: 1;
+    }
+
+    /* end .squaredOne */
+{% endblock extra_style %}
+{% block content %}
+    <div class="container">
+    <h4>Lecture Attendance between {{ selected_from_date }} and {{ selected_to_date }}: <label>{{ lecture_percent }}</label> %</h4>
+{#        <div class="row">#}
+{#            {% for i in all_students %}#}
+{#                <div class="col-lg-1" id="test">#}
+{#                    <section>#}
+{#                        <!-- .squaredOne -->#}
+{#                        <div class="squaredOne">#}
+{#                            {% if i.attended == True %}#}
+{#                                <input class="cb" type="checkbox" value="{{ i.student.pk }}"#}
+{#                                       id="squaredOne{{ forloop.counter }}"#}
+{#                                       name="present"#}
+{#                                       disabled checked/>#}
+{#                            {% else %}#}
+{#                                <input class="cb" type="checkbox" value="{{ i.student.pk }}"#}
+{#                                       id="squaredOne{{ forloop.counter }}"#}
+{#                                       name="present"#}
+{#                                       disabled/>#}
+{#                            {% endif %}#}
+{#                            <label for="squaredOne{{ forloop.counter }}">{{ forloop.counter }}</label>#}
+{#                        </div>#}
+{#                        <!-- end .squaredOne -->#}
+{#                    </section>#}
+{#                </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
+        <div class="table-responsive">
+            <table class="table table-bordered white">
+                <thead class="thead-inverse">
+                <tr>
+
+                    <th>GR Number</th>
+                    <th>Name</th>
+                    <th>Attendance</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in all_students %}
+
+                    <tr>
+                        <td>{{ i.student.gr_number }}</td>
+                        <td>{{ i.student.first_name }} {{ i.student.last_name }}</td>
+                        {% if i.attended %}
+                            <td>Present</td>
+                        {% else %}
+                            <td>Absent</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
