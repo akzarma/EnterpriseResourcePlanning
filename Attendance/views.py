@@ -199,14 +199,11 @@ def check_attendance(request):
                     all_students_present = 0
                     individual_attendance = {}
 
-                    all_students =  StudentDivision.objects.filter(division__branch=selected_faculty_subject_obj.division.branch,
+                    for i in StudentDivision.objects.filter(division__branch=selected_faculty_subject_obj.division.branch,
                                                             division__year=selected_faculty_subject_obj.division.year,
                                                             division__division=selected_faculty_subject_obj.division.division,
-                                                            division__shift=selected_faculty_subject_obj.division.shift)
-                        # individual_attendance[i.student.pk] = 0
-
-
-                    # for syu in all_students:
+                                                            division__shift=selected_faculty_subject_obj.division.shift):
+                        individual_attendance[i.student.pk] = 0
 
 
                     count_present = 0
