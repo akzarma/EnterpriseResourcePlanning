@@ -7,10 +7,11 @@ from Registration.models import Faculty
 
 
 def faculty_directory_path(instance, filename):
+    print(instance, 'faculty code: ')
     return 'Media/Faculty/{0}/Research/{1}'.format(instance.faculty.faculty_code, filename)
 
 class Paper(models.Model):
-    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, null=True, blank=True)
     year = models.PositiveIntegerField(default=timezone.now().year)
     date = models.DateField(default=timezone.now)
     type = models.CharField(max_length=10)                                      # Paid/Unpaid

@@ -11,6 +11,8 @@ urlpatterns = [
 
     url(r'profile/$', views.view_profile, name="profile"),
 
+    url(r'research/$', views.view_research, name="research"),
+
     # url(r'^update/', include('Update.urls'))
 
 ]

@@ -115,3 +115,7 @@ def view_profile(request):
     else:
         print('Redirecting to login')
         return HttpResponseRedirect('/login/')
+
+
+def view_research(request):
+    return render(request, 'view_research.html', {})

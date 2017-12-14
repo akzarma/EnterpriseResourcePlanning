@@ -1,133 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Faculty R&D</title>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <link rel="stylesheet"
-          href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.min.css">
-    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-
-
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-
-    <style>
-        html, body {
-            background: #fff;
-            font-family: 'Roboto', sans-serif;
-        }
-
-        legend {
-            color: #0379C4;
-            text-align: center;
-        }
-
-        fieldset ul {
-            list-style: none
-        }
-
-        ul#id_conference_attended li, ul#id_distribution li, ul#id_peer_reviewed li, ul#id_first_author li {
-            display: inline;
-            margin-right: 5px;
-        }
-
-        .navbar {
-            box-shadow: 0 0 40px 0 rgba(0, 0, 0, 0.1);
-            background: white;
-            font-family: 'Roboto', sans-serif;
-            border: 0;
-            padding: 10px;
-        }
-
-        .navbar-brand {
-            color: #0379C4 !important;
-            font-weight: bolder;
-        }
-
-        .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover {
-            background: white;
-        }
-
-        .navbar-default .navbar-nav > li {
-            font-weight: bold;
-        }
-
-        .navbar-default .navbar-nav > li:hover {
-            box-shadow: 0 0 40px 0 rgba(0, 0, 0, 0.1);
-
-        }
-
-        .navbar-toggle {
-            border: none;
-        }
-
-        .navbar-toggle:active, .navbar-toggle:hover, .navbar-toggle:focus {
-
-            background: white !important;
-
-        }
-
-        .form-element {
-            margin: 15px 0;
-        }
-
-        .col-lg-6 {
-            height: 100%;
-        }
-
-        .row {
-            padding: 10px;
-        }
-
-        #myImg {
-            width: 140px;
-        }
-
-        #input-file {
-            padding-bottom: 15px;
-        }
-
-        #id_doc_profile_pic {
-            display: none;
-        }
-
-        #id_projects {
-            width: 170px;
-            height: 190px;
-        }
-
-        .error {
-            color: #d9534f !important;
-        }
-    </style>
-</head>
-<body>
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#"><i class="glyphicon glyphicon-flash"></i>ERP</a>
-        </div>
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="#">About</a></li>
-                <li><a href="#">Support</a></li>
-            </ul>
-        </div>
-    </div>
-</nav>
+{% extends './dashboard_faculty.html' %}
+{% block content %}
 <br>
 <br>
 <form method="post" action="{% url 'Research:enter_paper' %}" enctype="multipart/form-data">
@@ -142,17 +14,17 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-6 col-lg-offset-3">
-                        <div class="form-element">
-                            <span class="error">{{ form.faculty.errors }}</span>
-                            <div class="col-lg-4">
-                                {{ form.faculty.label_tag }}
-                            </div>
-                            <div class="col-lg-8">
-                                {{ form.faculty }}
-                            </div>
-                        </div>
-                    </div>
+{#                    <div class="col-lg-6 col-lg-offset-3">#}
+{#                        <div class="form-element">#}
+{#                            <span class="error">{{ form.faculty.errors }}</span>#}
+{#                            <div class="col-lg-4">#}
+{#                                {{ form.faculty.label_tag }}#}
+{#                            </div>#}
+{#                            <div class="col-lg-8">#}
+{#                                {{ form.faculty }}{{ user.faculty.first_name }}#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
                     <div class="col-lg-6 col-lg-offset-3">
                         <div class="form-element">
                             <span class="error">{{ form.title.errors }}</span>
@@ -402,5 +274,4 @@
         }
     }
 </script>
-
-</html>
+{% endblock content %}
