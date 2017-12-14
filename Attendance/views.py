@@ -199,11 +199,14 @@ def check_attendance(request):
                     all_students_present = 0
                     individual_attendance = {}
 
-                    for i in StudentDivision.objects.filter(division__branch=selected_faculty_subject_obj.division.branch,
+                    all_students =  StudentDivision.objects.filter(division__branch=selected_faculty_subject_obj.division.branch,
                                                             division__year=selected_faculty_subject_obj.division.year,
                                                             division__division=selected_faculty_subject_obj.division.division,
-                                                            division__shift=selected_faculty_subject_obj.division.shift):
-                        individual_attendance[i.student.pk] = 0
+                                                            division__shift=selected_faculty_subject_obj.division.shift)
+                        # individual_attendance[i.student.pk] = 0
+
+
+                    # for syu in all_students:
 
 
                     count_present = 0
@@ -224,7 +227,8 @@ def check_attendance(request):
                     return render(request, 'lecture_attendance.html',
                                   {'lecture_percent': "{0:.2f}".format(lecture_percentage),
                                    'selected_from_date': selected_from_date,
-                                   'selected_to_date': selected_to_date})
+                                   'selected_to_date': selected_to_date,
+                                   'individual_attendance': individual_attendance})
 
             elif request.method == "GET":
                 faculty = user.faculty

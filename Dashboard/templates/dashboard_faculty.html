@@ -39,7 +39,7 @@
         }
 
         {% block extra_style %}
-            {% endblock extra_style %}
+        {% endblock extra_style %}
 
         /* ---------------------------------------------------
             SIDEBAR STYLE
@@ -76,6 +76,7 @@
         }
 
         #sidebar ul li a {
+            color: #444444;
             padding: 10px;
             font-size: 1.1em;
             display: block;
@@ -96,11 +97,11 @@
 
         }
 
-        a[data-toggle="collapse"] {
+        #sidebar a[data-toggle="collapse"] {
             position: relative;
         }
 
-        a[aria-expanded="false"]::before, a[aria-expanded="true"]::before {
+        #sidebar a[aria-expanded="false"]::before, #sidebar a[aria-expanded="true"]::before {
             content: '\e259';
             display: block;
             position: absolute;
@@ -109,22 +110,22 @@
             font-size: 0.6em;
         }
 
-        a[aria-expanded="true"]::before {
+        #sidebar a[aria-expanded="true"]::before {
             content: '\e260';
         }
 
-        ul ul a {
+        #sidebar ul ul a {
             font-size: 0.9em !important;
             padding-left: 30px !important;
             background: rgb(0, 158, 183);
             color: #fff;
         }
 
-        ul.CTAs {
+        #sidebar ul.CTAs {
             padding: 20px;
         }
 
-        ul.CTAs a {
+        #sidebar ul.CTAs a {
             text-align: center;
             font-size: 0.9em !important;
             display: block;
@@ -176,7 +177,7 @@
         #head {
             margin-left: 5px;
             font-weight: bold;
-            color: rgb(0, 181, 197) !important;
+            color: #0379C4 !important;
         }
 
     </style>
@@ -184,14 +185,24 @@
 {% endblock style %}
 
 {% block navbar-right %}
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-       aria-expanded="false" style="text-transform: uppercase;">{{ form.first_name.value.capitalize }}</a>
-    <ul class="dropdown-menu">
-        <li><h5>Faculty Code: {{ form.faculty_code.value }}</h5></li>
-        <li><a href="{% url 'dashboard:profile' %}">View Profile</a></li>
-        <li><a href="{% url 'dashboard:logout' %}"><span class="glyphicon glyphicon-off"></span>Logout</a></li>
-    </ul>
-
+    {#    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"#}
+    {#       aria-expanded="false" style="text-transform: uppercase;">{{ form.first_name.value.capitalize }}</a>#}
+    {#    <ul class="dropdown-menu">#}
+    {#        <li><h5>Faculty Code: {{ form.faculty_code.value }}</h5></li>#}
+    {#        <li><a href="{% url 'dashboard:profile' %}">View Profile</a></li>#}
+    {#        <li><a href="{% url 'dashboard:logout' %}"><span class="glyphicon glyphicon-off"></span>Logout</a></li>#}
+    {#    </ul>#}
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+           aria-expanded="false">Welcome <span style="color: #0379C4">{{ form.first_name.value.capitalize }}</span>
+            <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <li><a href="#">Faculty Code: {{ form.faculty_code.value }}</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#"><span class="glyphicon glyphicon-user"></span> View Profile</a></li>
+            <li><a href="#"><span class="glyphicon glyphicon-off"></span> Logout</a></li>
+        </ul>
+    </li>
 {% endblock navbar-right %}
 {% block body %}
     <div class="wrapper">
@@ -200,21 +211,14 @@
             <ul class="list-unstyled components">
                 <p id="head">Dashboard</p>
                 <li class="active">
-                    <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Home</a>
+                    <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Attendance</a>
                     <ul class="collapse list-unstyled" id="homeSubmenu">
-                        <li><a href="#">Option 1</a></li>
-                        <li><a href="#">Option 2</a></li>
-                        <li><a href="#">Option 3</a></li>
+                        <li><a href="{% url 'attendance:select_cat' %}">Fill Attendance</a></li>
+                        <li><a href="{% url 'attendance:check_attendance' %}">Check Attendance</a></li>
                     </ul>
                 </li>
                 <li>
                     <a href="{% url 'update:update' %}">Update</a>
-                </li>
-                <li>
-                    <a href="{% url 'attendance:select_cat' %}">Fill Attendance</a>
-                </li>
-                <li>
-                    <a href="{% url 'attendance:check_attendance' %}">Check Attendance</a>
                 </li>
                 <li>
                     <a href="#">Contact</a>
