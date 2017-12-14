@@ -32,14 +32,22 @@ def index(request):
             faculty = user.faculty
             selected_class = request.POST.get('selected_class')
             selected_class_obj = Timetable.objects.get(pk=selected_class)
-            all_students = StudentDivision.objects.filter(division=selected_class_obj.division).values_list(
-                'student', flat=True)
+
+            attendance = StudentAttendance.objects.filter(timetable=selected_class_obj, date= datetime.datetime.today())
+            if attendance:
+                all_students = attendance
+                att = 1
+            else:
+                all_students = StudentDivision.objects.filter(division=selected_class_obj.division)\
+                    .values_list('student', flat=True).order_by('student__gr_number')
+                att = 0
             print(FacultySubject.objects.filter(faculty=user.faculty))
             timetables = faculty.timetable_set.all()
             return render(request, "attendance.html", {
                 'all_students': all_students,
                 'selected_class': selected_class_obj,
-                'faculty_subject': timetables
+                'faculty_subject': timetables,
+                'att': att
             })
 
 
@@ -136,7 +144,7 @@ def check_attendance(request):
                 faculty = user.faculty
                 current_tt = request.POST.get('selected_class')
                 current_tt_obj = Timetable.objects.get(pk=current_tt)
-                all_students = StudentAttendance.objects.filter(timetable=current_tt_obj,date=datetime.datetime.today())
+                all_students = StudentAttendance.objects.filter(timetable=current_tt_obj,date=datetime.datetime.today()).order_by('student__gr_number')
                 return render(request, "check_attendance.html", {
                     'all_students': all_students,
                 })
