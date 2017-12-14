@@ -308,7 +308,7 @@
                                                 <input type="checkbox" class="cbx"
                                                        name="id_room_{{ time }}_{{ x }}_{{ z }}_{{ yr }}"
                                                        id="id_room_{{ time }}_{{ x }}_{{ z }}_{{ yr }}_cbx"
-                                                       onchange="add_remove_from_dictionary(this)" >
+                                                       onchange="add_remove_from_dictionary(this)">
 
                                             </td>
                                         {% else %}
@@ -428,6 +428,7 @@
                 let time = id_splilt_array[configuration['time_index']];
                 let day = id_splilt_array[configuration['day_index']];
                 let year = id_splilt_array[configuration['year_index']];
+                let teachers = subject_teacher_json[selected_subject][division];
                 if (checkbox_object.checked) {
                     checkbox_object.classList.add("checked-cbx");
                     subject_dictionary[selected_subject].push(id);
@@ -443,7 +444,7 @@
                     //add <select> Teacher </select>
                     let teacher_object = document.createElement("select");
                     checkbox_parent_object.appendChild(teacher_object);
-                    let teachers = subject_teacher_json[selected_subject][division];
+
                     teacher_object.id = "id_teacher_" + time + "_" + division + "_" + day;
 
                     $.each(teachers, function (i, element) {
@@ -453,17 +454,27 @@
                         teacher_object.appendChild(option);
                     });
                     checkbox_parent_object.classList.add("checked-cbx-parent");
-                    block_checkbox(checkbox_object, teachers, selected_subject, time, year, day, division);
+                    block_checkbox(checkbox_object, teachers, selected_subject, time, year, day, division, false);
 
 
                 }
                 else {
-                    let index = subject_dictionary[selected_subject].indexOf(id);
-                    subject_dictionary[selected_subject].splice(index, 1);
-                    checkbox_object.classList.remove("checked-cbx");
-                    checkbox_object.parentElement.classList.remove("checked-cbx-parent");
-                    checkbox_object.parentElement.removeChild(document.getElementById("id_teacher_" + time + "_" + division + "_" + day));
-                    checkbox_object.parentElement.removeChild(document.getElementById("id_subject_" + time + "_" + division + "_" + day));
+                    console.log('id_subject_' + time + '_' + division + '_' + day);
+                    let local_selected_subject = document.getElementById('id_subject_' + time + '_' + division + '_' + day).innerHTML;
+                    let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day).value];
+                    let index = subject_dictionary[local_selected_subject].indexOf(id);
+                    if (index !== -1) {
+                        subject_dictionary[local_selected_subject].splice(index, 1);
+                        checkbox_object.classList.remove("checked-cbx");
+                        checkbox_object.parentElement.classList.remove("checked-cbx-parent");
+                        checkbox_object.parentElement.removeChild(document.getElementById("id_teacher_" + time + "_" + division + "_" + day));
+                        checkbox_object.parentElement.removeChild(document.getElementById("id_subject_" + time + "_" + division + "_" + day));
+                        block_checkbox(checkbox_object, local_teachers, local_selected_subject, time, year, day, division, true, selected_subject);
+                    }
+                    else {
+                        alert('Some error occured');
+                        alert('Should never go here');
+                    }
 
                 }
 
@@ -509,7 +520,7 @@
         }
 
 
-        function block_checkbox(checkbox_object, teachers, current_subject, time, year, day, current_division) {
+        function block_checkbox(checkbox_object, teachers, current_subject, time, year, day, current_division, complement, real_selected) {
             {#alert(subject_teacher_json.length);#}
             for (subject in subject_teacher_json) {
                 if (subject_teacher_json.hasOwnProperty(subject)) {
@@ -527,22 +538,36 @@
 
                                         }
                                     }
+
                                     if (subject_year !== "") {
                                         let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_cbx';
-                                        block_list[subject].push(id);
-                                        {#alert(subject + current_subject + current_division + division);#}
+                                        if (complement === false) {
+                                            block_list[subject].push(id);
+                                            {#alert(subject + current_subject + current_division + division);#}
+                                        }
+                                        else {
+                                            let index = block_list[subject].indexOf(id);
+                                            block_list[subject].splice(index, 1);
+                                            document.getElementById(id).disabled = false;
+                                        }
                                     }
 
-
-                                    {#document.getElementById(id).disabled = true;#}
-
+                                    else {
+                                        alert('Subject not found');
+                                        alert('Should never go here');
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            block_all_current_subject(current_subject, false);
+            if (complement == false) {
+                block_all_current_subject(current_subject, false);
+            }
+            else {
+                block_all_current_subject(real_selected, false);
+            }
         }
 
 
@@ -553,16 +578,21 @@
 
 
             for (i = 0; i < current_block_list.length; i++) {
-                document.getElementById(current_block_list[i]).disabled = true;
+                let checkbox_object = document.getElementById(current_block_list[i]);
+                {#alert(checkbox_object.id);#}
+                if (checkbox_object.checked === false) {
+                    checkbox_object.disabled = true;
+                }
             }
 
 
-
-            if (previous_unblock == true && global_current_subject != "") {
+            if (previous_unblock === true && global_current_subject !== "") {
                 unblock_previous_subject();
             }
 
             global_current_subject = current_subject;
+
+            console.log(block_list);
         }
 
 
@@ -573,4 +603,8 @@
             }
         }
     </script>
+
+    {#    Remove ids from block_list#}
+
+
 {% endblock html %}
