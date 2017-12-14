@@ -206,7 +206,7 @@ def check_attendance(request):
                         all_students_count += all_students_obj.count()
                         all_students_present += all_students_obj.filter(attended=True).count()
                         y = all_students_obj.filter(attended=True).values('student').annotate(total=Count('id')).values('total')[0]
-
+                        individual_attendance = {k: individual_attendance.get(k, 0) + y.get(k, 0) for k in set(individual_attendance) | set(y)}
                     if all_students_count:
                         lecture_percentage += all_students_present/ all_students_count * 100
 
