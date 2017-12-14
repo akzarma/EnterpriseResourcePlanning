@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import datetime
 
+from django.db.models import Avg, Sum, Count
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.dateparse import parse_date
@@ -15,6 +16,7 @@ from General.models import FacultySubject
 from Registration.models import Student, Subject
 from Timetable.models import Timetable
 from .models import StudentAttendance
+
 
 # Create your views here.
 def index(request):
@@ -163,13 +165,12 @@ def check_attendance(request):
                     current_tt = request.POST.get('selected_class')
                     current_tt_obj = Timetable.objects.get(pk=current_tt)
                     count = 0
+                    present_percent = 0
                     all_students = StudentAttendance.objects.filter(timetable=current_tt_obj,
                                                                     date=parse_date(selected_date)).order_by(
                         'student__gr_number')
-                    for i in all_students:
-                        if i.attended:
-                            count += 1
-                    present_percent = 0
+                    count = all_students.filter(attended=True).count()
+
                     if all_students.count():
                         present_percent = count / all_students.count()
                     return render(request, "check_attendance.html", {
@@ -195,20 +196,24 @@ def check_attendance(request):
 
                     lecture_percentage = 0
                     all_students_count = 0
+                    all_students_present = 0
+                    individual_attendance = {}
+
                     count_present = 0
                     for i in current_tt_obj:  # For days in week
-                        all_students = StudentAttendance.objects.filter(timetable=i, date__range=(
-                        selected_from_date, selected_to_date))  # For the day in every week in given date range
-                        for j in all_students:
-                            all_students_count += 1
-                            if j.attended:
-                                count_present += 1
+                        all_students_obj = StudentAttendance.objects.filter(timetable=i, date__range=(
+                            selected_from_date, selected_to_date))  # For the day in every week in given date range
+                        all_students_count += all_students_obj.count()
+                        all_students_present += all_students_obj.filter(attended=True).count()
+                        y = all_students_obj.filter(attended=True).values('student').annotate(total=Count('id')).values('total')[0]
 
-                    lecture_percentage += count_present / all_students_count *100
+                    if all_students_count:
+                        lecture_percentage += all_students_present/ all_students_count * 100
 
-                    return render(request, 'lecture_attendance.html', {'lecture_percent': "{0:.2f}".format(lecture_percentage),
-                                                                       'selected_from_date': selected_from_date,
-                                                                       'selected_to_date': selected_to_date})
+                    return render(request, 'lecture_attendance.html',
+                                  {'lecture_percent': "{0:.2f}".format(lecture_percentage),
+                                   'selected_from_date': selected_from_date,
+                                   'selected_to_date': selected_to_date})
 
             elif request.method == "GET":
                 faculty = user.faculty
