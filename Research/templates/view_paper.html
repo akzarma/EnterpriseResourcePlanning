@@ -13,7 +13,7 @@
                     <div class="col-lg-6 col-lg-offset-3">
                         <div class="form-element">
                             <div class="col-lg-5">
-                                Title
+                                <label>Title</label>
                             </div>
                             <div class="col-lg-7">
                                 {{ paper.title }}
@@ -23,7 +23,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Year
+                                <label>Year</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.year }}
@@ -33,7 +33,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Date Published
+                                <label>Date Published</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.date }}
@@ -43,7 +43,7 @@
                     <!--<div class="row">-->
                     <div class="col-lg-6">
                         <div class="form-element">
-                            <div class="col-lg-4">Medium of publication
+                            <div class="col-lg-4"><label>Medium of publication</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.medium }}
@@ -54,7 +54,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                {{ paper.medium }}
+                                <label>{{ paper.medium }}</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.medium_name }}
@@ -65,7 +65,7 @@
                     {% if paper.medium == 'Conference' %}
                         <div class="col-lg-6">
                             <div class="form-element">
-                                <div class="col-lg-4">Conference Attended</div>
+                                <div class="col-lg-4"><label>Conference Attended</label></div>
                                 <div class="col-lg-8">
                                     {% if paper.conference_attended == True %}Yes
                                     {% else %}No
@@ -76,7 +76,7 @@
                     {% endif %}
                     <div class="col-lg-6">
                         <div class="form-element">
-                            <div class="col-lg-4">Level</div>
+                            <div class="col-lg-4"><label>Level</label></div>
                             <div class="col-lg-8">
                                 {{ paper.level }}
                             </div>
@@ -85,7 +85,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Publication Type
+                                <label>Peer Reviewed</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.type }}
@@ -95,7 +95,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Distribution
+                                <label>Peer Reviewed</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.distribution }}
@@ -105,7 +105,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Peer Reviewed
+                                <label>Peer Reviewed</label>
                             </div>
                             <div class="col-lg-8">
                                 {% if paper.peer_reviewed == True %}Yes
@@ -117,7 +117,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                ISBN
+                                <label>ISBN</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.isbn }}
@@ -127,7 +127,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Impact Factor
+                                <label>Impact Factor</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.impact_factor }}
@@ -137,7 +137,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Volume
+                                <label>Volume</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.volume }}
@@ -147,7 +147,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Domain
+                                <label>Domain</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.domain }}
@@ -157,7 +157,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Paper With
+                                <label>Paper With</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.paper_with }}
@@ -167,7 +167,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Are you the first author?
+                                <label>Are you the first author?</label>
                             </div>
                             <div class="col-lg-8">
                                 {% if paper.first_author == True %}Yes
@@ -179,7 +179,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Funds received from college
+                                <label>Funds received from college</label>
                             </div>
                             <div class="col-lg-8">
                                 &#8377;{{ paper.funds_from_college }}
@@ -189,7 +189,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Other Info
+                                <label>Other Info</label>
                             </div>
                             <div class="col-lg-8">
                                 {{ paper.other_info }}
@@ -199,7 +199,7 @@
                     <div class="col-lg-6">
                         <div class="form-element">
                             <div class="col-lg-4">
-                                Files
+                                <label>Files</label>
                             </div>
                             <div class="col-lg-8">
                                 <a href="{{ paper.files.url }}"
