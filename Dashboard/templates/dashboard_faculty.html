@@ -38,9 +38,6 @@
             margin: 40px 0;
         }
 
-        {% block extra_style %}
-        {% endblock extra_style %}
-
         /* ---------------------------------------------------
             SIDEBAR STYLE
         ----------------------------------------------------- */
@@ -180,6 +177,9 @@
             color: #0379C4 !important;
         }
 
+        {% block extra_style %}
+        {% endblock extra_style %}
+
     </style>
 
 {% endblock style %}
@@ -210,8 +210,11 @@
         <!-- Sidebar Holder -->
         <nav id="sidebar">
             <ul class="list-unstyled components">
-                <p id="head">Dashboard</p>
+
                 <li class="active">
+                    <a href="/dashboard/">Dashboard</a>
+                </li>
+                <li>
                     <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Attendance</a>
                     <ul class="collapse list-unstyled" id="homeSubmenu">
                         <li><a href="{% url 'attendance:select_cat' %}">Fill Attendance</a></li>

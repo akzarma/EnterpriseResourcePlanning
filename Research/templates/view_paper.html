@@ -1,0 +1,216 @@
+{% extends './dashboard_faculty.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <fieldset class="col-lg-12">
+                <div class="col-lg-12 row">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-6 text-center">
+                        <legend>Publication Details</legend>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-lg-offset-3">
+                        <div class="form-element">
+                            <div class="col-lg-5">
+                                Title
+                            </div>
+                            <div class="col-lg-7">
+                                {{ paper.title }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Year
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.year }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Date Published
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.date }}
+                            </div>
+                        </div>
+                    </div>
+                    <!--<div class="row">-->
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">Medium of publication
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.medium }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                {{ paper.medium }}
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.medium_name }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12"></div>
+                    {% if paper.medium == 'Conference' %}
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <div class="col-lg-4">Conference Attended</div>
+                                <div class="col-lg-8">
+                                    {% if paper.conference_attended == True %}Yes
+                                    {% else %}No
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">Level</div>
+                            <div class="col-lg-8">
+                                {{ paper.level }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Publication Type
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.type }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Distribution
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.distribution }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Peer Reviewed
+                            </div>
+                            <div class="col-lg-8">
+                                {% if paper.peer_reviewed == True %}Yes
+                                {% else %}No
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                ISBN
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.isbn }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Impact Factor
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.impact_factor }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Volume
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.volume }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Domain
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.domain }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Paper With
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.paper_with }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Are you the first author?
+                            </div>
+                            <div class="col-lg-8">
+                                {% if paper.first_author == True %}Yes
+                                {% else %}No
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Funds received from college
+                            </div>
+                            <div class="col-lg-8">
+                                &#8377;{{ paper.funds_from_college }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Other Info
+                            </div>
+                            <div class="col-lg-8">
+                                {{ paper.other_info }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-element">
+                            <div class="col-lg-4">
+                                Files
+                            </div>
+                            <div class="col-lg-8">
+                                <a href="{{ paper.files.url }}"
+                                   style="text-decoration: underline;">{{ paper.files.name }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+
+    </div>
+{% endblock content %}

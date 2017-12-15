@@ -8,4 +8,7 @@ urlpatterns = [
 
     url(r'enter/$', views.enter_paper, name='enter_paper'),
 
+    url(r'view/$', views.view_paper, name='view_paper'),
+
+
 ]
