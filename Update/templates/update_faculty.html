@@ -1,6 +1,9 @@
 {% extends "./dashboard_faculty.html" %}
-
+{% block title %}
+    Update Profile
+    {% endblock title %}
 {% block content %}
+    <br><br>
     <div class="row">
 
     </div>
@@ -18,7 +21,7 @@
                             <span class="error">{{ form.doc_profile_pic.errors }}</span>
                             {{ form.doc_profile_pic.label_tag }}
                             <div class="input-file">{{ form.doc_profile_pic }}</div>
-                            {% load static %}
+
                             <img id="myImg"
                                  src="{{ form.instance.doc_profile_pic.url}}"
                                  alt="Uploaded image is broken"/>

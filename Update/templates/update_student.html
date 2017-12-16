@@ -1,6 +1,9 @@
 {% extends "./dashboard_student.html" %}
-
+{% block title %}
+    Update Profile
+{% endblock title %}
 {% block content %}
+    <br><br>
     <div class="row">
 
     </div>
@@ -14,31 +17,30 @@
 
                     <div class="col-lg-6">
 
-                        <div class="form-element">
-                            <span class="error">{{ form.doc_profile_pic.errors }}</span>
-                            {{ form.doc_profile_pic.label_tag }}
-                            <div class="input-file">{{ form.doc_profile_pic }}</div>
-                            <img id="myImg"
-                                 src="http://icons.iconarchive.com/icons/paomedia/small-n-flat/512/sign-add-icon.png"
-                                 alt="Uploaded image is broken"/>
-                        </div>
+                            <div class="form-element">
 
-                         <div class="form-element">
-                            <span class="error">{{ form.initials.errors }}</span>
-                            <label class="control-label">{{ form.initials.label_tag }}</label>
-                            <div class="">{{ form.initials }}</div>
-                        </div>
+                                <span class="error">{{ form.doc_profile_pic.errors }}</span>
+                                {{ form.doc_profile_pic.label_tag }}
+                                <div class="input-file">{{ form.doc_profile_pic }}</div>
+
+                                <img id="myImg"
+                                     src="{{ form.instance.doc_profile_pic.url }}"
+                                     alt="Uploaded image is broken"/>
+
+                            </div>
+
+
                         <div class="form-element">
                             <span class="error">{{ form.first_name.errors }}</span>
                             <label class="control-label">{{ form.first_name.label_tag }}</label>
                             <div class="">{{ form.first_name }}</div>
                         </div>
                         {% if form.middle_name %}
-                        <div class="form-element">
-                            <span class="error">{{ form.middle_name.errors }}</span>
-                            <label class="control-label">{{ form.middle_name.label_tag }}</label>
-                            <div class="">{{ form.middle_name }}</div>
-                        </div>
+                            <div class="form-element">
+                                <span class="error">{{ form.middle_name.errors }}</span>
+                                <label class="control-label">{{ form.middle_name.label_tag }}</label>
+                                <div class="">{{ form.middle_name }}</div>
+                            </div>
                         {% endif %}
                         <div class="form-element">
                             <span class="error">{{ form.last_name.errors }}</span>
@@ -55,20 +57,11 @@
                         </div>
 
                         <div class="form-element">
-                            <span class="error">{{ form.faculty_code.errors }}</span>
-                            <label class="control-label">{{ form.faculty_code.label_tag }}</label>
-                            <div class="">{{ form.faculty_code }}</div>
-                        </div>
-                        <div class="form-element">
                             <span class="error">{{ form.caste_type.errors }}</span>
                             <label class="control-label">{{ form.caste_type.label_tag }}</label>
                             <div class="">{{ form.caste_type }}</div>
                         </div>
-                        <div class="form-element">
-                            <span class="error">{{ form.teaching_from.errors }}</span>
-                            <label class="control-label">{{ form.subjects_experience.label_tag }}</label>
-                            <div class="">{{ form.subjects_experience }}</div>
-                        </div>
+
                         <div class="form-element">
                             <span class="error">{{ form.teaching_from.errors }}</span>
                             <label class="control-label">{{ form.projects.label_tag }}</label>
@@ -337,11 +330,6 @@
 
 
 {% block html %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-            crossorigin="anonymous"></script>
-    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
     <script>
         $(function () {

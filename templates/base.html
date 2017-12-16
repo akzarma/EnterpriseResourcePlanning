@@ -7,7 +7,7 @@
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Student Registration {% endblock %}</title>
+    <title>{% block title %}ERP{% endblock %}</title>
     {{ form.non_field_label_tag }}
 
     <link href="https://fonts.googleapis.com/css?family=Merriweather:900" rel="stylesheet">
@@ -99,6 +99,7 @@
             height: 100%;
         }
     </style>
+
     {% block style %}
 
     {% endblock style %}
@@ -124,7 +125,7 @@
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     {% block navbar-right %}
-                    <a href="{% url 'login:login' %}" class="dropdown-toggle" role="button">Sign In</a>
+                        <a href="{% url 'login:login' %}" class="dropdown-toggle" role="button">Sign In</a>
                     {% endblock navbar-right %}
                 </li>
             </ul>

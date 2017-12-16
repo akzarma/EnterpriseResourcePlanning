@@ -1,6 +1,9 @@
 {% extends "./dashboard_student.html" %}
-
+{% block title %}
+    Student Profile
+    {% endblock title %}
 {% block content %}
+    <br><br>
     <div class="row">
 
     </div>
@@ -15,10 +18,9 @@
                     <div class="form-element">
                         <span class="error">{{ form.doc_profile_pic.errors }}</span>
                         {{ form.doc_profile_pic.label_tag }}
-                        <div class="input-file">{{ form.doc_profile_pic }}</div>
                         <img id="myImg"
-                             src="http://icons.iconarchive.com/icons/paomedia/small-n-flat/512/sign-add-icon.png"
-                             alt="Uploaded image is broken"/>
+                                 src="{{ form.instance.doc_profile_pic.url}}"
+                                 alt="Uploaded image is broken"/>
                     </div>
 
                     <div class="form-element">
