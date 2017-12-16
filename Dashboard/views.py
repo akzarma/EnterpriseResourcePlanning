@@ -6,6 +6,7 @@ from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student
 
 # Student dashboard
+from Research.models import Paper
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
 from UserModel.models import User
 
@@ -58,8 +59,6 @@ def view_profile(request):
         if request.method == 'POST':
             if user.role == 'Student':
                 form = StudentUpdateForm(request.POST, request.FILES, instance=user.student)
-                print(request.FILES)
-                print(user.student)
                 if form.is_valid():
                     print('form valid')
                     student_obj = form.save(commit=False)
@@ -75,8 +74,6 @@ def view_profile(request):
 
             elif user.role == 'Faculty':
                 form = FacultyUpdateForm(request.POST, request.FILES, instance=user.faculty)
-                print(request.FILES)
-                print(user.faculty)
                 if form.is_valid():
                     print('form valid')
                     faculty_obj = form.save(commit=False)
@@ -117,5 +114,7 @@ def view_profile(request):
         return HttpResponseRedirect('/login/')
 
 
-def view_research(request):
-    return render(request, 'view_research.html', {})
+def list_research(request):
+    user = request.user
+    all_papers = Paper.objects.filter(faculty=user.faculty)
+    return render(request, 'list_research.html', {'all_papers': all_papers})
