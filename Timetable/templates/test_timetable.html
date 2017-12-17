@@ -539,50 +539,40 @@
                         {#$('#myModal').modal('show');#}
                         checkbox_object.classList.add("practical-cbx");
                         checkbox_object.parentElement.classList.add("practical-cbx-parent");
-                        {#let table_obj = document.getElementById('modalBody');#}
-                        {#alert(year);#}
-                        {#alert(division);#}
+                        let table_obj = document.createElement('table');
+                        for(let batch in batches_json[year][division]) {
+                            let row_obj = document.createElement('tr');
+                            let column_obj = document.createElement('td');
+                            column_obj.innerHTML = batches_json[year][division][batch];
+                            row_obj.appendChild(column_obj);
 
-                        {#console.log(batches_json[year][division]);#}
-                        {#let index = Object.keys(batches_json[year]).indexOf(division);#}
-                        {#alert(index);#}
-                        {#for (var batch in batches_json[year][division]) {#}
-                        {#    let row_obj = document.createElement('tr');#}
-                        {#    let column_obj = document.createElement('td');#}
-                        {#    column_obj.innerHTML = batches_json[year][division][batch];#}
-                        {#    row_obj.appendChild(column_obj);#}
-                        {##}
-                        {#    column_obj = document.createElement('td');#}
-                        {#    let select_obj = document.createElement('select');#}
-                        {#    for(let sub in all_subjects) {#}
-                        {#        if(is_practical(all_subjects[sub])) {#}
-                        {#            let option = document.createElement("option");#}
-                        {#            option.value = all_subjects[sub];#}
-                        {#            option.text = all_subjects[sub];#}
-                        {#            select_obj.appendChild(option);#}
-                        {#        }#}
-                        {#    }#}
-                        {#    column_obj.appendChild(select_obj);#}
-                        {#    row_obj.appendChild(column_obj);#}
-                        {##}
-                        {#    column_obj = document.createElement('td');#}
-                        {#    select_obj = document.createElement('option');#}
-                        {#    for(let teacher in subject_teacher_json[selected_subject])#}
-                        {#    row_obj.appendChild(column_obj);#}
-                        {##}
-                        {#    column_obj = document.createElement('td');#}
-                        {#    select_obj = document.createElement('select');#}
-                        {#    $.each(practical_room, function (i, element) {#}
-                        {#        let option = document.createElement("option");#}
-                        {#        option.value = element;#}
-                        {#        option.text = element;#}
-                        {#        select_obj.appendChild(option);#}
-                        {#    });#}
-                        {#    column_obj.appendChild(select_obj);#}
-                        {#    row_obj.appendChild(column_obj);#}
-                        {##}
-                        {#    table_obj.appendChild(row_obj);#}
-                        {#}#}
+                            column_obj = document.createElement('td');
+                            column_obj.innerHTML = "Subject";
+                            row_obj.appendChild(column_obj);
+
+                            column_obj = document.createElement('td');
+                            column_obj.innerHTML = "Faculty";
+                            row_obj.appendChild(column_obj);
+
+                            column_obj = document.createElement('td');
+                            let select_obj = document.createElement('select');
+                            $.each(practical_room, function (i, element) {
+                                let option = document.createElement("option");
+                                option.value = element;
+                                option.text = element;
+                                select_obj.appendChild(option);
+                            })
+                            column_obj.appendChild(select_obj);
+                            row_obj.appendChild(column_obj);
+
+                            column_obj = document.createElement('td');
+                            column_obj.innerHTML = "<input type='checkbox' class='checked-cbx'>";
+                            row_obj.appendChild(column_obj);
+
+                            table_obj.appendChild(row_obj);
+                        }
+                        checkbox_object.parentElement.appendChild(table_obj);
+
 
                     }
 
