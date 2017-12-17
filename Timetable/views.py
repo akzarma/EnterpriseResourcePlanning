@@ -87,15 +87,32 @@ def fill_timetable(request):
             subject_teacher_json[each_subject.subject.short_form][each_division] = list(faculty_subjects_division)
 
     all_subjects = list(all_subjects.values_list('subject__short_form', flat=True))
-    print('just print')
-
 
     subject_year = {}
 
     # for year in years:
 
+    batches_json = {}
 
+    college_extra_details_obj = CollegeExtraDetail.objects.filter(branch=branch_obj)
 
+    for yr in college_extra_details_obj:
+
+        if yr.year.year in batches_json:
+            batches_json[yr.year.year][yr.division] = list(
+                Batch.objects.filter(division=yr).values_list('batch_name', flat=True))
+        else:
+            batches_json[yr.year.year] = {}
+            batches_json[yr.year.year][yr.division] = list(
+                Batch.objects.filter(division=yr).values_list('batch_name', flat=True))
+        # for div in divisions:
+        #     batches_json[yr][div] = [
+        #         Batch.objects.filter(division=CollegeExtraDetail.objects.get(branch=branch_obj, division=div,
+        #                                                                      year=CollegeYear.objects.get(
+        #                                                                          year=yr))).values_list('batch_name',
+        #                                                                                                 flat=True)
+        #     ]
+    print('just print')
     context = {
         'branch': branch,
         'times': times,
@@ -105,6 +122,7 @@ def fill_timetable(request):
         'number_of_division': range(len(divisions)),
         'theory_room': theory_room,
         'practical_room': practical_room,
+        'batches_json': json.dumps(batches_json),
         'faculty': faculty,
         'divisions_js': divisions_js,
         'subject_json': json.dumps(subjects_json),
