@@ -33,6 +33,7 @@ def enter_paper(request):
         return HttpResponseRedirect('/login/')
 
 
+
 def view_paper(request):
     user = request.user
     if not user.is_anonymous:

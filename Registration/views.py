@@ -11,6 +11,13 @@ from .forms import StudentForm, FacultyForm, SubjectForm
 from Configuration.stateConf import states
 
 
+def view_subjects(request):
+
+    subjects = BranchSubject.objects.filter(branch=Branch.objects.get(branch='Computer'))
+    return render(request , 'view_subjects.html' , {'subjects' :   subjects})
+
+
+
 def register_student(request):
     if request.method == "POST":
         form = StudentForm(request.POST, request.FILES)
@@ -155,11 +162,9 @@ def get_shift(request):
 
 
 def register_subject(request):
-
     if request.method == 'POST':
 
         subject_form = SubjectForm(request.POST)
-
 
         if subject_form.is_valid():
             subject_form.save()
@@ -167,12 +172,13 @@ def register_subject(request):
             year_obj = CollegeYear.objects.get(year=subject_form.cleaned_data.get('year'))
             semester_obj = Semester.objects.get(semester=subject_form.cleaned_data.get('semester'))
             subject_obj = Subject.objects.get(code=subject_form.cleaned_data.get('code'))
-            branch_subject = BranchSubject(branch=branch_object,year=year_obj,
-                                           semester=semester_obj,subject=subject_obj)
+            branch_subject = BranchSubject(branch=branch_object, year=year_obj,
+                                           semester=semester_obj, subject=subject_obj)
             branch_subject.save()
 
-            return render(request, 'test_register_subject.html', {'success': subject_obj.short_form +' is Successfully registered',
-                                                                  'form': SubjectForm(2)})
+            return render(request, 'test_register_subject.html',
+                          {'success': subject_obj.short_form + ' is Successfully registered',
+                           'form': SubjectForm(2)})
 
         else:
             return HttpResponse('error : ' + str(subject_form.errors))

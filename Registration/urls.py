@@ -15,6 +15,11 @@ urlpatterns = [
     url(r'^student/success/$', views.success_student, name='success_student'),
     #     # /register/facultysuccess/ - Register Faculty
     url(r'^faculty/success/$', views.success_faculty, name='success_faculty'),
+
+    # /register/view_subjects
+    url(r'^view_subjects/$', views.view_subjects, name='view_subjects'),
+
+    url(r'^register_faculty_subject/$' , views.register_faculty_subject , name = 'register_faculty_subject'),
     #     # /register/subjectsuccess/ - Register Subject
     #     url(r'^subject/success/$', views.register_subject, name='register_success'),
 

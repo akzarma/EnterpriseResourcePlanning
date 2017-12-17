@@ -9,11 +9,19 @@ branch_list = []
 
 semester_list = []
 
+faculty_list = []
+
+subject_list = []
+
 for semester in Semester.objects.all():
     semester_list.append(semester)
 
-for branch in Branch.objects.all():
-    branch_list.append(branch)
+branch_list= Branch.objects.all()
+
+subject_list = Subject.objects.all().values_list('short_form' , flat=True)
+
+faculty_list = Faculty.objects.all().values_list('initials', flat=True)
+
 
 division_list = []
 
@@ -30,6 +38,20 @@ shift_list = []
 
 for shift in Shift.objects.all():
     shift_list.append(shift)
+
+class FacultySubjectForm(forms.ModelForm):
+
+    faculty = forms.ChoiceField(
+        choices=[(i, i) for i in faculty_list]
+    )
+
+    subject = forms.ChoiceField(
+        choice = [(i,i) for i in subject_list]
+    )
+    class Meta:
+        model = Faculty
+        fields = '__all__'
+        exclude = []
 
 
 class StudentForm(forms.ModelForm):
