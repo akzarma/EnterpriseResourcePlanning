@@ -2,7 +2,7 @@ from django import forms
 
 from Configuration.countryConf import countries
 from Configuration.stateConf import states
-from General.models import CollegeExtraDetail, CollegeYear, Shift, Semester
+from General.models import CollegeExtraDetail, CollegeYear, Shift, Semester, FacultySubject
 from .models import Faculty, Subject, Student, Branch
 
 branch_list = []
@@ -16,12 +16,11 @@ subject_list = []
 for semester in Semester.objects.all():
     semester_list.append(semester)
 
-branch_list= Branch.objects.all()
+branch_list = Branch.objects.all()
 
-subject_list = Subject.objects.all().values_list('short_form' , flat=True)
+subject_list = Subject.objects.all().values_list('short_form', flat=True)
 
 faculty_list = Faculty.objects.all().values_list('initials', flat=True)
-
 
 division_list = []
 
@@ -39,19 +38,19 @@ shift_list = []
 for shift in Shift.objects.all():
     shift_list.append(shift)
 
-class FacultySubjectForm(forms.ModelForm):
 
+class FacultySubjectForm(forms.ModelForm):
     faculty = forms.ChoiceField(
         choices=[(i, i) for i in faculty_list]
     )
 
     subject = forms.ChoiceField(
-        choice = [(i,i) for i in subject_list]
+        choice=[(i, i) for i in subject_list]
     )
+
     class Meta:
-        model = Faculty
+        model = FacultySubject
         fields = '__all__'
-        exclude = []
 
 
 class StudentForm(forms.ModelForm):
@@ -99,7 +98,8 @@ class StudentForm(forms.ModelForm):
             'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
         }
         fields = '__all__'
-        exclude = ['salary','user']
+        exclude = ['salary', 'user']
+
 
 class FacultyForm(forms.ModelForm):
     permanent_country = forms.ChoiceField(
@@ -109,6 +109,7 @@ class FacultyForm(forms.ModelForm):
         choices=countries
     )
     email = forms.EmailField()
+
     class Meta:
         model = Faculty
         widgets = {
