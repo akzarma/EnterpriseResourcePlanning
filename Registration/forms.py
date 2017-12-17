@@ -48,6 +48,10 @@ class FacultySubjectForm(forms.ModelForm):
         choice=[(i, i) for i in subject_list]
     )
 
+    division = forms.ChoiceField(
+        choices=[(i,i) for i in division_list]
+    )
+
     class Meta:
         model = FacultySubject
         fields = '__all__'

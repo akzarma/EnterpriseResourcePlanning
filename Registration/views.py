@@ -7,7 +7,7 @@ from django.shortcuts import render, HttpResponse
 from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear, BranchSubject, Semester
 from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User
-from .forms import StudentForm, FacultyForm, SubjectForm
+from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm
 from Configuration.stateConf import states
 
 
@@ -16,7 +16,9 @@ def view_subjects(request):
     subjects = BranchSubject.objects.filter(branch=Branch.objects.get(branch='Computer'))
     return render(request , 'view_subjects.html' , {'subjects' :   subjects})
 
-
+def register_faculty_subject(request):
+    if request.method == 'POST':
+        form = FacultySubjectForm(request.POST)
 
 def register_student(request):
     if request.method == "POST":
