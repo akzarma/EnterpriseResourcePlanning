@@ -29,4 +29,5 @@ urlpatterns = [
     url(r'^get_shift/$', views.get_shift, name='get_shift'),
 
 
+
 ]

@@ -4,8 +4,8 @@ from __future__ import unicode_literals
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
 
-from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear
-from Registration.models import Student, Branch, Faculty
+from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear, BranchSubject, Semester
+from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User
 from .forms import StudentForm, FacultyForm, SubjectForm
 from Configuration.stateConf import states
@@ -25,9 +25,7 @@ def register_student(request):
             branch = form.cleaned_data.get('branch')
             year = form.cleaned_data.get('year')
 
-
             student.user = new_user
-
 
             student.save()
 
@@ -60,9 +58,10 @@ def register_faculty(request):
             faculty = form.save(commit=False)
             if (request.POST.get('initials')) == '':
                 if form.cleaned_data.get('middle_name') is None:
-                    initials = str(form.cleaned_data.get('first_name'))[0]+str(form.cleaned_data.get('last_name'))[0]
+                    initials = str(form.cleaned_data.get('first_name'))[0] + str(form.cleaned_data.get('last_name'))[0]
                 else:
-                    initials = str(form.cleaned_data.get('first_name'))[0]+str(form.cleaned_data.get('middle_name'))[0]+str(form.cleaned_data.get('last_name'))[0]
+                    initials = str(form.cleaned_data.get('first_name'))[0] + str(form.cleaned_data.get('middle_name'))[
+                        0] + str(form.cleaned_data.get('last_name'))[0]
 
                 initials = initials.upper()
                 faculty.initials = initials
@@ -83,23 +82,6 @@ def register_faculty(request):
         form = FacultyForm(initial={'handicapped': False})
 
     return render(request, "register_faculty.html", {'form': form})
-
-
-def register_subject(request):
-    if request.method == "POST":
-        form = SubjectForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/register/subject/')
-            # return HttpResponse(form.errors)
-        else:
-            print(form.errors)
-            # return HttpResponse(form.errors)
-        return render(request, "register_subject.html", {'form': form})
-    else:
-        form = SubjectForm()
-
-    return render(request, "register_subject.html", {'form': form})
 
 
 def get_states(request):
@@ -170,3 +152,32 @@ def get_shift(request):
                                                       branch=Branch.objects.get(branch=branch)).values_list('division',
                                                                                                             flat=True)
     return HttpResponse(division_list)
+
+
+def register_subject(request):
+
+    if request.method == 'POST':
+
+        subject_form = SubjectForm(request.POST)
+
+
+        if subject_form.is_valid():
+            subject_form.save()
+            branch_object = Branch.objects.get(branch=subject_form.cleaned_data.get('branch'))
+            year_obj = CollegeYear.objects.get(year=subject_form.cleaned_data.get('year'))
+            semester_obj = Semester.objects.get(semester=subject_form.cleaned_data.get('semester'))
+            subject_obj = Subject.objects.get(code=subject_form.cleaned_data.get('code'))
+            branch_subject = BranchSubject(branch=branch_object,year=year_obj,
+                                           semester=semester_obj,subject=subject_obj)
+            branch_subject.save()
+
+            return render(request, 'test_register_subject.html', {'success': subject_obj.short_form +' is Successfully registered',
+                                                                  'form': SubjectForm(2)})
+
+        else:
+            return HttpResponse('error : ' + str(subject_form.errors))
+
+    else:
+        subject_form = SubjectForm()
+    return render(request, 'test_register_subject.html',
+                  {'form': subject_form})

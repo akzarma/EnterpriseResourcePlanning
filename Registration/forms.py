@@ -2,10 +2,15 @@ from django import forms
 
 from Configuration.countryConf import countries
 from Configuration.stateConf import states
-from General.models import CollegeExtraDetail, CollegeYear, Shift
+from General.models import CollegeExtraDetail, CollegeYear, Shift, Semester
 from .models import Faculty, Subject, Student, Branch
 
 branch_list = []
+
+semester_list = []
+
+for semester in Semester.objects.all():
+    semester_list.append(semester)
 
 for branch in Branch.objects.all():
     branch_list.append(branch)
@@ -97,6 +102,10 @@ class SubjectForm(forms.ModelForm):
                  ('Civil', 'Civil')])
     year = forms.ChoiceField(
         choices=[('FE', 'FE'), ('SE', 'SE'), ('TE', 'TE'), ('BE', 'BE'), ]
+    )
+
+    semester = forms.ChoiceField(
+        choices=[(i, i) for i in semester_list]
     )
 
     class Meta:
