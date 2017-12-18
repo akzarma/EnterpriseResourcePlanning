@@ -5,51 +5,34 @@ from Configuration.stateConf import states
 from General.models import CollegeExtraDetail, CollegeYear, Shift, Semester, FacultySubject
 from .models import Faculty, Subject, Student, Branch
 
-branch_list = []
 
-semester_list = []
 
-faculty_list = []
-
-subject_list = []
-
-for semester in Semester.objects.all():
-    semester_list.append(semester)
+semester_list = Semester.objects.all()
 
 branch_list = Branch.objects.all()
 
-subject_list = Subject.objects.all().values_list('short_form', flat=True)
+subject_list = Subject.objects.all()
 
-faculty_list = Faculty.objects.all().values_list('initials', flat=True)
+faculty_list = Faculty.objects.all()
 
-division_list = []
+division_list =  CollegeExtraDetail.objects.filter(branch=Branch.objects.get(branch='Computer'))
 
-for div in CollegeExtraDetail.objects.filter(branch=Branch.objects.get(branch='Computer')).values_list('division',
-                                                                                                       flat=True):
-    division_list.append(div)
+year_list =  CollegeYear.objects.all()
 
-year_list = []
-
-for year in CollegeYear.objects.all():
-    year_list.append(year)
-
-shift_list = []
-
-for shift in Shift.objects.all():
-    shift_list.append(shift)
+shift_list = Shift.objects.all()
 
 
 class FacultySubjectForm(forms.ModelForm):
     faculty = forms.ChoiceField(
-        choices=[(i, i) for i in faculty_list]
+        choices=[(i.pk, i.initials) for i in faculty_list]
     )
 
     subject = forms.ChoiceField(
-        choice=[(i, i) for i in subject_list]
+        choices=[(i.code, i.short_form) for i in subject_list]
     )
 
     division = forms.ChoiceField(
-        choices=[(i,i) for i in division_list]
+        choices=[(i.pk,i.division) for i in division_list]
     )
 
     class Meta:

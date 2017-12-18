@@ -19,6 +19,9 @@ def view_subjects(request):
 def register_faculty_subject(request):
     if request.method == 'POST':
         form = FacultySubjectForm(request.POST)
+        return
+    elif request.method == 'GET':
+        return render(request, 'register_faculty_subject.html', {'form': FacultySubjectForm})
 
 def register_student(request):
     if request.method == "POST":

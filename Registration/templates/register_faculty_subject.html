@@ -1,49 +1,11 @@
 {% extends "dashboard_faculty.html" %}
 {% block content %}
-    <form method="POST" id="subject_form" action="{% url 'registration:register_subject' %}">
+    <form method="POST" id="subject_form" action="{% url 'registration:register_faculty_subject' %}">
         {% csrf_token %}
 
-        <div class="form-element">
-            {{ form.code.label_tag }}
-            {{ form.code }}
-            {{ form.code.with_errors }}
-        </div>
-
-        <div class="form-element">
-            {{ form.semester.label_tag }}
-            {{ form.semester }}
-            {{ form.semester.with_errors }}
-        </div>
-
-        <div class="form-element">
-            {{ form.name.label_tag }}
-            {{ form.name }}
-            {{ form.name.with_errors }}
-        </div>
-
-        <div class="form-element">
-            {{ form.short_form.label_tag }}
-            {{ form.short_form }}
-            {{ form.short_form.with_errors }}
-        </div>
-
-        <div class="form-element">
-            {{ form.branch.label_tag }}
-            {{ form.branch }}
-            {{ form.branch.with_errors }}
-        </div>
-
-        <div class="form-element">
-            {{ form.year.label_tag }}
-            {{ form.year }}
-            {{ form.year.with_errors }}
-        </div>
-
+        {% for each in form %}
+            {{ each }}
+        {% endfor %}
         <input type="submit">
-
-
-    </form>
-    <form action={% url 'registration:view_subjects' %}>
-        <input type="submit" value="View Registered Subjects"/>
     </form>
 {% endblock content %}
