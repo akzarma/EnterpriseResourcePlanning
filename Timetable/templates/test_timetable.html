@@ -3,7 +3,7 @@
 {% block style %}
     <style>
         html, body {
-            overflow-x: hidden;
+            {#overflow-x: hidden;#}
             background: #fff;
             font-family: 'Roboto', sans-serif;
         }
@@ -296,7 +296,7 @@
         <br>
         {% for yr in year %}
             {#                <option>{{ yr }}</option>#}
-            <div class="container hidden" id="timetable_{{ yr }}">
+            <div class="container-fluid hidden" id="timetable_{{ yr }}">
                 <table style="width:100%;" id="time_tab_{{ yr }}">
                     <tr>
                         <th colspan="2" class="titlebar">Time</th>
@@ -546,27 +546,36 @@
                             column_obj.innerHTML = batches_json[year][division][batch];
                             row_obj.appendChild(column_obj);
 
-                            column_obj = document.createElement('td');
-                            column_obj.innerHTML = "Subject";
-                            row_obj.appendChild(column_obj);
+                            {#column_obj = document.createElement('td');#}
+                            {#let select_obj = document.createElement('select');#}
+                            {#select_obj.id = "id_subject_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch];#}
+                            {#column_obj.appendChild(select_obj);#}
+                            {#row_obj.appendChild(column_obj);#}
+                            {##}
+                            {#column_obj = document.createElement('td');#}
+                            {#select_obj = document.createElement('select');#}
+                            {#select_obj.id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch];#}
+                            {#column_obj.appendChild(select_obj);#}
+                            {#row_obj.appendChild(column_obj);#}
+                            {##}
+                            {#column_obj = document.createElement('td');#}
+                            {#select_obj = document.createElement('select');#}
+                            {#$.each(practical_room, function (i, element) {#}
+                            {#    let option = document.createElement("option");#}
+                            {#    option.value = element;#}
+                            {#    option.text = element;#}
+                            {#    select_obj.appendChild(option);#}
+                            {#//{#}
+                            {#select_obj.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch];#}
+                            {#column_obj.appendChild(select_obj);#}
+                            {#row_obj.appendChild(column_obj);#}
 
                             column_obj = document.createElement('td');
-                            column_obj.innerHTML = "Faculty";
-                            row_obj.appendChild(column_obj);
-
-                            column_obj = document.createElement('td');
-                            let select_obj = document.createElement('select');
-                            $.each(practical_room, function (i, element) {
-                                let option = document.createElement("option");
-                                option.value = element;
-                                option.text = element;
-                                select_obj.appendChild(option);
-                            })
-                            column_obj.appendChild(select_obj);
-                            row_obj.appendChild(column_obj);
-
-                            column_obj = document.createElement('td');
-                            column_obj.innerHTML = "<input type='checkbox' class='checked-cbx'>";
+                            let cbx_obj = document.createElement('input');
+                            cbx_obj.setAttribute('type','checkbox');
+                            cbx_obj.setAttribute('class','checked-cbx');
+                            cbx_obj.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch] + "_cbx";
+                            column_obj.appendChild(cbx_obj);
                             row_obj.appendChild(column_obj);
 
                             table_obj.appendChild(row_obj);
