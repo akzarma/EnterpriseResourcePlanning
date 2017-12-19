@@ -3,8 +3,7 @@
 {% block style %}
     <style>
         html, body {
-            {#overflow-x: hidden;#}
-            background: #fff;
+        {#overflow-x: hidden;#} background: #fff;
             font-family: 'Roboto', sans-serif;
         }
 
@@ -448,7 +447,7 @@
         //keep tracks of subject where they are checked for division,day,time slot.
         var subject_dictionary = [];
         var block_room_list = {};
-
+        var block_faculty_list = {};
         var subject_teacher_json ={{ subject_teacher_json|safe }};
         var all_divisions = {{ division|safe }};
         var batches_json ={{ batches_json|safe }};
@@ -460,6 +459,12 @@
         function create_subject_dictionary() {
             $.each(all_subjects, function (i, element) {
                 subject_dictionary[element] = [];
+            });
+        }
+
+        function create_faculty_block_dictionary() {
+            $.each(subject_teacher_json, function (i, element) {
+                block_faculty_list[element] = [];
             });
         }
 
@@ -540,7 +545,7 @@
                         checkbox_object.classList.add("practical-cbx");
                         checkbox_object.parentElement.classList.add("practical-cbx-parent");
                         let table_obj = document.createElement('table');
-                        for(let batch in batches_json[year][division]) {
+                        for (let batch in batches_json[year][division]) {
                             let row_obj = document.createElement('tr');
                             let column_obj = document.createElement('td');
                             column_obj.innerHTML = batches_json[year][division][batch];
@@ -572,8 +577,9 @@
 
                             column_obj = document.createElement('td');
                             let cbx_obj = document.createElement('input');
-                            cbx_obj.setAttribute('type','checkbox');
-                            cbx_obj.setAttribute('class','checked-cbx');
+                            cbx_obj.setAttribute('type', 'checkbox');
+                            cbx_obj.setAttribute('class', 'checked-cbx');
+                            cbx_obj.setAttribute('onchange', 'block_faculty_practical(this' + selected_subject + ')');
                             cbx_obj.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch] + "_cbx";
                             column_obj.appendChild(cbx_obj);
                             row_obj.appendChild(column_obj);
@@ -616,6 +622,23 @@
         function room_change_block(room_obj) {
             block_room(room_obj.id, previous, true);
             block_room(room_obj.id, room_obj.value, false);
+        }
+
+        function block_faculty_practical(cbx_obj, selected_subject) {
+            let cbx_splitted = cbx_obj.id.split;
+
+            let column_obj = document.createElement('td');
+            let select_obj = document.createElement('select');
+            select_obj.id = "id_teacher_" + cbx_splitted[1] + "_" + cbx_splitted[2] + "_" + cbx_splitted[3] + "_" + cbx_splitted[4] + "_" + cbx_splitted[5];
+            column_obj.appendChild(select_obj);
+            row_obj.appendChild(column_obj);
+
+            for (let teachers in subject_teacher_json[selected_subject][cbx_splitted[configuration[division_index]]]) {
+                let option = document.createElement('option');
+                option.text = subject_teacher_json[selected_subject][cbx_splitted[configuration[division_index]]][teachers];
+                option.value = subject_teacher_json[selected_subject][cbx_splitted[configuration[division_index]]][teachers];
+                select_obj.appendChild(select_obj);
+            }
         }
     </script>
 
