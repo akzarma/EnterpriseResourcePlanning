@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
 
-from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear, BranchSubject, Semester
+from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear, BranchSubject, Semester, \
+    FacultySubject
 from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User
 from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm
@@ -19,7 +20,13 @@ def view_subjects(request):
 def register_faculty_subject(request):
     if request.method == 'POST':
         form = FacultySubjectForm(request.POST)
-        return
+        if form.is_valid():
+            faculty_subject = FacultySubject.objects.create(faculty=Faculty.objects.get(pk=form.cleaned_data.get('faculty')),
+                                                            subject=Subject.objects.get(pk=form.cleaned_data.get('subject')),
+                                                            division=CollegeExtraDetail.objects.get(pk=form.cleaned_data.get('division')))
+            faculty_subject.save()
+        return render(request, 'register_faculty_subject.html' , {'form' : FacultySubjectForm,
+                                                                  'success' : 'Successfully Bound'})
     elif request.method == 'GET':
         return render(request, 'register_faculty_subject.html', {'form': FacultySubjectForm})
 

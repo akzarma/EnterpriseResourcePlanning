@@ -1,6 +1,6 @@
 {% extends "dashboard_faculty.html" %}
 {% block content %}
-    <form method="POST" id="subject_form" action="{% url 'registration:register_faculty_subject' %}">
+    <form method="POST" action="{% url 'registration:register_faculty_subject' %}">
         {% csrf_token %}
 
         {% for each in form %}

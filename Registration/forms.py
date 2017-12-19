@@ -28,7 +28,7 @@ class FacultySubjectForm(forms.ModelForm):
     )
 
     subject = forms.ChoiceField(
-        choices=[(i.code, i.short_form) for i in subject_list]
+        choices=[(i.pk, i.short_form) for i in subject_list]
     )
 
     division = forms.ChoiceField(
