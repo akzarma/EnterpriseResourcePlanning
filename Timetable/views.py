@@ -44,7 +44,9 @@ def fill_timetable(request):
     practical_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=True)]
     subjects_obj = BranchSubject.objects.filter(branch=branch_obj)
     subjects = []
-    faculty = []
+    faculty = list(
+        FacultySubject.objects.filter(division__in=CollegeExtraDetail.objects.filter(branch=branch_obj)).values_list(
+            'faculty__initials', flat=True).distinct())
     divisions_js = ""
     for i in divisions:
         divisions_js += i
@@ -156,7 +158,6 @@ def get_faculty(request):
                                              Q(subject=subject_obj))
         disable_division = [i.division.division for i in test]
         disable_division.remove(division)
-        faculty = []
 
         for each in faculty_subject:
             faculty.append((each.faculty.initials + '-' + each.faculty.faculty_code))

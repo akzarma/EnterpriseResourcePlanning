@@ -399,7 +399,8 @@
             "time_index": 2,
             "division_index": 3,
             "day_index": 4,
-            "year_index": 5
+            "year_index": 5,
+            "batch_index": 6
         };
 
         var global_current_subject = "";
@@ -454,7 +455,7 @@
         var theory_room = {{ theory_room|safe }};
         var practical_room = {{ practical_room|safe }};
         var all_subjects = {{ all_subjects|safe }};
-
+        var faculty = {{ faculty|safe }};
 
         function create_subject_dictionary() {
             $.each(all_subjects, function (i, element) {
@@ -463,7 +464,7 @@
         }
 
         function create_faculty_block_dictionary() {
-            $.each(subject_teacher_json, function (i, element) {
+            $.each(faculty, function (i, element) {
                 block_faculty_list[element] = [];
             });
         }
@@ -579,7 +580,7 @@
                             let cbx_obj = document.createElement('input');
                             cbx_obj.setAttribute('type', 'checkbox');
                             cbx_obj.setAttribute('class', 'checked-cbx');
-                            cbx_obj.setAttribute('onchange', 'block_faculty_practical(this' + selected_subject + ')');
+                            cbx_obj.setAttribute('onchange', 'block_faculty_practical(this)');
                             cbx_obj.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch] + "_cbx";
                             column_obj.appendChild(cbx_obj);
                             row_obj.appendChild(column_obj);
@@ -624,21 +625,46 @@
             block_room(room_obj.id, room_obj.value, false);
         }
 
-        function block_faculty_practical(cbx_obj, selected_subject) {
-            let cbx_splitted = cbx_obj.id.split;
+        function block_faculty_practical(cbx_obj) {
+            let selected_subject = document.getElementById("id_subject").value;
+            let cbx_splitted = cbx_obj.id.split('_');
+            let division = cbx_splitted[configuration['division_index']];
+            let year = cbx_splitted[configuration['year_index']];
+            let day = cbx_splitted[configuration['day_index']];
+            let time = cbx_splitted[configuration['time_index']];
+            let batch = cbx_splitted[configuration['batch_index']];
 
-            let column_obj = document.createElement('td');
+
+            let column = document.createElement('td');
+            column.innerHTML = selected_subject;
+            cbx_obj.parentElement.parentElement.appendChild(column);
+
+            column = document.createElement('td');
             let select_obj = document.createElement('select');
-            select_obj.id = "id_teacher_" + cbx_splitted[1] + "_" + cbx_splitted[2] + "_" + cbx_splitted[3] + "_" + cbx_splitted[4] + "_" + cbx_splitted[5];
-            column_obj.appendChild(select_obj);
-            row_obj.appendChild(column_obj);
+            select_obj.id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
 
-            for (let teachers in subject_teacher_json[selected_subject][cbx_splitted[configuration[division_index]]]) {
-                let option = document.createElement('option');
-                option.text = subject_teacher_json[selected_subject][cbx_splitted[configuration[division_index]]][teachers];
-                option.value = subject_teacher_json[selected_subject][cbx_splitted[configuration[division_index]]][teachers];
-                select_obj.appendChild(select_obj);
+
+            /* */
+
+            let faculty_list = subject_teacher_json[selected_subject][division];
+
+            for (let i in faculty_list) {
+
+                if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {
+                    let option = document.createElement('option');
+                    option.text = faculty_list[i];
+                    option.value = faculty_list[i];
+                    select_obj.appendChild(option);
+                }
             }
+            let selected_faculty = select_obj.value;
+            column.appendChild(select_obj);
+            cbx_obj.parentElement.parentElement.appendChild(column);
+
+
+            column = document.createElement('td');
+            column.innerHTML = "Room";
+            cbx_obj.parentElement.parentElement.appendChild(column);
         }
     </script>
 
@@ -717,7 +743,9 @@
         function on_document_loading() {
             create_room_dictionary();
             create_subject_dictionary();
+            create_faculty_block_dictionary();
             set_subject();
+
 
         }
     </script>
@@ -825,5 +853,34 @@
 
     {#    Remove ids from block_list#}
 
+
+    <script>
+
+        function update_faculty_blocking_list(teachers, current_subject, time, year, day, current_division, complement) {
+            for (subject in subject_teacher_json) {
+                if (subject_teacher_json.hasOwnProperty(subject)) {
+                    for (division in subject_teacher_json[subject]) {
+                        if (subject_teacher_json[subject].hasOwnProperty(division)) {
+                            if (subject_teacher_json[subject][division][0] === teachers[0]) {
+                                let subject_year = "";
+                                for (each_year in subjects_json) {
+                                    if (subjects_json.hasOwnProperty(each_year)) {
+                                        if ((subjects_json[each_year]['practical'].indexOf(subject) !== -1) || (subjects_json[each_year]['theory'].indexOf(subject) !== -1)) {
+                                            subject_year = each_year;
+                                            break;
+                                        }
+
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+    </script>
 
 {% endblock html %}
