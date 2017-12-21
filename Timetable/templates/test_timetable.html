@@ -526,7 +526,7 @@
                         //add <select> Room </select>
                         let room_object = document.createElement("select");
                         room_object.setAttribute('onfocus', 'set_previous_value(this)');
-                        room_object.setAttribute('onchange', 'room_change_block(this)');
+                        room_object.setAttribute('onchange', 'room_change_block(this,false)');
                         checkbox_parent_object.appendChild(room_object);
                         room_object.id = "id_room_" + time + "_" + division + "_" + day + "_" + year;
 
@@ -539,7 +539,7 @@
                             }
                         });
                         let current_room = room_object.value;
-                        block_room(room_object.id, current_room, false);
+                        block_room(room_object.id, current_room, false, false);
                     }
                     else {
                         {#$('#myModal').modal('show');#}
@@ -551,30 +551,6 @@
                             let column_obj = document.createElement('td');
                             column_obj.innerHTML = batches_json[year][division][batch];
                             row_obj.appendChild(column_obj);
-
-                            {#column_obj = document.createElement('td');#}
-                            {#let select_obj = document.createElement('select');#}
-                            {#select_obj.id = "id_subject_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch];#}
-                            {#column_obj.appendChild(select_obj);#}
-                            {#row_obj.appendChild(column_obj);#}
-                            {##}
-                            {#column_obj = document.createElement('td');#}
-                            {#select_obj = document.createElement('select');#}
-                            {#select_obj.id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch];#}
-                            {#column_obj.appendChild(select_obj);#}
-                            {#row_obj.appendChild(column_obj);#}
-                            {##}
-                            {#column_obj = document.createElement('td');#}
-                            {#select_obj = document.createElement('select');#}
-                            {#$.each(practical_room, function (i, element) {#}
-                            {#    let option = document.createElement("option");#}
-                            {#    option.value = element;#}
-                            {#    option.text = element;#}
-                            {#    select_obj.appendChild(option);#}
-                            {#//{#}
-                            {#select_obj.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch];#}
-                            {#column_obj.appendChild(select_obj);#}
-                            {#row_obj.appendChild(column_obj);#}
 
                             column_obj = document.createElement('td');
                             let cbx_obj = document.createElement('input');
@@ -606,7 +582,7 @@
                         checkbox_object.parentElement.removeChild(document.getElementById("id_teacher_" + time + "_" + division + "_" + day + "_" + year));
                         checkbox_object.parentElement.removeChild(document.getElementById("id_subject_" + time + "_" + division + "_" + day + "_" + year));
                         let room_obj = document.getElementById("id_room_" + time + "_" + division + "_" + day + "_" + year);
-                        block_room(checkbox_object.id, room_obj.value, true);
+                        block_room(checkbox_object.id, room_obj.value, true, false);
                         checkbox_object.parentElement.removeChild(room_obj);
                         block_checkbox(checkbox_object, local_teachers, local_selected_subject, time, year, day, division, true, selected_subject);
                     }
@@ -620,9 +596,9 @@
             }
         }
 
-        function room_change_block(room_obj) {
-            block_room(room_obj.id, previous, true);
-            block_room(room_obj.id, room_obj.value, false);
+        function room_change_block(room_obj, practical) {
+            block_room(room_obj.id, previous, true, practical);
+            block_room(room_obj.id, room_obj.value, false, practical);
         }
 
         function block_faculty_practical(cbx_obj) {
@@ -643,6 +619,7 @@
                 let faculty_column = document.createElement('td');
                 let select_obj = document.createElement('select');
                 select_obj.id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
+                select_obj.setAttribute('onchange', 'something()');
 
 
                 /* */
@@ -665,15 +642,28 @@
 
                 if (selected_faculty) {
                     update_faculty_blocking_list(selected_faculty, time, division, day, year, batch, false, subject_column.innerHTML);
-                    block_checkbox(cbx_obj,[selected_faculty], selected_subject, time, year, day, division, false);
+                    block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, false);
                     faculty_column.appendChild(select_obj);
                     cbx_obj.parentElement.parentElement.appendChild(faculty_column);
 
 
                     let room_column = document.createElement('td');
-                    room_column.innerHTML = "Room";
-                    room_column.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
+                    let select = document.createElement('select');
+                    select.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
+                    select.setAttribute('onfocus', 'set_previous_value(this)');
+                    select.setAttribute('onchange', 'room_change_block(this, true)');
+                    room_column.appendChild(select);
+                    $.each(practical_room, function (i, element) {
+                        if (block_room_list[element].indexOf(select.id) === -1) {
+                            let option = document.createElement("option");
+                            option.value = element;
+                            option.text = element;
+                            select.appendChild(option);
+                        }
+                    });
                     cbx_obj.parentElement.parentElement.appendChild(room_column);
+                    let current_room = select.value;
+                    block_room(select.id, current_room, false, true);
                 }
                 else {
 
@@ -693,11 +683,14 @@
                 let faculty_obj = document.getElementById(faculty_id);
                 let selected_faculty = faculty_obj.value;
                 update_faculty_blocking_list(selected_faculty, time, division, day, year, batch, true);
-                faculty_obj.parentElement.parentElement.removeChild(faculty_obj.parentElement);
+
 
                 let room_id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
                 let room_obj = document.getElementById(room_id);
-                room_obj.parentElement.removeChild(room_obj);
+                block_room(cbx_obj.id, room_obj.value, true, true);
+
+                faculty_obj.parentElement.parentElement.removeChild(faculty_obj.parentElement);
+                room_obj.parentElement.parentElement.removeChild(room_obj);
 
                 let subject_id = "id_subject_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
                 let subject_obj = document.getElementById(subject_id);
@@ -747,31 +740,64 @@
     </script>
 
     <script>
-        function block_room(cbx_id, current_room, complement) {
+        /* Needs Optimization */
+        function block_room(cbx_id, current_room, complement, practical) {
+            alert(practical);
             {#alert(current_room);#}
             let cbx = cbx_id.split('_');
             for (let yr in all_years) {
                 {#alert(yr);#}
                 for (let div in all_divisions) {
                     {#alert(current_room);#}
-                    let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + all_divisions[div] + '_' + cbx[4] + '_' + all_years[yr];
-                    if (!(all_divisions[div] === cbx[configuration['division_index']] && all_years[yr] === cbx[configuration['year_index']])) {
-                        if (complement === false) {
-                            block_room_list[current_room].push(block_id);
-                            if (document.getElementById(block_id)) {
-                                let blocked = document.getElementById(block_id);
-                                blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
+                    if (practical === false) {
+                        let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + all_divisions[div] + '_' + cbx[4] + '_' + all_years[yr];
+                        if (!(all_divisions[div] === cbx[configuration['division_index']] && all_years[yr] === cbx[configuration['year_index']])) {
+                            if (complement === false) {
+                                block_room_list[current_room].push(block_id);
+                                if (document.getElementById(block_id)) {
+                                    let blocked = document.getElementById(block_id);
+                                    blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
+                                }
+                            }
+                            else {
+                                let index = block_room_list[current_room].indexOf(block_id);
+                                block_room_list[current_room].splice(index, 1);
+                                if (document.getElementById(block_id)) {
+                                    let blocked = document.getElementById(block_id);
+                                    let option_element = document.createElement('option');
+                                    option_element.text = current_room;
+                                    option_element.value = current_room;
+                                    blocked.appendChild(option_element);
+                                }
                             }
                         }
-                        else {
-                            let index = block_room_list[current_room].indexOf(block_id);
-                            block_room_list[current_room].splice(index, 1);
-                            if (document.getElementById(block_id)) {
-                                let blocked = document.getElementById(block_id);
-                                var option_element = document.createElement('option');
-                                option_element.text = current_room;
-                                option_element.value = current_room;
-                                blocked.appendChild(option_element);
+                    }
+                    else {
+                        alert('IN ELSE');
+                        /* Iss Line me error hai CANNOT READ PROPERTY '0' OF UNDEFINED*/
+
+                        for (let batch in batches_json[yr][div]) {
+                            let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + all_divisions[div] + '_' + cbx[4] + '_' + all_years[yr] + '_' + batches_json[yr][div][batch];
+                            alert(block_id);
+                            if (!(all_divisions[div] === cbx[configuration['division_index']] && all_years[yr] === cbx[configuration['year_index']] && batches_json[yr][div][batch] === cbx[configuration['batch_index']])) {
+                                if (complement === false) {
+                                    block_room_list[current_room].push(block_id);
+                                    if (document.getElementById(block_id)) {
+                                        let blocked = document.getElementById(block_id);
+                                        blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
+                                    }
+                                }
+                                else {
+                                    let index = block_room_list[current_room].indexOf(block_id);
+                                    block_room_list[current_room].splice(index, 1);
+                                    if (document.getElementById(block_id)) {
+                                        let blocked = document.getElementById(block_id);
+                                        let option_element = document.createElement('option');
+                                        option_element.text = current_room;
+                                        option_element.value = current_room;
+                                        blocked.appendChild(option_element);
+                                    }
+                                }
                             }
                         }
                     }
