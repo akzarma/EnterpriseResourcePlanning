@@ -749,58 +749,29 @@
                 {#alert(yr);#}
                 for (let div in all_divisions) {
                     {#alert(current_room);#}
-                    if (practical === false) {
-                        let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + all_divisions[div] + '_' + cbx[4] + '_' + all_years[yr];
-                        if (!(all_divisions[div] === cbx[configuration['division_index']] && all_years[yr] === cbx[configuration['year_index']])) {
-                            if (complement === false) {
-                                block_room_list[current_room].push(block_id);
-                                if (document.getElementById(block_id)) {
-                                    let blocked = document.getElementById(block_id);
-                                    blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
-                                }
+                    let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + all_divisions[div] + '_' + cbx[4] + '_' + all_years[yr];
+                    if (!(all_divisions[div] === cbx[configuration['division_index']] && all_years[yr] === cbx[configuration['year_index']])) {
+                        if (complement === false) {
+                            block_room_list[current_room].push(block_id);
+                            if (document.getElementById(block_id)) {
+                                let blocked = document.getElementById(block_id);
+                                blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
                             }
-                            else {
-                                let index = block_room_list[current_room].indexOf(block_id);
-                                block_room_list[current_room].splice(index, 1);
-                                if (document.getElementById(block_id)) {
-                                    let blocked = document.getElementById(block_id);
-                                    let option_element = document.createElement('option');
-                                    option_element.text = current_room;
-                                    option_element.value = current_room;
-                                    blocked.appendChild(option_element);
-                                }
+                        }
+                        else {
+                            let index = block_room_list[current_room].indexOf(block_id);
+                            block_room_list[current_room].splice(index, 1);
+                            if (document.getElementById(block_id)) {
+                                let blocked = document.getElementById(block_id);
+                                let option_element = document.createElement('option');
+                                option_element.text = current_room;
+                                option_element.value = current_room;
+                                blocked.appendChild(option_element);
                             }
                         }
                     }
-                    else {
-                        alert('IN ELSE');
-                        /* Iss Line me error hai CANNOT READ PROPERTY '0' OF UNDEFINED*/
 
-                        for (let batch in batches_json[yr][div]) {
-                            let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + all_divisions[div] + '_' + cbx[4] + '_' + all_years[yr] + '_' + batches_json[yr][div][batch];
-                            alert(block_id);
-                            if (!(all_divisions[div] === cbx[configuration['division_index']] && all_years[yr] === cbx[configuration['year_index']] && batches_json[yr][div][batch] === cbx[configuration['batch_index']])) {
-                                if (complement === false) {
-                                    block_room_list[current_room].push(block_id);
-                                    if (document.getElementById(block_id)) {
-                                        let blocked = document.getElementById(block_id);
-                                        blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
-                                    }
-                                }
-                                else {
-                                    let index = block_room_list[current_room].indexOf(block_id);
-                                    block_room_list[current_room].splice(index, 1);
-                                    if (document.getElementById(block_id)) {
-                                        let blocked = document.getElementById(block_id);
-                                        let option_element = document.createElement('option');
-                                        option_element.text = current_room;
-                                        option_element.value = current_room;
-                                        blocked.appendChild(option_element);
-                                    }
-                                }
-                            }
-                        }
-                    }
+
                 }
             }
         }
@@ -870,15 +841,27 @@
                                     }
 
                                     if (subject_year !== "") {
-                                        let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_cbx';
-                                        if (complement === false) {
-                                            block_list[subject].push(id);
-                                            {#alert(subject + current_subject + current_division + division);#}
+                                        if (subjects_json[each_year]['theory'].indexOf(subject) !== -1) {
+                                            let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_cbx';
+                                            if (complement === false) {
+                                                block_list[subject].push(id);
+                                                {#alert(subject + current_subject + current_division + division);#}
+                                            }
+                                            else {
+                                                let index = block_list[subject].indexOf(id);
+                                                block_list[subject].splice(index, 1);
+                                                document.getElementById(id).disabled = false;
+                                            }
                                         }
                                         else {
-                                            let index = block_list[subject].indexOf(id);
-                                            block_list[subject].splice(index, 1);
-                                            document.getElementById(id).disabled = false;
+                                            console.log("Is practical");
+                                            let id = 'id_teacher_' + time + '_' + division + '_' + day + '_' + subject_year + '_';
+                                            let batch = batches_json[subject_year][division];
+                                            for (i in batch) {
+
+                                                block_faculty_list[teachers[0]].push(id + batch[i]);
+
+                                            }
                                         }
                                     }
 
