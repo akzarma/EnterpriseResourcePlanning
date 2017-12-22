@@ -759,9 +759,13 @@
 
 
                     for(let batch in batches_json[yr][div]){
-                        let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + all_divisions[div] + '_' + cbx[4] + '_' + all_years[yr] + batches_json[yr][div][batch];
+                        let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + all_divisions[div] + '_' + cbx[4] + '_' + all_years[yr] + "_" + batches_json[yr][div][batch];
                         if(!(cbx.length > 7 && cbx[configuration['batch_index']] === batch)) {
                             block_room_list[current_room].push(block_id);
+                            if (document.getElementById(block_id)) {
+                                let blocked = document.getElementById(block_id);
+                                blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
+                            }
                         }
 
                     }
