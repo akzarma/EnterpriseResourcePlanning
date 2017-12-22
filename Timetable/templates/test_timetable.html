@@ -597,8 +597,15 @@
         }
 
         function room_change_block(room_obj, practical) {
-            block_room(room_obj.id, previous, true, practical);
-            block_room(room_obj.id, room_obj.value, false, practical);
+            let current_batch = room_obj.id.split('_')[6];
+            if(practical) {
+                block_room(room_obj.id, previous, true,current_batch);
+                block_room(room_obj.id, room_obj.value, false, current_batch);
+            }
+            else {
+                block_room(room_obj.id, previous, true);
+                block_room(room_obj.id, room_obj.value, false);
+            }
         }
 
         function block_faculty_practical(cbx_obj) {
@@ -741,7 +748,7 @@
 
     <script>
         /* Needs Optimization */
-        function block_room(cbx_id, current_room, complement, practical) {
+        function block_room(cbx_id, current_room, complement, batch) {
             alert(practical);
             {#alert(current_room);#}
             let cbx = cbx_id.split('_');
@@ -749,8 +756,18 @@
                 {#alert(yr);#}
                 for (let div in all_divisions) {
                     {#alert(current_room);#}
+
+
+                    for(let batch in batches_json[yr][div]){
+                        let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + all_divisions[div] + '_' + cbx[4] + '_' + all_years[yr] + batches_json[yr][div][batch];
+                        if(!(cbx.length > 7 && cbx[configuration['batch_index']] === batch)) {
+                            block_room_list[current_room].push(block_id);
+                        }
+
+                    }
+
                     let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + all_divisions[div] + '_' + cbx[4] + '_' + all_years[yr];
-                    if (!(all_divisions[div] === cbx[configuration['division_index']] && all_years[yr] === cbx[configuration['year_index']])) {
+                    if (!(all_divisions[div] === cbx[configuration['division_index']] && all_years[yr] === cbx[configuration['year_index']] && cbx.length<=7)) {
                         if (complement === false) {
                             block_room_list[current_room].push(block_id);
                             if (document.getElementById(block_id)) {
@@ -774,6 +791,7 @@
 
                 }
             }
+
         }
     </script>
 
