@@ -750,7 +750,6 @@
     <script>
         /* Needs Optimization */
         function block_room(cbx_id, current_room, complement, batch) {
-            alert(complement);
             let cbx = cbx_id.split('_');
             for (let yr in all_years) {
                 {#alert(yr);#}
@@ -762,12 +761,14 @@
                         for (let i in batches_json[current_year][current_div]) {
                             let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + current_div + '_' + cbx[4] + '_' + current_year + "_" + batches_json[current_year][current_div][i];
 
-                            if (!(cbx.length > 6 && current_div === cbx[configuration['division_index']] && current_year === cbx[configuration['year_index']] && cbx[configuration['batch_index']] === batch)) {
+                            if (!(cbx.length > 6 && current_div === cbx[configuration['division_index']] && current_year === cbx[configuration['year_index']] && cbx[configuration['batch_index']] === batches_json[current_year][current_div][i])) {
+                                alert(block_id);
                                 if (complement === false) {
                                     block_room_list[current_room].push(block_id);
                                     if (document.getElementById(block_id)) {
                                         let blocked = document.getElementById(block_id);
-                                        blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
+                                        if(blocked.querySelector('option[value="' + current_room + '"]'))
+                                            blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
                                     }
                                 }
                                 else {
