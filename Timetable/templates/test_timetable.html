@@ -342,34 +342,6 @@
     </form>
 
 
-    <div class="modal fade" id="myModal" role="dialog">
-        <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Practical</h4>
-                </div>
-                <div class="modal-body">
-                    <table style="width:100%;border: none;" id="modalBody">
-                        <tr>
-                            <th>Batch</th>
-                            <th>Subject</th>
-                            <th>Faculty</th>
-                            <th>Room</th>
-                        </tr>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-default" data-dismiss="modal">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    </div>
-
 {% endblock body %}
 
 {% block html %}
@@ -571,26 +543,43 @@
 
                 }
                 else {
-                    console.log('id_subject_' + time + '_' + division + '_' + day);
-                    let local_selected_subject = document.getElementById('id_subject_' + time + '_' + division + '_' + day + "_" + year).innerHTML;
-                    let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];
-                    let index = subject_dictionary[local_selected_subject].indexOf(id);
-                    if (index !== -1) {
-                        subject_dictionary[local_selected_subject].splice(index, 1);
+                    if (is_practical(selected_subject)) {
+                        for (let batch in batches_json[year][division]) {
+                            let batch_cbx_id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch] + "_cbx";
+                            let batch_cbx_obj = document.getElementById(batch_cbx_id);
+                            if (batch_cbx_obj.checked) {
+                                block_faculty_practical(batch_cbx_obj);
+                            }
+                        }
+                        let table = checkbox_object.parentElement.querySelector('table');
+                        table.parentElement.removeChild(table);
                         checkbox_object.classList.remove("checked-cbx");
+                        checkbox_object.classList.remove("practical-cbx");
                         checkbox_object.parentElement.classList.remove("checked-cbx-parent");
-                        checkbox_object.parentElement.removeChild(document.getElementById("id_teacher_" + time + "_" + division + "_" + day + "_" + year));
-                        checkbox_object.parentElement.removeChild(document.getElementById("id_subject_" + time + "_" + division + "_" + day + "_" + year));
-                        let room_obj = document.getElementById("id_room_" + time + "_" + division + "_" + day + "_" + year);
-                        block_room(checkbox_object.id, room_obj.value, true, false);
-                        checkbox_object.parentElement.removeChild(room_obj);
-                        block_checkbox(checkbox_object, local_teachers, local_selected_subject, time, year, day, division, true, selected_subject);
                     }
                     else {
-                        alert('Some error occured');
-                        alert('Should never go here');
-                    }
+                        console.log('id_subject_' + time + '_' + division + '_' + day);
+                        let local_selected_subject = document.getElementById('id_subject_' + time + '_' + division + '_' + day + "_" + year).innerHTML;
+                        let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];
+                        let index = subject_dictionary[local_selected_subject].indexOf(id);
+                        if (index !== -1) {
+                            subject_dictionary[local_selected_subject].splice(index, 1);
+                            checkbox_object.classList.remove("checked-cbx");
+                            checkbox_object.parentElement.classList.remove("checked-cbx-parent");
+                            checkbox_object.classList += " cbx";
+                            checkbox_object.parentElement.removeChild(document.getElementById("id_teacher_" + time + "_" + division + "_" + day + "_" + year));
+                            checkbox_object.parentElement.removeChild(document.getElementById("id_subject_" + time + "_" + division + "_" + day + "_" + year));
+                            let room_obj = document.getElementById("id_room_" + time + "_" + division + "_" + day + "_" + year);
+                            block_room(checkbox_object.id, room_obj.value, true, false);
+                            checkbox_object.parentElement.removeChild(room_obj);
+                            block_checkbox(checkbox_object, local_teachers, local_selected_subject, time, year, day, division, true, selected_subject);
+                        }
+                        else {
+                            alert('Some error occured');
+                            alert('Should never go here');
+                        }
 
+                    }
                 }
 
             }
