@@ -698,10 +698,11 @@
                 block_room(cbx_obj.id, room_obj.value, true, true);
 
                 faculty_obj.parentElement.parentElement.removeChild(faculty_obj.parentElement);
-                room_obj.parentElement.parentElement.removeChild(room_obj);
+                room_obj.parentElement.parentElement.removeChild(room_obj.parentElement);
 
                 let subject_id = "id_subject_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
                 let subject_obj = document.getElementById(subject_id);
+                block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, true, subject_obj.value);
                 subject_obj.parentElement.removeChild(subject_obj);
             }
         }
@@ -762,12 +763,11 @@
                             let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + current_div + '_' + cbx[4] + '_' + current_year + "_" + batches_json[current_year][current_div][i];
 
                             if (!(cbx.length > 6 && current_div === cbx[configuration['division_index']] && current_year === cbx[configuration['year_index']] && cbx[configuration['batch_index']] === batches_json[current_year][current_div][i])) {
-                                alert(block_id);
                                 if (complement === false) {
                                     block_room_list[current_room].push(block_id);
                                     if (document.getElementById(block_id)) {
                                         let blocked = document.getElementById(block_id);
-                                        if(blocked.querySelector('option[value="' + current_room + '"]'))
+                                        if (blocked.querySelector('option[value="' + current_room + '"]'))
                                             blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
                                     }
                                 }
@@ -893,9 +893,22 @@
                                             console.log("Is practical");
                                             let id = 'id_teacher_' + time + '_' + division + '_' + day + '_' + subject_year + '_';
                                             let batch = batches_json[subject_year][division];
-                                            for (i in batch) {
+                                            if (complement === false) {
 
-                                                block_faculty_list[teachers[0]].push(id + batch[i]);
+                                                for (i in batch) {
+
+                                                    block_faculty_list[teachers[0]].push(id + batch[i]);
+
+                                                }
+                                            }
+                                            else {
+                                                for (i in batch) {
+
+                                                    let index = block_faculty_list[teachers[0]].indexOf(id + batch[i]);
+                                                    block_faculty_list[teachers[0]].splice(index, 1);
+
+                                                }
+
 
                                             }
                                         }
@@ -911,11 +924,14 @@
                     }
                 }
             }
-            if (complement === false) {
-                block_all_current_subject(current_subject, false);
-            }
-            else {
-                block_all_current_subject(real_selected, false);
+            if (subjects_json[each_year]['theory'].indexOf(subject) !== -1) {
+
+                if (complement === false) {
+                    block_all_current_subject(current_subject, false);
+                }
+                else {
+                    block_all_current_subject(real_selected, false);
+                }
             }
         }
 
