@@ -543,19 +543,22 @@
 
                 }
                 else {
-                    if (is_practical(selected_subject)) {
+                    let table = checkbox_object.parentElement.querySelector('table');
+                    if (table) {
                         for (let batch in batches_json[year][division]) {
                             let batch_cbx_id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch] + "_cbx";
                             let batch_cbx_obj = document.getElementById(batch_cbx_id);
                             if (batch_cbx_obj.checked) {
+                                batch_cbx_obj.checked = false;
                                 block_faculty_practical(batch_cbx_obj);
                             }
                         }
-                        let table = checkbox_object.parentElement.querySelector('table');
+                        {#let table = checkbox_object.parentElement.querySelector('table');#}
                         table.parentElement.removeChild(table);
                         checkbox_object.classList.remove("checked-cbx");
                         checkbox_object.classList.remove("practical-cbx");
                         checkbox_object.parentElement.classList.remove("checked-cbx-parent");
+                        checkbox_object.parentElement.classList.remove("practical-cbx-parent");
                     }
                     else {
                         console.log('id_subject_' + time + '_' + division + '_' + day);
