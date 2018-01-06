@@ -212,6 +212,11 @@
             color: #000;
         }
 
+        .subject_input {
+            border : 0px;
+            background: transparent;
+        }
+
         .room-nos {
             position: relative;
             bottom: 2px;
@@ -318,7 +323,7 @@
                                         {% if forloop.counter0 %}
                                             <td class="block border-left" style="padding: 20px;">
                                                 <input type="checkbox" class="cbx"
-                                                       name="id_room_{{ time }}_{{ x }}_{{ z }}_{{ yr }}"
+                                                       name="id_cbx_{{ time }}_{{ x }}_{{ z }}_{{ yr }}"
                                                        id="id_room_{{ time }}_{{ x }}_{{ z }}_{{ yr }}_cbx"
                                                        onchange="add_remove_from_dictionary(this)">
 
@@ -474,17 +479,22 @@
                         subject_dictionary[selected_subject].push(id);
                         let checkbox_parent_object = checkbox_object.parentElement;
 
-                        //add <span> Subject</span>
-                        let subject_object = document.createElement("span");
-                        let subject_text = document.createTextNode(selected_subject);
-                        subject_object.appendChild(subject_text);
+                        //add <input> Subject</input>
+                        let subject_object = document.createElement("input");
+                        {#let subject_text = document.createTextNode(selected_subject);#}
+                        subject_object.value = selected_subject;
                         subject_object.id = "id_subject_" + time + "_" + division + "_" + day + "_" + year;
+                        subject_object.setAttribute('name',"id_subject_" + time + "_" + division + "_" + day + "_" + year);
+                        subject_object.classList.add("subject_input");
+                        subject_object.readOnly = true;
                         checkbox_parent_object.appendChild(subject_object);
 
                         //add <select> Teacher </select>
                         let teacher_object = document.createElement("select");
                         checkbox_parent_object.appendChild(teacher_object);
                         teacher_object.id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year;
+                        teacher_object.setAttribute('name',"id_teacher_" + time + "_" + division + "_" + day + "_" + year);
+
 
                         $.each(teachers, function (i, element) {
                             let option = document.createElement("option");
@@ -501,6 +511,7 @@
                         room_object.setAttribute('onchange', 'room_change_block(this,false)');
                         checkbox_parent_object.appendChild(room_object);
                         room_object.id = "id_room_" + time + "_" + division + "_" + day + "_" + year;
+                        room_object.setAttribute('name',"id_room_" + time + "_" + division + "_" + day + "_" + year);
 
                         $.each(theory_room, function (i, element) {
                             if (block_room_list[element].indexOf(room_object.id) === -1) {
@@ -562,7 +573,7 @@
                     }
                     else {
                         console.log('id_subject_' + time + '_' + division + '_' + day);
-                        let local_selected_subject = document.getElementById('id_subject_' + time + '_' + division + '_' + day + "_" + year).innerHTML;
+                        let local_selected_subject = document.getElementById('id_subject_' + time + '_' + division + '_' + day + "_" + year).value;
                         let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];
                         let index = subject_dictionary[local_selected_subject].indexOf(id);
                         if (index !== -1) {
@@ -869,7 +880,8 @@
                                     }
 
                                     if (subject_year !== "") {
-                                        if (subjects_json[each_year]['theory'].indexOf(subject) !== -1) {
+
+                                        if (subjects_json[subject_year]['theory'].indexOf(subject) !== -1) {
                                             let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_cbx';
                                             if (complement === false) {
                                                 block_list[subject].push(id);

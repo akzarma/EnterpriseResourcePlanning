@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from scipy.constants import year
 
 from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch
 # from .forms import TimetableForm
@@ -134,122 +135,75 @@ def fill_timetable(request):
     return render(request, 'test_timetable.html', context)
 
 
-def get_faculty(request):
-    if request.is_ajax():
-        subject = request.POST.get('subject')
-        division = request.POST.get('division')
-        year = request.POST.get('year')
-        subject_obj = Subject.objects.get(short_form=subject)
-        # faculty_subject = FacultySubject.objects.filter(subject=subject_obj).filter(division=division)
-        # faculty = []
-        # for each in faculty_subject:
-        #     faculty.append(each.faculty.first_name)
-        branch_obj = Branch.objects.get(branch='Computer')
-        year_obj = CollegeYear.objects.get(year=year)
-        college_obj_general = CollegeExtraDetail.objects.filter(Q(branch=branch_obj),
-                                                                Q(year=year_obj))
-        college_obj = college_obj_general.get(division=division)
-        # college_obj = CollegeExtraDetail.objects.filter(branch=branch_obj).filter(year=year_obj).filter(
-        #     division=division)
-        # Right now have not handled for multiple faculty
-        faculty_subject = FacultySubject.objects.filter(Q(division=college_obj),
-                                                        Q(subject=subject_obj))
-        test = FacultySubject.objects.filter(Q(faculty=faculty_subject[0].faculty),
-                                             Q(subject=subject_obj))
-        disable_division = [i.division.division for i in test]
-        disable_division.remove(division)
-
-        for each in faculty_subject:
-            faculty.append((each.faculty.initials + '-' + each.faculty.faculty_code))
-        is_practical = subject_obj.is_practical
-
-        data = {'faculty': faculty, 'divisions': disable_division, 'practical': is_practical}
-        if is_practical is True:
-            data['batches'] = list(college_obj.batch_set.values_list('batch_name', flat=True))
-        return HttpResponse(json.dumps(data))
-
-
 def save_timetable(request):
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-    if request.method == 'POST':
+    if request.method == "POST":
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        for i in request.POST:
+            if i.__contains__('_room_'):
+                splitted = i.split('_room_')
+                token = splitted[1].split('_')
+                time = token[0].split('-')
+                start_time = int(time[0].split(':')[0] + time[0].split(':')[1])
+                end_time = int(time[1].split(':')[0] + time[1].split(':')[1])
 
-        selected_list = request.POST
+                subject = splitted[0] + '_subject_' + splitted[1]
+                subject_short_name = request.POST.get(subject)
 
-        for key in selected_list:
-            if not (str(key).__contains__("_room_choices") or str(key).__contains__("_faculty") or str(
-                    key).__contains__('csrfmiddlewaretoken')):
-                starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
-                starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
-                ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
-                ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
-                time = Time.objects.get(starting_time=starting_time,
-                                        ending_time=ending_time)
-                # branch filter krni hai
-                try:
-                    branch_obj = Branch.objects.get(branch='Computer')
-                    branch_subject = BranchSubject.objects.get(
-                        subject=Subject.objects.get(short_form=selected_list.get(key)))
-                    division = str(key).split('_')[3]
-                    day = days[int(str(key).split('_')[4]) - 2]
+                division = token[1]
 
-                    faculty = Faculty.objects.get(faculty_code=selected_list.get(key + '_faculty'))
+                day = days[int(token[2]) - 2]
 
-                    room = Room.objects.get(room_number=selected_list.get(key + '_room_choices'))
+                year = token[3]
 
-                    # timetable_exists = Timetable.objects.filter(room=room, faculty=faculty, division=division, branch_subject=branch_subject,
-                    #                       time=time, day=day)
-                    # shift ka bacha hai. ho jana chahiye
-                    division_object = CollegeExtraDetail.objects.get(branch=branch_obj, year=branch_subject.year,
-                                                                     division=division)
-                    timetable_exists = Timetable.objects.filter(division=division_object,
-                                                                branch_subject=branch_subject, time=time,
-                                                                day=day).first()
-                    timetable_obj = []
-                    if (timetable_exists):
-                        # print("Already exists")
-                        timetable_exists.room = room
-                        timetable_exists.faculty = faculty
-                        timetable_exists.is_practical = True
-                        timetable_exists.save()
+                faculty_initials = request.POST.get(splitted[0] + '_teacher_' + splitted[1])
 
-                    else:
+                room_number = request.POST.get(i)
 
-                        timetable_exists = Timetable(room=room, faculty=faculty, division=division_object,
-                                                     branch_subject=branch_subject,
-                                                     time=time, day=day)
-                        timetable_obj.append(timetable_exists)
-                except:
-                    {
 
-                    }
-                Timetable.objects.bulk_create(timetable_obj)
+                time = Time.objects.get(starting_time=start_time, ending_time=end_time)
+                # day = day
+                subject = Subject.objects.get(
+                    short_form=subject_short_name)  # this has to be changed, should  not get subject with  short_name directly
 
-                # if str(key).__contains__("_room"):
-                #     room = Room.objects.get(room_number=selected_list.get(key))
-                #
-                # elif str(key).__contains__("_faculty"):
-                #     faculty = Faculty.objects.get(faculty_code=selected_list.get(key))
-                #
-                #     division = str(key).split('_')[3]
-                #     day = days[int(str(key).split('_')[4]) - 2]
-                # elif str(key).__contains__("id_room_"):
-                #     branch_subject = BranchSubject.objects.filter(
-                #         subject=Subject.objects.filter(short_form=selected_list.get(key)))
-                #     starting_time_str = str(key).split("room_")[1].split("-")[0].split(':')
-                #     starting_time = int(starting_time_str[0]) * 100 + int(starting_time_str[1])
-                #     ending_time_str = str(key).split("room_")[1].split("-")[1].split('_')[0].split(':')
-                #     ending_time = int(ending_time_str[0]) * 100 + int(ending_time_str[1])
-                #     time = Time.objects.filter(starting_time=starting_time,
-                #                                ending_time=ending_time)
+                branch = Branch.objects.get(branch='Computer')
+                year = CollegeYear.objects.get(year=year)
+                branch_subject = BranchSubject.objects.get(branch=branch, year=year,
+                                                           semester=subject.semester,
+                                                           subject=subject)
+                room = Room.objects.get(room_number=room_number, branch=branch_subject.branch)
 
-                #
-                #
-                # # need to be changed with subject code
-                # #
-        to_json(request)
-        return fill_timetable(request)
+                faculty = Faculty.objects.get(
+                    initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
+
+                division = CollegeExtraDetail.objects.get(division=division, branch=branch_subject.branch,
+                                                          year=branch_subject.year,
+                                                          shift=1)  # shift is hardcoded change it.
+
+                # batch = Batch.objects.get(division=division)  # WRONG WRONG for practicals. get it by batch_number etc.
+
+                timetable = Timetable.objects.filter(time=time, day=day, division=division, is_practical=False)  # batch add krna hai. for practicals
+
+                if timetable:
+                    if not timetable[0].faculty == faculty:
+                        timetable[0].faculty = faculty
+                    if not timetable[0].branch_subject == branch_subject:
+                        timetable[0].branch_subject = branch_subject
+                    if not timetable[0].room == room:
+                        timetable[0].room = room
+
+                    timetable[0].save()
+                else:
+                    timetable = Timetable(room=room, faculty=faculty, branch_subject=branch_subject, time=time,
+                                          day=day, division=division, is_practical=False)  #batch bhi add karna hai.
+
+                    timetable.save()
+
+
+
+        # to_json(request)
+        return HttpResponse('Saved')
     else:
-        return HttpResponse('Not Post')
+        return HttpResponse("Not Post")
 
 
 def to_json(request):

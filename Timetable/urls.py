@@ -7,8 +7,6 @@ app_name = 'Timetable'
 urlpatterns = [
     url(r'enter/$', views.fill_timetable, name='fill_timetable'),
 
-    url(r'^get_faculty/$', views.get_faculty, name='get_faculty'),
-
     url(r'^save/$', views.save_timetable, name='save_timetable'),
 
     url(r'^to_json/$', views.to_json, name='to_json'),
@@ -26,6 +24,5 @@ urlpatterns = [
     url(r'get_practical_faculty/$', views.get_practical_faculty, name='get_practical_faculty'),
 
     url(r'save/practical/$', views.save_practical, name='save_practical'),
-
 
 ]
