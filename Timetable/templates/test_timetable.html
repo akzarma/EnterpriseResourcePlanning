@@ -213,7 +213,7 @@
         }
 
         .subject_input {
-            border : 0px;
+            border: 0px;
             background: transparent;
         }
 
@@ -484,7 +484,7 @@
                         {#let subject_text = document.createTextNode(selected_subject);#}
                         subject_object.value = selected_subject;
                         subject_object.id = "id_subject_" + time + "_" + division + "_" + day + "_" + year;
-                        subject_object.setAttribute('name',"id_subject_" + time + "_" + division + "_" + day + "_" + year);
+                        subject_object.setAttribute('name', "id_subject_" + time + "_" + division + "_" + day + "_" + year);
                         subject_object.classList.add("subject_input");
                         subject_object.readOnly = true;
                         checkbox_parent_object.appendChild(subject_object);
@@ -493,7 +493,7 @@
                         let teacher_object = document.createElement("select");
                         checkbox_parent_object.appendChild(teacher_object);
                         teacher_object.id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year;
-                        teacher_object.setAttribute('name',"id_teacher_" + time + "_" + division + "_" + day + "_" + year);
+                        teacher_object.setAttribute('name', "id_teacher_" + time + "_" + division + "_" + day + "_" + year);
 
 
                         $.each(teachers, function (i, element) {
@@ -511,7 +511,7 @@
                         room_object.setAttribute('onchange', 'room_change_block(this,false)');
                         checkbox_parent_object.appendChild(room_object);
                         room_object.id = "id_room_" + time + "_" + division + "_" + day + "_" + year;
-                        room_object.setAttribute('name',"id_room_" + time + "_" + division + "_" + day + "_" + year);
+                        room_object.setAttribute('name', "id_room_" + time + "_" + division + "_" + day + "_" + year);
 
                         $.each(theory_room, function (i, element) {
                             if (block_room_list[element].indexOf(room_object.id) === -1) {
@@ -541,6 +541,8 @@
                             cbx_obj.setAttribute('class', 'checked-cbx');
                             cbx_obj.setAttribute('onchange', 'block_faculty_practical(this)');
                             cbx_obj.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch] + "_cbx";
+                            cbx_obj.setAttribute('name', "id_cbx_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch]);
+
                             column_obj.appendChild(cbx_obj);
                             row_obj.appendChild(column_obj);
 
@@ -623,13 +625,19 @@
 
             if (cbx_obj.checked) {
                 let subject_column = document.createElement('td');
-                subject_column.innerHTML = selected_subject;
-                subject_column.id = "id_subject_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
+                let subject_object = document.createElement("input");
+                subject_object.value = selected_subject;
+                subject_object.id = "id_subject_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
+                subject_object.setAttribute('name', "id_subject_" + time + "_" + division + "_" + day + "_" + year + "_" + batch);
+                subject_object.classList.add("subject_input");
+                subject_object.readOnly = true;
+                subject_column.appendChild(subject_object);
                 cbx_obj.parentElement.parentElement.appendChild(subject_column);
 
                 let faculty_column = document.createElement('td');
                 let select_obj = document.createElement('select');
                 select_obj.id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
+                select_obj.setAttribute('name', "id_teacher_" + time + "_" + division + "_" + day + "_" + year + "_" + batch);
                 select_obj.setAttribute('onchange', 'something()');
 
 
@@ -661,6 +669,7 @@
                     let room_column = document.createElement('td');
                     let select = document.createElement('select');
                     select.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
+                    select.setAttribute('name', "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batch);
                     select.setAttribute('onfocus', 'set_previous_value(this)');
                     select.setAttribute('onchange', 'room_change_block(this, true)');
                     room_column.appendChild(select);

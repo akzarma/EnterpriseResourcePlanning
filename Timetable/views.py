@@ -159,7 +159,6 @@ def save_timetable(request):
 
                 room_number = request.POST.get(i)
 
-
                 time = Time.objects.get(starting_time=start_time, ending_time=end_time)
                 # day = day
                 subject = Subject.objects.get(
@@ -180,25 +179,48 @@ def save_timetable(request):
                                                           shift=1)  # shift is hardcoded change it.
 
                 # batch = Batch.objects.get(division=division)  # WRONG WRONG for practicals. get it by batch_number etc.
+                if len(token) < 5:  #theory
+                    timetable = Timetable.objects.filter(time=time, day=day, division=division,
+                                                         is_practical=False)  # batch add krna hai. for practicals
 
-                timetable = Timetable.objects.filter(time=time, day=day, division=division, is_practical=False)  # batch add krna hai. for practicals
+                    if timetable:
+                        if not timetable[0].faculty == faculty:
+                            timetable[0].faculty = faculty
+                        if not timetable[0].branch_subject == branch_subject:
+                            timetable[0].branch_subject = branch_subject
+                        if not timetable[0].room == room:
+                            timetable[0].room = room
 
-                if timetable:
-                    if not timetable[0].faculty == faculty:
-                        timetable[0].faculty = faculty
-                    if not timetable[0].branch_subject == branch_subject:
-                        timetable[0].branch_subject = branch_subject
-                    if not timetable[0].room == room:
-                        timetable[0].room = room
+                        timetable[0].save()
+                    else:
+                        timetable = Timetable(room=room, faculty=faculty, branch_subject=branch_subject, time=time,
+                                              day=day, division=division,
+                                              is_practical=False)  # batch bhi add karna hai.
 
-                    timetable[0].save()
-                else:
-                    timetable = Timetable(room=room, faculty=faculty, branch_subject=branch_subject, time=time,
-                                          day=day, division=division, is_practical=False)  #batch bhi add karna hai.
+                        timetable.save()
 
-                    timetable.save()
+                else:   #practical
+                    # batch = token[4]
+                    batch = Batch.objects.get(division=division, batch_name=token[4])
 
+                    timetable = Timetable.objects.filter(time=time, day=day, division=division,
+                                                         is_practical=True, batch= batch)  # batch add krna hai. for practicals
 
+                    if timetable:
+                        if not timetable[0].faculty == faculty:
+                            timetable[0].faculty = faculty
+                        if not timetable[0].branch_subject == branch_subject:
+                            timetable[0].branch_subject = branch_subject
+                        if not timetable[0].room == room:
+                            timetable[0].room = room
+
+                        timetable[0].save()
+                    else:
+                        timetable = Timetable(room=room, faculty=faculty, branch_subject=branch_subject, time=time,
+                                              day=day, division=division,
+                                              is_practical=True, batch=batch)  # batch bhi add karna hai.
+
+                        timetable.save()
 
         # to_json(request)
         return HttpResponse('Saved')
