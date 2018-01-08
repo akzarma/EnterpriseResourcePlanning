@@ -13,22 +13,34 @@ from Configuration.stateConf import states
 
 
 def view_subjects(request):
-
     subjects = BranchSubject.objects.filter(branch=Branch.objects.get(branch='Computer'))
-    return render(request , 'view_subjects.html' , {'subjects' :   subjects})
+    return render(request, 'view_subjects.html', {'subjects': subjects})
+
 
 def register_faculty_subject(request):
     if request.method == 'POST':
         form = FacultySubjectForm(request.POST)
         if form.is_valid():
-            faculty_subject = FacultySubject.objects.create(faculty=Faculty.objects.get(pk=form.cleaned_data.get('faculty')),
-                                                            subject=Subject.objects.get(pk=form.cleaned_data.get('subject')),
-                                                            division=CollegeExtraDetail.objects.get(pk=form.cleaned_data.get('division')))
-            faculty_subject.save()
-        return render(request, 'register_faculty_subject.html' , {'form' : FacultySubjectForm,
-                                                                  'success' : 'Successfully Bound'})
+            faculty = Faculty.objects.get(pk=form.cleaned_data.get('faculty'))
+            subject = Subject.objects.get(pk=form.cleaned_data.get('subject'))
+            division = CollegeExtraDetail.objects.get(pk=form.cleaned_data.get('division'))
+
+            if FacultySubject.objects.filter(faculty=faculty,
+                                             subject=subject,
+                                             division=division):
+                return render(request, 'register_faculty_subject.html', {'form': FacultySubjectForm,
+                                                                         'info': 'Binding Exists!'})
+
+            else:
+                faculty_subject = FacultySubject.objects.create(faculty=faculty,
+                                                                subject=subject,
+                                                                division=division)
+                faculty_subject.save()
+            return render(request, 'register_faculty_subject.html', {'form': FacultySubjectForm,
+                                                                     'success': 'Successfully Bound'})
     elif request.method == 'GET':
         return render(request, 'register_faculty_subject.html', {'form': FacultySubjectForm})
+
 
 def register_student(request):
     if request.method == "POST":
