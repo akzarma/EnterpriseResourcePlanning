@@ -556,6 +556,7 @@
 
                 }
                 else {
+                    {#for practlcal#}
                     let table = checkbox_object.parentElement.querySelector('table');
                     if (table) {
                         for (let batch in batches_json[year][division]) {
@@ -804,8 +805,11 @@
                         if (complement === false) {
                             block_room_list[current_room].push(block_id);
                             if (document.getElementById(block_id)) {
+
                                 let blocked = document.getElementById(block_id);
-                                blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
+                                if (blocked.querySelector('option[value="' + current_room + '"]')) {
+                                    blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
+                                }
                             }
                         }
                         else {
@@ -916,9 +920,18 @@
                                             }
                                             else {
                                                 for (i in batch) {
-
+                                                    {#console.log(batch[i]);#}
                                                     let index = block_faculty_list[teachers[0]].indexOf(id + batch[i]);
                                                     block_faculty_list[teachers[0]].splice(index, 1);
+
+                                                    let select_obj = document.getElementById(id + batch[i]);
+                                                    if (select_obj) {
+                                                        let option = document.createElement("option");
+                                                        option.text = teachers[0];
+                                                        option.value = teachers[0];
+                                                        select_obj.add(option);
+                                                    }
+                                                    console.log(id + batch[i]);
 
                                                 }
 
@@ -937,7 +950,7 @@
                     }
                 }
             }
-            if (subjects_json[each_year]['theory'].indexOf(subject) !== -1) {
+            if (subjects_json[year]['theory'].indexOf(current_subject) !== -1) {
 
                 if (complement === false) {
                     block_all_current_subject(current_subject, false);
