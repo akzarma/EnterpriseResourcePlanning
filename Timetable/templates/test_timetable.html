@@ -507,7 +507,7 @@
 
                         //add <select> Room </select>
                         let room_object = document.createElement("select");
-                        room_object.setAttribute('onfocus', 'set_previous_value(this)');
+                        room_object.setAttribute('onfocus', 'set_previous_room(this)');
                         room_object.setAttribute('onchange', 'room_change_block(this,false)');
                         checkbox_parent_object.appendChild(room_object);
                         room_object.id = "id_room_" + time + "_" + division + "_" + day + "_" + year;
@@ -603,14 +603,13 @@
         }
 
         function room_change_block(room_obj, practical) {
-            alert(practical);
             if (practical) {
                 let current_batch = room_obj.id.split('_')[6];
-                block_room(room_obj.id, previous, true, current_batch);
+                block_room(room_obj.id, previous_room, true, current_batch);
                 block_room(room_obj.id, room_obj.value, false, current_batch);
             }
             else {
-                block_room(room_obj.id, previous, true);
+                block_room(room_obj.id, previous_room, true);
                 block_room(room_obj.id, room_obj.value, false);
             }
         }
@@ -639,7 +638,8 @@
                 let select_obj = document.createElement('select');
                 select_obj.id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
                 select_obj.setAttribute('name', "id_teacher_" + time + "_" + division + "_" + day + "_" + year + "_" + batch);
-                select_obj.setAttribute('onchange', 'something()');
+                select_obj.setAttribute('onfocus', 'set_previous_faculty(this)');
+                select_obj.setAttribute('onchange', 'practical_faculty_change(this,true)');
 
 
                 /* */
@@ -661,7 +661,7 @@
                 /* Update Faculty blocking list */
 
                 if (selected_faculty) {
-                    update_faculty_blocking_list(selected_faculty, time, division, day, year, batch, false, subject_column.innerHTML);
+
                     block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, false);
                     faculty_column.appendChild(select_obj);
                     cbx_obj.parentElement.parentElement.appendChild(faculty_column);
@@ -671,7 +671,7 @@
                     let select = document.createElement('select');
                     select.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
                     select.setAttribute('name', "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batch);
-                    select.setAttribute('onfocus', 'set_previous_value(this)');
+                    select.setAttribute('onfocus', 'set_previous_room(this)');
                     select.setAttribute('onchange', 'room_change_block(this, true)');
                     room_column.appendChild(select);
                     $.each(practical_room, function (i, element) {
@@ -685,6 +685,9 @@
                     cbx_obj.parentElement.parentElement.appendChild(room_column);
                     let current_room = select.value;
                     block_room(select.id, current_room, false, batch);
+
+
+                    practical_faculty_change(select_obj, false);
                 }
                 else {
 
@@ -703,21 +706,105 @@
                 let faculty_id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
                 let faculty_obj = document.getElementById(faculty_id);
                 let selected_faculty = faculty_obj.value;
-                update_faculty_blocking_list(selected_faculty, time, division, day, year, batch, true);
+                {#update_faculty_blocking_list(selected_faculty, time, division, day, year, batch, true);#}
+                practical_faculty_change(faculty_obj, true, selected_faculty, true);
 
 
                 let room_id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
                 let room_obj = document.getElementById(room_id);
                 block_room(cbx_obj.id, room_obj.value, true, true);
 
-                faculty_obj.parentElement.parentElement.removeChild(faculty_obj.parentElement);
-                room_obj.parentElement.parentElement.removeChild(room_obj.parentElement);
 
                 let subject_id = "id_subject_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
                 let subject_obj = document.getElementById(subject_id);
                 block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, true, subject_obj.value);
-                subject_obj.parentElement.removeChild(subject_obj);
+
+                room_obj.parentElement.parentElement.removeChild(room_obj.parentElement);
+                faculty_obj.parentElement.parentElement.removeChild(faculty_obj.parentElement);
+                subject_obj.parentElement.parentElement.removeChild(subject_obj.parentElement);
             }
+        }
+
+        function practical_faculty_change(cbx_obj, remove_prev, prev_faculty, temp) {
+            if (prev_faculty == null) {
+                prev_faculty = previous_faculty;
+            }
+            let split = cbx_obj.id.split('teacher');
+            let subject_obj = document.getElementById(split[0] + 'subject' + split[1]);
+            let cbx_splitted = cbx_obj.id.split('_');
+            let selected_subject = document.getElementById("id_subject").value;
+
+            let selected_faculty = cbx_obj.value;
+            let division = cbx_splitted[configuration['division_index']];
+            let year = cbx_splitted[configuration['year_index']];
+            let day = cbx_splitted[configuration['day_index']];
+            let time = cbx_splitted[configuration['time_index']];
+            let batch = cbx_splitted[configuration['batch_index']];
+
+
+            /*Previous->true selected->false*/
+            {#update_faculty_blocking_list(previous_faculty, time, division, day, year, batch, true);#}
+
+            for (let yr in all_years) {
+                {#alert(yr);#}
+                for (let div in all_divisions) {
+                    {#alert(current_room);#}
+                    let current_year = all_years[yr];
+                    let current_div = all_divisions[div];
+                    if (batches_json.hasOwnProperty(current_year) && batches_json[current_year].hasOwnProperty(current_div)) {
+                        for (let i in batches_json[current_year][current_div]) {
+                            if (batch !== batches_json[year][division][i]) {
+                                let blocking_id = "id_teacher_" + time + "_" + current_div + "_" + day + "_" + current_year + "_" + batches_json[current_year][current_div][i];
+                                let select_obj = document.getElementById(blocking_id);
+
+                                if (remove_prev === true) {
+
+                                    let index = block_faculty_list[prev_faculty].indexOf(blocking_id);
+                                    if (index != null) {
+                                        block_faculty_list[prev_faculty].splice(index, 1);
+                                        if (select_obj) {
+                                            let option_element = document.createElement('option');
+                                            option_element.text = prev_faculty;
+                                            option_element.value = prev_faculty;
+
+
+                                            select_obj.add(option_element);
+                                        }
+                                    }
+                                    else {
+                                        console.log('Should never go here!!!')
+                                    }
+                                }
+                                if (temp === true) {
+
+                                }
+                                else {
+                                    block_faculty_list[selected_faculty].push(blocking_id);
+
+
+                                    if (select_obj) {
+                                        if (select_obj.querySelector('option[value="' + selected_faculty + '"]')) {
+                                            select_obj.removeChild(select_obj.querySelector('option[value="' + selected_faculty + '"]'));
+
+                                        }
+                                    }
+                                }
+
+                            }
+
+
+                        }
+                    }
+                }
+
+            }
+
+
+            {#update_faculty_blocking_list(selected_faculty, time, division, day, year, batch, false);#}
+
+            block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, true);
+
+
         }
     </script>
 
@@ -735,31 +822,57 @@
 
     <script>
         function update_faculty_blocking_list(selected_faculty, time, division, day, year, batch, complement, real_subject) {
-            for (let i in batches_json[year][division]) {
-                if (batch !== batches_json[year][division][i]) {
-                    let blocking_id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][i];
-                    if (complement === false) {
-                        block_faculty_list[selected_faculty].push(blocking_id);
+
+            for (let yr in all_years) {
+                {#alert(yr);#}
+                for (let div in all_divisions) {
+                    {#alert(current_room);#}
+                    let current_year = all_years[yr];
+                    let current_div = all_divisions[div];
+                    if (batches_json.hasOwnProperty(current_year) && batches_json[current_year].hasOwnProperty(current_div)) {
+                        for (let i in batches_json[current_year][current_div]) {
+                            if (batch !== batches_json[year][division][i]) {
+                                let blocking_id = "id_teacher_" + time + "_" + current_div + "_" + day + "_" + current_year + "_" + batches_json[current_year][current_div][i];
+                                if (complement === false) {
+                                    block_faculty_list[selected_faculty].push(blocking_id);
+                                }
+                                else {
+                                    let index = block_faculty_list[selected_faculty].indexOf(blocking_id);
+                                    if (index != null) {
+                                        block_faculty_list[selected_faculty].splice(index, 1);
+                                    }
+                                    else {
+                                        console.log('Should never go here!!!')
+                                    }
+                                }
+                            }
+                        }
                     }
-                    else {
-                        let index = block_faculty_list[selected_faculty].indexOf(blocking_id);
-                        block_faculty_list[selected_faculty].splice(index, 1);
-                    }
+
                 }
             }
-
         }
     </script>
     {#    Get previous of combo box room#}
     <script>
-        var previous;
+        var previous_room;
 
-        function set_previous_value(obj) {
-            previous = obj.value;
-            console.log(previous);
+        function set_previous_room(obj) {
+            previous_room = obj.value;
+            console.log(previous_room);
             obj.blur();
         }
     </script>
+    <script>
+        var previous_faculty;
+
+        function set_previous_faculty(obj) {
+            previous_faculty = obj.value;
+            console.log(previous_faculty);
+            obj.blur();
+        }
+    </script>
+
 
     <script>
         /* Needs Optimization */
