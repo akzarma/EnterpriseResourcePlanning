@@ -283,7 +283,7 @@
 {% endblock style %}
 
 {% block body %}
-    <form method="post" action="{% url 'Timetable:save_timetable' %}">
+    <form method="post" id="timetable_form" action="{% url 'Timetable:save_timetable' %}">
         {% csrf_token %}
         <label for="id_year">Year: </label>
         <select id="id_year" onchange="set_subject()">
@@ -952,6 +952,8 @@
 
             let current_subject = subject_obj.value;
             block_all_current_subject(current_subject, true);
+            toggle_practical_cbx(current_subject);
+
 
         }
     </script>
@@ -976,7 +978,24 @@
         $(document).ready(on_document_loading());
     </script>
 
-
+    <script>
+        function toggle_practical_cbx(subject) {
+            $('#timetable_form input[type="checkbox"]').each(function () {
+                if ($(this).is(":checked")) {
+                    if (this.parentElement.querySelector('table')) {
+                        $(this.parentElement.querySelector('table').querySelectorAll('input[type="checkbox"]')).each(function () {
+                            if(is_practical(subject) === true){
+                                $(this).removeAttr("disabled");
+                            }
+                            else {
+                                $(this).attr("disabled", true);
+                            }
+                        })
+                    }
+                }
+            });
+        }
+    </script>
     {#Create blocking list selected subject#}
     <script>
         var block_list = {};
