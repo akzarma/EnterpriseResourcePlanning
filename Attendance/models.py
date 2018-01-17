@@ -35,6 +35,6 @@ class StudentAttendance(models.Model):
 
 
 class FacultyAttendance(models.Model):
-    faculty = models.OneToOneField(Faculty)
+    faculty = models.OneToOneField(Faculty , on_delete=models.CASCADE)
     in_time = models.TimeField()
     out_time = models.TimeField()

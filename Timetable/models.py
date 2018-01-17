@@ -49,9 +49,9 @@ class Timetable(models.Model):
     day = models.CharField(max_length=10)
     branch_subject = models.ForeignKey(BranchSubject, on_delete=models.CASCADE)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
-    division = models.ForeignKey(CollegeExtraDetail, max_length=10)
+    division = models.ForeignKey(CollegeExtraDetail, max_length=10 , on_delete=models.CASCADE)
     is_practical = models.BooleanField(default=False)
-    batch = models.ForeignKey(Batch, null=True)
+    batch = models.ForeignKey(Batch, null=True , on_delete=models.CASCADE)
 
     def __str__(self):
         return self.room.room_number + str(

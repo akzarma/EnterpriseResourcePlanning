@@ -2,6 +2,8 @@ from django.conf.urls import url, include
 from django.conf.urls.static import static
 from django.contrib import admin
 
+
+
 from EnterpriseResourcePlanning import settings
 
 urlpatterns = [
@@ -16,6 +18,7 @@ urlpatterns = [
                   url(r'^timetable/', include('Timetable.urls')),
                   url(r'^request/', include('Requests.urls')),
                   url(r'^research/', include('Research.urls')),
+                  url(r'^assignment/', include('Assignment.urls')),
                   # url(r'^update/', include('Update.urls'))
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
