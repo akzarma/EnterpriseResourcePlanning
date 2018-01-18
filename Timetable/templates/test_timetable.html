@@ -476,6 +476,7 @@
                 if (checkbox_object.checked) {
                     if (is_practical(selected_subject) === false) {
                         checkbox_object.classList.add("checked-cbx");
+
                         subject_dictionary[selected_subject].push(id);
                         let checkbox_parent_object = checkbox_object.parentElement;
 
@@ -525,7 +526,6 @@
                         block_room(room_object.id, current_room, false, false);
                     }
                     else {
-                        {#$('#myModal').modal('show');#}
                         checkbox_object.classList.add("practical-cbx");
                         checkbox_object.parentElement.classList.add("practical-cbx-parent");
                         let table_obj = document.createElement('table');
@@ -549,14 +549,10 @@
                             table_obj.appendChild(row_obj);
                         }
                         checkbox_object.parentElement.appendChild(table_obj);
-
-
                     }
-
-
                 }
                 else {
-                    {#for practlcal#}
+                    {#for practical#}
                     let table = checkbox_object.parentElement.querySelector('table');
                     if (table) {
                         for (let batch in batches_json[year][division]) {
@@ -648,12 +644,14 @@
 
                 for (let i in faculty_list) {
 
+                    if (!select_obj.querySelector('option[value="' + faculty_list[i] + '"]')) {
 
-                    if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {
-                        let option = document.createElement('option');
-                        option.text = faculty_list[i];
-                        option.value = faculty_list[i];
-                        select_obj.appendChild(option);
+                        if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {
+                            let option = document.createElement('option');
+                            option.text = faculty_list[i];
+                            option.value = faculty_list[i];
+                            select_obj.appendChild(option);
+                        }
                     }
                 }
                 let selected_faculty = select_obj.value;
@@ -662,7 +660,7 @@
 
                 if (selected_faculty) {
 
-                    block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, false);
+                    {#block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, false);#}
                     faculty_column.appendChild(select_obj);
                     cbx_obj.parentElement.parentElement.appendChild(faculty_column);
 
@@ -675,6 +673,7 @@
                     select.setAttribute('onchange', 'room_change_block(this, true)');
                     room_column.appendChild(select);
                     $.each(practical_room, function (i, element) {
+
                         if (block_room_list[element].indexOf(select.id) === -1) {
                             let option = document.createElement("option");
                             option.value = element;
@@ -717,11 +716,12 @@
 
                 let subject_id = "id_subject_" + time + "_" + division + "_" + day + "_" + year + "_" + batch;
                 let subject_obj = document.getElementById(subject_id);
-                block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, true, subject_obj.value);
+                {#block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, true, subject_obj.value);#}
 
                 room_obj.parentElement.parentElement.removeChild(room_obj.parentElement);
                 faculty_obj.parentElement.parentElement.removeChild(faculty_obj.parentElement);
                 subject_obj.parentElement.parentElement.removeChild(subject_obj.parentElement);
+                toggle_practical_cbx(selected_subject);
             }
         }
 
@@ -746,9 +746,7 @@
             {#update_faculty_blocking_list(previous_faculty, time, division, day, year, batch, true);#}
 
             for (let yr in all_years) {
-                {#alert(yr);#}
                 for (let div in all_divisions) {
-                    {#alert(current_room);#}
                     let current_year = all_years[yr];
                     let current_div = all_divisions[div];
                     if (batches_json.hasOwnProperty(current_year) && batches_json[current_year].hasOwnProperty(current_div)) {
@@ -763,12 +761,19 @@
                                     if (index != null) {
                                         block_faculty_list[prev_faculty].splice(index, 1);
                                         if (select_obj) {
-                                            let option_element = document.createElement('option');
-                                            option_element.text = prev_faculty;
-                                            option_element.value = prev_faculty;
+                                            let split_blocking_id = blocking_id.split('teacher');
+                                            let blocking_subject_obj = document.getElementById(split_blocking_id[0] + 'subject' + split_blocking_id[1]);
+                                            if (subject_teacher_json[blocking_subject_obj.value][current_div].indexOf(prev_faculty) !== -1) {
+
+                                                if (!select_obj.querySelector('option[value="' + prev_faculty + '"]')) {
+                                                    let option_element = document.createElement('option');
+                                                    option_element.text = prev_faculty;
+                                                    option_element.value = prev_faculty;
 
 
-                                            select_obj.add(option_element);
+                                                    select_obj.add(option_element);
+                                                }
+                                            }
                                         }
                                     }
                                     else {
@@ -802,7 +807,15 @@
 
             {#update_faculty_blocking_list(selected_faculty, time, division, day, year, batch, false);#}
 
-            block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, true);
+            if (remove_prev === true) {
+                block_checkbox(cbx_obj, [prev_faculty], selected_subject, time, year, day, division, true);
+            }
+            if (temp === true) {
+
+            }
+            else {
+                block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, false);
+            }
 
 
         }
@@ -824,9 +837,7 @@
         function update_faculty_blocking_list(selected_faculty, time, division, day, year, batch, complement, real_subject) {
 
             for (let yr in all_years) {
-                {#alert(yr);#}
                 for (let div in all_divisions) {
-                    {#alert(current_room);#}
                     let current_year = all_years[yr];
                     let current_div = all_divisions[div];
                     if (batches_json.hasOwnProperty(current_year) && batches_json[current_year].hasOwnProperty(current_div)) {
@@ -893,8 +904,9 @@
                                     block_room_list[current_room].push(block_id);
                                     if (document.getElementById(block_id)) {
                                         let blocked = document.getElementById(block_id);
-                                        if (blocked.querySelector('option[value="' + current_room + '"]'))
+                                        if (blocked.querySelector('option[value="' + current_room + '"]')) {
                                             blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
+                                        }
                                     }
                                 }
                                 else {
@@ -980,15 +992,15 @@
 
     <script>
         function toggle_practical_cbx(subject) {
-            $('#timetable_form input[type="checkbox"]').each(function () {
+            $('#timetable_form').find('input[type="checkbox"]').each(function () {
                 if ($(this).is(":checked")) {
                     if (this.parentElement.querySelector('table')) {
                         $(this.parentElement.querySelector('table').querySelectorAll('input[type="checkbox"]')).each(function () {
-                            if(is_practical(subject) === true){
-                                $(this).removeAttr("disabled");
+                            if (is_practical(subject) === false && !$(this).is(":checked")) {
+                                $(this).attr("disabled", true);
                             }
                             else {
-                                $(this).attr("disabled", true);
+                                $(this).removeAttr("disabled");
                             }
                         })
                     }
@@ -1011,70 +1023,96 @@
                 if (subject_teacher_json.hasOwnProperty(subject)) {
                     for (division in subject_teacher_json[subject]) {
                         if (subject_teacher_json[subject].hasOwnProperty(division)) {
-                            if (subject_teacher_json[subject][division][0] === teachers[0]) {
-                                if (!(subject === current_subject && current_division === division)) {
-                                    let subject_year = "";
-                                    for (each_year in subjects_json) {
-                                        if (subjects_json.hasOwnProperty(each_year)) {
-                                            if ((subjects_json[each_year]['practical'].indexOf(subject) !== -1) || (subjects_json[each_year]['theory'].indexOf(subject) !== -1)) {
-                                                subject_year = each_year;
-                                                break;
-                                            }
-
-                                        }
-                                    }
-
-                                    if (subject_year !== "") {
-
-                                        if (subjects_json[subject_year]['theory'].indexOf(subject) !== -1) {
-                                            let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_cbx';
-                                            if (complement === false) {
-                                                block_list[subject].push(id);
-                                                {#alert(subject + current_subject + current_division + division);#}
-                                            }
-                                            else {
-                                                let index = block_list[subject].indexOf(id);
-                                                block_list[subject].splice(index, 1);
-                                                document.getElementById(id).disabled = false;
-                                            }
-                                        }
-                                        else {
-                                            console.log("Is practical");
-                                            let id = 'id_teacher_' + time + '_' + division + '_' + day + '_' + subject_year + '_';
-                                            let batch = batches_json[subject_year][division];
-                                            if (complement === false) {
-
-                                                for (i in batch) {
-
-                                                    block_faculty_list[teachers[0]].push(id + batch[i]);
-
-                                                }
-                                            }
-                                            else {
-                                                for (i in batch) {
-                                                    {#console.log(batch[i]);#}
-                                                    let index = block_faculty_list[teachers[0]].indexOf(id + batch[i]);
-                                                    block_faculty_list[teachers[0]].splice(index, 1);
-
-                                                    let select_obj = document.getElementById(id + batch[i]);
-                                                    if (select_obj) {
-                                                        let option = document.createElement("option");
-                                                        option.text = teachers[0];
-                                                        option.value = teachers[0];
-                                                        select_obj.add(option);
+                            let all_teachers = subject_teacher_json[subject][division];
+                            for (each_teacher in all_teachers) {
+                                if (all_teachers.hasOwnProperty(each_teacher)) {
+                                    if (all_teachers[each_teacher] === teachers[0]) {
+                                        if (!(subject === current_subject && current_division === division)) {
+                                            let subject_year = "";
+                                            for (each_year in subjects_json) {
+                                                if (subjects_json.hasOwnProperty(each_year)) {
+                                                    if ((subjects_json[each_year]['practical'].indexOf(subject) !== -1) || (subjects_json[each_year]['theory'].indexOf(subject) !== -1)) {
+                                                        subject_year = each_year;
+                                                        break;
                                                     }
-                                                    console.log(id + batch[i]);
 
                                                 }
+                                            }
+
+                                            if (subject_year !== "") {
+
+                                                if (subjects_json[subject_year]['theory'].indexOf(subject) !== -1) {
+                                                    let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_cbx';
+                                                    if (complement === false) {
+                                                        block_list[subject].push(id);
+                                                        {#alert(subject + current_subject + current_division + division);#}
+                                                    }
+                                                    else {
+                                                        let index = block_list[subject].indexOf(id);
+                                                        block_list[subject].splice(index, 1);
+                                                        document.getElementById(id).disabled = false;
+                                                    }
+                                                }
+                                                else {
+                                                    console.log("Is practical");
+                                                    let current_batch = checkbox_object.id.split('_')[configuration['batch_index']];
+                                                    let current_time = checkbox_object.id.split('_')[configuration['time_index']];
+                                                    let current_day = checkbox_object.id.split('_')[configuration['day_index']];
+                                                    let id = 'id_teacher_' + time + '_' + division + '_' + day + '_' + subject_year + '_';
+                                                    let batch = batches_json[subject_year][division];
+                                                    if (complement === false) {
+
+                                                        for (i in batch) {
+
+                                                            let select_obj = document.getElementById(id + batch[i]);
+                                                            if (block_faculty_list[teachers[0]].indexOf(id + batch[i]) === -1) {
+
+                                                                if (!(batch[i] === current_batch && current_time === time && current_day === day)) {
+                                                                    block_faculty_list[teachers[0]].push(id + batch[i]);
+                                                                    if (select_obj) {
+
+                                                                        if (select_obj.querySelector('option[value="' + teachers[0] + '"]')) {
+                                                                            select_obj.removeChild(select_obj.querySelector('option[value="' + teachers[0] + '"]'));
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    else {
+                                                        for (i in batch) {
+                                                            let select_obj = document.getElementById(id + batch[i]);
+                                                            {#console.log(batch[i]);#}
+                                                            let index = block_faculty_list[teachers[0]].indexOf(id + batch[i]);
+                                                            block_faculty_list[teachers[0]].splice(index, 1);
 
 
+                                                            if (select_obj) {
+                                                                let split_blocking_id = (id+batch[i]).split('teacher');
+                                                                let blocking_subject_obj = document.getElementById(split_blocking_id[0] + 'subject' + split_blocking_id[1]);
+                                                                if (subject_teacher_json[blocking_subject_obj.value][division].indexOf(teachers[0]) !== -1) {
+                                                                    if (!select_obj.querySelector('option[value="' + teachers[0] + '"]')) {
+                                                                        let option = document.createElement("option");
+                                                                        option.text = teachers[0];
+                                                                        option.value = teachers[0];
+
+                                                                        select_obj.add(option);
+                                                                    }
+                                                                    console.log(id + batch[i]);
+
+                                                                }
+                                                            }
+                                                        }
+
+                                                    }
+                                                }
+                                            }
+
+                                            else {
+                                                alert('Subject not found');
+                                                alert('Should never go here');
                                             }
                                         }
-                                    }
-
-                                    else {
-                                        alert('Subject not found');
-                                        alert('Should never go here');
                                     }
                                 }
                             }
@@ -1082,6 +1120,7 @@
                     }
                 }
             }
+
             if (subjects_json[year]['theory'].indexOf(current_subject) !== -1) {
 
                 if (complement === false) {
@@ -1099,15 +1138,15 @@
 
             {#alert(previous_unblock);#}
             let current_block_list = block_list[current_subject];
-
-            for (i = 0; i < current_block_list.length; i++) {
-                let checkbox_object = document.getElementById(current_block_list[i]);
-                {#alert(checkbox_object.id);#}
-                if (checkbox_object.checked === false) {
-                    checkbox_object.disabled = true;
+            if (current_block_list) {
+                for (i = 0; i < current_block_list.length; i++) {
+                    let checkbox_object = document.getElementById(current_block_list[i]);
+                    {#alert(checkbox_object.id);#}
+                    if (checkbox_object.checked === false) {
+                        checkbox_object.disabled = true;
+                    }
                 }
             }
-
 
             if (previous_unblock === true && global_current_subject !== "") {
                 unblock_previous_subject();
@@ -1121,8 +1160,10 @@
 
         function unblock_previous_subject() {
             let previous_block_list = block_list[global_current_subject];
-            for (i = 0; i < previous_block_list.length; i++) {
-                document.getElementById(previous_block_list[i]).disabled = false;
+            if (previous_block_list) {
+                for (i = 0; i < previous_block_list.length; i++) {
+                    document.getElementById(previous_block_list[i]).disabled = false;
+                }
             }
         }
     </script>
