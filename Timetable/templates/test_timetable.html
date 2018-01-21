@@ -753,7 +753,7 @@
                     let current_div = all_divisions[div];
                     if (batches_json.hasOwnProperty(current_year) && batches_json[current_year].hasOwnProperty(current_div)) {
                         for (let i in batches_json[current_year][current_div]) {
-                            if (batch !== batches_json[year][division][i]) {
+                            if (!(batch === batches_json[year][division][i] && division === current_div && year === current_year)) {
                                 let blocking_id = "id_teacher_" + time + "_" + current_div + "_" + day + "_" + current_year + "_" + batches_json[current_year][current_div][i];
                                 let select_obj = document.getElementById(blocking_id);
 
@@ -984,7 +984,7 @@
                 if ($(this).is(":checked")) {
                     if (this.parentElement.querySelector('table')) {
                         $(this.parentElement.querySelector('table').querySelectorAll('input[type="checkbox"]')).each(function () {
-                            if(is_practical(subject) === true){
+                            if (is_practical(subject) === true) {
                                 $(this).removeAttr("disabled");
                             }
                             else {
