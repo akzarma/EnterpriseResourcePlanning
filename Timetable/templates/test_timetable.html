@@ -369,6 +369,171 @@
     </script>
 
     <script>
+        var block_list = {};
+        var subject_teacher_json ={{ subject_teacher_json|safe }};
+
+        function unblock_previous_subject() {
+            let previous_block_list = block_list[global_current_subject];
+            if (previous_block_list) {
+                for (i = 0; i < previous_block_list.length; i++) {
+                    document.getElementById(previous_block_list[i]).disabled = false;
+                }
+            }
+        }
+
+        function block_all_current_subject(current_subject, previous_unblock) {
+
+            {#alert(previous_unblock);#}
+            let current_block_list = block_list[current_subject];
+            if (current_block_list) {
+                for (i = 0; i < current_block_list.length; i++) {
+                    let checkbox_object = document.getElementById(current_block_list[i]);
+                    {#alert(checkbox_object.id);#}
+                    if (checkbox_object.checked === false) {
+                        checkbox_object.disabled = true;
+                    }
+                }
+            }
+
+            if (previous_unblock === true && global_current_subject !== "") {
+                unblock_previous_subject();
+            }
+
+            global_current_subject = current_subject;
+
+            console.log(block_list);
+        }
+    </script>
+
+    <script>
+
+        for (subject in subject_teacher_json) {
+            if (subject_teacher_json.hasOwnProperty(subject)) {
+                block_list[subject] = []
+            }
+        }
+
+
+        function block_checkbox(checkbox_object, teachers, current_subject, time, year, day, current_division, complement, real_selected) {
+            for (subject in subject_teacher_json) {
+                if (subject_teacher_json.hasOwnProperty(subject)) {
+                    for (division in subject_teacher_json[subject]) {
+                        if (subject_teacher_json[subject].hasOwnProperty(division)) {
+                            let all_teachers = subject_teacher_json[subject][division];
+                            for (each_teacher in all_teachers) {
+                                if (all_teachers.hasOwnProperty(each_teacher)) {
+                                    if (all_teachers[each_teacher] === teachers[0]) {
+                                        if (!(subject === current_subject && current_division === division)) {
+                                            let subject_year = "";
+                                            for (each_year in subjects_json) {
+                                                if (subjects_json.hasOwnProperty(each_year)) {
+                                                    if ((subjects_json[each_year]['practical'].indexOf(subject) !== -1) || (subjects_json[each_year]['theory'].indexOf(subject) !== -1)) {
+                                                        subject_year = each_year;
+                                                        break;
+                                                    }
+
+                                                }
+                                            }
+
+                                            if (subject_year !== "") {
+
+                                                if (subjects_json[subject_year]['theory'].indexOf(subject) !== -1) {
+                                                    let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_cbx';
+                                                    if (complement === false) {
+                                                        block_list[subject].push(id);
+                                                        {#alert(subject + current_subject + current_division + division);#}
+                                                    }
+                                                    else {
+                                                        let index = block_list[subject].indexOf(id);
+                                                        block_list[subject].splice(index, 1);
+                                                        document.getElementById(id).disabled = false;
+                                                    }
+                                                }
+                                                else {
+                                                    console.log("Is practical");
+                                                    let current_batch = checkbox_object.id.split('_')[configuration['batch_index']];
+                                                    let current_time = checkbox_object.id.split('_')[configuration['time_index']];
+                                                    let current_day = checkbox_object.id.split('_')[configuration['day_index']];
+                                                    let id = 'id_teacher_' + time + '_' + division + '_' + day + '_' + subject_year + '_';
+                                                    let batch = batches_json[subject_year][division];
+                                                    if (complement === false) {
+
+                                                        for (i in batch) {
+
+                                                            let select_obj = document.getElementById(id + batch[i]);
+                                                            if (block_faculty_list[teachers[0]].indexOf(id + batch[i]) === -1) {
+
+                                                                if (!(batch[i] === current_batch && current_time === time && current_day === day)) {
+                                                                    block_faculty_list[teachers[0]].push(id + batch[i]);
+                                                                    if (select_obj) {
+
+                                                                        if (select_obj.querySelector('option[value="' + teachers[0] + '"]')) {
+                                                                            select_obj.removeChild(select_obj.querySelector('option[value="' + teachers[0] + '"]'));
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    else {
+                                                        for (i in batch) {
+                                                            let select_obj = document.getElementById(id + batch[i]);
+                                                            {#console.log(batch[i]);#}
+                                                            let index = block_faculty_list[teachers[0]].indexOf(id + batch[i]);
+                                                            block_faculty_list[teachers[0]].splice(index, 1);
+
+
+                                                            if (select_obj) {
+                                                                let split_blocking_id = (id + batch[i]).split('teacher');
+                                                                let blocking_subject_obj = document.getElementById(split_blocking_id[0] + 'subject' + split_blocking_id[1]);
+                                                                if (subject_teacher_json[blocking_subject_obj.value][division].indexOf(teachers[0]) !== -1) {
+                                                                    if (!select_obj.querySelector('option[value="' + teachers[0] + '"]')) {
+                                                                        let option = document.createElement("option");
+                                                                        option.text = teachers[0];
+                                                                        option.value = teachers[0];
+
+                                                                        select_obj.add(option);
+                                                                    }
+                                                                    console.log(id + batch[i]);
+
+                                                                }
+                                                            }
+                                                        }
+
+                                                    }
+                                                }
+                                            }
+
+                                            else {
+                                                alert('Subject not found');
+                                                alert('Should never go here');
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (subjects_json[year]['theory'].indexOf(current_subject) !== -1) {
+
+                if (complement === false) {
+                    block_all_current_subject(current_subject, false);
+                }
+                else {
+                    block_all_current_subject(real_selected, false);
+                }
+            }
+        }
+
+        {#        Blocks all checkboxes for the selected subject#}
+
+
+    </script>
+
+    <script>
         //Gets subject of theory and practical for current year.
         var subjects_json = {{ subject_json|safe }};
 
@@ -426,7 +591,7 @@
         var subject_dictionary = [];
         var block_room_list = {};
         var block_faculty_list = {};
-        var subject_teacher_json ={{ subject_teacher_json|safe }};
+
         var all_divisions = {{ division|safe }};
         var batches_json ={{ batches_json|safe }};
         var theory_room = {{ theory_room|safe }};
@@ -972,15 +1137,125 @@
 
 
 
+    <script>
+
+
+        function fill_timetable() {
+            let timetable_instance_theory = {{ timetable_instance_theory|safe }};
+            let timetable_instance_practical = {{ timetable_instance_practical|safe }};
+            let year_obj = document.getElementById('id_year');
+            let subject_obj = document.getElementById('id_subject');
+            $.each(timetable_instance_theory, function (id, content) {
+                {#console.log(id, content);#}
+
+                let faculty = content['faculty'];
+                let room = content['room'];
+                let subject = content['subject'];
+
+
+                let splitted = id.split('_');
+
+                let year = splitted[configuration['year_index']];
+                let time = splitted[configuration['time_index']];
+                let division = splitted[configuration['division_index']];
+                let day = splitted[configuration['day_index']];
+
+                $("#id_year").val(year);
+                set_subject();
+                $("#id_subject").val(subject);
+                {#alert(id);#}
+                let cbx_obj = document.getElementById(id);
+
+                cbx_obj.checked = true;
+
+                add_remove_from_dictionary(cbx_obj);
+
+                let room_id = 'id_room_' + time + '_' + division + '_' + day + '_' + year;
+                {#$('#' + room_id).val(room);#}
+
+
+                let room_obj = document.getElementById(room_id);
+                previous_room = room_obj.value;
+                room_obj.value = room;
+                {#cbx_obj.checked = true;#}
+
+
+                room_change_block(room_obj, false);
+
+                cbx_obj.disabled = false;
+
+                let faculty_id = 'id_teacher_' + time + '_' + division + '_' + day + '_' + year;
+                let faculty_obj = document.getElementById(faculty_id);
+                previous_faculty = faculty_obj.value;
+                faculty_obj.value = faculty;
+
+
+                {#alert(subject);#}
+                {#alert(year);#}
+            });
+            console.log("here");
+            console.log(timetable_instance_practical);
+            $.each(timetable_instance_practical, function (id, content) {
+
+                let faculty = content['faculty'];
+                let room = content['room'];
+                let subject = content['subject'];
+
+                let splitted = id.split('_');
+
+                let year = splitted[configuration['year_index']];
+                let time = splitted[configuration['time_index']];
+                let division = splitted[configuration['division_index']];
+                let day = splitted[configuration['day_index']];
+                let batch = splitted[configuration['batch_index']];
+                $("#id_year").val(year);
+                set_subject();
+                $("#id_subject").val(subject);
+
+                let parent_id = 'id_room_' + time + '_' + division + '_' + day + '_' + year + '_cbx';
+                let parent_obj = document.getElementById(parent_id);
+                {#alert(parent_obj.id);#}
+
+                if (parent_obj.checked === false) {
+                    parent_obj.checked = true;
+                    add_remove_from_dictionary(parent_obj);
+                }
+                let cbx_obj = document.getElementById(id);
+                if (cbx_obj == null) {
+                    alert(parent_obj.checked);
+                    alert(parent_id);
+                    alert(id);
+                }
+                cbx_obj.checked = true;
+                block_faculty_practical(cbx_obj);
+
+                let faculty_id = 'id_teacher_' + time + '_' + division + '_' + day + '_' + year + '_' + batch;
+                let faculty_obj = document.getElementById(faculty_id);
+                previous_faculty = faculty_obj.value;
+                faculty_obj.value = faculty;
+                practical_faculty_change(faculty_obj, true);
+
+
+                let room_id = 'id_room_' + time + '_' + division + '_' + day + '_' + year + '_' + batch;
+                let room_obj = document.getElementById(room_id);
+                previous_room = room_obj.value;
+                room_obj.value = room;
+                room_change_block(room_obj, true);
+            });
+        }
+    </script>
+
+
     {#    Document on loading function#}
     <script>
         function on_document_loading() {
             create_room_dictionary();
             create_subject_dictionary();
             create_faculty_block_dictionary();
+
             set_subject();
 
-
+            fill_timetable();
         }
     </script>
 
@@ -1009,167 +1284,9 @@
         }
     </script>
     {#Create blocking list selected subject#}
-    <script>
-        var block_list = {};
-        for (subject in subject_teacher_json) {
-            if (subject_teacher_json.hasOwnProperty(subject)) {
-                block_list[subject] = []
-            }
-        }
 
-
-        function block_checkbox(checkbox_object, teachers, current_subject, time, year, day, current_division, complement, real_selected) {
-            for (subject in subject_teacher_json) {
-                if (subject_teacher_json.hasOwnProperty(subject)) {
-                    for (division in subject_teacher_json[subject]) {
-                        if (subject_teacher_json[subject].hasOwnProperty(division)) {
-                            let all_teachers = subject_teacher_json[subject][division];
-                            for (each_teacher in all_teachers) {
-                                if (all_teachers.hasOwnProperty(each_teacher)) {
-                                    if (all_teachers[each_teacher] === teachers[0]) {
-                                        if (!(subject === current_subject && current_division === division)) {
-                                            let subject_year = "";
-                                            for (each_year in subjects_json) {
-                                                if (subjects_json.hasOwnProperty(each_year)) {
-                                                    if ((subjects_json[each_year]['practical'].indexOf(subject) !== -1) || (subjects_json[each_year]['theory'].indexOf(subject) !== -1)) {
-                                                        subject_year = each_year;
-                                                        break;
-                                                    }
-
-                                                }
-                                            }
-
-                                            if (subject_year !== "") {
-
-                                                if (subjects_json[subject_year]['theory'].indexOf(subject) !== -1) {
-                                                    let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_cbx';
-                                                    if (complement === false) {
-                                                        block_list[subject].push(id);
-                                                        {#alert(subject + current_subject + current_division + division);#}
-                                                    }
-                                                    else {
-                                                        let index = block_list[subject].indexOf(id);
-                                                        block_list[subject].splice(index, 1);
-                                                        document.getElementById(id).disabled = false;
-                                                    }
-                                                }
-                                                else {
-                                                    console.log("Is practical");
-                                                    let current_batch = checkbox_object.id.split('_')[configuration['batch_index']];
-                                                    let current_time = checkbox_object.id.split('_')[configuration['time_index']];
-                                                    let current_day = checkbox_object.id.split('_')[configuration['day_index']];
-                                                    let id = 'id_teacher_' + time + '_' + division + '_' + day + '_' + subject_year + '_';
-                                                    let batch = batches_json[subject_year][division];
-                                                    if (complement === false) {
-
-                                                        for (i in batch) {
-
-                                                            let select_obj = document.getElementById(id + batch[i]);
-                                                            if (block_faculty_list[teachers[0]].indexOf(id + batch[i]) === -1) {
-
-                                                                if (!(batch[i] === current_batch && current_time === time && current_day === day)) {
-                                                                    block_faculty_list[teachers[0]].push(id + batch[i]);
-                                                                    if (select_obj) {
-
-                                                                        if (select_obj.querySelector('option[value="' + teachers[0] + '"]')) {
-                                                                            select_obj.removeChild(select_obj.querySelector('option[value="' + teachers[0] + '"]'));
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    else {
-                                                        for (i in batch) {
-                                                            let select_obj = document.getElementById(id + batch[i]);
-                                                            {#console.log(batch[i]);#}
-                                                            let index = block_faculty_list[teachers[0]].indexOf(id + batch[i]);
-                                                            block_faculty_list[teachers[0]].splice(index, 1);
-
-
-                                                            if (select_obj) {
-                                                                let split_blocking_id = (id+batch[i]).split('teacher');
-                                                                let blocking_subject_obj = document.getElementById(split_blocking_id[0] + 'subject' + split_blocking_id[1]);
-                                                                if (subject_teacher_json[blocking_subject_obj.value][division].indexOf(teachers[0]) !== -1) {
-                                                                    if (!select_obj.querySelector('option[value="' + teachers[0] + '"]')) {
-                                                                        let option = document.createElement("option");
-                                                                        option.text = teachers[0];
-                                                                        option.value = teachers[0];
-
-                                                                        select_obj.add(option);
-                                                                    }
-                                                                    console.log(id + batch[i]);
-
-                                                                }
-                                                            }
-                                                        }
-
-                                                    }
-                                                }
-                                            }
-
-                                            else {
-                                                alert('Subject not found');
-                                                alert('Should never go here');
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (subjects_json[year]['theory'].indexOf(current_subject) !== -1) {
-
-                if (complement === false) {
-                    block_all_current_subject(current_subject, false);
-                }
-                else {
-                    block_all_current_subject(real_selected, false);
-                }
-            }
-        }
-
-        {#        Blocks all checkboxes for the selected subject#}
-
-        function block_all_current_subject(current_subject, previous_unblock) {
-
-            {#alert(previous_unblock);#}
-            let current_block_list = block_list[current_subject];
-            if (current_block_list) {
-                for (i = 0; i < current_block_list.length; i++) {
-                    let checkbox_object = document.getElementById(current_block_list[i]);
-                    {#alert(checkbox_object.id);#}
-                    if (checkbox_object.checked === false) {
-                        checkbox_object.disabled = true;
-                    }
-                }
-            }
-
-            if (previous_unblock === true && global_current_subject !== "") {
-                unblock_previous_subject();
-            }
-
-            global_current_subject = current_subject;
-
-            console.log(block_list);
-        }
-
-
-        function unblock_previous_subject() {
-            let previous_block_list = block_list[global_current_subject];
-            if (previous_block_list) {
-                for (i = 0; i < previous_block_list.length; i++) {
-                    document.getElementById(previous_block_list[i]).disabled = false;
-                }
-            }
-        }
-    </script>
 
     {#    Remove ids from block_list#}
-
 
 
 
