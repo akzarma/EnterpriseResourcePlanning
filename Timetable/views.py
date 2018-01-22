@@ -252,7 +252,7 @@ def save_timetable(request):
                         timetable.save()
 
         # to_json(request)
-        return HttpResponse('Saved')
+        return fill_timetable(request)
     else:
         return HttpResponse("Not Post")
 
