@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
-
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -53,6 +51,7 @@ INSTALLED_APPS = [
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
     'widget_tweaks',
+
 ]
 
 MIDDLEWARE = [
@@ -139,3 +138,8 @@ minutes = 30
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = minutes * 60
+
+GRAPH_MODELS = {
+    'all_applications': True,
+    'group_models': True,
+}

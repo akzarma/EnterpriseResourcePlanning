@@ -8,10 +8,9 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from General.models import StudentDivision
-from Registration.models import Faculty, Student
+from Registration.models import Faculty, Student, Branch
 from UserModel.models import User
 import json
-
 
 
 def login_user(request):
@@ -37,15 +36,14 @@ def login_user(request):
         else:
             return HttpResponseRedirect('/dashboard/')
 
-
     return render(request, 'login.html')
 
 
 @csrf_exempt
 def login_android(request):
-    response = [{
-                    'userType': 'null'
-                    }]
+    response = {
+        'user_type': 'null'
+    }
     if request.method == 'POST':
         print(request.POST)
         try:
@@ -59,28 +57,27 @@ def login_android(request):
 
                 user = User.objects.get(username=username)
                 if user.role == 'Faculty':
-                    faculty_response =[
-                    {
+                    faculty_response = {
                         'userType': 'Faculty'
-                    }]
-                    return HttpResponse(str(faculty_response[0]))
+                    }
+                    return HttpResponse(str(faculty_response))
                 elif user.role == 'Student':
-                    student_division = StudentDivision.objects.get(student=user.student)
+                    student = user.student
+                    student_division = StudentDivision.objects.get(student=student)
+                    branch = student.branch
+                    branch_obj = Branch.objects.get(branch=branch)
 
-
-
-
-
-                    student_response = [{
-                        'userType': 'Student',
+                    student_response = {
+                        'user_type': 'Student',
                         'year': student_division.division.year.year,
                         'branch': student_division.division.branch.branch,
                         'division': student_division.division.division,
-                    }]
-                    return HttpResponse(str(student_response[0]))
+                        # 'batch':
+                    }
+                    return HttpResponse(str(student_response))
             else:
-                return HttpResponse(str(response[0]))
+                return HttpResponse(str(response))
 
         except:
-            return HttpResponse(str(response[0]))
-    return HttpResponse(str(response[0]))
+            return HttpResponse(str(response))
+    return HttpResponse(str(response))
