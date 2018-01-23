@@ -8,7 +8,6 @@ from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from scipy.constants import year
 
 from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch
 from Registration.models import Branch, Subject, Faculty, Student

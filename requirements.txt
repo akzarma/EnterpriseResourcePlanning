@@ -2,4 +2,4 @@ xlsxwriter
 django-widget-tweaks
 Pillow
 firebase_admin
-scipy
+django==1.11
