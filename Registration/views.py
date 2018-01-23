@@ -60,6 +60,7 @@ def register_student(request):
 
             student.save()
 
+
             branch_obj = Branch.objects.get(branch=branch)
             college_year_obj = CollegeYear.objects.get(year=year)
             shift_obj = Shift.objects.get(shift=shift)

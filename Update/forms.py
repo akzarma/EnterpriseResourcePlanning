@@ -59,8 +59,8 @@ class FacultyUpdateForm(forms.ModelForm):
     last_name = forms.CharField(disabled=True)
     faculty_code = forms.CharField(disabled=True)
     initials = forms.CharField(disabled=True)
-    email = forms.EmailField(disabled=True)
-    DOB = forms.CharField(disabled=True)
+    # email = forms.EmailField(disabled=True)
+    # DOB = forms.CharField(disabled=True)
     teaching_from = forms.CharField(disabled=True)
 
 
@@ -73,6 +73,6 @@ class FacultyUpdateForm(forms.ModelForm):
         model = Faculty
 
         widgets = {
-            'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
+            # 'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
         }
         fields = '__all__'

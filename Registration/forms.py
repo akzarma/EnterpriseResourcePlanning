@@ -71,7 +71,7 @@ class StudentForm(forms.ModelForm):
     )
 
     division = forms.ChoiceField(
-        choices=[(i, i) for i in division_list]
+        choices=[(i.division, i.division) for i in division_list]
     )
     year = forms.ChoiceField(
         choices=[(i, i) for i in year_list]
@@ -80,9 +80,6 @@ class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
 
-        widgets = {
-            'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
-        }
         fields = '__all__'
         exclude = ['salary', 'user']
 
@@ -94,12 +91,12 @@ class FacultyForm(forms.ModelForm):
     current_country = forms.ChoiceField(
         choices=countries
     )
-    email = forms.EmailField()
+    # email = forms.EmailField()
 
     class Meta:
         model = Faculty
         widgets = {
-            'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
+            # 'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
             'teaching_from': forms.DateInput(attrs={'class': 'datepicker'})
         }
         fields = '__all__'
