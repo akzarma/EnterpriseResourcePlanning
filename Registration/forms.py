@@ -5,8 +5,6 @@ from Configuration.stateConf import states
 from General.models import CollegeExtraDetail, CollegeYear, Shift, Semester, FacultySubject
 from .models import Faculty, Subject, Student, Branch
 
-
-
 semester_list = Semester.objects.all()
 
 branch_list = Branch.objects.all()
@@ -15,9 +13,9 @@ subject_list = Subject.objects.all()
 
 faculty_list = Faculty.objects.all()
 
-division_list =  CollegeExtraDetail.objects.filter(branch=Branch.objects.get(branch='Computer'))
+division_list = CollegeExtraDetail.objects.filter(branch=Branch.objects.get(branch='Computer'))
 
-year_list =  CollegeYear.objects.all()
+year_list = CollegeYear.objects.all()
 
 shift_list = Shift.objects.all()
 
@@ -32,12 +30,13 @@ class FacultySubjectForm(forms.ModelForm):
     )
 
     division = forms.ChoiceField(
-        choices=[(i.pk,i.division) for i in division_list]
+        choices=[(i.pk, i.division) for i in division_list]
     )
 
     class Meta:
         model = FacultySubject
         fields = '__all__'
+        exclude = ['faculty', 'subject', 'division']
 
 
 class StudentForm(forms.ModelForm):

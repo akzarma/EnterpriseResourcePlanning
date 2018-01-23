@@ -188,7 +188,9 @@ class Branch(models.Model):
 class HOD(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
-    year = models.PositiveIntegerField()
+    start_date = models.DateField(blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.faculty) + str(self.branch) + str(self.year)
+        return str(self.faculty) + str(self.branch)

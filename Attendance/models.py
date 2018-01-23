@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from datetime import timezone, datetime
+from datetime import  datetime
 
 from django.db import models
 
@@ -19,7 +19,7 @@ class StudentAttendance(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     # faculty_subject = models.ForeignKey(FacultySubject)
     timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(null=True)#Should not be null=True
     # time = models.TimeField()
     attended = models.BooleanField(default=False)
 
