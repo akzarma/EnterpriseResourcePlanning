@@ -3,3 +3,4 @@ django-widget-tweaks
 Pillow
 firebase_admin
 pyasn1-modules
+scipy
