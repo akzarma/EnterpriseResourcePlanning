@@ -313,30 +313,6 @@ def to_json():
             answer[year][branch][division][day] = {}
             answer[year][branch][division][day][time] = {}
 
-        is_practical = each.is_practical
-
-        if is_practical:
-            batch = each.batch.batch_name
-            if 'is_practical' in answer[year][branch][division][day][time]:
-
-                print('contains')
-            else:
-                answer[year][branch][division][day][time] = {
-                    'is_practical':is_practical
-                }
-            answer[year][branch][division][day][time][batch] = {
-                'faculty': faculty,
-                'room': room,
-                'subject': subject,
-            }
-        else:
-            answer[year][branch][division][day][time] = {
-                'faculty': faculty,
-                'room': room,
-                'subject': subject,
-                'is_practical': is_practical
-            }
-
         if faculty in faculty_json:
             if day in faculty_json[faculty]:
                 if time in faculty_json[faculty][day]:
@@ -353,15 +329,45 @@ def to_json():
             faculty_json[faculty][day] = {}
             faculty_json[faculty][day][time] = {}
 
+        is_practical = each.is_practical
 
+        if is_practical:
+            batch = each.batch.batch_name
+            if 'is_practical' in answer[year][branch][division][day][time]:
 
-        faculty_json[faculty][day][time] = {
-            'branch': branch,
-            'division': division,
-            'room': room,
-            'subject': subject,
-            'year': year
-        }
+                print('contains')
+            else:
+                answer[year][branch][division][day][time] = {
+                    'is_practical': is_practical
+                }
+            answer[year][branch][division][day][time][batch] = {
+                'faculty': faculty,
+                'room': room,
+                'subject': subject,
+            }
+            faculty_json[faculty][day][time] = {
+                'branch': branch,
+                'division': division,
+                'room': room,
+                'subject': subject,
+                'year': year,
+                'batch': batch
+            }
+        else:
+            answer[year][branch][division][day][time] = {
+                'faculty': faculty,
+                'room': room,
+                'subject': subject,
+                'is_practical': is_practical
+            }
+
+            faculty_json[faculty][day][time] = {
+                'branch': branch,
+                'division': division,
+                'room': room,
+                'subject': subject,
+                'year': year
+            }
 
     write_to_firebase(answer, 'Student')
     write_to_firebase(faculty_json, 'Faculty')
