@@ -5,7 +5,6 @@ from datetime import datetime
 
 from django.db import models
 
-
 # Contains
 # Faculty (Entity)
 # Student (Entity)
@@ -24,9 +23,6 @@ class Faculty(models.Model):
     first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField(null=True,max_length=100)
-    DOB = models.DateField(default='11/02/1976')
-
     faculty_code = models.CharField(max_length=10, primary_key=True)
 
     # account details
@@ -110,7 +106,6 @@ class Student(models.Model):
     gr_number = models.CharField(max_length=15, primary_key=True)
     programme = models.CharField(max_length=10)
     # personal details
-    email = models.EmailField(max_length=100,null=True)
     mobile = models.BigIntegerField(default=0)
     religion = models.CharField(max_length=20, blank=True, null=True)
     sub_caste = models.CharField(max_length=30, null=True, blank=True)
@@ -176,6 +171,7 @@ class Subject(models.Model):
     short_form = models.CharField(max_length=10)
     is_practical = models.BooleanField(default=False)
     semester = models.IntegerField(default=1)
+
     def __str__(self):
         return self.name
 
