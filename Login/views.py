@@ -58,7 +58,7 @@ def login_android(request):
                 user = User.objects.get(username=username)
                 if user.role == 'Faculty':
                     faculty_response = {
-                        'userType': 'Faculty'
+                        'user_type': 'Faculty'
                     }
                     return HttpResponse(str(faculty_response))
                 elif user.role == 'Student':
