@@ -11,12 +11,9 @@ from django.contrib.auth.models import User
 from scipy.constants import year
 
 from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch
-# from .forms import TimetableForm
 from Registration.models import Branch, Subject, Faculty, Student
-from .models import Time, Room, Timetable
 from Registration.models import Branch, Subject
 from .models import Time, Room, Timetable
-import copy
 from Sync.function import write_to_firebase
 
 import xlsxwriter
@@ -167,6 +164,10 @@ def fill_timetable(request):
 def save_timetable(request):
     if request.method == "POST":
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+        branch = Branch.objects.get(branch='Computer')
+        full_timetable = list(Timetable.objects.filter(branch_subject__branch=branch))
+
         for i in request.POST:
             if i.__contains__('_room_'):
                 splitted = i.split('_room_')
@@ -211,6 +212,7 @@ def save_timetable(request):
                                                          is_practical=False)
 
                     if timetable:
+                        full_timetable.remove(timetable[0])
                         if not timetable[0].faculty == faculty:
                             timetable[0].faculty = faculty
                         if not timetable[0].branch_subject == branch_subject:
@@ -234,6 +236,8 @@ def save_timetable(request):
                                                          is_practical=True,
                                                          batch=batch)
                     if timetable:
+                        full_timetable.remove(timetable[0])
+
                         if not timetable[0].faculty == faculty:
                             timetable[0].faculty = faculty
                         if not timetable[0].branch_subject == branch_subject:
@@ -250,6 +254,9 @@ def save_timetable(request):
                         timetable.save()
 
         # to_json(request)
+
+        Timetable.objects.filter(id__in=[i.id for i in full_timetable]).delete()
+
         to_json()
         return HttpResponseRedirect('/timetable/enter/')
     else:
@@ -306,11 +313,29 @@ def to_json():
             answer[year][branch][division][day] = {}
             answer[year][branch][division][day][time] = {}
 
-        answer[year][branch][division][day][time] = {
-            'faculty': faculty,
-            'room': room,
-            'subject': subject
-        }
+        is_practical = each.is_practical
+
+        if is_practical:
+            batch = each.batch.batch_name
+            if 'is_practical' in answer[year][branch][division][day][time]:
+
+                print('contains')
+            else:
+                answer[year][branch][division][day][time] = {
+                    'is_practical':is_practical
+                }
+            answer[year][branch][division][day][time][batch] = {
+                'faculty': faculty,
+                'room': room,
+                'subject': subject,
+            }
+        else:
+            answer[year][branch][division][day][time] = {
+                'faculty': faculty,
+                'room': room,
+                'subject': subject,
+                'is_practical': is_practical
+            }
 
         if faculty in faculty_json:
             if day in faculty_json[faculty]:
@@ -328,11 +353,7 @@ def to_json():
             faculty_json[faculty][day] = {}
             faculty_json[faculty][day][time] = {}
 
-        answer[year][branch][division][day][time] = {
-            'faculty': faculty,
-            'room': room,
-            'subject': subject
-        }
+
 
         faculty_json[faculty][day][time] = {
             'branch': branch,
@@ -342,8 +363,8 @@ def to_json():
             'year': year
         }
 
-        write_to_firebase(answer, 'Student')
-        write_to_firebase(faculty_json, 'Faculty')
+    write_to_firebase(answer, 'Student')
+    write_to_firebase(faculty_json, 'Faculty')
 
 
 def get_excel(request):
