@@ -8,7 +8,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -27,7 +26,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('initials', models.CharField(blank=True, max_length=10, null=True)),
                 ('middle_name', models.CharField(blank=True, max_length=100, null=True)),
-                ('DOB', models.DateField(default='11/02/1976')),
                 ('faculty_code', models.CharField(max_length=10, primary_key=True, serialize=False)),
                 ('salary', models.IntegerField(blank=True, default=10, null=True)),
                 ('teaching_from', models.DateField(default=datetime.datetime.now)),
@@ -64,7 +62,8 @@ class Migration(migrations.Migration):
                 ('current_pin_code', models.PositiveIntegerField(blank=True, null=True)),
                 ('current_country', models.CharField(blank=True, max_length=50, null=True)),
                 ('doc', models.FileField(blank=True, null=True, upload_to=Registration.models.faculty_directory_path)),
-                ('doc_profile_pic', models.FileField(blank=True, null=True, upload_to=Registration.models.faculty_directory_path)),
+                ('doc_profile_pic',
+                 models.FileField(blank=True, null=True, upload_to=Registration.models.faculty_directory_path)),
             ],
         ),
         migrations.CreateModel(
@@ -121,10 +120,14 @@ class Migration(migrations.Migration):
                 ('jee_max_physics', models.PositiveIntegerField(blank=True, default=0, null=True)),
                 ('jee_max_maths', models.PositiveIntegerField(blank=True, default=0, null=True)),
                 ('jee_max_chemistry', models.PositiveIntegerField(blank=True, default=0, null=True)),
-                ('doc_tenth_marksheet', models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
-                ('doc_twelfth_marksheet', models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
-                ('doc_jee_marksheet', models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
-                ('doc_profile_pic', models.ImageField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
+                ('doc_tenth_marksheet',
+                 models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
+                ('doc_twelfth_marksheet',
+                 models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
+                ('doc_jee_marksheet',
+                 models.FileField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
+                ('doc_profile_pic',
+                 models.ImageField(blank=True, null=True, upload_to=Registration.models.student_directory_path)),
             ],
         ),
         migrations.CreateModel(
