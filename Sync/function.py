@@ -10,12 +10,17 @@ import os
 #     '8':'eight'
 # })
 cwd = os.getcwd()
-cred = credentials.Certificate(cwd + '/Sync/cert.json')
+app_name = '/EnterpriseResourcePalnning'
+if cwd.__contains__(app_name):
+    cred = credentials.Certificate(cwd + '/Sync/cert.json')
+else:
+
+    cred = credentials.Certificate(cwd + app_name + '/Sync/cert.json')
 app = firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://viit-1cbaf.firebaseio.com/'
 })
 
 
-def write_to_firebase(json_string,next_child):
+def write_to_firebase(json_string, next_child):
     root = db.reference()
     root.child(next_child).set(json_string)
