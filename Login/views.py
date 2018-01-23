@@ -14,15 +14,11 @@ import json
 
 
 def login_user(request):
-    print("login user")
     user = request.user
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
-        print(username)
-        print(password)
         user = authenticate(username=username, password=password)
-        print(user)
         if user is not None:
             login(request, user)
             return HttpResponseRedirect('/dashboard/')
@@ -30,7 +26,6 @@ def login_user(request):
             return render(request, 'login.html', {'error': 'Invalid credentials'})
     elif request.method == "GET":
         user = request.user
-        print(user)
         if user.is_anonymous:
             return render(request, 'login.html')
         else:
@@ -51,7 +46,6 @@ def login_android(request):
             password = request.POST.get('password')
             user = authenticate(username=username, password=password)
 
-            print(user.role)
 
             if user:
 

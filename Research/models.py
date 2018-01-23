@@ -7,7 +7,6 @@ from Registration.models import Faculty
 
 
 def faculty_directory_path(instance, filename):
-    print(instance, 'faculty code: ')
     return 'Media/Faculty/{0}/Research/{1}'.format(instance.faculty.faculty_code, filename)
 
 class Paper(models.Model):
