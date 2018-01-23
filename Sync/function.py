@@ -10,7 +10,7 @@ import os
 #     '8':'eight'
 # })
 cwd = os.getcwd()
-app_name = '/EnterpriseResourcePalnning'
+app_name = '/EnterpriseResourcePlanning'
 if cwd.__contains__(app_name):
     cred = credentials.Certificate(cwd + '/Sync/cert.json')
 else:
