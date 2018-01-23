@@ -28,7 +28,8 @@ DEBUG = True
 # Custom User Model
 AUTH_USER_MODEL = 'UserModel.User'
 
-ALLOWED_HOSTS = ['192.168.0.110', '192.168.0.106', '192.168.43.155', '127.0.0.1', '172.20.10.3']
+ALLOWED_HOSTS = ['192.168.0.110', '192.168.0.106', '192.168.43.155', '127.0.0.1', '172.20.10.3',
+                 'akzarma.pythonanywhere.com']
 
 # Application definition
 
