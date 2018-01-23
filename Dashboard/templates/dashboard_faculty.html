@@ -211,7 +211,7 @@
         <!-- Sidebar Holder -->
         <nav id="sidebar">
             <ul class="list-unstyled components">
-
+                <p id="head">Dashboard</p>
                 <li class="active">
                     <a href="/dashboard/">Dashboard</a>
                 </li>
@@ -226,6 +226,9 @@
                     <a href="{% url 'update:update' %}">Update</a>
                 </li>
                 <li>
+                    <a href="{% url 'attendance:select_cat' %}">Check Attendance</a>
+                </li>
+                <li>
                     <a href="{% url 'dashboard:research' %}">Research</a>
                 </li>
                 <li>
@@ -235,7 +238,6 @@
                         <li><a href="{% url 'registration:register_faculty_subject' %}">Faculty Subject</a></li>
                     </ul>
                 </li>
-
             </ul>
         </nav>
 

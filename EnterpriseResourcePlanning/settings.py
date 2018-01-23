@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,10 +30,10 @@ DEBUG = True
 # Custom User Model
 AUTH_USER_MODEL = 'UserModel.User'
 
-ALLOWED_HOSTS = ['192.168.0.110', '192.168.0.106', '192.168.43.155', '127.0.0.1', '172.20.10.3']
+ALLOWED_HOSTS = ['192.168.0.110', '192.168.0.106', '192.168.43.155', '127.0.0.1', '172.20.10.3',
+                 'akzarma.pythonanywhere.com']
 
 # Application definition
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
