@@ -13,6 +13,10 @@ urlpatterns = [
 
     url(r'research/$', views.list_research, name="research"),
 
+    # url(r'assignment/$', views.list_research, name="research"),
+
+
+
     # url(r'^update/', include('Update.urls'))
 
 ]

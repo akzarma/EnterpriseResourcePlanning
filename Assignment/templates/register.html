@@ -1,0 +1,15 @@
+{% extends "dashboard_faculty.html" %}
+{% block content %}
+    <form method="POST" id="assignment_form" action="{% url 'Assignment:register_assignment' %}">
+        {% csrf_token %}
+        {% for each in form %}
+            <div class="form-element">
+                {{ each.label_tag }}
+                {{ each }}
+                {{ each.with_errors }}
+            </div>
+        {% endfor %}
+
+        <input type="submit">
+    </form>
+{% endblock %}

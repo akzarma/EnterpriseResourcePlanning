@@ -13,7 +13,6 @@ from UserModel.models import User
 import json
 
 
-
 def login_user(request):
     print("login user")
     user = request.user
@@ -37,15 +36,14 @@ def login_user(request):
         else:
             return HttpResponseRedirect('/dashboard/')
 
-
     return render(request, 'login.html')
 
 
 @csrf_exempt
 def login_android(request):
     response = [{
-                    'userType': 'null'
-                    }]
+        'userType': 'null'
+    }]
     if request.method == 'POST':
         print(request.POST)
         try:
@@ -59,17 +57,13 @@ def login_android(request):
 
                 user = User.objects.get(username=username)
                 if user.role == 'Faculty':
-                    faculty_response =[
-                    {
-                        'userType': 'Faculty'
-                    }]
+                    faculty_response = [
+                        {
+                            'userType': 'Faculty'
+                        }]
                     return HttpResponse(str(faculty_response[0]))
                 elif user.role == 'Student':
                     student_division = StudentDivision.objects.get(student=user.student)
-
-
-
-
 
                     student_response = [{
                         'userType': 'Student',

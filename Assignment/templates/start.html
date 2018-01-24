@@ -1,0 +1,54 @@
+{% extends "dashboard_faculty.html" %}
+{% block content %}
+    <form method="POST" id="assignment_form" action="{% url 'Assignment:start_assignment' %}">
+        {% csrf_token %}
+        <div class="form-element">
+            {{ form.problem_statement.label_tag }}
+            {{ form.problem_statement }}
+            {{ form.with_errors }}
+        </div>
+
+        <div class="form-element">
+            {{ form.group.label_tag }}
+            {{ form.group }}
+            {{ form.with_errors }}
+        </div>
+
+        <div class="form-element">
+            {{ form.number.label_tag }}
+            {{ form.number }}
+            {{ form.with_errors }}
+        </div>
+
+        <div class="form-element datetimepicker">
+            {{ form.issue_date.label_tag }}
+            {{ form.complete_by }}
+            {{ form.with_errors }}
+        </div>
+
+        <div class="form-element">
+            {{ form.complete_by.label_tag }}
+            {{ form.complete_by }}
+            {{ form.with_errors }}
+        </div>
+
+        <div class="form-element">
+            {{ form.plagiarism_threshold.label_tag }}
+            {{ form.plagiarism_threshold }}
+            {{ form.with_errors }}
+        </div>
+
+        <div class="form-element">
+            {{ form.batch.label_tag }}
+            {{ form.batch }}
+            {{ form.with_errors }}
+        </div>
+
+        <input type="submit">
+    </form>
+    <script type="text/javascript">
+        $(function () {
+            $('#datetimepicker1').datetimepicker();
+        });
+    </script>
+{% endblock %}

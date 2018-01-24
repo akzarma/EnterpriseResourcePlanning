@@ -1,0 +1,34 @@
+{% extends "dashboard_faculty.html" %}
+{% block content %}
+    {% for each in data %}
+        {{ each.label_tag }}
+        {{ each.assignment_info.problem_statement}}
+        {{ each.with_errors }}
+
+        {{ each.label_tag }}
+        {{ each.complete_by}}
+        {{ each.with_errors }}
+
+        {{ each.label_tag }}
+        {{ each.issue_date}}
+        {{ each.with_errors }}
+
+        {{ each.label_tag }}
+        {{ each.faculty.initials}}
+        {{ each.with_errors }}
+
+        {{ each.label_tag }}
+        {{ each.batch}}
+        {{ each.with_errors }}
+
+        {{ each.label_tag }}
+        {{ each.complete_by}}
+        {{ each.with_errors }}
+
+        {{ each.label_tag }}
+        {{ each.division.division}}
+        {{ each.with_errors }}
+    {% endfor %}
+
+
+{% endblock %}

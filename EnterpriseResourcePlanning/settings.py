@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'Requests.apps.RequestsConfig',
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
+    'Assignment.apps.AssignmentConfig',
     'widget_tweaks',
 ]
 

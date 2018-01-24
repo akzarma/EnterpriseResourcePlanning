@@ -235,6 +235,14 @@
                         <li><a href="{% url 'registration:register_faculty_subject' %}">Faculty Subject</a></li>
                     </ul>
                 </li>
+                <li>
+                    <a href="#assignmentMenu" data-toggle="collapse" aria-expanded="false">Assignment</a>
+                    <ul class="collapse list-unstyled" id="assignmentMenu">
+{#                        <li><a href="{% url 'Assignment:view_assignment' %}">View</a></li>#}
+{#                        <li><a href="{% url 'Assignment:register_assignment' %}">Register</a></li>#}
+                        <li><a href="{% url 'Assignment:start_assignment' %}">Start Assignment</a></li>
+                    </ul>
+                </li>
 
             </ul>
         </nav>
