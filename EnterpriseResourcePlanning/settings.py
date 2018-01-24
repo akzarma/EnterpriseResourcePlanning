@@ -138,8 +138,3 @@ minutes = 30
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = minutes * 60
-
-GRAPH_MODELS = {
-    'all_applications': True,
-    'group_models': True,
-}
