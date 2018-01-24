@@ -24,7 +24,6 @@ def index(request):
     # selected_faculty_subject = request.POST.get('selected_faculty_subject')
     # faculty = user.faculty
     # faculty_subject_list = faculty.facultysubject_set.all()
-    # print(FacultySubject.objects.filter(faculty=user.faculty))
     # selected_faculty_subject_obj = FacultySubject.objects.get(pk=selected_faculty_subject)
     # faculty = user.faculty
     # all_students = StudentDivision.objects.filter(division=selected_faculty_subject_obj.division).all()
@@ -71,28 +70,18 @@ def save(request):
         if user.role == 'Faculty':
             if request.method == 'POST':
                 faculty = user.faculty
-                print("Saving Student")
                 present = request.POST.getlist('present')
                 selected_date = request.POST.get('selected_date')
 
-                print("present student list ", present)
-                print(request.POST)
                 timetable = Timetable.objects.get(pk=int(request.POST.get('selected_class')))
                 division_obj = timetable.division
                 all_students = StudentDivision.objects.filter(division=division_obj).values_list('student__pk',
                                                                                                  flat=True)
                 # all_students = StudentDetails.objects.all().values_list('pk', flat=True)
-                print(all_students)
-                print(request.POST)
-                print("present")
-                # present = [int(each) for each in present]
-                print(present)
                 absent = list(set(all_students) - set(present))
-                print(absent)
 
                 whole = []
                 for student in present:
-                    print(timetable, Student.objects.get(pk=student))
                     new = StudentAttendance.objects.filter(student=Student.objects.get(pk=student), timetable=timetable,
                                                            date=parse_date(selected_date)).first()
                     if new:
@@ -125,12 +114,9 @@ def save(request):
                 return HttpResponseRedirect('/attendance/select')
 
         else:
-            print('User not faculty')
-            print(user.role)
             return HttpResponse('User not faculty')
 
     else:
-        print('user not logged in')
         return HttpResponseRedirect('/login/')
 
 
@@ -151,7 +137,6 @@ def select_cat(request):
             # should be faculty....alert on login page with proper message.
             return HttpResponseRedirect('/login/')
     else:
-        print('user no logged in')
         return HttpResponseRedirect('/login/')
 
 

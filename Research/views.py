@@ -12,7 +12,6 @@ def enter_paper(request):
         if user.role == 'Faculty':
             if request.method == "POST":
                 form = PublicationForm(request.POST, request.FILES)
-                print(form.errors)
                 # form.fields['faculty'] = user.faculty
 
                 if form.is_valid():

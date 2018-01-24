@@ -53,7 +53,6 @@ def show_dashboard(request):
             logout_user(request)
             return redirect('/login/')
     else:
-        print('not logged in')
         return redirect('/login/')
 
 
@@ -64,14 +63,11 @@ def view_profile(request):
             if user.role == 'Student':
                 form = StudentUpdateForm(request.POST, request.FILES, instance=user.student)
                 if form.is_valid():
-                    print('form valid')
                     student_obj = form.save(commit=False)
                     student_obj.user = user
                     student_obj.save()
                     return HttpResponseRedirect('/dashboard/')
                 else:
-                    print('form not valid')
-                    print(form.errors)
                     return render(request, 'profile_student.html', {
                         'form': form,
                     })
@@ -79,22 +75,17 @@ def view_profile(request):
             elif user.role == 'Faculty':
                 form = FacultyUpdateForm(request.POST, request.FILES, instance=user.faculty)
                 if form.is_valid():
-                    print('form valid')
                     faculty_obj = form.save(commit=False)
                     faculty_obj.user = user
                     faculty_obj.save()
                     return HttpResponseRedirect('/dashboard/')
                 else:
-                    print('form not valid')
-                    print(form.errors)
                     return render(request, 'profile_faculty.html', {
                         'form': form,
                     })
 
         else:
-            print('got user id', user)
             if user.role == 'Faculty':
-                print('in update faculty')
                 obj = user.faculty
                 form = FacultyUpdateForm(instance=obj)
                 return render(request, 'profile_faculty.html', {
@@ -102,7 +93,6 @@ def view_profile(request):
                 })
 
             elif user.role == 'Student':
-                print('in update student')
                 obj = user.student
                 form = StudentUpdateForm(instance=obj)
                 return render(request, 'profile_student.html', {
