@@ -46,13 +46,14 @@ def login_android(request):
             password = request.POST.get('password')
             user = authenticate(username=username, password=password)
 
-
             if user:
 
                 user = User.objects.get(username=username)
                 if user.role == 'Faculty':
                     faculty_response = {
-                        'user_type': 'Faculty'
+                        'user_type': 'Faculty',
+                        'initials': user.faculty.initials,
+                        'name': user.faculty.first_name
                     }
                     return HttpResponse(str(faculty_response))
                 elif user.role == 'Student':
@@ -66,7 +67,7 @@ def login_android(request):
                         'year': student_division.division.year.year,
                         'branch': student_division.division.branch.branch,
                         'division': student_division.division.division,
-                        # 'batch':
+                        'name': user.student.first_name
                     }
                     return HttpResponse(str(student_response))
             else:
