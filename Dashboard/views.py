@@ -48,6 +48,10 @@ def show_dashboard(request):
             return render(request, 'dashboard_faculty.html', {
                 'form': form,
             })
+        else:
+            print(user.role)
+            logout_user(request)
+            return redirect('/login/')
     else:
         print('not logged in')
         return redirect('/login/')

@@ -193,7 +193,7 @@ def save_timetable(request):
                 # subject = Subject.objects.get(
                 #     short_form=subject_short_name)  # this has to be changed, should  not get subject with  short_name directly
 
-                branch = Branch.objects.get(branch='Computer')
+                # branch = Branch.objects.get(branch='Computer')
                 year = CollegeYear.objects.get(year=year)
                 branch_subject = BranchSubject.objects.get(branch=branch, year=year,
                                                            subject__short_form=subject_short_name)

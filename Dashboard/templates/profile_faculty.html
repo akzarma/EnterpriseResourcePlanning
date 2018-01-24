@@ -18,11 +18,11 @@
                     <div class="form-element">
                         <span class="error">{{ form.doc_profile_pic.errors }}</span>
                         {{ form.doc_profile_pic.label_tag }}
-
+{% if form.instance.doc_profile_pic  %}
                         <img id="myImg"
                              src="{{ form.instance.doc_profile_pic.url }}"
                              alt="Uploaded image is broken"/>
-
+{% endif %}
                     </div>
 
                     <div class="form-element">
@@ -52,24 +52,14 @@
                         <div class="">{{ form.DOB.value }}</div>
                     </div>
                     <div class="form-element">
-                        <span class="error">{{ form.admission_type.errors }}</span>
-                        <label class="control-label">{{ form.admission_type.label_tag }}</label>
-                        <div class="">{{ form.admission_type.value }}</div>
-                    </div>
-                    <div class="form-element">
-                        <span class="error">{{ form.shift.errors }}</span>
-                        <label class="control-label">{{ form.shift.label_tag }}</label>
-                        <div class="">{{ form.shift.value }}</div>
-                    </div>
-                    <div class="form-element">
                         <span class="error">{{ form.caste_type.errors }}</span>
                         <label class="control-label">{{ form.caste_type.label_tag }}</label>
                         <div class="">{{ form.caste_type.value }}</div>
                     </div>
                     <div class="form-element">
-                        <span class="error">{{ form.branch.errors }}</span>
-                        <label class="control-label">{{ form.branch.label_tag }}</label>
-                        <div class="">{{ form.branch.value }}</div>
+                        <span class="error">{{ form.initials.errors }}</span>
+                        <label class="control-label">{{ form.initials.label_tag }}</label>
+                        <div class="">{{ form.initials.value }}</div>
                     </div>
                 </div>
 
@@ -77,9 +67,9 @@
             <fieldset class="col-lg-6">
                 <legend>Personal Detail:</legend>
                 <div class="form-element">
-                    <span class="error">{{ form.email.errors }}</span>
-                    <label class="control-label">{{ form.email.label_tag }}</label>
-                    <div class="">{{ form.email.value }}</div>
+                    <span class="error">{{ form.user.email.errors }}</span>
+                    <label class="control-label">{{ form.user.email.label_tag }}</label>
+                    <div class="">{{ form.user.email.value }}</div>
                 </div>
                 <div class="form-element">
                     <span class="error">{{ form.mobile.errors }}</span>

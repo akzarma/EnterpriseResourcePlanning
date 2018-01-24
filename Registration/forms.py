@@ -30,7 +30,7 @@ class FacultySubjectForm(forms.ModelForm):
     )
 
     division = forms.ChoiceField(
-        choices=[(i.pk, i.division) for i in division_list]
+        choices=[(i.pk, i) for i in division_list]
     )
 
     class Meta:
@@ -91,7 +91,7 @@ class FacultyForm(forms.ModelForm):
     current_country = forms.ChoiceField(
         choices=countries
     )
-    # email = forms.EmailField()
+    email = forms.EmailField()
 
     class Meta:
         model = Faculty
@@ -114,6 +114,7 @@ class SubjectForm(forms.ModelForm):
         choices=[(i, i) for i in semester_list]
     )
 
+    is_practical  = forms.BooleanField(required=False)
     class Meta:
         model = Subject
         fields = '__all__'

@@ -156,6 +156,10 @@ def success_faculty(request):
             user.save()
             request.session.flush()
             return HttpResponseRedirect('/login/')
+        # else:
+        #     return render(request, 'success.html', {
+        #         'id': user.student.gr_number
+        #     })
 
     else:
         user_id = request.session.get('user_id')
@@ -192,18 +196,18 @@ def register_subject(request):
         subject_form = SubjectForm(request.POST)
 
         if subject_form.is_valid():
-            subject_form.save()
+            subject_obj = subject_form.save()
             branch_object = Branch.objects.get(branch=subject_form.cleaned_data.get('branch'))
             year_obj = CollegeYear.objects.get(year=subject_form.cleaned_data.get('year'))
             semester_obj = Semester.objects.get(semester=subject_form.cleaned_data.get('semester'))
-            subject_obj = Subject.objects.get(code=subject_form.cleaned_data.get('code'))
+            # subject_obj = Subject.objects.get(code=subject_form.cleaned_data.get('code'))
             branch_subject = BranchSubject(branch=branch_object, year=year_obj,
                                            semester=semester_obj, subject=subject_obj)
             branch_subject.save()
 
             return render(request, 'test_register_subject.html',
                           {'success': subject_obj.short_form + ' is Successfully registered',
-                           'form': SubjectForm(2)})
+                           'form': SubjectForm()})
 
         else:
             return HttpResponse('error : ' + str(subject_form.errors))
