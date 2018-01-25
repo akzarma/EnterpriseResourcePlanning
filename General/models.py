@@ -32,7 +32,7 @@ class CollegeExtraDetail(models.Model):
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.branch.branch + ' ' + str(self.year) + ' ' + self.division + str(self.shift)
+        return self.branch.branch + ' ' + str(self.year) + ' ' + self.division
 
 
 class Batch(models.Model):

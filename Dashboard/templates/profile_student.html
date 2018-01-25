@@ -1,7 +1,7 @@
 {% extends "./dashboard_student.html" %}
 {% block title %}
     Student Profile
-    {% endblock title %}
+{% endblock title %}
 {% block content %}
     <br><br>
     <div class="row">
@@ -17,10 +17,14 @@
 
                     <div class="form-element">
                         <span class="error">{{ form.doc_profile_pic.errors }}</span>
+
+
                         {{ form.doc_profile_pic.label_tag }}
-                        <img id="myImg"
-                                 src="{{ form.instance.doc_profile_pic.url}}"
+                        {% if form.instance.doc_profile_pic %}
+                            <img id="myImg"
+                                 src="{{ form.instance.doc_profile_pic.url }}"
                                  alt="Uploaded image is broken"/>
+                        {% endif %}
                     </div>
 
                     <div class="form-element">
