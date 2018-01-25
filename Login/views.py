@@ -14,7 +14,7 @@ import json
 
 
 def login_user(request):
-    user = request.user
+
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -45,7 +45,6 @@ def login_android(request):
             username = request.POST.get('username')
             password = request.POST.get('password')
             user = authenticate(username=username, password=password)
-
 
             if user:
 
