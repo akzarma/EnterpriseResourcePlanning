@@ -22,9 +22,9 @@
                             {{ form.doc_profile_pic.label_tag }}
                             <div class="input-file">{{ form.doc_profile_pic }}</div>
                             {% if form.instance.doc_profile_pic %}
-                            <img id="myImg"
-                                 src="{{ form.instance.doc_profile_pic.url}}"
-                                 alt="Uploaded image is broken"/>
+                                <img id="myImg"
+                                     src="{{ form.instance.doc_profile_pic.url }}"
+                                     alt="Uploaded image is broken"/>
                             {% endif %}
                         </div>
 

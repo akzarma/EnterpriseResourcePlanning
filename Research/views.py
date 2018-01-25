@@ -32,7 +32,6 @@ def enter_paper(request):
         return HttpResponseRedirect('/login/')
 
 
-
 def view_paper(request):
     user = request.user
     if not user.is_anonymous:
@@ -40,8 +39,8 @@ def view_paper(request):
             if request.method == "POST":
                 paper = request.POST.get('paper_selected')
                 paper_obj = Paper.objects.get(pk=paper)
-                return render(request,'view_paper.html',{
-                    'paper' : paper_obj
+                return render(request, 'view_paper.html', {
+                    'paper': paper_obj
                 })
             else:
                 return None

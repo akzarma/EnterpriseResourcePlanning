@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -50,7 +49,8 @@ class Migration(migrations.Migration):
             name='FacultySubject',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('division', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='General.CollegeExtraDetail')),
+                ('division',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='General.CollegeExtraDetail')),
                 ('faculty', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Registration.Faculty')),
                 ('subject', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Registration.Subject')),
             ],
@@ -73,7 +73,8 @@ class Migration(migrations.Migration):
             name='StudentDivision',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('division', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='General.CollegeExtraDetail')),
+                ('division',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='General.CollegeExtraDetail')),
                 ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Registration.Student')),
             ],
         ),

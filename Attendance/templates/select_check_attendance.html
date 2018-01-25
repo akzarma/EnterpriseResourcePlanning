@@ -1,7 +1,7 @@
 {% extends "./dashboard_faculty.html" %}
 {% block title %}
     Attendance
-    {% endblock title %}
+{% endblock title %}
 {% block content %}
     <form action="{% url 'attendance:check_attendance' %}" method="post">
 
@@ -20,12 +20,12 @@
         <label>From: </label><input type="date" name="selected_from_date" min="2015-01-02"><br>
         <label>To: </label><input type="date" name="selected_to_date" min="2015-01-03"><br>
         <label>Select Subject: </label>
-            <select name="selected_subject">
-                {% for each in subjects %}
-                    <option value="{{ each.id }}"> {{ each.division.year }} {{ each.division.division }} {{ each.subject.short_form }}
-                    </option>
-                {% endfor %}
-            </select>
+        <select name="selected_subject">
+            {% for each in subjects %}
+                <option value="{{ each.id }}"> {{ each.division.year }} {{ each.division.division }} {{ each.subject.short_form }}
+                </option>
+            {% endfor %}
+        </select>
         <button name="check_attendance_button" value="1">Lecture attendance</button>
     </form>
 {% endblock content %}

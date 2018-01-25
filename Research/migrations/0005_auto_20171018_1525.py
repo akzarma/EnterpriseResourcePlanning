@@ -8,7 +8,6 @@ from django.utils.timezone import utc
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('Research', '0004_auto_20171018_1523'),
     ]

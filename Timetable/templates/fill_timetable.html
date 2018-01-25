@@ -614,7 +614,7 @@
                             option.value = subjects[k];
                             subjectSelect.append(option);
                         }
-                        getPracticalFaculty(subjectSelect,division,batches[j]);
+                        getPracticalFaculty(subjectSelect, division, batches[j]);
                         subjectDiv.append(subjectSelect);
 
                         var facultyDiv = document.createElement('div');
@@ -669,13 +669,13 @@
                     if (day) {
                         var selected_practicals = parsed.selected;
                         for (i in batches) {
-{#                            alert(batches[i]);#}
+                            {#                            alert(batches[i]);#}
                             var subject_box = document.getElementById('modal_subject_' + batches[i]);
                             subject_box.querySelector('option[value="' + selected_practicals[batches[i]]['subject'] + '"]').selected = true;
                             var room_box = document.getElementById('modal_room_' + batches[i]);
                             room_box.querySelector('option[value="' + selected_practicals[batches[i]]['room'] + '"]').selected = true;
                             getPracticalFaculty(subject_box, division, batches[i]);
-{#                            alert(selected_practicals[batches[i]]['faculty']);#}
+                            {#                            alert(selected_practicals[batches[i]]['faculty']);#}
                         }
 
                     }

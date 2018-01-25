@@ -8,7 +8,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('Timetable', '0002_timetable_is_practical'),
         ('Attendance', '0003_auto_20171210_1301'),

@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('Research', '0011_paper_files'),
     ]
@@ -16,7 +15,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='paper',
             name='faculty',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='Registration.Faculty'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    to='Registration.Faculty'),
         ),
         migrations.AlterField(
             model_name='paper',

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from datetime import  datetime
+from datetime import datetime
 
 from django.db import models
 
 from General.models import FacultySubject
 from Registration.models import Student, Subject, Faculty
-
 
 # Contains
 # StudentAttendance - Relation(Student,Subject) + attendance details
@@ -19,7 +18,7 @@ class StudentAttendance(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     # faculty_subject = models.ForeignKey(FacultySubject)
     timetable = models.ForeignKey(Timetable, on_delete=models.CASCADE)
-    date = models.DateField(null=True)#Should not be null=True
+    date = models.DateField(null=True)  # Should not be null=True
     # time = models.TimeField()
     attended = models.BooleanField(default=False)
 

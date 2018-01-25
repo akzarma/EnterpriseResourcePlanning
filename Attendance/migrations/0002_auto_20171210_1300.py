@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('General', '0001_initial'),
         ('Attendance', '0001_initial'),
@@ -33,7 +32,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='studentattendance',
             name='faculty_subject',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='General.FacultySubject'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    to='General.FacultySubject'),
         ),
         migrations.DeleteModel(
             name='Division',

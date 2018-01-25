@@ -19,7 +19,7 @@ urlpatterns = [
     # /register/view_subjects
     url(r'^view_subjects/$', views.view_subjects, name='view_subjects'),
 
-    url(r'^register_faculty_subject/$' , views.register_faculty_subject , name = 'register_faculty_subject'),
+    url(r'^register_faculty_subject/$', views.register_faculty_subject, name='register_faculty_subject'),
     #     # /register/subjectsuccess/ - Register Subject
     #     url(r'^subject/success/$', views.register_subject, name='register_success'),
 
@@ -32,7 +32,5 @@ urlpatterns = [
     url(r'^get_division/$', views.get_division, name='get_division'),
 
     url(r'^get_shift/$', views.get_shift, name='get_shift'),
-
-
 
 ]
