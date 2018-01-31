@@ -1,7 +1,7 @@
 {% extends "./dashboard_faculty.html" %}
 {% block title %}
     Lecture Attendance
-    {% endblock title %}
+{% endblock title %}
 {% block extra_style %}
     /* .squaredOne */
 
@@ -54,31 +54,32 @@
 {% endblock extra_style %}
 {% block content %}
     <div class="container">
-    <h4>Lecture Attendance between {{ selected_from_date }} and {{ selected_to_date }}: <label>{{ lecture_percent }}</label> %</h4>
-{#        <div class="row">#}
-{#            {% for i in all_students %}#}
-{#                <div class="col-lg-1" id="test">#}
-{#                    <section>#}
-{#                        <!-- .squaredOne -->#}
-{#                        <div class="squaredOne">#}
-{#                            {% if i.attended == True %}#}
-{#                                <input class="cb" type="checkbox" value="{{ i.student.pk }}"#}
-{#                                       id="squaredOne{{ forloop.counter }}"#}
-{#                                       name="present"#}
-{#                                       disabled checked/>#}
-{#                            {% else %}#}
-{#                                <input class="cb" type="checkbox" value="{{ i.student.pk }}"#}
-{#                                       id="squaredOne{{ forloop.counter }}"#}
-{#                                       name="present"#}
-{#                                       disabled/>#}
-{#                            {% endif %}#}
-{#                            <label for="squaredOne{{ forloop.counter }}">{{ forloop.counter }}</label>#}
-{#                        </div>#}
-{#                        <!-- end .squaredOne -->#}
-{#                    </section>#}
-{#                </div>#}
-{#            {% endfor %}#}
-{#        </div>#}
+        <h4>Lecture Attendance between {{ selected_from_date }} and {{ selected_to_date }}:
+            <label>{{ lecture_percent }}</label> %</h4>
+        {#        <div class="row">#}
+        {#            {% for i in all_students %}#}
+        {#                <div class="col-lg-1" id="test">#}
+        {#                    <section>#}
+        {#                        <!-- .squaredOne -->#}
+        {#                        <div class="squaredOne">#}
+        {#                            {% if i.attended == True %}#}
+        {#                                <input class="cb" type="checkbox" value="{{ i.student.pk }}"#}
+        {#                                       id="squaredOne{{ forloop.counter }}"#}
+        {#                                       name="present"#}
+        {#                                       disabled checked/>#}
+        {#                            {% else %}#}
+        {#                                <input class="cb" type="checkbox" value="{{ i.student.pk }}"#}
+        {#                                       id="squaredOne{{ forloop.counter }}"#}
+        {#                                       name="present"#}
+        {#                                       disabled/>#}
+        {#                            {% endif %}#}
+        {#                            <label for="squaredOne{{ forloop.counter }}">{{ forloop.counter }}</label>#}
+        {#                        </div>#}
+        {#                        <!-- end .squaredOne -->#}
+        {#                    </section>#}
+        {#                </div>#}
+        {#            {% endfor %}#}
+        {#        </div>#}
         <div class="table-responsive">
             <table class="table table-bordered white">
                 <thead class="thead-inverse">

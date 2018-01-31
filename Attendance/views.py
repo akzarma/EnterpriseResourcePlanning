@@ -184,12 +184,12 @@ def check_attendance(request):
                     all_students_present = 0
                     individual_attendance = {}
 
-                    for i in StudentDivision.objects.filter(division__branch=selected_faculty_subject_obj.division.branch,
-                                                            division__year=selected_faculty_subject_obj.division.year,
-                                                            division__division=selected_faculty_subject_obj.division.division,
-                                                            division__shift=selected_faculty_subject_obj.division.shift):
+                    for i in StudentDivision.objects.filter(
+                            division__branch=selected_faculty_subject_obj.division.branch,
+                            division__year=selected_faculty_subject_obj.division.year,
+                            division__division=selected_faculty_subject_obj.division.division,
+                            division__shift=selected_faculty_subject_obj.division.shift):
                         individual_attendance[i.student.pk] = 0
-
 
                     count_present = 0
                     for i in current_tt_obj:  # For days in week
@@ -202,9 +202,8 @@ def check_attendance(request):
                             if j.attended:
                                 individual_attendance[j.student.pk] += 1
 
-
                     if all_students_count:
-                        lecture_percentage += all_students_present/ all_students_count * 100
+                        lecture_percentage += all_students_present / all_students_count * 100
 
                     return render(request, 'lecture_attendance.html',
                                   {'lecture_percent': "{0:.2f}".format(lecture_percentage),

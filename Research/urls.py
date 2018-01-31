@@ -10,5 +10,4 @@ urlpatterns = [
 
     url(r'view/$', views.view_paper, name='view_paper'),
 
-
 ]

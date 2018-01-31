@@ -114,7 +114,8 @@ class SubjectForm(forms.ModelForm):
         choices=[(i, i) for i in semester_list]
     )
 
-    is_practical  = forms.BooleanField(required=False)
+    is_practical = forms.BooleanField(required=False)
+
     class Meta:
         model = Subject
         fields = '__all__'

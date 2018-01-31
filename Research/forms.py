@@ -43,8 +43,8 @@ class PublicationForm(forms.ModelForm):
     )
 
     peer_reviewed = forms.ChoiceField(
-        choices=[('True','Yes'),('False','No')],
-        widget = forms.RadioSelect
+        choices=[('True', 'Yes'), ('False', 'No')],
+        widget=forms.RadioSelect
     )
 
     class Meta:
@@ -52,7 +52,7 @@ class PublicationForm(forms.ModelForm):
 
         widgets = {
             'date': forms.DateInput(attrs={'class': 'datepicker'}),
-            'other_info' : forms.Textarea
+            'other_info': forms.Textarea
         }
 
         fields = '__all__'

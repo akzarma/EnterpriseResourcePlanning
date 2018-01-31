@@ -45,6 +45,7 @@ class StudentUpdateForm(forms.ModelForm):
         }
         fields = '__all__'
 
+
 class FacultyUpdateForm(forms.ModelForm):
     current_country = forms.ChoiceField(
         choices=countries
@@ -62,7 +63,6 @@ class FacultyUpdateForm(forms.ModelForm):
     # email = forms.EmailField(disabled=True)
     # DOB = forms.CharField(disabled=True)
     teaching_from = forms.CharField(disabled=True)
-
 
     # current_state = forms.ChoiceField(choices=state_choices)
     # permanent_state = forms.ChoiceField(choices=state_choices)
