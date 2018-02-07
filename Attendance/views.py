@@ -20,13 +20,6 @@ from .models import StudentAttendance
 
 # Create your views here.
 def index(request):
-    # user = request.user
-    # selected_faculty_subject = request.POST.get('selected_faculty_subject')
-    # faculty = user.faculty
-    # faculty_subject_list = faculty.facultysubject_set.all()
-    # selected_faculty_subject_obj = FacultySubject.objects.get(pk=selected_faculty_subject)
-    # faculty = user.faculty
-    # all_students = StudentDivision.objects.filter(division=selected_faculty_subject_obj.division).all()
     user = request.user
     if not user.is_anonymous:
         if user.role == 'Faculty':
