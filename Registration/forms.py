@@ -33,6 +33,11 @@ class FacultySubjectForm(forms.ModelForm):
         choices=[(i.pk, i) for i in division_list]
     )
 
+    def __init__(self, *args, **kwargs):
+        super(FacultySubjectForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'form-control', })
+
     class Meta:
         model = FacultySubject
         fields = '__all__'
@@ -71,15 +76,24 @@ class StudentForm(forms.ModelForm):
     )
 
     division = forms.ChoiceField(
-        choices=[(i.division, i.division) for i in division_list]
+        choices=set([(i.division, i.division) for i in division_list])
+
     )
     year = forms.ChoiceField(
         choices=[(i, i) for i in year_list]
     )
 
+    def __init__(self, *args, **kwargs):
+        super(StudentForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            if field is not 'DOB':
+                self.fields[field].widget.attrs.update({'class': 'form-control', })
+
     class Meta:
         model = Student
-
+        widgets = {
+            'DOB': forms.DateInput(attrs={'class': 'datepicker form-control'}),
+        }
         fields = '__all__'
         exclude = ['salary', 'user']
 
@@ -93,11 +107,17 @@ class FacultyForm(forms.ModelForm):
     )
     email = forms.EmailField()
 
+    def __init__(self, *args, **kwargs):
+        super(FacultyForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            if field not in ['DOB', 'teaching_form']:
+                self.fields[field].widget.attrs.update({'class': 'form-control', })
+
     class Meta:
         model = Faculty
         widgets = {
-            # 'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
-            'teaching_from': forms.DateInput(attrs={'class': 'datepicker'})
+            'DOB': forms.DateInput(attrs={'class': 'datepicker form-control'}),
+            'teaching_from': forms.DateInput(attrs={'class': 'datepicker form-control'})
         }
         fields = '__all__'
 
@@ -115,6 +135,11 @@ class SubjectForm(forms.ModelForm):
     )
 
     is_practical = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(SubjectForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'form-control'})
 
     class Meta:
         model = Subject

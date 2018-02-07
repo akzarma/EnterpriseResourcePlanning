@@ -20,9 +20,9 @@
                 <div id="collapseOne" class="panel-collapse collapse in">
                     <div class="panel-body">
                         <div class="row">
-                            <fieldset class="col-lg-6">
+                            <fieldset class="col-md-6">
                                 <legend>Basic Info</legend>
-                                <div class="col-lg-6">
+                                <div class="col-md-6">
                                     <div class="form-element">
                                         <span class="error">{{ form.doc_profile_pic.errors }}</span>
                                         {{ form.doc_profile_pic.label_tag }}
@@ -58,7 +58,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-lg-6">
+                                <div class="col-md-6">
                                     <div class="form-element">
                                         <span class="error">{{ form.email.errors }}</span>
                                         <label class="control-label">{{ form.email.label_tag }}</label>
@@ -102,31 +102,33 @@
                                 </div>
 
                             </fieldset>
-                            <fieldset class="col-lg-6">
+                            <fieldset class="col-md-6">
                                 <legend>Personal Detail:</legend>
-                                <div class="form-element">
-                                    <span class="error">{{ form.mobile.errors }}</span>
-                                    <label class="control-label">{{ form.mobile.label_tag }}</label>
-                                    <div class="">{{ form.mobile }}</div>
-                                </div>
-                                <div class="form-element">
-                                    <span class="error">{{ form.religion.errors }}</span>
-                                    <label class="control-label">{{ form.religion.label_tag }}</label>
-                                    <div class="">{{ form.religion }}</div>
-                                </div>
-                                <div class="form-element">
-                                    <span class="error">{{ form.sub_caste.errors }}</span>
-                                    <label class="control-label">{{ form.sub_caste.label_tag }}</label>
-                                    <div class="">{{ form.sub_caste }}</div>
-                                </div>
-                                <div class="form-element">
-                                    <span class="error">{{ form.handicapped.errors }}</span>
-                                    <label class="control-label">{{ form.handicapped.label_tag }}</label>&nbsp;{{ form.handicapped }}
-                                </div>
-                                <div class="form-element">
-                                    <span class="error">{{ form.nationality.errors }}</span>
-                                    <label class="control-label">{{ form.nationality.label_tag }}</label>
-                                    <div class="">{{ form.nationality }}</div>
+                                <div class="col-md-6">
+                                    <div class="form-element">
+                                        <span class="error">{{ form.mobile.errors }}</span>
+                                        <label class="control-label">{{ form.mobile.label_tag }}</label>
+                                        <div class="">{{ form.mobile }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.religion.errors }}</span>
+                                        <label class="control-label">{{ form.religion.label_tag }}</label>
+                                        <div class="">{{ form.religion }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.sub_caste.errors }}</span>
+                                        <label class="control-label">{{ form.sub_caste.label_tag }}</label>
+                                        <div class="">{{ form.sub_caste }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.handicapped.errors }}</span>
+                                        <label class="control-label">{{ form.handicapped.label_tag }}</label>&nbsp;{{ form.handicapped }}
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.nationality.errors }}</span>
+                                        <label class="control-label">{{ form.nationality.label_tag }}</label>
+                                        <div class="">{{ form.nationality }}</div>
+                                    </div>
                                 </div>
                             </fieldset>
                         </div>
@@ -146,9 +148,9 @@
                 <div id="collapseTwo" class="panel-collapse collapse">
                     <div class="panel-body">
                         <div class="row">
-                            <fieldset class="col-lg-6">
+                            <fieldset class="col-md-6">
                                 <legend>Family</legend>
-                                <fieldset class="col-lg-6">
+                                <fieldset class="col-md-6">
                                     {#                <legend>Father</legend>#}
                                     <div class="form-element">
                                         <span class="error">{{ form.father_name.errors }}</span>
@@ -176,7 +178,7 @@
                                         <div class="">{{ form.father_email }}</div>
                                     </div>
                                 </fieldset>
-                                <fieldset class="col-lg-6">
+                                <fieldset class="col-md-6">
                                     {#                <legend>Mother</legend>#}
                                     <div class="form-element">
                                         <span class="error">{{ form.mother_name.errors }}</span>
@@ -205,27 +207,29 @@
                                     </div>
                                 </fieldset>
                             </fieldset>
-                            <fieldset class="col-lg-6">
+                            <fieldset class="col-md-6">
                                 <legend>Emergency contact</legend>
-                                <div class="form-element">
-                                    <span class="error">{{ form.emergency_name.errors }}</span>
-                                    <label class="control-label">{{ form.emergency_name.label_tag }}</label>
-                                    <div class="">{{ form.emergency_name }}</div>
-                                </div>
-                                <div class="form-element">
-                                    <span class="error">{{ form.emergency_mobile.errors }}</span>
-                                    <label class="control-label">{{ form.emergency_mobile.label_tag }}</label>
-                                    <div class="">{{ form.emergency_mobile }}</div>
-                                </div>
-                                <div class="form-element">
-                                    <span class="error">{{ form.emergency_relation.errors }}</span>
-                                    <label class="control-label">{{ form.emergency_relation.label_tag }}</label>
-                                    <div class="">{{ form.emergency_relation }}</div>
-                                </div>
-                                <div class="form-element">
-                                    <span class="error">{{ form.emergency_address.errors }}</span>
-                                    <label class="control-label">{{ form.emergency_address.label_tag }}</label>
-                                    <div class="">{{ form.emergency_address }}</div>
+                                <div class="col-md-6">
+                                    <div class="form-element">
+                                        <span class="error">{{ form.emergency_name.errors }}</span>
+                                        <label class="control-label">{{ form.emergency_name.label_tag }}</label>
+                                        <div class="">{{ form.emergency_name }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.emergency_mobile.errors }}</span>
+                                        <label class="control-label">{{ form.emergency_mobile.label_tag }}</label>
+                                        <div class="">{{ form.emergency_mobile }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.emergency_relation.errors }}</span>
+                                        <label class="control-label">{{ form.emergency_relation.label_tag }}</label>
+                                        <div class="">{{ form.emergency_relation }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.emergency_address.errors }}</span>
+                                        <label class="control-label">{{ form.emergency_address.label_tag }}</label>
+                                        <div class="">{{ form.emergency_address }}</div>
+                                    </div>
                                 </div>
                             </fieldset>
                         </div>
@@ -245,7 +249,7 @@
                 <div id="collapseThree" class="panel-collapse collapse">
                     <div class="panel-body">
                         <div class="row">
-                            <fieldset class="col-lg-6">
+                            <fieldset class="col-md-6">
                                 <legend>Address</legend>
                                 <div>
                                     <div class="checkbox">
@@ -253,7 +257,7 @@
                                             address is same as Permanent address</label>
                                     </div>
                                 </div>
-                                <fieldset class="col-lg-6">
+                                <fieldset class="col-md-6">
                                     {#                <legend>Permanent Address</legend>#}
                                     <div class="form-element">
                                         <span class="error">{{ form.permanent_country.errors }}</span>
@@ -281,7 +285,7 @@
                                         <div onchange="loadSameAddress(document.getElementById('id_permanent_pin_code'))">{{ form.permanent_pin_code }}</div>
                                     </div>
                                 </fieldset>
-                                <fieldset class="col-lg-6">
+                                <fieldset class="col-md-6">
                                     {#                <legend>Current Address</legend>#}
                                     <div class="form-element">
                                         <span class="error">{{ form.current_country.errors }}</span>
@@ -311,9 +315,9 @@
                                     </div>
                                 </fieldset>
                             </fieldset>
-                            <fieldset class="col-lg-6">
+                            <fieldset class="col-md-6">
                                 <legend>Exam</legend>
-                                <fieldset class="col-lg-6">
+                                <fieldset class="col-md-6">
                                     {#                <legend>Exam details</legend>#}
                                     <div class="form-element">
                                         <span class="error">{{ form.jee_physics.errors }}</span>
@@ -351,7 +355,7 @@
                                         <div class="">{{ form.jee_max_chemistry }}</div>
                                     </div>
                                 </fieldset>
-                                <fieldset class="col-lg-6">
+                                <fieldset class="col-md-6">
                                     {#                <legend>Documents</legend>#}
                                     <div class="form-element">
                                         <span class="error">{{ form.doc_tenth_marksheet.errors }}</span>
@@ -381,7 +385,7 @@
         </div>
         <div class="container">
 
-            <div class="col-lg-2 col-lg-offset-5">
+            <div class="col-md-2 col-md-offset-5">
                 <button type="button" class="btn btn-primary" onclick="execute()">Register</button>
             </div>
 
