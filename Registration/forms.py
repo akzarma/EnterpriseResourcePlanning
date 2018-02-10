@@ -116,8 +116,8 @@ class FacultyForm(forms.ModelForm):
     class Meta:
         model = Faculty
         widgets = {
-            'DOB': forms.DateInput(attrs={'class': 'datepicker form-control'}),
-            'teaching_from': forms.DateInput(attrs={'class': 'datepicker form-control'})
+            # 'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
+            'teaching_from': forms.DateInput(attrs={'class': 'datepicker'})
         }
         fields = '__all__'
 
@@ -135,11 +135,6 @@ class SubjectForm(forms.ModelForm):
     )
 
     is_practical = forms.BooleanField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(SubjectForm, self).__init__(*args, **kwargs)
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({'class': 'form-control'})
 
     class Meta:
         model = Subject

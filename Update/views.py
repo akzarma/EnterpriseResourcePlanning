@@ -29,7 +29,6 @@ def update(request):
             elif user.role == 'Faculty':
                 form = FacultyUpdateForm(request.POST or None, request.FILES or None, instance=user.faculty)
                 if form.is_valid():
-                    print('form valid')
                     faculty_obj = form.save(commit=False)
                     faculty_obj.user = user
                     faculty_obj.save()
@@ -62,7 +61,6 @@ def update(request):
 
 
     else:
-        print('Redirecting to login')
         return HttpResponseRedirect('/login/')
 
 

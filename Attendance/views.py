@@ -36,7 +36,6 @@ def index(request):
                 all_students = StudentDivision.objects.filter(division=selected_class_obj.division) \
                     .values_list('student', flat=True).order_by('student__gr_number')
                 att = 0
-            print(FacultySubject.objects.filter(faculty=user.faculty))
             timetables = faculty.timetable_set.all()
             return render(request, "attendance.html", {
                 'all_students': all_students,
@@ -94,7 +93,6 @@ def save(request):
                         new = StudentAttendance(student=Student.objects.get(pk=student), timetable=timetable,
                                                 attended=False, date=parse_date(selected_date))
                         whole.append(new)
-                print(whole)
                 # StudentAttendance.objects.bulk_create(whole)
                 StudentAttendance.objects.bulk_create(whole)
 
@@ -123,7 +121,6 @@ def select_cat(request):
             else:
                 faculty = user.faculty
                 timetables = faculty.timetable_set.all()
-                print(timetables)
                 return render(request, 'select_cat.html', {'faculty_subject': timetables})
 
         else:
@@ -208,7 +205,6 @@ def check_attendance(request):
                 faculty = user.faculty
                 timetables = faculty.timetable_set.all()
                 faculty_subject = FacultySubject.objects.filter(faculty=faculty)
-                print(timetables)
                 return render(request, 'select_check_attendance.html',
                               {'faculty_subject': timetables, 'subjects': faculty_subject})
         else:
