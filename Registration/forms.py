@@ -83,8 +83,8 @@ class StudentForm(forms.ModelForm):
         choices=[(i, i) for i in year_list]
     )
 
-    def __init__(self, *args, **kwargs):
-        super(StudentForm, self).__init__(*args, **kwargs)
+    def __init__(self,*args, **kwargs):
+        super(StudentForm, self).__init__(*args, *kwargs)
         for field in self.fields:
             if field is not 'DOB':
                 self.fields[field].widget.attrs.update({'class': 'form-control', })
