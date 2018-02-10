@@ -84,7 +84,7 @@ class StudentForm(forms.ModelForm):
     )
 
     def __init__(self,*args, **kwargs):
-        super(StudentForm, self).__init__(*args, *kwargs)
+        super(StudentForm, self).__init__(*args, **kwargs)
         for field in self.fields:
             if field is not 'DOB':
                 self.fields[field].widget.attrs.update({'class': 'form-control', })
