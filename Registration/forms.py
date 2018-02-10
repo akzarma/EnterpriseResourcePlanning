@@ -148,6 +148,11 @@ class SubjectForm(forms.ModelForm):
 
     is_practical = forms.BooleanField(required=False)
 
+    def __init__(self, *args, **kwargs):
+        super(SubjectForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'form-control'})
+
     class Meta:
         model = Subject
         fields = '__all__'

@@ -4,15 +4,15 @@ from collections import OrderedDict
 import firebase_admin
 from django.http.response import HttpResponseRedirect
 from firebase_admin import credentials, db
-from django.db.models import Q
+from django.db.models import Q, datetime
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
 
-from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch
+from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch, SemesterPeriod
 from Registration.models import Branch, Subject, Faculty, Student
 from Registration.models import Branch, Subject
-from .models import Time, Room, Timetable
+from .models import Time, Room, Timetable, DateTimetable
 from Sync.function import write_to_firebase
 
 import xlsxwriter
@@ -160,6 +160,20 @@ def fill_timetable(request):
     return render(request, 'test_timetable.html', context)
 
 
+def fill_date_timetable():
+    days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+    start_date = SemesterPeriod.objects.all()[0].start_date
+    end_date = SemesterPeriod.objects.all()[0].end_date
+    date_range = (end_date - start_date).days + 1
+    all_timetable = Timetable.objects.all()
+    for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
+        for each in all_timetable:
+            if days[date.weekday()] == each.day :
+                DateTimetable.objects.create(date=date, original=each, is_substituted=False)
+
+    return
+
+
 def save_timetable(request):
     if request.method == "POST":
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -257,6 +271,7 @@ def save_timetable(request):
         Timetable.objects.filter(id__in=[i.id for i in full_timetable]).delete()
 
         to_json()
+        fill_date_timetable()
         return HttpResponseRedirect('/timetable/enter/')
     else:
         return HttpResponse("Not Post")
