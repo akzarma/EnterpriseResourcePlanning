@@ -22,11 +22,11 @@ shift_list = Shift.objects.all()
 
 class FacultySubjectForm(forms.ModelForm):
     faculty = forms.ChoiceField(
-        choices=[(i.pk, i.initials) for i in faculty_list]
+        choices=[]
     )
 
     subject = forms.ChoiceField(
-        choices=[(i.pk, i.short_form) for i in subject_list]
+        choices=[]
     )
 
     division = forms.ChoiceField(
@@ -35,6 +35,18 @@ class FacultySubjectForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(FacultySubjectForm, self).__init__(*args, **kwargs)
+        self.fields['faculty'] = forms.ChoiceField(
+            choices=[(i.pk, i.initials) for i in faculty_list]
+        )
+
+        self.fields['subject'] = forms.ChoiceField(
+            choices=[(i.pk, i.short_form) for i in subject_list]
+        )
+
+        self.fields['division'] = forms.ChoiceField(
+            choices=[(i.pk, i) for i in division_list]
+        )
+
         for field in self.fields:
             self.fields[field].widget.attrs.update({'class': 'form-control', })
 
@@ -83,10 +95,10 @@ class StudentForm(forms.ModelForm):
         choices=[(i, i) for i in year_list]
     )
 
-    def __init__(self,*args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(StudentForm, self).__init__(*args, **kwargs)
         for field in self.fields:
-            if field is not 'DOB':
+            if field not in ['DOB', 'handicapped']:
                 self.fields[field].widget.attrs.update({'class': 'form-control', })
 
     class Meta:
@@ -116,8 +128,8 @@ class FacultyForm(forms.ModelForm):
     class Meta:
         model = Faculty
         widgets = {
-            # 'DOB': forms.DateInput(attrs={'class': 'datepicker'}),
-            'teaching_from': forms.DateInput(attrs={'class': 'datepicker'})
+            'DOB': forms.DateInput(attrs={'class': 'datepicker form-control'}),
+            'teaching_from': forms.DateInput(attrs={'class': 'datepicker form-control'})
         }
         fields = '__all__'
 
