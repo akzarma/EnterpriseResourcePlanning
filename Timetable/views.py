@@ -197,7 +197,7 @@ def save_timetable(request):
                 year = CollegeYear.objects.get(year=year)
                 branch_subject = BranchSubject.objects.get(branch=branch, year=year,
                                                            subject__short_form=subject_short_name)
-                room = Room.objects.get(room_number=room_number, branch=branch_subject.branch)
+                # room = Room.objects.get(room_number=room_number, branch=branch_subject.branch,lab=i)
 
                 faculty = Faculty.objects.get(
                     initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
@@ -209,6 +209,7 @@ def save_timetable(request):
                 if len(token) < 5:  # theory
                     timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                          is_practical=False)
+                    room = Room.objects.get(room_number=room_number, branch=branch_subject.branch, lab=False)
 
                     if timetable:
                         full_timetable.remove(timetable[0])
@@ -234,6 +235,8 @@ def save_timetable(request):
                     timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                          is_practical=True,
                                                          batch=batch)
+                    room = Room.objects.get(room_number=room_number, branch=branch_subject.branch, lab=True)
+
                     if timetable:
                         full_timetable.remove(timetable[0])
 
