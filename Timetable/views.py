@@ -269,7 +269,7 @@ def save_timetable(request):
 
                         timetable.save()
 
-        # to_json(request)
+        # to_json(request)  
 
         Timetable.objects.filter(id__in=[i.id for i in full_timetable]).delete()
 
