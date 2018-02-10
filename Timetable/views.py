@@ -1,5 +1,5 @@
 import json
-from collections import defaultdict
+from collections import OrderedDict
 
 import firebase_admin
 from django.http.response import HttpResponseRedirect
@@ -76,10 +76,7 @@ def fill_timetable(request):
     for each_subject in all_subjects:
 
         subject_teacher_json[each_subject.subject.short_form] = {}
-        print(each_subject)
         for each_division in divisions:
-            print(each_division)
-            print(each_subject.year)
             division_object = CollegeExtraDetail.objects.get(branch=branch_obj, division=each_division,
                                                              year=each_subject.year)
             faculty_subjects_division = FacultySubject.objects.filter(subject=each_subject.subject,
@@ -200,7 +197,7 @@ def save_timetable(request):
                 year = CollegeYear.objects.get(year=year)
                 branch_subject = BranchSubject.objects.get(branch=branch, year=year,
                                                            subject__short_form=subject_short_name)
-                room = Room.objects.get(room_number=room_number, branch=branch_subject.branch)
+                # room = Room.objects.get(room_number=room_number, branch=branch_subject.branch,lab=i)
 
                 faculty = Faculty.objects.get(
                     initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
@@ -212,6 +209,7 @@ def save_timetable(request):
                 if len(token) < 5:  # theory
                     timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                          is_practical=False)
+                    room = Room.objects.get(room_number=room_number, branch=branch_subject.branch, lab=False)
 
                     if timetable:
                         full_timetable.remove(timetable[0])
@@ -237,6 +235,8 @@ def save_timetable(request):
                     timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                          is_practical=True,
                                                          batch=batch)
+                    room = Room.objects.get(room_number=room_number, branch=branch_subject.branch, lab=True)
+
                     if timetable:
                         full_timetable.remove(timetable[0])
 
@@ -336,7 +336,6 @@ def to_json():
         if is_practical:
             batch = each.batch.batch_name
             if 'is_practical' in answer[year][branch][division][day][time]:
-
                 print('contains')
             else:
                 answer[year][branch][division][day][time] = {
@@ -376,98 +375,191 @@ def to_json():
 
 
 def get_excel(request):
-    if request.method == 'GET':
-        return render(request, 'get_excel.html')
-    else:
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-        if request.POST.get('button_type') == 'Generate':
-            year = request.POST.get('year')
-            branch = request.POST.get('branch')
-            division = request.POST.get('division')
+    expenses = (
+        ['Rent', 1000],
+        ['Gas', 100],
+        ['Food', 300],
+        ['Gym', 50],
+    )
 
-            branch_obj = Branch.objects.get(branch=branch)
-            college_year = CollegeYear.objects.filter(year=year).first()
-            timetable = Timetable.objects.filter(branch_subject__year=college_year, branch_subject__branch=branch_obj,
-                                                 division__division=division).order_by('time__starting_time')
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-            workbook = xlsxwriter.Workbook(
-                'media/documents/Timetable_' + year + "_" + branch + "_" + division + '.xlsx')
-            worksheet = workbook.add_worksheet()
+    branch_obj = Branch.objects.get(branch='Computer')
+    full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj)
 
-            worksheet.set_column(0, 9, 16)
+    answer = OrderedDict()
 
-            offset_x = 0
-            offset_y = 0
+    for each in sorted(full_timetable, key=lambda x: (days.index(x.day), x.division.year.number, x.time.starting_time)):
+        year = each.branch_subject.year.year
+        branch = each.branch_subject.branch.branch
 
-            times = timetable.values_list('time__starting_time', flat=True).order_by('time__starting_time').distinct()
-            time_index = {}
-            time_row = 1
-            for time in times:
-                time_index[time] = time_row
-                time_row += 1
-            row = 0
-            col = 0
-            for tt in timetable:
-                curr_col = days.index(tt.day) + 1
-                curr_row = time_index.get(tt.time.starting_time)
-                worksheet.write(row, curr_col, tt.day)
+        division = each.division.division
 
-                worksheet.write(curr_row, col, tt.time.__str__())
+        day = each.day
 
-                worksheet.write(curr_row, curr_col,
-                                tt.faculty.initials + " " + tt.branch_subject.subject.short_form + " " +
-                                tt.room.room_number)
-            workbook.close()
+        time = each.time
+
+        faculty = each.faculty.initials
+
+        room = each.room.room_number
+        subject = each.branch_subject.subject.short_form
+
+        if day in answer:
+            if year in answer[day]:
+                if division in answer[day][year]:
+                    if time in answer[day][year][division]:
+                        OrderedDict()
+                    else:
+                        answer[day][year][division][time] = OrderedDict()
+                else:
+                    answer[day][year][division] = OrderedDict()
+                    answer[day][year][division][time] = OrderedDict()
+            else:
+                answer[day][year] = OrderedDict()
+                answer[day][year][division] = OrderedDict()
+                answer[day][year][division][time] = OrderedDict()
+        else:
+            answer[day] = OrderedDict()
+            answer[day][year] = OrderedDict()
+            answer[day][year][division] = OrderedDict()
+            answer[day][year][division][time] = OrderedDict()
+
+        is_practical = each.is_practical
+
+        if is_practical:
+            batch = each.batch.batch_name
+            if 'is_practical' in answer[day][year][division][time]:
+                {}
+            else:
+                answer[day][year][division][time] = {
+                    'is_practical': is_practical
+                }
+
+            answer[day][year][division][time][batch] = {
+                'faculty': faculty,
+                'room': room,
+                'subject': subject,
+            }
 
 
-        elif request.POST.get('button_type') == 'UG':
-            year = request.POST.get('year')
-            branch = request.POST.get('branch')
-            branch_obj = Branch.objects.get(branch=branch)
-            college_year = CollegeYear.objects.filter(year=year).first()
-            timetable = Timetable.objects.filter(branch_subject__year=college_year,
-                                                 branch_subject__branch=branch_obj).order_by('time__starting_time')
+        else:
+            answer[day][year][division][time] = {
+                'faculty': faculty,
+                'room': room,
+                'subject': subject,
+                'is_practical': is_practical
+            }
 
-            workbook = xlsxwriter.Workbook(
-                'media/documents/Timetable_' + year + "_" + branch + '.xlsx')
-            worksheet = workbook.add_worksheet()
+    answer = OrderedDict(sorted(answer.items(), key=lambda x: days.index(x[0])))
 
-            offset_x = 0
-            offset_y = 0
+    # Create a workbook and add a worksheet.
+    workbook = xlsxwriter.Workbook('Expenses01.xlsx')
+    worksheet = workbook.add_worksheet()
 
-            times = timetable.values_list('time__starting_time', flat=True).order_by('time__starting_time').distinct()
-            time_index = {}
-            time_row = 1
-            for time in times:
-                time_index[time] = time_row
-                time_row += 1
+    # Some data we want to write to the worksheet.
+    expenses = (
+        ['Rent', 1000],
+        ['Gas', 100],
+        ['Food', 300],
+        ['Gym', 50],
+    )
 
-            divs = timetable.values_list('division__division', flat=True).distinct().order_by('division__division')
-            total_divs = divs.__len__()
-            div_index = {}
-            div_col = 0
+    # Start from the first cell. Rows and columns are zero indexed.
+    row = 0
+    col = 1
 
-            for div in divs:
-                div_index[div] = div_col
-                div_col += 1
+    year_format = workbook.add_format({
+        'bold': 1,
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+        'fg_color': 'yellow'})
 
-            row = 0
-            col = 0
-            for tt in timetable:
-                curr_col = days.index(tt.day)
-                curr_row = time_index.get(tt.time.starting_time) + 1
+    subject_format = workbook.add_format({
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+        'fg_color': '#f0bfff'})
+    time_format = workbook.add_format({
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+        'color': 'red'})
 
-                worksheet.set_column(firstcol=0, lastcol=30, width=15)
+    practical_format = workbook.add_format({
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+        'fg_color': '#77abff'})
 
-                worksheet.write(row, curr_col * total_divs + 1, tt.day)
+    full_time = [each.__str__() for each in sorted(Time.objects.all(), key=lambda x: x.starting_time)]
 
-                worksheet.write(curr_row + 1, col, tt.time.__str__())
+    for each_day in answer.items():
 
-                worksheet.write(row + 1, curr_col * total_divs + div_index.get(tt.division.division) + 1,
-                                tt.division.division)
-                worksheet.write(curr_row, curr_col * total_divs + div_index.get(tt.division.division) + 1,
-                                tt.faculty.initials + " " + tt.branch_subject.subject.short_form + " " +
-                                tt.room.room_number)
+        merge_format = workbook.add_format({
+            'bold': 1,
+            'border': 1,
+            'align': 'center',
+            'valign': 'vcenter',
+            'fg_color': 'red'})
 
-            workbook.close()
-        return HttpResponse('Done')
+        row = 1
+        temp = col
+
+        # each_year_sorted = [each[0] for each in each_day[1].items()]
+
+        for each_year in each_day[1].items():
+            for each_division in each_year[1].items():
+                worksheet.merge_range(row, temp, row, temp + 1, each_year[0] + each_division[0], year_format)
+
+                each_division_sorted = OrderedDict(sorted(each_division[1].items(), key=lambda x: x[0].starting_time))
+                row = 2
+                temp_row = row
+                for each_time in each_division_sorted.items():
+
+                    temp_row = full_time.index(each_time[0].__str__()) * 8 + row
+
+                    if not each_time[1]['is_practical']:
+                        worksheet.merge_range(temp_row, temp, temp_row + 3, temp, str(each_time[1]['room']),
+                                              subject_format)
+                        worksheet.merge_range(temp_row, temp + 1, temp_row + 3, temp + 1, str(each_time[1]['faculty']),
+                                              subject_format)
+
+                        worksheet.merge_range(temp_row + 4, temp, temp_row + 7, temp + 1, each_time[1]['subject'],
+                                              subject_format)
+                        # temp_row += 8
+
+                    else:
+                        for each_key in sorted(each_time[1].keys()):
+                            if not each_key == 'is_practical':
+                                worksheet.write(temp_row, temp, each_key, practical_format)
+                                worksheet.write(temp_row, temp + 1, each_time[1][each_key]['subject'], practical_format)
+                                worksheet.write(temp_row + 1, temp, each_time[1][each_key]['room'], practical_format)
+                                worksheet.write(temp_row + 1, temp + 1, each_time[1][each_key]['faculty'],
+                                                practical_format)
+                                temp_row += 2
+
+                temp += 2
+                row = 1
+
+        row = 0
+        worksheet.merge_range(0, col, 0, temp - 1, each_day[0], merge_format)
+        col = temp
+
+    row_offset = 2
+    col_offset = 0
+
+    row = 0
+    col = 0
+
+    worksheet.write(row, col, 'Time')
+
+    for each_time in full_time:
+        worksheet.merge_range(row + row_offset, col + col_offset, row + row_offset + 7, col + col_offset,
+                              each_time, time_format)
+        worksheet.set_column(col + col_offset, col + col_offset, len(str(each_time)))
+        row += 8
+
+    workbook.close()
+
+    return HttpResponse('Done')

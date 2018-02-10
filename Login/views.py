@@ -39,7 +39,6 @@ def login_android(request):
         'user_type': 'null'
     }
     if request.method == 'POST':
-        print(request.POST)
         try:
             username = request.POST.get('username')
             password = request.POST.get('password')

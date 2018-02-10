@@ -49,7 +49,6 @@ def show_dashboard(request):
                 'form': form,
             })
         else:
-            print(user.role)
             logout_user(request)
             return redirect('/login/')
     else:
@@ -104,7 +103,6 @@ def view_profile(request):
 
 
     else:
-        print('Redirecting to login')
         return HttpResponseRedirect('/login/')
 
 
