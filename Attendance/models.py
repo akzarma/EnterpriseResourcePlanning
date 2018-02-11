@@ -43,4 +43,4 @@ class TotalAttendance(models.Model):
     student = models.ForeignKey(Student)
     subject = models.ForeignKey(Subject)
     total_lectures = models.PositiveIntegerField()
-    attended_leactures = models.PositiveIntegerField()
+    attended_lectures = models.PositiveIntegerField()

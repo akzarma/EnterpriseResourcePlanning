@@ -5,14 +5,15 @@ import datetime
 
 import firebase_admin
 from django.http.response import HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
 from firebase_admin import credentials, db
-
 
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
 
-from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch, SemesterPeriod
+from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch, SemesterPeriod, \
+    StudentDivision
 from Registration.models import Branch, Subject, Faculty, Student
 from Registration.models import Branch, Subject
 from .models import Time, Room, Timetable, DateTimetable
@@ -582,3 +583,129 @@ def get_excel(request):
     workbook.close()
 
     return HttpResponse('Done')
+
+
+@csrf_exempt
+def android_timetable_json(request):
+    if request.method == 'POST':
+
+        gr_number = request.POST.get('gr_number')
+
+        if not gr_number:
+            return HttpResponse('Error!')
+
+        student = Student.objects.get(gr_number=gr_number)
+
+        branch_obj = Branch.objects.get(branch='Computer')
+        college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
+
+        full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj, division=college_extra_detail)
+
+        # division = college_extra_detail.division
+        # year = college_extra_detail.year
+
+        answer = {}
+        # faculty_json = {}
+        for each in full_timetable:
+            year = each.branch_subject.year.year
+            branch = each.branch_subject.branch.branch
+
+            division = each.division.division
+
+            day = each.day
+
+            time = each.time.format_for_json()
+
+            faculty = each.faculty.initials
+
+            room = each.room.room_number
+            subject = each.branch_subject.subject.short_form
+
+            if year in answer:
+                if branch in answer[year]:
+                    if division in answer[year][branch]:
+                        if day in answer[year][branch][division]:
+                            if time in answer[year][branch][division][day]:
+                                var = {}
+                            else:
+                                answer[year][branch][division][day][time] = {}
+                        else:
+                            answer[year][branch][division][day] = {}
+                            answer[year][branch][division][day][time] = {}
+
+                    else:
+                        answer[year][branch][division] = {}
+                        answer[year][branch][division][day] = {}
+                        answer[year][branch][division][day][time] = {}
+
+                else:
+                    answer[year][branch] = {}
+                    answer[year][branch][division] = {}
+                    answer[year][branch][division][day] = {}
+                    answer[year][branch][division][day][time] = {}
+            else:
+                answer[year] = {}
+                answer[year][branch] = {}
+                answer[year][branch][division] = {}
+                answer[year][branch][division][day] = {}
+                answer[year][branch][division][day][time] = {}
+
+            # if faculty in faculty_json:
+            #     if day in faculty_json[faculty]:
+            #         if time in faculty_json[faculty][day]:
+            #             var = {}
+            #         else:
+            #             faculty_json[faculty][day][time] = {}
+            #
+            #     else:
+            #         faculty_json[faculty][day] = {}
+            #         faculty_json[faculty][day][time] = {}
+            #
+            # else:
+            #     faculty_json[faculty] = {}
+            #     faculty_json[faculty][day] = {}
+            #     faculty_json[faculty][day][time] = {}
+
+            is_practical = each.is_practical
+
+            if is_practical:
+                batch = each.batch.batch_name
+                if 'is_practical' in answer[year][branch][division][day][time]:
+                    print('contains')
+                else:
+                    answer[year][branch][division][day][time] = {
+                        'is_practical': is_practical
+                    }
+                answer[year][branch][division][day][time][batch] = {
+                    'faculty': faculty,
+                    'room': room,
+                    'subject': subject,
+                }
+                # faculty_json[faculty][day][time] = {
+                #     'branch': branch,
+                #     'division': division,
+                #     'room': room,
+                #     'subject': subject,
+                #     'year': year,
+                #     'batch': batch
+                # }
+            else:
+                answer[year][branch][division][day][time] = {
+                    'faculty': faculty,
+                    'room': room,
+                    'subject': subject,
+                    'is_practical': is_practical
+                }
+
+                # faculty_json[faculty][day][time] = {
+                #     'branch': branch,
+                #     'division': division,
+                #     'room': room,
+                #     'subject': subject,
+                #     'year': year
+                # }
+        return JsonResponse(answer)
+    else:
+        return HttpResponse('Error')
+    # write_to_firebase(answer, 'Student')
+    # write_to_firebase(faculty_json, 'Faculty')
