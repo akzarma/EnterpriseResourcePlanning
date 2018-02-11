@@ -3,21 +3,20 @@ from __future__ import unicode_literals
 
 import datetime
 
-from django.contrib.auth import authenticate
 from django.db.models import Avg, Sum, Count
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.dateparse import parse_date
+from django.views.decorators.csrf import csrf_exempt
 
 from General.models import CollegeYear, CollegeExtraDetail, StudentDivision, BranchSubject
-from Registration.models import Student, Subject, Branch
+from Registration.models import Student, Subject, Branch, StudentRollNumber
 from General.models import FacultySubject, StudentDivision
 from Registration.models import Student, Subject, Faculty
 from General.models import FacultySubject
 from Registration.models import Student, Subject
 from Timetable.models import Timetable
-from UserModel.models import User
-from .models import StudentAttendance
+from .models import StudentAttendance, TotalAttendance
 
 
 # Create your views here.
@@ -214,3 +213,86 @@ def check_attendance(request):
     else:
         return HttpResponseRedirect('/login/')
 
+@csrf_exempt
+def android_display_attendance(request):
+    if request.method == 'POST':
+        gr_number = request.POST.get('gr_number')
+
+        if not gr_number:
+            error = {
+                'error': 'No GR number.'
+            }
+            return HttpResponse(error)
+
+        student = Student.objects.get(gr_number=gr_number)
+
+        total_attendance = student.totalattendance_set.all()
+
+        response = {}
+
+        attended = 0
+        total = 0
+
+        for each in total_attendance:
+            total += each.total_lectures
+            attended += each.attended_lectures
+            response[each.subject.short_form] = {
+                'total': each.total_lectures,
+                'attended': each.attended_lectures
+            }
+        total_percent = 100 * attended / total
+
+        response['total_percent'] = total_percent
+        return JsonResponse(response)
+
+    else:
+        error = {
+            'error': 'Not Post.'
+        }
+        return HttpResponse(error)
+
+
+def mark_from_excel(request):
+    file = open('Attendance/Documents/TE_B_attendance.csv', 'r')
+
+    full_text = file.read()
+
+    each_line = full_text.split('\n')
+
+    subjects = each_line[0].split(',')
+
+    each_line.remove(each_line[0])
+    each_line.remove(each_line[0])
+
+    for each_student in each_line:
+
+        token = each_student.split(',')
+        roll = int(token[0])
+
+        student = StudentRollNumber.objects.filter(roll_number=roll)
+
+        if student:
+            student = student[0].student
+            for (each_subject, i) in zip(subjects, range(5)):
+
+                lect = token[i + 2]
+
+                lect_split = lect.split('/')
+
+                attended = 0
+                total = 0
+
+                if lect_split != ['']:
+                    # print(lect_split)
+                    attended = int(lect_split[0])
+                    total = int(lect_split[1])
+
+                subject_obj = Subject.objects.get(code=each_subject)
+
+                TotalAttendance.objects.create(student=student, subject=subject_obj, total_lectures=total,
+                                               attended_leactures=attended)
+
+        else:
+            print(token[1])
+
+    return HttpResponse("here")
