@@ -10,7 +10,7 @@ from Registration.models import Student
 import datetime
 # Student dashboard
 from Research.models import Paper
-from Timetable.models import Timetable
+from Timetable.models import Timetable, DateTimetable
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
 from UserModel.models import User
 
@@ -43,15 +43,13 @@ def show_dashboard(request):
         if user.role == 'Student':
             student_obj = user.student
             division = user.student.studentdivision_set.all()
-            timetable = chain(Timetable.objects.filter(division=division[0].division,
-                                                 batch=Batch.objects.filter(batch_name='B3',
-                                                                            division=division[0].division)).order_by('time__starting_time')
-            , Timetable.objects.filter(division=division[0].division, batch=None).order_by('time__starting_time'))
-            days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+            date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
+
+            timetable = DateTimetable.objects.filter(date__in=date_range, original__division=division[0].division)
+
             return render(request, 'dashboard_student.html', {
                 'timetable': timetable,
-                'days': days,
-                'today': datetime.datetime.today().weekday(),
+                'date_range': date_range,
             })
         elif user.role == 'Faculty':
             faculty_obj = user.faculty
