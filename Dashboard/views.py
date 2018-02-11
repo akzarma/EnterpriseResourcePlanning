@@ -1,12 +1,16 @@
+from itertools import chain
+
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 
+from General.models import Batch
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student
-
+import datetime
 # Student dashboard
 from Research.models import Paper
+from Timetable.models import Timetable
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
 from UserModel.models import User
 
@@ -38,9 +42,16 @@ def show_dashboard(request):
     if not user.is_anonymous:
         if user.role == 'Student':
             student_obj = user.student
-            form = StudentForm(instance=student_obj)
+            division = user.student.studentdivision_set.all()
+            timetable = chain(Timetable.objects.filter(division=division[0].division,
+                                                 batch=Batch.objects.filter(batch_name='B3',
+                                                                            division=division[0].division)).order_by('time__starting_time')
+            , Timetable.objects.filter(division=division[0].division, batch=None).order_by('time__starting_time'))
+            days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
             return render(request, 'dashboard_student.html', {
-                'form': form,
+                'timetable': timetable,
+                'days': days,
+                'today': datetime.datetime.today().weekday(),
             })
         elif user.role == 'Faculty':
             faculty_obj = user.faculty
