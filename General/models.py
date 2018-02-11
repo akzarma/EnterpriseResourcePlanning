@@ -71,6 +71,7 @@ class FacultySubject(models.Model):
 class StudentDivision(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.division.division + " " + self.student.first_name

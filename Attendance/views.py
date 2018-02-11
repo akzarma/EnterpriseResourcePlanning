@@ -7,6 +7,7 @@ from django.db.models import Avg, Sum, Count
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.utils.dateparse import parse_date
+from django.views.decorators.csrf import csrf_exempt
 
 from General.models import CollegeYear, CollegeExtraDetail, StudentDivision, BranchSubject
 from Registration.models import Student, Subject, Branch, StudentRollNumber
@@ -212,7 +213,7 @@ def check_attendance(request):
     else:
         return HttpResponseRedirect('/login/')
 
-
+@csrf_exempt
 def android_display_attendance(request):
     if request.method == 'POST':
         gr_number = request.POST.get('gr_number')
@@ -225,7 +226,7 @@ def android_display_attendance(request):
 
         student = Student.objects.get(gr_number=gr_number)
 
-        total_attendance = student.totalattendance_set
+        total_attendance = student.totalattendance_set.all()
 
         response = {}
 
