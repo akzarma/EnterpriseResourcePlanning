@@ -1,10 +1,11 @@
 import json
 from collections import OrderedDict
 
+import datetime
+
 import firebase_admin
 from django.http.response import HttpResponseRedirect
 from firebase_admin import credentials, db
-from django.db.models import Q, datetime
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
@@ -161,17 +162,17 @@ def fill_timetable(request):
 
 
 def fill_date_timetable():
-    days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+    days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     start_date = SemesterPeriod.objects.all()[0].start_date
     end_date = SemesterPeriod.objects.all()[0].end_date
     date_range = (end_date - start_date).days + 1
     all_timetable = Timetable.objects.all()
     for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
         for each in all_timetable:
-            if days[date.weekday()] == each.day :
+            if days[date.weekday()] == each.day:
                 DateTimetable.objects.create(date=date, original=each, is_substituted=False)
 
-    return
+    # return HttpResponse('DOne')
 
 
 def save_timetable(request):
@@ -269,12 +270,13 @@ def save_timetable(request):
 
                         timetable.save()
 
-        # to_json(request)  
+        # to_json(request)
 
         Timetable.objects.filter(id__in=[i.id for i in full_timetable]).delete()
 
         to_json()
         fill_date_timetable()
+        get_excel(request)
         return HttpResponseRedirect('/timetable/enter/')
     else:
         return HttpResponse("Not Post")
