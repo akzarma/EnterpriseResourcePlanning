@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^select$', views.select_cat, name="select_cat"),
     url(r'^save$', views.save, name='save'),
     url(r'^check$', views.check_attendance, name="check_attendance"),
+    url(r'^android_display_attendance$', views.android_display_attendance, name='android_display_attendance$')
 ]

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import datetime
 
+from django.contrib.auth import authenticate
 from django.db.models import Avg, Sum, Count
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -15,6 +16,7 @@ from Registration.models import Student, Subject, Faculty
 from General.models import FacultySubject
 from Registration.models import Student, Subject
 from Timetable.models import Timetable
+from UserModel.models import User
 from .models import StudentAttendance
 
 
@@ -211,3 +213,4 @@ def check_attendance(request):
             return HttpResponseRedirect('/login/')
     else:
         return HttpResponseRedirect('/login/')
+
