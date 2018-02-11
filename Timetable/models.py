@@ -56,3 +56,10 @@ class Timetable(models.Model):
     def __str__(self):
         return self.room.room_number + str(
             self.time.starting_time) + self.day + self.branch_subject.subject.name + str(self.faculty)
+
+
+class DateTimetable(models.Model):
+    date = models.DateField()
+    original = models.ForeignKey(Timetable, on_delete=models.CASCADE, related_name='original')
+    is_substituted = models.BooleanField(default=False)
+    substitute = models.ForeignKey(Timetable, related_name='substitute')

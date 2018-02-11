@@ -51,7 +51,7 @@ class BranchSubject(models.Model):
     year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    start_date = models.DateField(blank=True, null=True)  # Should not be null=Trus
+    start_date = models.DateField(blank=True, null=True)  # Should not be null=True
     end_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
@@ -79,3 +79,7 @@ class StudentDivision(models.Model):
 class StudentSubject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+
+class SemesterPeriod(models.Model):
+    start_date = models.DateField()
+    end_date = models.DateField()
