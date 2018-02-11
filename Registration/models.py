@@ -193,3 +193,9 @@ class HOD(models.Model):
 
     def __str__(self):
         return str(self.faculty) + str(self.branch)
+
+
+class StudentRollNumber(models.Model):
+    student = models.ForeignKey(Student)
+    roll_number = models.IntegerField()
+    is_active = models.BooleanField(default=True)

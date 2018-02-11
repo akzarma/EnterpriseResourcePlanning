@@ -29,7 +29,7 @@ DEBUG = True
 AUTH_USER_MODEL = 'UserModel.User'
 
 ALLOWED_HOSTS = ['192.168.0.110', '192.168.0.106', '192.168.43.155', '127.0.0.1', '172.20.10.3',
-                 'akzarma.pythonanywhere.com', '10.42.0.1','10.1.136.17']
+                 'akzarma.pythonanywhere.com', '10.42.0.1', '10.1.136.17']
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
@@ -140,3 +140,19 @@ minutes = 30
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = minutes * 60
+
+# Celery
+
+CELERY_BROKER_URL = 'amqp://localhost'
+
+CELERY_RABBIT_USERNAME = 'test'
+CELERY_RABBIT_PASSWORD = 'test'
+CELERY_RABBIT_HOST = 'localhost'
+
+CELERY_RABBIT_VHOST = 'myvhost'
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_ENABLE_UTC = True
+CELERY_CREATE_MISSING_QUEUES = True
