@@ -78,7 +78,7 @@ def fill_timetable(request):
     subject_teacher_json = {}
 
     for each_subject in all_subjects:
-
+        print(each_subject)
         subject_teacher_json[each_subject.subject.short_form] = {}
         for each_division in divisions:
             division_object = CollegeExtraDetail.objects.get(branch=branch_obj, division=each_division,

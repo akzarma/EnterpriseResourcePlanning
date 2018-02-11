@@ -116,6 +116,7 @@
             padding: 20px;
             min-height: 100vh;
             transition: all 0.3s;
+            width: 100%;
         }
 
         /* ---------------------------------------------------
@@ -204,89 +205,39 @@
         <div id="content">
             {% block content %}
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-9">
                         <legend>Timetable</legend>
-                        <div id="timetable" class="carousel slide" data-ride="carousel">
-
-                            <div class="carousel-inner">
-                                {% for day in days %}
-
-                                    {% if today == forloop.counter0 %}
-                                        <div class="item active">
-                                            <div class="container">
+                        {% for date in date_range %}
+                            <div class="col-md-4">
+                                {% for each in timetable %}
+                                    {% if each.date == date %}
+                                        {% if each.is_substituted is True %}
+                                            <div class="card btn btn-info" style="width: 100%; font-weight: bold;">
+                                                <div class="card-header"
+                                                     style="border-bottom: 2px solid white;">{{ each.substitute.time }}</div>
                                                 <div class="row">
-                                                    <div class="col-md-4 col-md-offset-2">
-                                                        <h2>{{ day }}</h2>
-                                                    </div>
+                                                    <div class="col-md-4">{{ each.substitute.branch_subject.subject.short_form }}</div>
+                                                    <div class="col-md-4">{{ each.substitute.room.room_number }}</div>
+                                                    <div class="col-md-4">{{ each.substitute.faculty.initials }}</div>
                                                 </div>
-                                                {% for each in timetable %}
-                                                    {% if each.day == day %}
-                                                        <div class="card btn btn-info"
-                                                             style="width: 45%; font-weight: bold;">
-                                                            <div class="card-header"
-                                                                 style="border-bottom: 2px solid white;">
-                                                                {{ each.time }}
-                                                            </div>
-                                                            <div class="row">
-                                                                <div class="col-md-4">{{ each.branch_subject.subject.short_form }}</div>
-                                                                <div class="col-md-4">{{ each.room.room_number }}</div>
-                                                                <div class="col-md-4">{{ each.faculty.initials }}</div>
-                                                            </div>
-                                                        </div>
-                                                        <br/>
-                                                    {% endif %}
-                                                {% endfor %}
-
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        <div class="item">
-                                            <div class="container">
+                                            </div><br/>
+                                        {% else %}
+                                            <div class="card btn btn-info" style="width: 100%; font-weight: bold;">
+                                                <div class="card-header"
+                                                     style="border-bottom: 2px solid white;">{{ each.original.time }}</div>
                                                 <div class="row">
-                                                    <div class="col-md-4 col-md-offset-2">
-                                                        <h2>{{ day }}</h2>
-                                                    </div>
+                                                    <div class="col-md-4">{{ each.original.branch_subject.subject.short_form }}</div>
+                                                    <div class="col-md-4">{{ each.original.room.room_number }}</div>
+                                                    <div class="col-md-4">{{ each.original.faculty.initials }}</div>
                                                 </div>
-                                                {% for each in timetable %}
-                                                    {% if each.day == day %}
-                                                        <div class="card btn btn-info"
-                                                             style="width: 45%; font-weight: bold;">
-                                                            <div class="card-header"
-                                                                 style="border-bottom: 2px solid white;">
-                                                                {{ each.time }}
-                                                            </div>
-                                                            <div class="row">
-                                                                <div class="col-md-4">{{ each.branch_subject.subject.short_form }}</div>
-                                                                <div class="col-md-4">{{ each.room.room_number }}</div>
-                                                                <div class="col-md-4">{{ each.faculty.initials }}</div>
-                                                            </div>
-                                                        </div>
-                                                        <br>
-                                                        <br>
-                                                    {% endif %}
-                                                {% endfor %}
-
-                                            </div>
-                                        </div>
+                                            </div><br/>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             </div>
-{#                            <a class="carousel-control-prev" href="#timetable" data-slide="prev">#}
-{#                                <span class="carousel-control-prev-icon"></span>#}
-{#                            </a>#}
-{#                            <a class="carousel-control-next" href="#timetable" data-slide="next">#}
-{#                                <span class="carousel-control-next-icon"></span>#}
-{#                            </a>#}
-                            <a class="left carousel-control" href="#timetable" data-slide="prev">
-                                <span class="glyphicon glyphicon-chevron-left"></span>
-                            </a>
-                            <a class="right carousel-control" href="#timetable" data-slide="next">
-                                <span class="glyphicon glyphicon-chevron-right"></span>
-                            </a>
-                        </div>
-
+                        {% endfor %}
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <legend>Attendance</legend>
                     </div>
                 </div>
