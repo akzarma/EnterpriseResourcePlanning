@@ -11,6 +11,6 @@ urlpatterns = [
 
     url(r'^to_json/$', views.to_json, name='to_json'),
 
-    url(r'get_excel/$', views.get_excel, name='get_excel'),
+    # url(r'get_excel/$', views.get_excel, name='get_excel'),
 
 ]

@@ -37,3 +37,10 @@ class FacultyAttendance(models.Model):
     faculty = models.OneToOneField(Faculty)
     in_time = models.TimeField()
     out_time = models.TimeField()
+
+
+class TotalAttendance(models.Model):
+    student = models.ForeignKey(Student)
+    subject = models.ForeignKey(Subject)
+    total_lectures = models.PositiveIntegerField()
+    attended_leactures = models.PositiveIntegerField()

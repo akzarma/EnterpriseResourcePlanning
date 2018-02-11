@@ -167,7 +167,7 @@ class Student(models.Model):
 
 
 class Subject(models.Model):
-    code = models.AutoField(primary_key=True, blank=True)
+    code = models.CharField(max_length=20,primary_key=True, blank=True)
     name = models.CharField(max_length=100)
     short_form = models.CharField(max_length=10)
     is_practical = models.BooleanField(default=False)
@@ -193,3 +193,12 @@ class HOD(models.Model):
 
     def __str__(self):
         return str(self.faculty) + str(self.branch)
+
+
+class StudentRollNumber(models.Model):
+    student = models.ForeignKey(Student)
+    roll_number = models.IntegerField()
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return str(self.student.gr_number) + str(self.roll_number) + ' ' + str(self.student.first_name)
