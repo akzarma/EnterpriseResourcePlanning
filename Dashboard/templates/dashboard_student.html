@@ -158,26 +158,14 @@
             color: rgb(0, 181, 197) !important;
         }
 
-        #timetable {
-            width: 100%;
+        .carousel-control.left, .carousel-control.right {
+            background-image: none !important;
+            filter: none !important;
         }
 
     </style>
 
 {% endblock style %}
-
-{% block navbar-right %}
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-       aria-expanded="false">Welcome <span
-            style="color: #0379C4; text-transform: uppercase;">{{ user.student.first_name }}</span></a>
-    <ul class="dropdown-menu">
-        <li>&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span>
-            <p style="display: inline">GR number: {{ user.student.gr_number }}</p></li>
-        <li><a href="{% url 'dashboard:profile' %}">View Profile</a></li>
-        <li><a href="{% url 'dashboard:logout' %}"><span class="glyphicon glyphicon-off"></span>Logout</a></li>
-    </ul>
-
-{% endblock navbar-right %}
 
 {% block body %}
     <div class="wrapper">
@@ -208,38 +196,47 @@
                 <div class="row">
                     <div class="col-md-9">
                         <legend>Timetable</legend>
-                        {% for date in date_range %}
-                            <div class="col-md-4">
-                            <h3 style="text-align: center">{{ date }}</h3>
-                            <h4 style="text-align: center">{{ date|date:"l" }}</h4>
-                            <h5 style="text-align: center">{{ date|naturalday }}</h5>
-                                {% for each in timetable %}
-                                    {% if each.date == date %}
-                                        {% if each.is_substituted is True %}
-                                            <div class="card btn btn-info" style="width: 100%; font-weight: bold;">
-                                                <div class="card-header"
-                                                     style="border-bottom: 2px solid white;">{{ each.substitute.time }}</div>
-                                                <div class="row">
-                                                    <div class="col-md-4">{{ each.substitute.branch_subject.subject.short_form }}</div>
-                                                    <div class="col-md-4">{{ each.substitute.room.room_number }}</div>
-                                                    <div class="col-md-4">{{ each.substitute.faculty.initials }}</div>
+                        <div class="row">
+                            {% for date in date_range %}
+                                <div class="col-md-4">
+                                    <h3 style="text-align: center">{{ date }}</h3>
+                                    <h4 style="text-align: center">{{ date|date:"l" }}</h4>
+                                    <h5 style="text-align: center">{{ date|naturalday }}</h5>
+                                    {% for each in timetable %}
+                                        {% if each.date == date %}
+                                            {% if each.is_substituted is True %}
+                                                <div class="card btn btn-info"
+                                                     style="width: 100%; font-weight: bold; margin-bottom: 5px;">
+                                                    <div class="card-header"
+                                                         style="border-bottom: 2px solid white;">{{ each.substitute.time }}</div>
+                                                    <div class="row">
+                                                        <div class="col-md-4">{{ each.substitute.branch_subject.subject.short_form }}</div>
+                                                        <div class="col-md-4">{{ each.substitute.room.room_number }}</div>
+                                                        <div class="col-md-4">{{ each.substitute.faculty.initials }}</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        {% else %}
-                                            <div class="card btn btn-info" style="width: 100%; font-weight: bold;">
-                                                <div class="card-header"
-                                                     style="border-bottom: 2px solid white;">{{ each.original.time }}</div>
-                                                <div class="row">
-                                                    <div class="col-md-4">{{ each.original.branch_subject.subject.short_form }}</div>
-                                                    <div class="col-md-4">{{ each.original.room.room_number }}</div>
-                                                    <div class="col-md-4">{{ each.original.faculty.initials }}</div>
+                                            {% else %}
+                                                <div class="card btn btn-info"
+                                                     style="width: 100%; font-weight: bold; margin-bottom: 5px;">
+                                                    <div class="card-header"
+                                                         style="border-bottom: 2px solid white;">{{ each.original.time }}</div>
+                                                    <div class="row">
+                                                        <div class="col-md-4">{{ each.original.branch_subject.subject.short_form }}</div>
+                                                        <div class="col-md-4">{{ each.original.room.room_number }}</div>
+                                                        <div class="col-md-4">{{ each.original.faculty.initials }}</div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            {% endif %}
                                         {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+
+                            <button class="btn left carousel-control" style="border: 0 !important;"><span
+                                    class="glyphicon glyphicon-chevron-left"></span></button>
+                            <button class="btn right carousel-control" style="border: 0 !important;"><span
+                                    class="glyphicon glyphicon-chevron-right"></span></button>
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <legend>Attendance</legend>

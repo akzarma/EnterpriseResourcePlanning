@@ -40,15 +40,17 @@ def show_dashboard(request):
     user = request.user
     # If user exists in session (i.e. logged in)
     if not user.is_anonymous:
+        date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         if user.role == 'Student':
             student = user.student
             college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
 
             # division =college_extra_detail.division
-            date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
 
-            timetable = sorted(DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),key=lambda x:(x.date,x.original.time.starting_time))
-            days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            timetable = sorted(
+                DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
+                key=lambda x: (x.date, x.original.time.starting_time))
 
             return render(request, 'dashboard_student.html', {
                 'timetable': timetable,
@@ -56,10 +58,14 @@ def show_dashboard(request):
                 'days': days,
             })
         elif user.role == 'Faculty':
-            faculty_obj = user.faculty
-            form = FacultyForm(instance=faculty_obj)
+            faculty = user.faculty
+            timetable = sorted(
+                DateTimetable.objects.filter(date__in=date_range, original__faculty=faculty),
+                key=lambda x: (x.date, x.original.time.starting_time))
             return render(request, 'dashboard_faculty.html', {
-                'form': form,
+                'timetable': timetable,
+                'date_range': date_range,
+                'days': days,
             })
         else:
             logout_user(request)

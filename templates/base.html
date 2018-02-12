@@ -18,9 +18,9 @@
 
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script>
-    $('.datepicker').datepicker();
-</script>
+    <script>
+        $('.datepicker').datepicker();
+    </script>
 
     <style>
         html, body {
@@ -102,6 +102,13 @@
             height: 100%;
         }
 
+        p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1em;
+            font-weight: 300;
+            line-height: 1.7em;
+            color: #999;
+        }
 
     </style>
     {% block style %}
@@ -129,13 +136,46 @@
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     {% block navbar-right %}
-                        <a href="{% url 'login:login' %}" class="dropdown-toggle" role="button">Sign In</a>
+                        {% if user.is_authenticated %}
+                            {% if user.student %}
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                   aria-haspopup="true"
+                                   aria-expanded="false">Welcome <span
+                                        style="color: #0379C4; text-transform: uppercase;">{{ user.student.first_name }}</span><span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li>&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span>
+                                        <p style="display: inline">GR number: {{ user.student.gr_number }}</p></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="{% url 'dashboard:profile' %}">View Profile</a></li>
+                                    <li><a href="{% url 'dashboard:logout' %}"><span
+                                            class="glyphicon glyphicon-off"></span>Logout</a>
+                                    </li>
+                                </ul>
+                            {% else %}
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                                   aria-haspopup="true"
+                                   aria-expanded="false">Welcome <span
+                                        style="color: #0379C4; text-transform: uppercase;">{{ user.faculty.first_name }}</span><span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li>&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span>
+                                        <p style="display: inline">Faculty Code: {{ user.faculty.faculty_code }}</p>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="{% url 'dashboard:profile' %}">View Profile</a></li>
+                                    <li><a href="{% url 'dashboard:logout' %}"><span
+                                            class="glyphicon glyphicon-off"></span>Logout</a>
+                                    </li>
+                                </ul>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'login:login' %}" class="dropdown-toggle" role="button">Sign In</a>
+                        {% endif %}
 
-{#                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"#}
-{#                       aria-expanded="false">Welcome Username <span class="caret"></span></a>#}
-{#                    <ul class="dropdown-menu">#}
-{#                        <li><a href="#">Logout</a></li>#}
-{#                    </ul>#}
+                        {#                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"#}
+                        {#                       aria-expanded="false">Welcome Username <span class="caret"></span></a>#}
+                        {#                    <ul class="dropdown-menu">#}
+                        {#                        <li><a href="#">Logout</a></li>#}
+                        {#                    </ul>#}
                     {% endblock navbar-right %}
                 </li>
             </ul>
