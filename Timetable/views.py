@@ -188,8 +188,8 @@ def save_timetable(request):
         branch = Branch.objects.get(branch='Computer')
         full_timetable = list(Timetable.objects.filter(branch_subject__branch=branch))
 
+        new_timetable = []
         for i in request.POST:
-            new_timetable = []
             if i.__contains__('_room_'):
                 splitted = i.split('_room_')
                 token = splitted[1].split('_')
