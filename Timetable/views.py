@@ -78,7 +78,6 @@ def fill_timetable(request):
     subject_teacher_json = {}
 
     for each_subject in all_subjects:
-        print(each_subject)
         subject_teacher_json[each_subject.subject.short_form] = {}
         for each_division in divisions:
             division_object = CollegeExtraDetail.objects.get(branch=branch_obj, division=each_division,
@@ -594,17 +593,26 @@ def get_excel(request):
 def android_timetable_json(request):
     if request.method == 'POST':
 
+
         gr_number = request.POST.get('gr_number')
 
         if not gr_number:
             return HttpResponse('Error!')
 
-        student = Student.objects.get(gr_number=gr_number)
+        student = Student.objects.filter(gr_number=gr_number)
 
         branch_obj = Branch.objects.get(branch='Computer')
-        college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
 
-        full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj, division=college_extra_detail)
+        if student:
+            student = student[0]
+            college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
+
+            full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj, division=college_extra_detail)
+        else:
+            student = Faculty.objects.filter(faculty_code=gr_number)
+            if not student:
+                return HttpResponse('error')
+            full_timetable = Timetable.objects.filter(faculty=student)
 
         # division = college_extra_detail.division
         # year = college_extra_detail.year
@@ -676,7 +684,7 @@ def android_timetable_json(request):
             if is_practical:
                 batch = each.batch.batch_name
                 if 'is_practical' in answer[year][branch][division][day][time]:
-                    print('contains')
+                    {}
                 else:
                     answer[year][branch][division][day][time] = {
                         'is_practical': is_practical
@@ -692,7 +700,8 @@ def android_timetable_json(request):
                 #     'room': room,
                 #     'subject': subject,
                 #     'year': year,
-                #     'batch': batch
+                #
+                #  'batch': batch
                 # }
             else:
                 answer[year][branch][division][day][time] = {
@@ -709,6 +718,7 @@ def android_timetable_json(request):
                 #     'subject': subject,
                 #     'year': year
                 # }
+        print(answer)
         return JsonResponse(answer)
     else:
         return HttpResponse('Error')
