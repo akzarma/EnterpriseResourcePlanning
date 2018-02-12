@@ -97,12 +97,11 @@ def login_android(request):
                     student = user.student
                     student_division = StudentDivision.objects.get(student=student)
                     branch = student.branch
-                    branch_obj = Branch.objects.get(branch=branch)
 
                     student_response = {
                         'user_type': 'Student',
                         'year': student_division.division.year.year,
-                        'branch': student_division.division.branch.branch,
+                        'branch': branch,
                         'division': student_division.division.division,
                         'name': user.student.first_name
                     }
