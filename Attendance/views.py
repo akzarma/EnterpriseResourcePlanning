@@ -243,7 +243,6 @@ def android_display_attendance(request):
         total_percent = round(100 * attended / total,2)
 
         response['total_percent'] = str(total_percent)+'%'
-        print(response)
         return JsonResponse(response)
 
     else:
@@ -284,7 +283,6 @@ def mark_from_excel(request):
                 total = 0
 
                 if lect_split != ['']:
-                    # print(lect_split)
                     attended = int(lect_split[0])
                     total = int(lect_split[1])
 

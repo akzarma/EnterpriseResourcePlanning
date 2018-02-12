@@ -78,7 +78,6 @@ def fill_timetable(request):
     subject_teacher_json = {}
 
     for each_subject in all_subjects:
-        print(each_subject)
         subject_teacher_json[each_subject.subject.short_form] = {}
         for each_division in divisions:
             division_object = CollegeExtraDetail.objects.get(branch=branch_obj, division=each_division,
@@ -685,7 +684,7 @@ def android_timetable_json(request):
             if is_practical:
                 batch = each.batch.batch_name
                 if 'is_practical' in answer[year][branch][division][day][time]:
-                    print('contains')
+                    {}
                 else:
                     answer[year][branch][division][day][time] = {
                         'is_practical': is_practical

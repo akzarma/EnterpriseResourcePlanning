@@ -42,7 +42,6 @@ def login_android(request):
         try:
             username = request.POST.get('username')
             password = request.POST.get('password')
-            print(username, password, request.POST)
             user = authenticate(username=username, password=password)
 
             if user:
