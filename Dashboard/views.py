@@ -41,42 +41,66 @@ def show_dashboard(request):
     user = request.user
     # If user exists in session (i.e. logged in)
     if not user.is_anonymous:
-        date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
         if user.role == 'Student':
             student = user.student
-            college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
-            total_attendance = student.totalattendance_set.all()
-            timetable = sorted(
-                DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
-                key=lambda x: (x.date, x.original.time.starting_time))
-
             attendance = {}
             attended = 0
             total = 0
+            total_attendance = student.totalattendance_set.all()
 
             for each in total_attendance:
                 total += each.total_lectures
                 attended += each.attended_lectures
                 if each.total_lectures is not 0:
-                    subject_attendance = round(100* each.attended_lectures/each.total_lectures,2)
+                    subject_attendance = round(100 * each.attended_lectures / each.total_lectures, 2)
                 else:
-                    subject_attendance =  0
+                    subject_attendance = 0
                 attendance[each.subject.short_form] = {
                     'total': each.total_lectures,
                     'attended': each.attended_lectures,
-                    'attendance': subject_attendance ,
+                    'attendance': subject_attendance,
                 }
             total_percent = round(100 * attended / total, 2)
 
-            return render(request, 'dashboard_student.html', {
-                'timetable': timetable,
-                'date_range': date_range,
-                'days': days,
-                'total_attendance': total_percent,
-                'attendance': attendance,
-            })
+            if request.method == "GET":
+                date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
+
+                college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
+                timetable = sorted(
+                    DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
+                    key=lambda x: (x.date, x.original.time.starting_time))
+
+                return render(request, 'dashboard_student.html', {
+                    'timetable': timetable,
+                    'date_range': date_range,
+                    'days': days,
+                    'total_attendance': total_percent,
+                    'attendance': attendance,
+                    'current_date': datetime.date.today(),
+                })
+            else:
+                date_range = [request.POST.get('current_date') + datetime.timedelta(n) for n in [-1, 0, 1]]
+
+                college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
+                total_attendance = student.totalattendance_set.all()
+                timetable = sorted(
+                    DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
+                    key=lambda x: (x.date, x.original.time.starting_time))
+
+                return render(request, 'dashboard_student.html', {
+                    'timetable': timetable,
+                    'date_range': date_range,
+                    'days': days,
+                    'total_attendance': total_percent,
+                    'attendance': attendance,
+                    'current_date': request.POST.get('current_date'),
+                })
+
         elif user.role == 'Faculty':
+            date_range = [request.POST.get('current_date') + datetime.timedelta(n) for n in [-1, 0, 1]]
+
             faculty = user.faculty
             timetable = sorted(
                 DateTimetable.objects.filter(date__in=date_range, original__faculty=faculty),
