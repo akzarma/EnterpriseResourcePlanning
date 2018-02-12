@@ -295,3 +295,8 @@ def mark_from_excel(request):
             print(token[1])
 
     return HttpResponse("here")
+
+@csrf_exempt
+def android_fill(request):
+    if request.POST.get('attendance_request'):
+        return HttpResponse(20)
