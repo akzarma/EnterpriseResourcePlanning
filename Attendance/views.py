@@ -240,9 +240,10 @@ def android_display_attendance(request):
                 'total': each.total_lectures,
                 'attended': each.attended_lectures
             }
-        total_percent = 100 * attended / total
+        total_percent = round(100 * attended / total,2)
 
-        response['total_percent'] = total_percent
+        response['total_percent'] = str(total_percent)+'%'
+        print(response)
         return JsonResponse(response)
 
     else:
