@@ -79,15 +79,13 @@ def login_android(request):
                             attendance_list[year] = {}
                             attendance_list[year][division] = {}
 
-                        attendance_list[year][division] = [
+                        attendance_list[year][division] = sorted([
                             StudentRollNumber.objects.get(student=each_student.student, is_active=True) for
-                            each_student in all_student]
-                        
-                    if request.POST.get('attendance_request'):
-                        print(request.POST.get('attendance_request'))
-                        return HttpResponse('20')
-                    else:
-                        return HttpResponse(str(faculty_response))
+                            each_student in all_student])
+
+                    faculty_response['attendance_list'] = attendance_list
+
+                    return HttpResponse(str(faculty_response))
                 elif user.role == 'Student':
                     student = user.student
                     student_division = StudentDivision.objects.get(student=student)
