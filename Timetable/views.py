@@ -163,7 +163,7 @@ def fill_timetable(request):
     return render(request, 'test_timetable.html', context)
 
 
-def fill_date_timetable():
+def fill_date_timetable(all_timetable):
     creation_list = []
 
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
