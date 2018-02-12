@@ -68,18 +68,25 @@ def login_android(request):
                         year = each_division.year
 
                         division = each_division.division
+                        branch = each_division.branch.branch
 
                         if year in attendance_list:
 
-                            if division in attendance_list[year]:
-                                var = {}
+                            if branch in attendance_list[year][division]:
+                                if division in attendance_list[year]:
+
+                                    var = {}
+                                else:
+                                    attendance_list[year][branch][division] = {}
                             else:
-                                attendance_list[year][division] = {}
+                                attendance_list[year][branch] = {}
+                                attendance_list[year][branch][division] = {}
+
                         else:
                             attendance_list[year] = {}
-                            attendance_list[year][division] = {}
-
-                        attendance_list[year][division] = sorted([
+                            attendance_list[year][branch] = {}
+                            attendance_list[year][branch][division] = {}
+                        attendance_list[year][branch][division] = sorted([
                             StudentRollNumber.objects.get(student=each_student.student, is_active=True) for
                             each_student in all_student])
 

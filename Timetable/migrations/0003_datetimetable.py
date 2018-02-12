@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('Timetable', '0002_timetable_is_practical'),
     ]
@@ -19,8 +18,11 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('date', models.DateField()),
                 ('is_substituted', models.BooleanField(default=False)),
-                ('original', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='original', to='Timetable.Timetable')),
-                ('substitute', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='substitute', to='Timetable.Timetable')),
+                ('original', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='original',
+                                               to='Timetable.Timetable')),
+                ('substitute',
+                 models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='substitute',
+                                   to='Timetable.Timetable')),
             ],
         ),
     ]
