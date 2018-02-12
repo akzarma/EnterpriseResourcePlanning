@@ -163,7 +163,7 @@ def fill_timetable(request):
     return render(request, 'test_timetable.html', context)
 
 
-def fill_date_timetable():
+def fill_date_timetable(all_timetable):
 
     creation_list= []
 
@@ -173,7 +173,6 @@ def fill_date_timetable():
     date_range = (end_date - start_date).days + 1
 
     for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
-        all_timetable = Timetable.objects.filter(day=days[date.weekday()])
         for each in all_timetable:
             creation_list.append(DateTimetable(date=date, original=each, is_substituted=False))
 
@@ -190,6 +189,7 @@ def save_timetable(request):
         full_timetable = list(Timetable.objects.filter(branch_subject__branch=branch))
 
         for i in request.POST:
+            new_timetable = []
             if i.__contains__('_room_'):
                 splitted = i.split('_room_')
                 token = splitted[1].split('_')
@@ -249,6 +249,7 @@ def save_timetable(request):
                                               is_practical=False)
 
                         timetable.save()
+                        new_timetable += [timetable]
 
                 else:  # practical
                     # batch = token[4]
@@ -276,13 +277,14 @@ def save_timetable(request):
                                               is_practical=True, batch=batch)  # batch bhi add karna hai.
 
                         timetable.save()
+                        new_timetable += [timetable]
 
         # to_json(request)
 
         Timetable.objects.filter(id__in=[i.id for i in full_timetable]).delete()
 
         to_json()
-        fill_date_timetable()
+        fill_date_timetable(new_timetable)
         get_excel(request)
         return HttpResponseRedirect('/timetable/enter/')
     else:

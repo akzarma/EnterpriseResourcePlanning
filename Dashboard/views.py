@@ -1,3 +1,4 @@
+import json
 from itertools import chain
 
 from django.contrib.auth import logout
@@ -45,17 +46,35 @@ def show_dashboard(request):
         if user.role == 'Student':
             student = user.student
             college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
-
-            # division =college_extra_detail.division
-
+            total_attendance = student.totalattendance_set.all()
             timetable = sorted(
                 DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
                 key=lambda x: (x.date, x.original.time.starting_time))
+
+            attendance = {}
+            attended = 0
+            total = 0
+
+            for each in total_attendance:
+                total += each.total_lectures
+                attended += each.attended_lectures
+                if each.total_lectures is not 0:
+                    subject_attendance = round(100* each.attended_lectures/each.total_lectures,2)
+                else:
+                    subject_attendance =  0
+                attendance[each.subject.short_form] = {
+                    'total': each.total_lectures,
+                    'attended': each.attended_lectures,
+                    'attendance': subject_attendance ,
+                }
+            total_percent = round(100 * attended / total, 2)
 
             return render(request, 'dashboard_student.html', {
                 'timetable': timetable,
                 'date_range': date_range,
                 'days': days,
+                'total_attendance': total_percent,
+                'attendance': attendance,
             })
         elif user.role == 'Faculty':
             faculty = user.faculty
