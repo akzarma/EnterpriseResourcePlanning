@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'Requests.apps.RequestsConfig',
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
+    'django.contrib.humanize',
     'widget_tweaks',
 
 ]
@@ -120,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -141,18 +142,3 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = minutes * 60
 
-# Celery
-
-CELERY_BROKER_URL = 'amqp://localhost'
-
-CELERY_RABBIT_USERNAME = 'test'
-CELERY_RABBIT_PASSWORD = 'test'
-CELERY_RABBIT_HOST = 'localhost'
-
-CELERY_RABBIT_VHOST = 'myvhost'
-
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
-CELERY_ENABLE_UTC = True
-CELERY_CREATE_MISSING_QUEUES = True

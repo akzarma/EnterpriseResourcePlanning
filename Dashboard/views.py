@@ -4,7 +4,7 @@ from django.contrib.auth import logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 
-from General.models import Batch
+from General.models import Batch, StudentDivision
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student
 import datetime
@@ -41,15 +41,19 @@ def show_dashboard(request):
     # If user exists in session (i.e. logged in)
     if not user.is_anonymous:
         if user.role == 'Student':
-            student_obj = user.student
-            division = user.student.studentdivision_set.all()
+            student = user.student
+            college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
+
+            # division =college_extra_detail.division
             date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
 
-            timetable = DateTimetable.objects.filter(date__in=date_range, original__division=division[0].division)
+            timetable = sorted(DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),key=lambda x:(x.date,x.original.time.starting_time))
+            days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
             return render(request, 'dashboard_student.html', {
                 'timetable': timetable,
                 'date_range': date_range,
+                'days': days,
             })
         elif user.role == 'Faculty':
             faculty_obj = user.faculty

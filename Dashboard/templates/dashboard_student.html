@@ -1,4 +1,5 @@
 {% extends "./base.html" %}
+{% load humanize %}
 
 {% block style %}
     <style>
@@ -209,6 +210,9 @@
                         <legend>Timetable</legend>
                         {% for date in date_range %}
                             <div class="col-md-4">
+                            <h3 style="text-align: center">{{ date }}</h3>
+                            <h4 style="text-align: center">{{ date|date:"l" }}</h4>
+                            <h5 style="text-align: center">{{ date|naturalday }}</h5>
                                 {% for each in timetable %}
                                     {% if each.date == date %}
                                         {% if each.is_substituted is True %}
@@ -220,7 +224,7 @@
                                                     <div class="col-md-4">{{ each.substitute.room.room_number }}</div>
                                                     <div class="col-md-4">{{ each.substitute.faculty.initials }}</div>
                                                 </div>
-                                            </div><br/>
+                                            </div>
                                         {% else %}
                                             <div class="card btn btn-info" style="width: 100%; font-weight: bold;">
                                                 <div class="card-header"
@@ -230,7 +234,7 @@
                                                     <div class="col-md-4">{{ each.original.room.room_number }}</div>
                                                     <div class="col-md-4">{{ each.original.faculty.initials }}</div>
                                                 </div>
-                                            </div><br/>
+                                            </div>
                                         {% endif %}
                                     {% endif %}
                                 {% endfor %}
