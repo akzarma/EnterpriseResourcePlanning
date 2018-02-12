@@ -240,6 +240,19 @@
                     </div>
                     <div class="col-md-3">
                         <legend>Attendance</legend>
+                        <h3>Total Attendance: {{ total_attendance }}%</h3>
+                        {% for key, value in attendance.items %}
+                            <div class="row">
+                                <h4>{{ key }}</h4>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" aria-valuenow="{{ value.attendance }}"
+                                         aria-valuemin="0" aria-valuemax="100" style="width:{{ value.attendance }}%"
+                                         data-toggle="tooltip" data-placement="top" title="Attended: {{ value.attended }} out of {{ value.total }}">
+                                        {{ value.attendance }}%
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
             {% endblock %}
@@ -255,7 +268,7 @@
             $('.carousel').carousel({
                 interval: false
             });
-
+            $('[data-toggle="tooltip"]').tooltip();
 
         });
 

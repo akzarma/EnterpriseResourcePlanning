@@ -172,7 +172,6 @@ def fill_date_timetable():
     date_range = (end_date - start_date).days + 1
 
     for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
-        all_timetable = Timetable.objects.filter(day=days[date.weekday()])
         for each in all_timetable:
             creation_list.append(DateTimetable(date=date, original=each, is_substituted=False))
 
@@ -189,6 +188,7 @@ def save_timetable(request):
         full_timetable = list(Timetable.objects.filter(branch_subject__branch=branch))
 
         for i in request.POST:
+            new_timetable = []
             if i.__contains__('_room_'):
                 splitted = i.split('_room_')
                 token = splitted[1].split('_')
@@ -247,7 +247,8 @@ def save_timetable(request):
                                               day=day, division=division,
                                               is_practical=False)
 
-                        timetable.save()
+                        # timetable.save()
+                        new_timetable += [timetable]
 
                 else:  # practical
                     # batch = token[4]
@@ -274,14 +275,17 @@ def save_timetable(request):
                                               day=day, division=division,
                                               is_practical=True, batch=batch)  # batch bhi add karna hai.
 
-                        timetable.save()
+                        # timetable.save()
+                        new_timetable += [timetable]
+
+        Timetable.objects.bulk_create(new_timetable)
 
         # to_json(request)
 
         Timetable.objects.filter(id__in=[i.id for i in full_timetable]).delete()
 
         to_json()
-        fill_date_timetable()
+        fill_date_timetable(new_timetable)
         get_excel(request)
         return HttpResponseRedirect('/timetable/enter/')
     else:
@@ -654,22 +658,6 @@ def android_timetable_json(request):
                     answer[year][branch][division][day] = {}
                     answer[year][branch][division][day][time] = {}
 
-                # if faculty in faculty_json:
-                #     if day in faculty_json[faculty]:
-                #         if time in faculty_json[faculty][day]:
-                #             var = {}
-                #         else:
-                #             faculty_json[faculty][day][time] = {}
-                #
-                #     else:
-                #         faculty_json[faculty][day] = {}
-                #         faculty_json[faculty][day][time] = {}
-                #
-                # else:
-                #     faculty_json[faculty] = {}
-                #     faculty_json[faculty][day] = {}
-                #     faculty_json[faculty][day][time] = {}
-
                 is_practical = each.is_practical
 
                 if is_practical:
@@ -685,15 +673,7 @@ def android_timetable_json(request):
                         'room': room,
                         'subject': subject,
                     }
-                    # faculty_json[faculty][day][time] = {
-                    #     'branch': branch,
-                    #     'division': division,
-                    #     'room': room,
-                    #     'subject': subject,
-                    #     'year': year,
-                    #
-                    #  'batch': batch
-                    # }
+
                 else:
                     answer[year][branch][division][day][time] = {
                         'faculty': faculty,
@@ -702,13 +682,6 @@ def android_timetable_json(request):
                         'is_practical': is_practical
                     }
 
-                    # faculty_json[faculty][day][time] = {
-                    #     'branch': branch,
-                    #     'division': division,
-                    #     'room': room,
-                    #     'subject': subject,
-                    #     'year': year
-                    # }
 
             return JsonResponse(answer)
         else:
