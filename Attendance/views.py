@@ -213,6 +213,7 @@ def check_attendance(request):
     else:
         return HttpResponseRedirect('/login/')
 
+
 @csrf_exempt
 def android_display_attendance(request):
     if request.method == 'POST':
@@ -240,9 +241,9 @@ def android_display_attendance(request):
                 'total': each.total_lectures,
                 'attended': each.attended_lectures
             }
-        total_percent = round(100 * attended / total,2)
+        total_percent = round(100 * attended / total, 2)
 
-        response['total_percent'] = str(total_percent)+'%'
+        response['total_percent'] = str(total_percent) + '%'
         return JsonResponse(response)
 
     else:

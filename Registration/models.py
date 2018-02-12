@@ -167,7 +167,7 @@ class Student(models.Model):
 
 
 class Subject(models.Model):
-    code = models.CharField(max_length=20,primary_key=True, blank=True)
+    code = models.CharField(max_length=20, primary_key=True, blank=True)
     name = models.CharField(max_length=100)
     short_form = models.CharField(max_length=10)
     is_practical = models.BooleanField(default=False)

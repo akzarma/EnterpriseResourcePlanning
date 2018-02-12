@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('Registration', '0009_auto_20171214_1913'),
         ('Registration', '0012_auto_20180123_2043'),

@@ -38,7 +38,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('day', models.CharField(max_length=10)),
                 (
-                'batch', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='General.Batch')),
+                    'batch',
+                    models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='General.Batch')),
                 ('branch_subject',
                  models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='General.BranchSubject')),
                 ('division', models.ForeignKey(max_length=10, on_delete=django.db.models.deletion.CASCADE,
