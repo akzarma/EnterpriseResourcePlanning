@@ -15,7 +15,7 @@ from General.models import FacultySubject, StudentDivision
 from Registration.models import Student, Subject, Faculty
 from General.models import FacultySubject
 from Registration.models import Student, Subject
-from Timetable.models import Timetable
+from Timetable.models import Timetable, DateTimetable
 from .models import StudentAttendance, TotalAttendance
 
 
@@ -28,8 +28,8 @@ def index(request):
             selected_class = request.POST.get('selected_class')
             selected_class_obj = Timetable.objects.get(pk=selected_class)
             selected_date = request.POST.get('selected_date')
-            attendance = StudentAttendance.objects.filter(timetable=selected_class_obj,
-                                                          date=parse_date(selected_date)).order_by('student__gr_number')
+            selected_class_obj = DateTimetable.objects.get(date=parse_date(selected_date), original=selected_class_obj)
+            attendance = StudentAttendance.objects.filter(timetable=selected_class_obj).order_by('student__gr_number')
             if attendance:
                 all_students = attendance
                 att = 1

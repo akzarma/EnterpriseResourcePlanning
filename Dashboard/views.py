@@ -4,12 +4,12 @@ from itertools import chain
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
+from django.utils.dateparse import parse_date
 
 from General.models import Batch, StudentDivision
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student
 import datetime
-import dateutil.parser
 
 # Student dashboard
 from Research.models import Paper
@@ -80,10 +80,10 @@ def show_dashboard(request):
                     'days': days,
                     'total_attendance': total_percent,
                     'attendance': attendance,
-                    'current_date': datetime.date.today(),
+                    'current_date': datetime.date.today().strftime('%Y-%m-%d'),
                 })
             else:
-                current_date = dateutil.parser.parse(request.POST.get('current_date')).date()
+                current_date = parse_date(request.POST.get('current_date'))
                 # current_date = datetime.datetime.strptime(request.POST.get('current_date'), '%Y-%m-%d')
                 if request.POST.get('previous'):
                     current_date = current_date + datetime.timedelta(-3)
@@ -120,11 +120,11 @@ def show_dashboard(request):
                     'timetable': timetable,
                     'date_range': date_range,
                     'days': days,
-                    'current_date': datetime.date.today()
+                    'current_date': datetime.date.today().strftime('%Y-%m-%d'),
                 })
 
             else:
-                current_date = dateutil.parser.parse(request.POST.get('current_date')).date()
+                current_date = parse_date(request.POST.get('current_date'))
                 # current_date = datetime.datetime.strptime(request.POST.get('current_date'), '%Y-%m-%d')
                 if request.POST.get('previous'):
                     current_date = current_date + datetime.timedelta(-3)
