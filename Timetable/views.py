@@ -163,20 +163,19 @@ def fill_timetable(request):
     return render(request, 'test_timetable.html', context)
 
 
-def fill_date_timetable(all_timetable):
+def fill_date_timetable(new_date_timetable):
+    print('fill TT')
     creation_list = []
-
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    new_date_timetable = Timetable.objects.all()
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday']
     start_date = SemesterPeriod.objects.all()[0].start_date
     end_date = SemesterPeriod.objects.all()[0].end_date
     date_range = (end_date - start_date).days + 1
-
     for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
-        for each in all_timetable:
-            creation_list.append(DateTimetable(date=date, original=each, is_substituted=False))
-
+        for each in new_date_timetable:
+            if days[date.weekday()] == each.day:
+                creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
     DateTimetable.objects.bulk_create(creation_list)
-
     # return HttpResponse('DOne')
 
 

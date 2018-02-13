@@ -9,6 +9,8 @@ from General.models import Batch, StudentDivision
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student
 import datetime
+import dateutil.parser
+
 # Student dashboard
 from Research.models import Paper
 from Timetable.models import Timetable, DateTimetable
@@ -81,10 +83,17 @@ def show_dashboard(request):
                     'current_date': datetime.date.today(),
                 })
             else:
-                date_range = [request.POST.get('current_date') + datetime.timedelta(n) for n in [-1, 0, 1]]
+                current_date = dateutil.parser.parse(request.POST.get('current_date')).date()
+                # current_date = datetime.datetime.strptime(request.POST.get('current_date'), '%Y-%m-%d')
+                if request.POST.get('previous'):
+                    current_date = current_date + datetime.timedelta(-3)
+
+                if request.POST.get('next'):
+                    current_date = current_date + datetime.timedelta(3)
+
+                date_range = [current_date + datetime.timedelta(n) for n in [-1, 0, 1]]
 
                 college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
-                total_attendance = student.totalattendance_set.all()
                 timetable = sorted(
                     DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
                     key=lambda x: (x.date, x.original.time.starting_time))
@@ -95,7 +104,7 @@ def show_dashboard(request):
                     'days': days,
                     'total_attendance': total_percent,
                     'attendance': attendance,
-                    'current_date': request.POST.get('current_date'),
+                    'current_date': current_date,
                 })
 
         elif user.role == 'Faculty':
