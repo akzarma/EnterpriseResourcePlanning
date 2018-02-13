@@ -108,17 +108,41 @@ def show_dashboard(request):
                 })
 
         elif user.role == 'Faculty':
-            date_range = [request.POST.get('current_date') + datetime.timedelta(n) for n in [-1, 0, 1]]
-
             faculty = user.faculty
-            timetable = sorted(
-                DateTimetable.objects.filter(date__in=date_range, original__faculty=faculty),
-                key=lambda x: (x.date, x.original.time.starting_time))
-            return render(request, 'dashboard_faculty.html', {
-                'timetable': timetable,
-                'date_range': date_range,
-                'days': days,
-            })
+
+            if request.method == "GET":
+                date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
+
+                timetable = sorted(
+                    DateTimetable.objects.filter(date__in=date_range, original__faculty=faculty),
+                    key=lambda x: (x.date, x.original.time.starting_time))
+                return render(request, 'dashboard_faculty.html', {
+                    'timetable': timetable,
+                    'date_range': date_range,
+                    'days': days,
+                    'current_date': datetime.date.today()
+                })
+
+            else:
+                current_date = dateutil.parser.parse(request.POST.get('current_date')).date()
+                # current_date = datetime.datetime.strptime(request.POST.get('current_date'), '%Y-%m-%d')
+                if request.POST.get('previous'):
+                    current_date = current_date + datetime.timedelta(-3)
+
+                if request.POST.get('next'):
+                    current_date = current_date + datetime.timedelta(3)
+
+                date_range = [current_date + datetime.timedelta(n) for n in [-1, 0, 1]]
+
+                timetable = sorted(
+                    DateTimetable.objects.filter(date__in=date_range, original__faculty=faculty),
+                    key=lambda x: (x.date, x.original.time.starting_time))
+                return render(request, 'dashboard_faculty.html', {
+                    'timetable': timetable,
+                    'date_range': date_range,
+                    'days': days,
+                    'current_date': current_date
+                })
         else:
             logout_user(request)
             return redirect('/login/')

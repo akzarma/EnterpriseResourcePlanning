@@ -37,10 +37,6 @@ class FacultyAttendance(models.Model):
 
 
 class TotalAttendance(models.Model):
-    student = models.ForeignKey(Student)
-    subject = models.ForeignKey(Subject)
-    total_lectures = models.PositiveIntegerField()
-    attended_lectures = models.PositiveIntegerField()
 
     def __str__(self):
         return self.student.first_name + self.student.gr_number + self.subject.name
