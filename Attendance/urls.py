@@ -11,5 +11,6 @@ urlpatterns = [
     url(r'^check$', views.check_attendance, name="check_attendance"),
     url(r'^mark_from_excel$', views.mark_from_excel, name="mark_from_excel"),
     url(r'^android_display_attendance$', views.android_display_attendance, name="android_display_attendance"),
+    url(r'^android/fill/$', views.android_fill, name="android_fill"),
 
 ]

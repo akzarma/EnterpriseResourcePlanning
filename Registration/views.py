@@ -138,9 +138,9 @@ def success_student(request):
             student = Student.objects.get(pk=user_id)
             gr_number = student.gr_number
             return render(request, 'success.html', {
-            'id': gr_number,
+                'id': gr_number,
                 'error': 'Passwords didn\'t match.'
-        })
+            })
     else:
         user_id = request.session.get('user_id')
         student = Student.objects.get(pk=user_id)

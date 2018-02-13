@@ -8,7 +8,8 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from General.models import StudentDivision
-from Registration.models import Faculty, Student, Branch
+from Registration.models import Faculty, Student, Branch, StudentRollNumber
+from Timetable.models import Timetable
 from UserModel.models import User
 import json
 
@@ -48,30 +49,62 @@ def login_android(request):
 
                 user = User.objects.get(username=username)
                 if user.role == 'Faculty':
+                    faculty = user.faculty
                     faculty_response = {
                         'user_type': 'Faculty',
                         'initials': user.faculty.initials,
                         'name': user.faculty.first_name
                     }
-                    if request.POST.get('attendance_request'):
-                        print(request.POST.get('attendance_request'))
-                        return HttpResponse('20')
-                    else:
-                        return HttpResponse(str(faculty_response))
+
+                    all_divisions = Timetable.objects.filter(faculty=faculty).values_list('division', flat=True)
+
+                    attendance_list = {}
+
+                    for each_division in all_divisions:
+
+                        all_student = StudentDivision.objects.filter(division=each_division).values_list('student',
+                                                                                                         flat=True)
+
+                        year = each_division.year
+
+                        division = each_division.division
+                        branch = each_division.branch.branch
+
+                        if year in attendance_list:
+
+                            if branch in attendance_list[year][division]:
+                                if division in attendance_list[year]:
+
+                                    var = {}
+                                else:
+                                    attendance_list[year][branch][division] = {}
+                            else:
+                                attendance_list[year][branch] = {}
+                                attendance_list[year][branch][division] = {}
+
+                        else:
+                            attendance_list[year] = {}
+                            attendance_list[year][branch] = {}
+                            attendance_list[year][branch][division] = {}
+                        attendance_list[year][branch][division] = sorted([
+                            StudentRollNumber.objects.get(student=each_student.student, is_active=True) for
+                            each_student in all_student])
+
+                    faculty_response['attendance_list'] = attendance_list
+
+                    return HttpResponse(str(faculty_response))
                 elif user.role == 'Student':
                     student = user.student
                     student_division = StudentDivision.objects.get(student=student)
                     branch = student.branch
-                    branch_obj = Branch.objects.get(branch=branch)
 
                     student_response = {
                         'user_type': 'Student',
                         'year': student_division.division.year.year,
-                        'branch': student_division.division.branch.branch,
+                        'branch': branch,
                         'division': student_division.division.division,
                         'name': user.student.first_name
                     }
-
 
                     return HttpResponse(str(student_response))
 

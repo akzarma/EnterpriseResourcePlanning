@@ -682,7 +682,6 @@ def android_timetable_json(request):
                         'is_practical': is_practical
                     }
 
-
             return JsonResponse(answer)
         else:
 
@@ -738,10 +737,9 @@ def android_timetable_json(request):
                         'subject': subject,
                         'year': year,
 
-                     'batch': batch
+                        'batch': batch
                     }
                 else:
-
 
                     faculty_json[faculty][day][time] = {
                         'branch': branch,
