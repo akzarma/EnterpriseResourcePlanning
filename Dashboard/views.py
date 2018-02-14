@@ -107,7 +107,7 @@ def show_dashboard(request):
                     'days': days,
                     'total_attendance': total_percent,
                     'attendance': attendance,
-                    'current_date': current_date,
+                    'current_date': current_date.strftime('%Y-%m-%d'),
                 })
 
         elif user.role == 'Faculty':
@@ -144,7 +144,7 @@ def show_dashboard(request):
                     'timetable': timetable,
                     'date_range': date_range,
                     'days': days,
-                    'current_date': current_date
+                    'current_date': current_date.strftime('%Y-%m-%d')
                 })
         else:
             logout_user(request)
