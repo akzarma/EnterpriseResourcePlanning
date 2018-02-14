@@ -137,6 +137,7 @@
             padding: 20px;
             min-height: 100vh;
             transition: all 0.3s;
+            width: 100%;
         }
 
         /* ---------------------------------------------------
@@ -250,7 +251,11 @@
                                                         <div class="row">
                                                             <div class="col-md-4">{{ each.substitute.branch_subject.subject.short_form }}</div>
                                                             <div class="col-md-4">{{ each.substitute.room.room_number }}</div>
-                                                            <div class="col-md-4">{{ each.substitute.division }}</div>
+                                                            <div class="col-md-4">
+                                                                {{ each.substitute.division.branch }}<br/>
+                                                                {{ each.substitute.division.year }}
+                                                                {{ each.substitute.division.division }}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 {% else %}
@@ -261,7 +266,11 @@
                                                         <div class="row">
                                                             <div class="col-md-4">{{ each.original.branch_subject.subject.short_form }}</div>
                                                             <div class="col-md-4">{{ each.original.room.room_number }}</div>
-                                                            <div class="col-md-4">{{ each.original.division }}</div>
+                                                            <div class="col-md-4">
+                                                                {{ each.original.division.branch }}<br/>
+                                                                {{ each.original.division.year }}
+                                                                {{ each.original.division.division }}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 {% endif %}
