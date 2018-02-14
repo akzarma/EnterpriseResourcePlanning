@@ -23,7 +23,7 @@ class Faculty(models.Model):
     first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100)
-    faculty_code = models.CharField(max_length=10, primary_key=True)
+    faculty_code = models.CharField(max_length=15, primary_key=True)
     DOB = models.DateField(default='1996-02-11', blank=True, null=True)
 
     # account details

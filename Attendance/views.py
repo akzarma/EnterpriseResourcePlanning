@@ -385,7 +385,8 @@ def mark_from_excel(request):
                                                attended_leactures=attended)
 
         else:
-            print(token[1])
+            # print(token[1])
+            {}
 
     return HttpResponse("here")
 

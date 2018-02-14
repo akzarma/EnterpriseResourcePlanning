@@ -57,16 +57,15 @@ def login_android(request):
                     }
                     return HttpResponse(str(faculty_response))
 
-                    all_divisions = Timetable.objects.filter(faculty=faculty).values_list('division', flat=True)
+                    all_divisions = [each.division for each in Timetable.objects.filter(faculty=faculty)]
 
                     attendance_list = {}
 
                     for each_division in all_divisions:
 
-                        all_student = StudentDivision.objects.filter(division=each_division).values_list('student',
-                                                                                                         flat=True)
+                        all_student = [each.student for each in StudentDivision.objects.filter(division=each_division)]
 
-                        year = each_division.year
+                        year = each_division.year.year
 
                         division = each_division.division
                         branch = each_division.branch.branch
@@ -86,10 +85,17 @@ def login_android(request):
                         else:
                             attendance_list[year] = {}
                             attendance_list[year][branch] = {}
-                            attendance_list[year][branch][division] = {}
-                        attendance_list[year][branch][division] = sorted([
-                            StudentRollNumber.objects.get(student=each_student.student, is_active=True) for
-                            each_student in all_student])
+                            attendance_list[year][branch][division] = []
+                        # attendance_list[year][branch][division] = sorted([
+                        #     StudentRollNumber.objects.get(student=each_student.student, is_active=True) for
+                        #     each_student in all_student])
+
+                        for each_student in all_student:
+
+                            roll_number = StudentRollNumber.objects.get(student=each_student,
+                                                                        is_active=True).roll_number
+
+                            attendance_list[year][branch][division].append(roll_number)
 
                     faculty_response['attendance_list'] = attendance_list
 
@@ -110,8 +116,12 @@ def login_android(request):
                     return HttpResponse(str(student_response))
 
             else:
-                return HttpResponse(str(response))
+                return HttpResponse('sdfgvbhn')
 
-        except:
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+
             return HttpResponse(str(response))
-    return HttpResponse(str(response))
+    else:
+        return HttpResponse(str('Not POst'))

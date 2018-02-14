@@ -201,12 +201,22 @@
                     <a href="/dashboard/">Dashboard</a>
                 </li>
                 <li>
-                    <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Attendance</a>
-                    <ul class="collapse list-unstyled" id="homeSubmenu">
+                    <a href="#excelSubmenu" data-toggle="collapse" aria-expanded="false">Attendance</a>
+                    <ul class="collapse list-unstyled" id="">
                         <li><a href="{% url 'attendance:select_cat' %}">Fill Attendance</a></li>
                         <li><a href="{% url 'attendance:check_attendance' %}">Check Attendance</a></li>
                     </ul>
                 </li>
+
+                <li>
+                    <a href="#excelSubmenu" data-toggle="collapse" aria-expanded="false">Excel</a>
+                    <ul class="collapse list-unstyled" id="excelSubmenu">
+                        <li><a href="{% url 'dashboard:excel_timetable' %}">TimeTable</a></li>
+                        {#                        <li><a href="{% url 'attendance:excel_student' %}">Student</a></li>#}
+                        {#                        <li><a href="{% url 'dashboard:excel_faculty' %}">Fcaulty</a></li>#}
+                    </ul>
+                </li>
+
                 <li>
                     <a href="{% url 'update:update' %}">Update</a>
                 </li>
@@ -217,7 +227,7 @@
                 <li>
                     <a href="#registermenu" data-toggle="collapse" aria-expanded="false">Register</a>
                     <ul class="collapse list-unstyled" id="registermenu">
-                        <li><a href="{% url 'registration:register_subject' %}">Subject</a></li>
+                        <li><a href="{% url 'registration:register_subject' %}">Subjet</a></li>
                         <li><a href="{% url 'registration:register_faculty_subject' %}">Faculty Subject</a></li>
                     </ul>
                 </li>
