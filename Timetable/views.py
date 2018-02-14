@@ -401,12 +401,7 @@ def to_json():
 
 
 def get_excel(request):
-    expenses = (
-        ['Rent', 1000],
-        ['Gas', 100],
-        ['Food', 300],
-        ['Gym', 50],
-    )
+
 
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 

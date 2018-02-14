@@ -19,7 +19,7 @@ urlpatterns = [
     url(r'research/$', views.list_research, name="research"),
 
     # /dashboard/get_all_excel/
-    url(r'get_excel/', views.get_all_excel, name='get_all_excel'),
+    url(r'get_excel/', views.excel_timetable, name='excel_timetable'),
 
     # /dashboard/get_excel
     url(r'get_excel/', views.get_excel, name='get_excel')
