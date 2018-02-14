@@ -123,19 +123,26 @@ def save(request):
                 faculty = user.faculty
                 if 'save_attendance' in request.POST:
                     selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
-                    student_roll_objs = StudentRollNumber.objects.filter(
-                        roll_number__in=request.POST.getlist('present'))
-                    student_attendance = [StudentAttendance(student=each.student, timetable=selected_timetable,
-                                                            attended=True) for each in student_roll_objs]
-                    #
-                    # all_students = StudentDivision.objects.filter(division=selected_timetable.original.division) \
-                    #     .values_list('student', flat=True)
-                    # all_students_roll = []
-                    # for each in all_students:
-                    #     all_students_roll += [
-                    #         StudentRollNumber.objects.get(student=each, is_active=True).roll_number]
-                    # all_students_roll = sorted(all_students_roll)
-                    #
+                    student_roll_objs = list(StudentRollNumber.objects.filter(
+                        roll_number__in=request.POST.getlist('present')))
+
+                    student_attendance = []
+
+                    all_students = StudentDivision.objects.filter(division=selected_timetable.original.division) \
+                        .values_list('student', flat=True)
+
+                    all_students_roll = [
+                        StudentRollNumber.objects.get(student=each, is_active=True) for each in
+                        all_students]
+
+                    for roll in all_students_roll:
+                        if roll in student_roll_objs:
+                            student_attendance += [StudentAttendance(student=roll.student, timetable=selected_timetable,
+                                                                     attended=True)]
+                        else:
+                            student_attendance += [StudentAttendance(student=roll.student, timetable=selected_timetable,
+                                                                     attended=False)]
+
                     StudentAttendance.objects.bulk_create(student_attendance)
                     return render(request, 'select_cat.html', {'success': 'Attendance saved.'})
     return render(request, 'select_cat.html', {'error': 'Some problem is there.'})
@@ -168,7 +175,7 @@ def select_cat(request):
 
                     attendance = StudentAttendance.objects.filter(timetable=selected_class_obj)
                     present_roll = sorted([StudentRollNumber.objects.get(student=each.student).roll_number
-                                           for each in attendance])
+                                           for each in attendance if each.attended is True])
 
                     all_students = StudentDivision.objects.filter(division=selected_class_obj.original.division) \
                         .values_list('student', flat=True)
@@ -372,4 +379,3 @@ def mark_from_excel(request):
 def android_fill(request):
     if request.POST.get('attendance_request'):
         return HttpResponse(20)
-
