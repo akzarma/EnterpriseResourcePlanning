@@ -242,8 +242,34 @@ def get_excel(request):
     return HttpResponse('Done')
 
 
-@login_required
 def excel_timetable(request):
+    timetable_json = {}
+
+    college_extra_detail = CollegeExtraDetail.objects.all()
+
+    for each in college_extra_detail:
+        branch = each.branch.branch
+        year = each.year.year
+        division = each.division
+
+        if branch in timetable_json:
+            if year in timetable_json[branch]:
+                {}
+            else:
+                timetable_json[branch][year] = {}
+        else:
+            timetable_json[branch] = {}
+            timetable_json[branch][year] = {}
+
+        timetable_json[branch][year] += division
+
+    print(timetable_json)
+
+    return render(request, 'excel_timetable.html',timetable_json)
+
+
+@login_required
+def download_excel_timetable(request):
     if request.method == 'GET':
         branch = request.GET.get('branch')
         year = request.GET.get('year')
@@ -262,7 +288,6 @@ def excel_timetable(request):
             college_extra_detail.filter(year=year_obj)
 
         if division != 'all':
-
             college_extra_detail.filter(division=division)
 
         full_timetable.filter(division=college_extra_detail)
@@ -441,8 +466,5 @@ def excel_timetable(request):
             row += 8
 
         workbook.close()
-
-
-
 
     return None

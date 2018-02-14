@@ -91,7 +91,6 @@ def login_android(request):
                         #     each_student in all_student])
 
                         for each_student in all_student:
-                            print(each_student.gr_number)
 
                             roll_number = StudentRollNumber.objects.get(student=each_student,
                                                                         is_active=True).roll_number
@@ -122,7 +121,6 @@ def login_android(request):
         except Exception as ex:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
-            print(message)
 
             return HttpResponse(str(response))
     else:

@@ -164,7 +164,6 @@ def fill_timetable(request):
 
 
 def fill_date_timetable(new_date_timetable):
-    print('fill TT')
     creation_list = []
     new_date_timetable = Timetable.objects.all()
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday']
@@ -362,7 +361,7 @@ def to_json():
         if is_practical:
             batch = each.batch.batch_name
             if 'is_practical' in answer[year][branch][division][day][time]:
-                print('contains')
+                {}
             else:
                 answer[year][branch][division][day][time] = {
                     'is_practical': is_practical
