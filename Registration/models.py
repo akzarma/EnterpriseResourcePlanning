@@ -201,4 +201,4 @@ class StudentRollNumber(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.student.gr_number) + str(self.roll_number) + ' ' + str(self.student.first_name)
+        return str(self.student.gr_number) + ' ' + str(self.roll_number) + ' ' + str(self.student.first_name)

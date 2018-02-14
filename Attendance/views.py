@@ -20,41 +20,99 @@ from .models import StudentAttendance, TotalAttendance
 
 
 # Create your views here.
-def index(request):
-    user = request.user
-    if not user.is_anonymous:
-        if user.role == 'Faculty':
-            faculty = user.faculty
-            selected_class = request.POST.get('selected_class')
-            selected_class_obj = Timetable.objects.get(pk=selected_class)
-            selected_date = request.POST.get('selected_date')
-            selected_class_obj = DateTimetable.objects.get(date=parse_date(selected_date), original=selected_class_obj)
-            attendance = StudentAttendance.objects.filter(timetable=selected_class_obj).order_by('student__gr_number')
-            if attendance:
-                all_students = attendance
-                att = 1
-            else:
-                all_students = StudentDivision.objects.filter(division=selected_class_obj.original.division) \
-                    .values_list('student', flat=True).order_by('student__gr_number')
-                att = 0
-            timetables = faculty.timetable_set.all()
-            return render(request, "attendance.html", {
-                'all_students': all_students,
-                'selected_class': selected_class_obj,
-                'faculty_subject': timetables,
-                'att': att,
-                'selected_date': selected_date
-            })
+# def index(request):
+#     user = request.user
+#     if not user.is_anonymous:
+#         if user.role == 'Faculty':
+#             faculty = user.faculty
+#             selected_class = request.POST.get('selected_class')
+#             selected_class_obj = Timetable.objects.get(pk=selected_class)
+#             selected_date = request.POST.get('selected_date')
+#             selected_class_obj = DateTimetable.objects.get(date=parse_date(selected_date), original=selected_class_obj)
+#             attendance = StudentAttendance.objects.filter(timetable=selected_class_obj).order_by('student__gr_number')
+#             if attendance:
+#                 all_students = attendance
+#                 att = 1
+#             else:
+#                 all_students = StudentDivision.objects.filter(division=selected_class_obj.original.division) \
+#                     .values_list('student', flat=True)
+#                 all_students_roll = [StudentRollNumber.objects.get(student=each, is_active=True).roll_number for each in
+#                                      all_students]
+#                 sorted(all_students_roll)
+#                 att = 0
+#             timetables = faculty.timetable_set.all()
+#             return render(request, "attendance.html", {
+#                 'all_students': all_students,
+#                 'selected_class': selected_class_obj,
+#                 'faculty_subject': timetables,
+#                 'att': att,
+#                 'selected_date': selected_date
+#             })
+#
+#
+#         else:
+#
+#             # should be faculty....alert on login page with proper message.
+#
+#             return render(request, 'login.html', {'info': 'That page is only for Faculty'})
+#     else:
+#         return render(request, 'login.html', {'error': 'Login first'})
 
 
-        else:
-
-            # should be faculty....alert on login page with proper message.
-
-            return render(request, 'login.html', {'info': 'That page is only for Faculty'})
-    else:
-        return render(request, 'login.html', {'error': 'Login first'})
-
+# def save(request):
+#     user = request.user
+#
+#     if not user.is_anonymous:
+#         if user.role == 'Faculty':
+#             if request.method == 'POST':
+#                 faculty = user.faculty
+#                 present = request.POST.getlist('present')
+#                 selected_date = request.POST.get('selected_date')
+#
+#                 timetable = Timetable.objects.get(pk=int(request.POST.get('selected_class')))
+#                 division_obj = timetable.division
+#                 all_students = StudentDivision.objects.filter(division=division_obj).values_list('student__pk',
+#                                                                                                  flat=True)
+#                 # all_students = StudentDetails.objects.all().values_list('pk', flat=True)
+#                 absent = list(set(all_students) - set(present))
+#
+#                 whole = []
+#                 for student in present:
+#                     new = StudentAttendance.objects.filter(student=Student.objects.get(pk=student), timetable=timetable,
+#                                                            date=parse_date(selected_date)).first()
+#                     if new:
+#                         new.attended = True
+#                         new.save()
+#                     else:
+#                         new = StudentAttendance(student=Student.objects.get(pk=student), timetable=timetable,
+#                                                 attended=True, date=parse_date(selected_date))
+#                         whole.append(new)
+#                 for student in absent:
+#                     new = StudentAttendance.objects.filter(student=Student.objects.get(pk=student), timetable=timetable,
+#                                                            date=parse_date(selected_date)).first()
+#                     if new:
+#                         new.attended = False
+#                         new.save()
+#                     else:
+#                         new = StudentAttendance(student=Student.objects.get(pk=student), timetable=timetable,
+#                                                 attended=False, date=parse_date(selected_date))
+#                         whole.append(new)
+#                 # StudentAttendance.objects.bulk_create(whole)
+#                 StudentAttendance.objects.bulk_create(whole)
+#
+#                 faculty = user.faculty
+#                 timetables = faculty.timetable_set.all()
+#                 return render(request, 'select_cat.html', {'success': 'Attendance saved successfully',
+#                                                            'faculty_subject': timetables})
+#
+#             else:
+#                 return HttpResponseRedirect('/attendance/select')
+#
+#         else:
+#             return HttpResponse('User not faculty')
+#
+#     else:
+#         return HttpResponseRedirect('/login/')
 
 def save(request):
     user = request.user
@@ -63,53 +121,24 @@ def save(request):
         if user.role == 'Faculty':
             if request.method == 'POST':
                 faculty = user.faculty
-                present = request.POST.getlist('present')
-                selected_date = request.POST.get('selected_date')
-
-                timetable = Timetable.objects.get(pk=int(request.POST.get('selected_class')))
-                division_obj = timetable.division
-                all_students = StudentDivision.objects.filter(division=division_obj).values_list('student__pk',
-                                                                                                 flat=True)
-                # all_students = StudentDetails.objects.all().values_list('pk', flat=True)
-                absent = list(set(all_students) - set(present))
-
-                whole = []
-                for student in present:
-                    new = StudentAttendance.objects.filter(student=Student.objects.get(pk=student), timetable=timetable,
-                                                           date=parse_date(selected_date)).first()
-                    if new:
-                        new.attended = True
-                        new.save()
-                    else:
-                        new = StudentAttendance(student=Student.objects.get(pk=student), timetable=timetable,
-                                                attended=True, date=parse_date(selected_date))
-                        whole.append(new)
-                for student in absent:
-                    new = StudentAttendance.objects.filter(student=Student.objects.get(pk=student), timetable=timetable,
-                                                           date=parse_date(selected_date)).first()
-                    if new:
-                        new.attended = False
-                        new.save()
-                    else:
-                        new = StudentAttendance(student=Student.objects.get(pk=student), timetable=timetable,
-                                                attended=False, date=parse_date(selected_date))
-                        whole.append(new)
-                # StudentAttendance.objects.bulk_create(whole)
-                StudentAttendance.objects.bulk_create(whole)
-
-                faculty = user.faculty
-                timetables = faculty.timetable_set.all()
-                return render(request, 'select_cat.html', {'success': 'Attendance saved successfully',
-                                                           'faculty_subject': timetables})
-
-            else:
-                return HttpResponseRedirect('/attendance/select')
-
-        else:
-            return HttpResponse('User not faculty')
-
-    else:
-        return HttpResponseRedirect('/login/')
+                if 'save_attendance' in request.POST:
+                    selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
+                    student_roll_objs = StudentRollNumber.objects.filter(
+                        roll_number__in=request.POST.getlist('present'))
+                    student_attendance = [StudentAttendance(student=each.student, timetable=selected_timetable,
+                                                            attended=True) for each in student_roll_objs]
+                    #
+                    # all_students = StudentDivision.objects.filter(division=selected_timetable.original.division) \
+                    #     .values_list('student', flat=True)
+                    # all_students_roll = []
+                    # for each in all_students:
+                    #     all_students_roll += [
+                    #         StudentRollNumber.objects.get(student=each, is_active=True).roll_number]
+                    # all_students_roll = sorted(all_students_roll)
+                    #
+                    StudentAttendance.objects.bulk_create(student_attendance)
+                    return render(request, 'select_cat.html', {'success': 'Attendance saved.'})
+    return render(request, 'select_cat.html', {'error': 'Some problem is there.'})
 
 
 def select_cat(request):
@@ -117,12 +146,53 @@ def select_cat(request):
     if not user.is_anonymous:
         if user.role == 'Faculty':
             if request.method == 'POST':
-                form = FacultySubject(request.POST, request.FILES, instance=user.faculty)
-                return HttpResponse('Where are you going?')
-            else:
                 faculty = user.faculty
-                timetables = faculty.timetable_set.all()
-                return render(request, 'select_cat.html', {'faculty_subject': timetables})
+                if 'GO' in request.POST:
+                    selected_date = parse_date(request.POST.get('selected_date'))
+                    timetable = sorted(
+                        DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
+                        key=lambda x: (x.date, x.original.time.starting_time))
+
+                    return render(request, 'select_cat.html', {
+                        'timetable': timetable,
+                        'selected_date': selected_date,
+                    })
+
+                elif 'date_timetable' in request.POST:
+                    selected_date = parse_date(request.POST.get('selected_date'))
+                    timetable = sorted(
+                        DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
+                        key=lambda x: (x.date, x.original.time.starting_time))
+
+                    selected_class_obj = DateTimetable.objects.get(pk=request.POST.get('date_timetable'))
+
+                    attendance = StudentAttendance.objects.filter(timetable=selected_class_obj)
+                    present_roll = sorted([StudentRollNumber.objects.get(student=each.student).roll_number
+                                           for each in attendance])
+
+                    all_students = StudentDivision.objects.filter(division=selected_class_obj.original.division) \
+                        .values_list('student', flat=True)
+                    all_students_roll = sorted(
+                        [StudentRollNumber.objects.get(student=each, is_active=True).roll_number for
+                         each in all_students])
+
+                    if attendance:
+                        att = 1
+
+                    else:
+                        att = 0
+
+                    return render(request, 'select_cat.html', {
+                        'timetable': timetable,
+                        'selected_date': selected_date,
+                        'att': att,
+                        'selected_timetable': selected_class_obj,
+                        'all_students_roll': all_students_roll,
+                        'present_roll': present_roll,
+                    })
+
+            else:
+                return render(request, 'select_cat.html')
 
         else:
             # should be faculty....alert on login page with proper message.
@@ -297,7 +367,9 @@ def mark_from_excel(request):
 
     return HttpResponse("here")
 
+
 @csrf_exempt
 def android_fill(request):
     if request.POST.get('attendance_request'):
         return HttpResponse(20)
+

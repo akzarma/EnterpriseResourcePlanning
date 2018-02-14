@@ -3,19 +3,120 @@
     Attendance
 {% endblock title %}
 {% block content %}
+    <div class="col-md-4">
+        <div class="row">
 
-    <form action="{% url 'attendance:attendance' %}" method="post">
+            <legend>Select Date</legend>
+            <form action="{% url 'attendance:select_cat' %}" method="post">
+                {% csrf_token %}
+                {% if selected_date %}
+                    <input type="date" class="form-control datepicker" name="selected_date"
+                           placeholder="{{ selected_date.year }}-{{ selected_date.month }}-{{ selected_date.day }}">
+                    <br/>
 
-        {% csrf_token %}
-        <label>
-            <input type="date" name="selected_date" min="2015-01-02"><br>
-            <select name="selected_class">
-                {% for each in faculty_subject %}
-                    <option value="{{ each.id }}"> {{ each.division.year.year }} {{ each.division.division }} {{ each.branch_subject.subject.short_form }} {{ each.day }} {{ each.time.starting_time }}-{{ each.time.ending_time }} {{ each.room.room_number }}
-                    </option>
-                {% endfor %}
-            </select>
-        </label>
-        <button name="GO">Go</button>
-    </form>
+
+                {% else %}
+                    <input type="date" class="form-control datepicker" name="selected_date"><br/>
+                    <br/>
+                {% endif %}
+                <button type="submit" name="GO">Go</button>
+            </form>
+
+        </div>
+
+        {% if timetable %}
+            <form method="post" action="{% url 'attendance:select_cat' %}">
+                {% csrf_token %}
+                <input type="hidden" name="selected_date"
+                       value="{{ selected_date.year }}-{{ selected_date.month }}-{{ selected_date.day }}">
+                <div class="row">
+                    <legend>Lectures on {{ selected_date }}</legend>
+                    {% for each in timetable %}
+                        {% if each.is_substituted is True %}
+                            <button name="date_timetable" class="card btn btn-info"
+                                    style="width: 100%; font-weight: bold; margin-bottom: 5px;" value="{{ each.pk }}">
+                                <div class="card-header"
+                                     style="border-bottom: 2px solid white;">{{ each.substitute.time }}</div>
+                                <div class="row">
+                                    <div class="col-md-4">{{ each.substitute.branch_subject.subject.short_form }}</div>
+                                    <div class="col-md-4">{{ each.substitute.room.room_number }}</div>
+                                    <div class="col-md-4">
+                                        {{ each.substitute.division.branch }}<br/>
+                                        {{ each.substitute.division.year }}
+                                        {{ each.substitute.division.division }}
+                                    </div>
+                                </div>
+                            </button>
+                        {% else %}
+                            <button type="submit" name="date_timetable" class="card btn btn-info"
+                                    style="width: 100%; font-weight: bold; margin-bottom: 5px;" value="{{ each.pk }}">
+                                <div class="card-header"
+                                     style="border-bottom: 2px solid white;">{{ each.original.time }}</div>
+                                <div class="row">
+                                    <div class="col-md-4">{{ each.original.branch_subject.subject.short_form }}</div>
+                                    <div class="col-md-4">{{ each.original.room.room_number }}</div>
+                                    <div class="col-md-4">
+                                        {{ each.original.division.branch }}<br/>
+                                        {{ each.original.division.year }}
+                                        {{ each.original.division.division }}
+                                    </div>
+                                </div>
+                            </button>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </form>
+        {% endif %}
+    </div>
+    {% if all_students_roll %}
+        <div class="col-md-7 col-md-offset-1">
+            <legend>Mark Attendance for {{ selected_date }}</legend>
+            {% if selected_timetable.is_substituted is True %}
+                <p>{{ selected_timetable.substitute.time }}</p>
+                <p>{{ selected_timetable.substitute.branch_subject.subject.short_form }}</p>
+                <p>{{ selected_timetable.substitute.room.room_number }}</p>
+                <p>{{ selected_timetable.substitute.division.branch }} {{ selected_timetable.substitute.division.year }} {{ selected_timetable.substitute.division.division }}</p>
+            {% else %}
+                <p>{{ selected_timetable.original.time }}</p>
+                <p>{{ selected_timetable.original.branch_subject.subject.short_form }}</p>
+                <p>{{ selected_timetable.original.room.room_number }}</p>
+                <p>{{ selected_timetable.original.division.branch }} {{ selected_timetable.original.division.year }} {{ selected_timetable.original.division.division }}</p>
+            {% endif %}
+            <form action="{% url 'attendance:save' %}" method="post">
+                {% csrf_token %}
+                <input class="hidden" name="selected_timetable" value="{{ selected_timetable.pk }}">
+                <div class="row">
+                    {% for i in all_students_roll %}
+                        <div class="col-lg-1" id="test">
+                            <section>
+                                <!-- .squaredOne -->
+                                <div class="squaredOne">
+                                    {% if not att %}
+                                        <input class="cb" type="checkbox" value="{{ i }}"
+                                               id="squaredOne{{ forloop.counter }}"
+                                               name="present"/>
+                                    {% else %}
+                                        {% if i in present_roll %}
+                                            <input class="cb" type="checkbox" value="{{ i.student.pk }}"
+                                                   id="squaredOne{{ forloop.counter }}"
+                                                   name="present" checked/>
+                                        {% else %}
+                                            <input class="cb" type="checkbox" value="{{ i.student.pk }}"
+                                                   id="squaredOne{{ forloop.counter }}"
+                                                   name="present"/>
+                                        {% endif %}
+                                    {% endif %}
+                                    <label for="squaredOne{{ forloop.counter }}">{{ i }}</label>
+                                </div>
+                                <!-- end .squaredOne -->
+                            </section>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="row">
+                    <input class="btn btn-primary" type="submit" name="save_attendance" value="Save">
+                </div>
+            </form>
+        </div>
+    {% endif %}
 {% endblock content %}
