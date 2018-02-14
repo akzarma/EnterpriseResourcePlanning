@@ -55,6 +55,7 @@ def login_android(request):
                         'initials': user.faculty.initials,
                         'name': user.faculty.first_name
                     }
+                    return HttpResponse(str(faculty_response))
 
                     all_divisions = Timetable.objects.filter(faculty=faculty).values_list('division', flat=True)
 

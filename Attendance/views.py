@@ -34,7 +34,7 @@ def index(request):
                 all_students = attendance
                 att = 1
             else:
-                all_students = StudentDivision.objects.filter(division=selected_class_obj.division) \
+                all_students = StudentDivision.objects.filter(division=selected_class_obj.original.division) \
                     .values_list('student', flat=True).order_by('student__gr_number')
                 att = 0
             timetables = faculty.timetable_set.all()
