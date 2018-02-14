@@ -482,16 +482,7 @@ def get_excel(request):
     workbook = xlsxwriter.Workbook('Expenses01.xlsx')
     worksheet = workbook.add_worksheet()
 
-    # Some data we want to write to the worksheet.
-    expenses = (
-        ['Rent', 1000],
-        ['Gas', 100],
-        ['Food', 300],
-        ['Gym', 50],
-    )
 
-    # Start from the first cell. Rows and columns are zero indexed.
-    row = 0
     col = 1
 
     year_format = workbook.add_format({

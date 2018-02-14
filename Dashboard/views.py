@@ -1,6 +1,7 @@
 import json
 from itertools import chain
 
+import xlsxwriter
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
@@ -205,3 +206,42 @@ def list_research(request):
     user = request.user
     all_papers = Paper.objects.filter(faculty=user.faculty)
     return render(request, 'list_research.html', {'all_papers': all_papers})
+
+
+def get_excel(request):
+    all_students = Student.objects.all()
+
+    workbook = xlsxwriter.Workbook('Students.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    all_fields = Student._meta._get_fields(reverse=False, include_parents=False)
+
+    heading = [each.column for each in all_fields if
+               each.related_model is None and each.get_internal_type() != 'FileField']
+
+    start_index = 1
+
+    row = 0
+    worksheet.write(row, 0, 'Sr No.')
+
+    for index in range(len(heading)):
+        worksheet.write(row, index + start_index, heading[index])
+
+    row = 1
+
+    for row_index in range(len(all_students)):
+
+        worksheet.write(row + row_index, 0, row_index + 1)
+
+        for col_index in range(len(heading)):
+            worksheet.write(row + row_index, start_index + col_index,
+                            getattr(all_students[row_index], heading[col_index]))
+
+    return HttpResponse('Done')
+
+
+def get_all_excel(request):
+
+    if request.method==
+
+    return None
