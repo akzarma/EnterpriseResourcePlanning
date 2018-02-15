@@ -1,12 +1,17 @@
 from __future__ import unicode_literals
 
+import hashlib
 import json
 
 from django.contrib.auth import authenticate, login
+from django.core.mail import send_mail
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
+from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
 
+from EnterpriseResourcePlanning import conf
+from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import StudentDivision
 from Registration.models import Faculty, Student, Branch, StudentRollNumber
 from Timetable.models import Timetable
@@ -55,8 +60,8 @@ def login_android(request):
                         'initials': user.faculty.initials,
                         'name': user.faculty.first_name
                     }
-                    return HttpResponse(str(faculty_response))
 
+                    return HttpResponse(str(faculty_response))
                     all_divisions = [each.division for each in Timetable.objects.filter(faculty=faculty)]
 
                     attendance_list = {}
@@ -91,13 +96,19 @@ def login_android(request):
                         #     each_student in all_student])
 
                         for each_student in all_student:
-
                             roll_number = StudentRollNumber.objects.get(student=each_student,
                                                                         is_active=True).roll_number
 
                             attendance_list[year][branch][division].append(roll_number)
+                            attendance_list[year][branch][division] = {}
+
+                        for each_student in all_student:
+                            attendance_list[year][branch][division].appned(
+                                StudentRollNumber.objects.get(student=each_student, is_active=True).roll_number)
 
                     faculty_response['attendance_list'] = attendance_list
+
+                    print(faculty_response)
 
                     return HttpResponse(str(faculty_response))
                 elif user.role == 'Student':
@@ -125,3 +136,10 @@ def login_android(request):
             return HttpResponse(str(response))
     else:
         return HttpResponse(str('Not POst'))
+
+
+def generate_activation_key():
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    secret_key = get_random_string(20, chars)
+
+    return hashlib.sha256((secret_key).encode('utf-8')).hexdigest()

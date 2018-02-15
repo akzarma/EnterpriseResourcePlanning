@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
 
+from EnterpriseResourcePlanning import conf
+from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear, BranchSubject, Semester, \
     FacultySubject
+from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User
 from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm
@@ -47,9 +51,10 @@ def register_student(request):
         form = StudentForm(request.POST, request.FILES)
         if form.is_valid():
             student = form.save(commit=False)
+            student.key = generate_activation_key()
             new_user = User.objects.create_user(username=student.gr_number,
                                                 email=form.cleaned_data.get('email'),
-                                                role='Student')
+                                              role='Student')
             new_user.save()
             division = form.cleaned_data.get('division')
             shift = form.cleaned_data.get('shift')
@@ -223,3 +228,113 @@ def register_subject(request):
         subject_form = SubjectForm()
     return render(request, 'test_register_subject.html',
                   {'form': subject_form})
+
+
+def change_password(request):
+    if request.method == 'POST':
+        gr_number = request.POST.get('gr_number')
+        new = request.POST.get('new_pwd')
+        cnf = request.POST.get('cnf_pwd')
+        # print("user:",User.objects.get(pk=user).username)
+        try:
+            user = User.objects.get(username=gr_number)
+        except:
+            return render(request, 'login.html', {'error': 'No user found.'})
+        if new != cnf:
+            # print('new !=cnf')
+            return render(request, 'change_password.html', {
+                'error': "Confirm Password didn't match new Password!",
+                'gr_number': gr_number
+            })
+        else:
+            user.set_password(new)
+            user.save()
+            student = Student.objects.get(user=user)
+            student.key = 'verified'
+            student.save()
+            return render(request, 'login.html', {
+                'success': "Password is successfully changed",
+            })
+    else:
+        return HttpResponse('Not authorized.')
+
+
+
+def forgot_password(request):
+    if request.method == 'POST':
+        gr_number = request.POST.get('gr_number')
+        try:
+            user = User.objects.get(username=gr_number)
+        except User.DoesNotExist:
+            return render(request, 'forgot_password.html', {'error': 'No User exist with ' + gr_number})
+        try:
+            student = Student.objects.get(user=user)
+        except:
+            return render(request, 'forgot_password.html', {'error': 'Student not found with this email.'})
+
+        if email_sending_service_enabled:
+
+            student.key = generate_activation_key()
+            student.save()
+            link = conf.site_initial_link + '/register/verification/email/' + student.key + \
+                   '/' + user.username
+            send_mail('VIIT Forgot Password Link',
+                      link,
+                      'noreply.viit@gmail.com',
+                      [user.email], fail_silently=False)
+            return render(request, 'login.html',
+                          {'success': 'Mail has been successfully sent to ' + user.email,
+                           })
+        else:
+            return render(request, 'forgot_password.html',
+                          {'error': 'Mail service is temporarily out of coverage.'})
+
+    else:
+        return render(request, 'forgot_password.html')
+
+
+def verification_process(request, key, username):
+    # print('key= ' + key)
+    # print('username= ' + username)
+    try:
+        user = User.objects.get(username=username)
+        student = Student.objects.get(user=user)
+    except:
+        return render(request, 'login.html', {'error': 'Something is wrong.'})
+    if student.key == 'verified':
+        return render(request, 'login.html', {'error': 'Something is wrong.'})
+    if student:
+        if request.method == 'POST':
+            if student.key == key:
+                gr_number = request.POST.get('gr_number')
+                new = request.POST.get('new_pwd')
+                cnf = request.POST.get('cnf_pwd')
+                # print("user:",User.objects.get(pk=user).username)
+                try:
+                    user = User.objects.get(username=gr_number)
+                except:
+                    return render(request, 'login.html', {'error': 'No user found.'})
+                if new != cnf:
+                    # print('new !=cnf')
+                    return render(request, 'change_password.html', {
+                        'error': "Confirm Password didn't match new Password!",
+                        'gr_number': gr_number
+                    })
+                else:
+                    user.set_password(new)
+                    user.save()
+                    student = Student.objects.get(user=user)
+                    student.key = 'verified'
+                    student.save()
+                    return render(request, 'login.html', {
+                        'success': "Password is successfully changed",
+                    })
+        elif request.method == 'GET':
+            if student.key == key:
+                return render(request, 'change_password.html', {'gr_number': student.gr_number,
+                                                            'key': key})
+            else:
+                return render(request, 'login.html', {'error': 'Something is wrong.'})
+    else:
+        return render(request, 'login.html', {'error': 'Something is wrong.'})
+
