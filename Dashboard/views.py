@@ -268,7 +268,7 @@ def excel_timetable(request):
     return render(request, 'excel_timetable.html', timetable_json)
 
 
-@login_required
+# @login_required
 def download_excel_timetable(request):
     if request.method == 'GET':
         branch = request.GET.get('branch')
@@ -364,7 +364,7 @@ def download_excel_timetable(request):
         answer = OrderedDict(sorted(answer.items(), key=lambda x: days.index(x[0])))
 
         # Create a workbook and add a worksheet.
-        workbook = xlsxwriter.Workbook('Expenses01.xlsx')
+        workbook = xlsxwriter.Workbook('Media/Excel/timetable_' + branch + '_' + year + '_' + '.xlsx')
         worksheet = workbook.add_worksheet()
 
         col = 1
@@ -467,4 +467,4 @@ def download_excel_timetable(request):
 
         workbook.close()
 
-    return None
+    return HttpResponse('Done')
