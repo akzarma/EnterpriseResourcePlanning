@@ -1,6 +1,7 @@
 from django.conf.urls import url, include
 from django.contrib import admin
 
+
 urlpatterns = [
     url(r'^$', include('Login.urls')),
     url(r'^update/', include('Update.urls')),
@@ -13,6 +14,11 @@ urlpatterns = [
     url(r'^timetable/', include('Timetable.urls')),
     url(r'^request/', include('Requests.urls')),
     url(r'^research/', include('Research.urls')),
-    # url(r'^update/', include('Update.urls'))
+    # url(r'^update/', include('Update.urls')),
+
 
 ]
+
+
+
+

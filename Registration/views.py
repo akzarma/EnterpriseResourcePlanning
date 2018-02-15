@@ -54,7 +54,7 @@ def register_student(request):
             student.key = generate_activation_key()
             new_user = User.objects.create_user(username=student.gr_number,
                                                 email=form.cleaned_data.get('email'),
-                                              role='Student')
+                                                role='Student')
             new_user.save()
             division = form.cleaned_data.get('division')
             shift = form.cleaned_data.get('shift')
@@ -256,8 +256,7 @@ def change_password(request):
                 'success': "Password is successfully changed",
             })
     else:
-        return HttpResponse('Not authorized.')
-
+        return render(request, 'change_password.html')
 
 
 def forgot_password(request):
@@ -332,9 +331,8 @@ def verification_process(request, key, username):
         elif request.method == 'GET':
             if student.key == key:
                 return render(request, 'change_password.html', {'gr_number': student.gr_number,
-                                                            'key': key})
+                                                                'key': key})
             else:
                 return render(request, 'login.html', {'error': 'Something is wrong.'})
     else:
         return render(request, 'login.html', {'error': 'Something is wrong.'})
-
