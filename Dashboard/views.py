@@ -265,7 +265,7 @@ def excel_timetable(request):
 
     print(timetable_json)
 
-    return render(request, 'excel_timetable.html',{
+    return render(request, 'excel_timetable.html', {
         'timetable': timetable_json
     })
 
@@ -283,21 +283,23 @@ def download_excel_timetable(request):
 
         if branch != 'all':
             branch_obj = Branch.objects.get(branch=branch)
-            college_extra_detail.filter(branch=branch_obj)
+            college_extra_detail = college_extra_detail.filter(branch=branch_obj)
 
         if year != 'all':
             year_obj = CollegeYear.objects.get(year=year)
-            college_extra_detail.filter(year=year_obj)
+            college_extra_detail = college_extra_detail.filter(year=year_obj)
 
         if division != 'all':
-            college_extra_detail.filter(division=division)
+            college_extra_detail = college_extra_detail.filter(division=division)
 
-        full_timetable.filter(division=college_extra_detail)
+        full_timetable = full_timetable.filter(division__in=college_extra_detail)
+
+        print(full_timetable)
 
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-        branch_obj = Branch.objects.get(branch='Computer')
-        full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj)
+        # branch_obj = Branch.objects.get(branch='Computer')
+        # full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj)
 
         answer = OrderedDict()
 
@@ -366,7 +368,7 @@ def download_excel_timetable(request):
         answer = OrderedDict(sorted(answer.items(), key=lambda x: days.index(x[0])))
 
         # Create a workbook and add a worksheet.
-        workbook = xlsxwriter.Workbook('Media/Excel/timetable_' + branch + '_' + year + '_' + '.xlsx')
+        workbook = xlsxwriter.Workbook('Media/Excel/timetable_' + branch + '_' + year + '_' + division + '.xlsx')
         worksheet = workbook.add_worksheet()
 
         col = 1
