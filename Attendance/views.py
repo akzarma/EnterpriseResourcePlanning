@@ -10,6 +10,7 @@ from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
 from General.models import CollegeYear, CollegeExtraDetail, StudentDivision, BranchSubject
+from Registration.forms import gr_roll_dict
 from Registration.models import Student, Subject, Branch, StudentRollNumber
 from General.models import FacultySubject, StudentDivision
 from Registration.models import Student, Subject, Faculty
@@ -345,7 +346,9 @@ def mark_from_excel(request):
     for each_student in each_line:
 
         token = each_student.split(',')
-        roll = int(token[0])
+        roll = int(token[0].strip())
+        if roll == 322050:
+            print(roll)
 
         student = StudentRollNumber.objects.filter(roll_number=roll)
 
@@ -360,14 +363,21 @@ def mark_from_excel(request):
                 attended = 0
                 total = 0
 
-                if lect_split != ['']:
-                    attended = int(lect_split[0])
-                    total = int(lect_split[1])
+                # print(lect_split)
+                if lect_split[0].strip() != '':
+                    attended = int(lect_split[0].strip())
+                    total = int(lect_split[1].strip())
 
                 subject_obj = Subject.objects.get(code=each_subject)
 
-                TotalAttendance.objects.create(student=student, subject=subject_obj, total_lectures=total,
-                                               attended_leactures=attended)
+                totalAttendance = TotalAttendance.objects.filter(student=student, subject=subject_obj)
+                if not totalAttendance:
+                    TotalAttendance.objects.create(student=student, subject=subject_obj, total_lectures=total,
+                                               attended_lectures=attended)
+                else:
+                    totalAttendance[0].total_lectures = total
+                    totalAttendance[0].attended_lectures = attended
+                    totalAttendance[0].save()
 
         else:
             # print(token[1])
@@ -380,3 +390,13 @@ def mark_from_excel(request):
 def android_fill(request):
     if request.POST.get('attendance_request'):
         return HttpResponse(20)
+
+
+def reload_student_roll(request):
+    students = Student.objects.all()
+    for each_student in students:
+        studentRollNumber = StudentRollNumber.objects.filter(student=each_student)
+        if not studentRollNumber:
+            StudentRollNumber.objects.create(student=each_student, roll_number=[gr_roll_dict[i] for i in gr_roll_dict if i==each_student.gr_number][0])
+
+    return HttpResponse("ok")

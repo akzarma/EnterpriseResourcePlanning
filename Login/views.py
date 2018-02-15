@@ -127,7 +127,7 @@ def login_android(request):
                     return HttpResponse(str(student_response))
 
             else:
-                return HttpResponse('sdfgvbhn')
+                return HttpResponse(response)
 
         except Exception as ex:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"

@@ -626,7 +626,8 @@ U1520150	423056
 U1520153	423065
 U1520168	423028
 U1520177	423014
-U1520244	423017'''
+U1520244	423017
+test	322050'''
 gr_roll_dict = {}
 for each in gr_roll.split('\n'):
     splitted = each.split('\t')

@@ -10,9 +10,9 @@ from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear, BranchSubject, Semester, \
     FacultySubject
 from Login.views import generate_activation_key
-from Registration.models import Student, Branch, Faculty, Subject
+from Registration.models import Student, Branch, Faculty, Subject, StudentRollNumber
 from UserModel.models import User
-from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm
+from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict
 from Configuration.stateConf import states
 
 
@@ -73,6 +73,8 @@ def register_student(request):
                                                                                            year=college_year_obj,
                                                                                            division=division,
                                                                                            shift=shift_obj))
+            StudentRollNumber.objects.create(student=student, roll_number=[gr_roll_dict[i] for i in gr_roll_dict if i==student.gr_number][0])
+
             new_student_division.save()
             request.session['user_id'] = student.pk
             return HttpResponseRedirect('/register/student/success/')
