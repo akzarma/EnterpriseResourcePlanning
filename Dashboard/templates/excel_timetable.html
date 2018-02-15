@@ -1,20 +1,17 @@
 {% extends 'dashboard_faculty.html' %}
 {% block title %}
-ERP| Excel-Timetable
+Excel-Timetable | ERP
 {% endblock title %}
 
 
 {% block content %}
 
-
-
-    <select
-
-
-    <script>
-
-        var timetable_json = {{ timetable_json|safe }};
-
-    </script>
+    <div class="row">
+        <div class="col-md-3">
+            {% for i in timetable_json %}
+                {{ i }}
+            {% endfor %}
+        </div>
+    </div>
 
 {% endblock content %}

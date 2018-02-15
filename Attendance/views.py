@@ -124,27 +124,42 @@ def save(request):
                 faculty = user.faculty
                 if 'save_attendance' in request.POST:
                     selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
-                    student_roll_objs = list(StudentRollNumber.objects.filter(
+                    old_attendance_obj = StudentAttendance.objects.filter(timetable=selected_timetable)
+
+
+
+                    present_student_objs = list(StudentRollNumber.objects.filter(
                         roll_number__in=request.POST.getlist('present')))
 
-                    student_attendance = []
+                    if not old_attendance_obj:
+                        student_attendance = []
+                        all_students = StudentDivision.objects.filter(division=selected_timetable.original.division) \
+                            .values_list('student', flat=True)
 
-                    all_students = StudentDivision.objects.filter(division=selected_timetable.original.division) \
-                        .values_list('student', flat=True)
+                        all_students_roll = [
+                            StudentRollNumber.objects.get(student=each, is_active=True) for each in
+                            all_students]
 
-                    all_students_roll = [
-                        StudentRollNumber.objects.get(student=each, is_active=True) for each in
-                        all_students]
+                        for roll in all_students_roll:
+                            if roll in present_student_objs:
+                                student_attendance += [StudentAttendance(student=roll.student, timetable=selected_timetable,
+                                                                         attended=True)]
+                            else:
+                                student_attendance += [StudentAttendance(student=roll.student, timetable=selected_timetable,
+                                                                         attended=False)]
 
-                    for roll in all_students_roll:
-                        if roll in student_roll_objs:
-                            student_attendance += [StudentAttendance(student=roll.student, timetable=selected_timetable,
-                                                                     attended=True)]
-                        else:
-                            student_attendance += [StudentAttendance(student=roll.student, timetable=selected_timetable,
-                                                                     attended=False)]
+                        StudentAttendance.objects.bulk_create(student_attendance)
 
-                    StudentAttendance.objects.bulk_create(student_attendance)
+                    else:
+                        for each in old_attendance_obj:
+                            roll_number = StudentRollNumber.objects.get(student=each.student, is_active=True)
+                            if roll_number in present_student_objs and each.attended is False:
+                                each.attended = True
+                                each.save()
+                            elif roll_number not in present_student_objs and each.attended is True:
+                                each.attended = False
+                                each.save()
+
                     return render(request, 'select_cat.html', {'success': 'Attendance saved.'})
     return render(request, 'select_cat.html', {'error': 'Some problem is there.'})
 

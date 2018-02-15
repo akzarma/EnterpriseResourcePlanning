@@ -165,7 +165,6 @@ def fill_timetable(request):
 
 def fill_date_timetable(new_date_timetable):
     creation_list = []
-    new_date_timetable = Timetable.objects.all()
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday']
     start_date = SemesterPeriod.objects.all()[0].start_date
     end_date = SemesterPeriod.objects.all()[0].end_date
