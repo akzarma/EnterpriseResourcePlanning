@@ -56,16 +56,16 @@ def login_android(request):
                         'name': user.faculty.first_name
                     }
 
-                    all_divisions = Timetable.objects.filter(faculty=faculty).values_list('division', flat=True)
+                    return HttpResponse(str(faculty_response))
+                    all_divisions = [each.division for each in Timetable.objects.filter(faculty=faculty)]
 
                     attendance_list = {}
 
                     for each_division in all_divisions:
 
-                        all_student = StudentDivision.objects.filter(division=each_division).values_list('student',
-                                                                                                         flat=True)
+                        all_student = [each.student for each in StudentDivision.objects.filter(division=each_division)]
 
-                        year = each_division.year
+                        year = each_division.year.year
 
                         division = each_division.division
                         branch = each_division.branch.branch
@@ -86,11 +86,14 @@ def login_android(request):
                             attendance_list[year] = {}
                             attendance_list[year][branch] = {}
                             attendance_list[year][branch][division] = {}
-                        attendance_list[year][branch][division] = sorted([
-                            StudentRollNumber.objects.get(student=each_student.student, is_active=True) for
-                            each_student in all_student])
+
+                        for each_student in all_student:
+                            attendance_list[year][branch][division].appned(
+                                StudentRollNumber.objects.get(student=each_student, is_active=True).roll_number)
 
                     faculty_response['attendance_list'] = attendance_list
+
+                    print(faculty_response)
 
                     return HttpResponse(str(faculty_response))
                 elif user.role == 'Student':

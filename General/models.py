@@ -82,6 +82,7 @@ class StudentSubject(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
 
 
+
 class SemesterPeriod(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
