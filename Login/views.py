@@ -85,6 +85,17 @@ def login_android(request):
                         else:
                             attendance_list[year] = {}
                             attendance_list[year][branch] = {}
+                            attendance_list[year][branch][division] = []
+                        # attendance_list[year][branch][division] = sorted([
+                        #     StudentRollNumber.objects.get(student=each_student.student, is_active=True) for
+                        #     each_student in all_student])
+
+                        for each_student in all_student:
+
+                            roll_number = StudentRollNumber.objects.get(student=each_student,
+                                                                        is_active=True).roll_number
+
+                            attendance_list[year][branch][division].append(roll_number)
                             attendance_list[year][branch][division] = {}
 
                         for each_student in all_student:
@@ -112,8 +123,12 @@ def login_android(request):
                     return HttpResponse(str(student_response))
 
             else:
-                return HttpResponse(str(response))
+                return HttpResponse('sdfgvbhn')
 
-        except:
+        except Exception as ex:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(ex).__name__, ex.args)
+
             return HttpResponse(str(response))
-    return HttpResponse(str(response))
+    else:
+        return HttpResponse(str('Not POst'))

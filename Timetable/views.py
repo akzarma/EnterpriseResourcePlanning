@@ -163,20 +163,18 @@ def fill_timetable(request):
     return render(request, 'test_timetable.html', context)
 
 
-def fill_date_timetable(all_timetable):
+def fill_date_timetable(new_date_timetable):
     creation_list = []
-
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    new_date_timetable = Timetable.objects.all()
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday']
     start_date = SemesterPeriod.objects.all()[0].start_date
     end_date = SemesterPeriod.objects.all()[0].end_date
     date_range = (end_date - start_date).days + 1
-
     for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
-        for each in all_timetable:
-            creation_list.append(DateTimetable(date=date, original=each, is_substituted=False))
-
+        for each in new_date_timetable:
+            if days[date.weekday()] == each.day:
+                creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
     DateTimetable.objects.bulk_create(creation_list)
-
     # return HttpResponse('DOne')
 
 
@@ -363,7 +361,7 @@ def to_json():
         if is_practical:
             batch = each.batch.batch_name
             if 'is_practical' in answer[year][branch][division][day][time]:
-                print('contains')
+                {}
             else:
                 answer[year][branch][division][day][time] = {
                     'is_practical': is_practical
@@ -402,12 +400,7 @@ def to_json():
 
 
 def get_excel(request):
-    expenses = (
-        ['Rent', 1000],
-        ['Gas', 100],
-        ['Food', 300],
-        ['Gym', 50],
-    )
+
 
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -483,16 +476,7 @@ def get_excel(request):
     workbook = xlsxwriter.Workbook('Expenses01.xlsx')
     worksheet = workbook.add_worksheet()
 
-    # Some data we want to write to the worksheet.
-    expenses = (
-        ['Rent', 1000],
-        ['Gas', 100],
-        ['Food', 300],
-        ['Gym', 50],
-    )
 
-    # Start from the first cell. Rows and columns are zero indexed.
-    row = 0
     col = 1
 
     year_format = workbook.add_format({

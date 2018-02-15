@@ -4,3 +4,4 @@ Pillow
 firebase_admin
 django==1.11
 celery
+python-dateutil
