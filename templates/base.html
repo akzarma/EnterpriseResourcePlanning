@@ -147,9 +147,10 @@
                                     <li>&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span>
                                         <p style="display: inline">GR number: {{ user.student.gr_number }}</p></li>
                                     <li role="separator" class="divider"></li>
-                                    <li><a href="{% url 'dashboard:profile' %}">View Profile</a></li>
+                                    <li><a href="#">Change Password</a></li>
+                                    <li><a href="{% url 'dashboard:profile' %}"><span class="glyphicon glyphicon-user"></span>View Profile</a></li>
                                     <li><a href="{% url 'dashboard:logout' %}"><span
-                                            class="glyphicon glyphicon-off"></span>Logout</a>
+                                            class="glyphicon glyphicon-off"></span> Logout</a>
                                     </li>
                                 </ul>
                             {% else %}
