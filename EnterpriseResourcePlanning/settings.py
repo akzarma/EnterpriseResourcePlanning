@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'som=3zqd7=u7krx49fi%=$7gzzqs544=b#e2#+gh^$0w7*s(a*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Custom User Model
 AUTH_USER_MODEL = 'UserModel.User'
@@ -33,6 +33,12 @@ ALLOWED_HOSTS = ['192.168.43.160', '192.168.0.12', '192.168.43.155', '127.0.0.1'
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
+
+EMAIL_PORT = '587'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'noreply.viit@gmail.com'
+EMAIL_HOST_PASSWORD = 'viitBublums'
 # Application definition
 
 INSTALLED_APPS = [

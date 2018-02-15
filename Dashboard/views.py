@@ -67,7 +67,7 @@ def show_dashboard(request):
                     'attended': each.attended_lectures,
                     'attendance': subject_attendance,
                 }
-            total_percent = round(100 * attended / total, 2)
+            total_percent = round(100 * attended / total, 2) if total is not 0 else 0
 
             if request.method == "GET":
                 date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
