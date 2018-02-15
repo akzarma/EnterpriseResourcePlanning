@@ -266,7 +266,7 @@ def excel_timetable(request):
     print(timetable_json)
 
     return render(request, 'excel_timetable.html',{
-        'timetable_json': timetable_json
+        'timetable': timetable_json
     })
 
 
