@@ -367,7 +367,7 @@ def mark_from_excel(request):
                 subject_obj = Subject.objects.get(code=each_subject)
 
                 TotalAttendance.objects.create(student=student, subject=subject_obj, total_lectures=total,
-                                               attended_leactures=attended)
+                                               attended_lectures=attended)
 
         else:
             # print(token[1])

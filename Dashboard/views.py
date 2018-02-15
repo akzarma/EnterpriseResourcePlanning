@@ -256,16 +256,16 @@ def excel_timetable(request):
             if year in timetable_json[branch]:
                 {}
             else:
-                timetable_json[branch][year] = {}
+                timetable_json[branch][year] = []
         else:
             timetable_json[branch] = {}
-            timetable_json[branch][year] = {}
+            timetable_json[branch][year] = []
 
-        timetable_json[branch][year] += division
+        timetable_json[branch][year].append(division)
 
     print(timetable_json)
 
-    return render(request, 'excel_timetable.html',timetable_json)
+    return render(request, 'excel_timetable.html', timetable_json)
 
 
 @login_required
