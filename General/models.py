@@ -39,8 +39,8 @@ class CollegeExtraDetail(models.Model):
 class Batch(models.Model):
     division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
     batch_name = models.CharField(max_length=10)
-    starting_roll_number = models.PositiveIntegerField()
-    ending_roll_number = models.PositiveIntegerField()
+    # starting_roll_number = models.PositiveIntegerField()
+    # ending_roll_number = models.PositiveIntegerField()
 
     def __str__(self):
         return self.batch_name
@@ -71,6 +71,7 @@ class FacultySubject(models.Model):
 class StudentDivision(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
+    batch = models.CharField(max_length=10)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

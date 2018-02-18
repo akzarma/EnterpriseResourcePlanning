@@ -28,7 +28,7 @@ DEBUG = True
 # Custom User Model
 AUTH_USER_MODEL = 'UserModel.User'
 
-ALLOWED_HOSTS = ['192.168.43.160', '192.168.0.111', '192.168.43.155', '127.0.0.1', '172.20.10.3',
+ALLOWED_HOSTS = ['192.168.0.110', '192.168.0.111', '192.168.43.155', '127.0.0.1', '172.20.10.3',
                  'akzarma.pythonanywhere.com', '10.42.0.1', '10.1.136.17','192.168.0.15']
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
