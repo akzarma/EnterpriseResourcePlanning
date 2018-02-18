@@ -319,7 +319,7 @@ def android_display_attendance(request):
                 'total': each.total_lectures,
                 'attended': each.attended_lectures
             }
-        total_percent = round(100 * attended / total, 2)
+        total_percent = round(100 * attended / total, 2) if total is not 0 else 0
 
         response['total_percent'] = str(total_percent) + '%'
         return JsonResponse(response)
@@ -332,7 +332,7 @@ def android_display_attendance(request):
 
 
 def mark_from_excel(request):
-    file = open('Attendance/Documents/TE_B_attendance.csv', 'r')
+    file = open('EnterpriseResourcePlanning/Attendance/Documents/TE_B_attendance.csv', 'r')
 
     full_text = file.read()
 
@@ -346,9 +346,7 @@ def mark_from_excel(request):
     for each_student in each_line:
 
         token = each_student.split(',')
-        roll = int(token[0].strip())
-        if roll == 322050:
-            print(roll)
+        roll = int(token[0])
 
         student = StudentRollNumber.objects.filter(roll_number=roll)
 
@@ -390,7 +388,6 @@ def mark_from_excel(request):
 def android_fill(request):
     if request.POST.get('attendance_request'):
         return HttpResponse(20)
-
 
 def reload_student_roll(request):
     students = Student.objects.all()

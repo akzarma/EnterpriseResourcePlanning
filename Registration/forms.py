@@ -19,7 +19,9 @@ year_list = CollegeYear.objects.all()
 
 shift_list = Shift.objects.all()
 
-gr_roll = '''U1410625	321012
+gr_roll = '''test	322050
+U1410306	322079
+U1410625	321012
 U1410613	321034
 U1510016	321052
 U1510019	321059

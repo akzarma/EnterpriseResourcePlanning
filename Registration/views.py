@@ -74,7 +74,6 @@ def register_student(request):
                                                                                            division=division,
                                                                                            shift=shift_obj))
             StudentRollNumber.objects.create(student=student, roll_number=[gr_roll_dict[i] for i in gr_roll_dict if i==student.gr_number][0])
-
             new_student_division.save()
             request.session['user_id'] = student.pk
             return HttpResponseRedirect('/register/student/success/')
