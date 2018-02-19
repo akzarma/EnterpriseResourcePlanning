@@ -9,10 +9,10 @@ from django.shortcuts import render
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
-from General.models import CollegeYear, CollegeExtraDetail, StudentDivision, BranchSubject
+from General.models import CollegeYear, CollegeExtraDetail, StudentDetail, BranchSubject
 from Registration.forms import gr_roll_dict
-from Registration.models import Student, Subject, Branch, StudentRollNumber
-from General.models import FacultySubject, StudentDivision
+from Registration.models import Student, Subject, Branch
+from General.models import FacultySubject, StudentDetail
 from Registration.models import Student, Subject, Faculty
 from General.models import FacultySubject
 from Registration.models import Student, Subject
@@ -128,16 +128,16 @@ def save(request):
 
 
 
-                    present_student_objs = list(StudentRollNumber.objects.filter(
+                    present_student_objs = list(StudentDetail.objects.filter(
                         roll_number__in=request.POST.getlist('present')))
 
                     if not old_attendance_obj:
                         student_attendance = []
-                        all_students = StudentDivision.objects.filter(division=selected_timetable.original.division) \
+                        all_students = StudentDetail.objects.filter(batch__division=selected_timetable.original.division) \
                             .values_list('student', flat=True)
 
                         all_students_roll = [
-                            StudentRollNumber.objects.get(student=each, is_active=True) for each in
+                            StudentDetail.objects.get(student=each, is_active=True) for each in
                             all_students]
 
                         for roll in all_students_roll:
@@ -152,7 +152,7 @@ def save(request):
 
                     else:
                         for each in old_attendance_obj:
-                            roll_number = StudentRollNumber.objects.get(student=each.student, is_active=True)
+                            roll_number = StudentDetail.objects.get(student=each.student, is_active=True)
                             if roll_number in present_student_objs and each.attended is False:
                                 each.attended = True
                                 each.save()
@@ -190,13 +190,13 @@ def select_cat(request):
                     selected_class_obj = DateTimetable.objects.get(pk=request.POST.get('date_timetable'))
 
                     attendance = StudentAttendance.objects.filter(timetable=selected_class_obj)
-                    present_roll = sorted([StudentRollNumber.objects.get(student=each.student).roll_number
+                    present_roll = sorted([StudentDetail.objects.get(student=each.student).roll_number
                                            for each in attendance if each.attended is True])
 
-                    all_students = StudentDivision.objects.filter(division=selected_class_obj.original.division) \
+                    all_students = StudentDetail.objects.filter(batch__division=selected_class_obj.original.division) \
                         .values_list('student', flat=True)
                     all_students_roll = sorted(
-                        [StudentRollNumber.objects.get(student=each, is_active=True).roll_number for
+                        [StudentDetail.objects.get(student=each, is_active=True).roll_number for
                          each in all_students])
 
                     if attendance:
@@ -224,87 +224,87 @@ def select_cat(request):
         return HttpResponseRedirect('/login/')
 
 
-def check_attendance(request):
-    user = request.user
-    if not user.is_anonymous:
-        if user.role == 'Faculty':
-            if request.method == 'POST':
-                if request.POST.get('go'):
-                    selected_date = request.POST.get('selected_date')
-                    current_tt = request.POST.get('selected_class')
-                    current_tt_obj = Timetable.objects.get(pk=current_tt)
-                    count = 0
-                    present_percent = 0
-                    all_students = StudentAttendance.objects.filter(timetable=current_tt_obj,
-                                                                    date=parse_date(selected_date)).order_by(
-                        'student__gr_number')
-                    count = all_students.filter(attended=True).count()
-
-                    if all_students.count():
-                        present_percent = count / all_students.count()
-                    return render(request, "check_attendance.html", {
-                        'all_students': all_students,
-                        'present': present_percent * 100
-                    })
-
-                elif request.POST.get('check_attendance_button'):
-                    selected_from_date = request.POST.get('selected_from_date')
-                    selected_to_date = request.POST.get('selected_to_date')
-                    selected_faculty_subject = request.POST.get('selected_subject')
-                    selected_faculty_subject_obj = FacultySubject.objects.get(pk=selected_faculty_subject)
-                    branch_subject_obj = BranchSubject.objects.get(subject=selected_faculty_subject_obj.subject,
-                                                                   branch=selected_faculty_subject_obj.division.branch,
-                                                                   year=selected_faculty_subject_obj.division.year,
-                                                                   semester=1)
-                    #
-                    # Semester ko subject se lena hai
-                    #
-                    current_tt_obj = Timetable.objects.filter(faculty=selected_faculty_subject_obj.faculty,
-                                                              division=selected_faculty_subject_obj.division,
-                                                              branch_subject=branch_subject_obj)
-
-                    lecture_percentage = 0
-                    all_students_count = 0
-                    all_students_present = 0
-                    individual_attendance = {}
-
-                    for i in StudentDivision.objects.filter(
-                            division__branch=selected_faculty_subject_obj.division.branch,
-                            division__year=selected_faculty_subject_obj.division.year,
-                            division__division=selected_faculty_subject_obj.division.division,
-                            division__shift=selected_faculty_subject_obj.division.shift):
-                        individual_attendance[i.student.pk] = 0
-
-                    count_present = 0
-                    for i in current_tt_obj:  # For days in week
-                        all_students_obj = StudentAttendance.objects.filter(timetable=i, date__range=(
-                            selected_from_date, selected_to_date))  # For the day in every week in given date range
-                        all_students_count += all_students_obj.count()
-                        all_students_present += all_students_obj.filter(attended=True).count()
-
-                        for j in all_students_obj:
-                            if j.attended:
-                                individual_attendance[j.student.pk] += 1
-
-                    if all_students_count:
-                        lecture_percentage += all_students_present / all_students_count * 100
-
-                    return render(request, 'lecture_attendance.html',
-                                  {'lecture_percent': "{0:.2f}".format(lecture_percentage),
-                                   'selected_from_date': selected_from_date,
-                                   'selected_to_date': selected_to_date,
-                                   'individual_attendance': individual_attendance})
-
-            elif request.method == "GET":
-                faculty = user.faculty
-                timetables = faculty.timetable_set.all()
-                faculty_subject = FacultySubject.objects.filter(faculty=faculty)
-                return render(request, 'select_check_attendance.html',
-                              {'faculty_subject': timetables, 'subjects': faculty_subject})
-        else:
-            return HttpResponseRedirect('/login/')
-    else:
-        return HttpResponseRedirect('/login/')
+# def check_attendance(request):
+#     user = request.user
+#     if not user.is_anonymous:
+#         if user.role == 'Faculty':
+#             if request.method == 'POST':
+#                 if request.POST.get('go'):
+#                     selected_date = request.POST.get('selected_date')
+#                     current_tt = request.POST.get('selected_class')
+#                     current_tt_obj = Timetable.objects.get(pk=current_tt)
+#                     count = 0
+#                     present_percent = 0
+#                     all_students = StudentAttendance.objects.filter(timetable=current_tt_obj,
+#                                                                     date=parse_date(selected_date)).order_by(
+#                         'student__gr_number')
+#                     count = all_students.filter(attended=True).count()
+#
+#                     if all_students.count():
+#                         present_percent = count / all_students.count()
+#                     return render(request, "check_attendance.html", {
+#                         'all_students': all_students,
+#                         'present': present_percent * 100
+#                     })
+#
+#                 elif request.POST.get('check_attendance_button'):
+#                     selected_from_date = request.POST.get('selected_from_date')
+#                     selected_to_date = request.POST.get('selected_to_date')
+#                     selected_faculty_subject = request.POST.get('selected_subject')
+#                     selected_faculty_subject_obj = FacultySubject.objects.get(pk=selected_faculty_subject)
+#                     branch_subject_obj = BranchSubject.objects.get(subject=selected_faculty_subject_obj.subject,
+#                                                                    branch=selected_faculty_subject_obj.division.branch,
+#                                                                    year=selected_faculty_subject_obj.division.year,
+#                                                                    semester=1)
+#                     #
+#                     # Semester ko subject se lena hai
+#                     #
+#                     current_tt_obj = Timetable.objects.filter(faculty=selected_faculty_subject_obj.faculty,
+#                                                               division=selected_faculty_subject_obj.division,
+#                                                               branch_subject=branch_subject_obj)
+#
+#                     lecture_percentage = 0
+#                     all_students_count = 0
+#                     all_students_present = 0
+#                     individual_attendance = {}
+#
+#                     for i in StudentDetail.objects.filter(
+#                             division__branch=selected_faculty_subject_obj.division.branch,
+#                             division__year=selected_faculty_subject_obj.division.year,
+#                             division__division=selected_faculty_subject_obj.division.division,
+#                             division__shift=selected_faculty_subject_obj.division.shift):
+#                         individual_attendance[i.student.pk] = 0
+#
+#                     count_present = 0
+#                     for i in current_tt_obj:  # For days in week
+#                         all_students_obj = StudentAttendance.objects.filter(timetable=i, date__range=(
+#                             selected_from_date, selected_to_date))  # For the day in every week in given date range
+#                         all_students_count += all_students_obj.count()
+#                         all_students_present += all_students_obj.filter(attended=True).count()
+#
+#                         for j in all_students_obj:
+#                             if j.attended:
+#                                 individual_attendance[j.student.pk] += 1
+#
+#                     if all_students_count:
+#                         lecture_percentage += all_students_present / all_students_count * 100
+#
+#                     return render(request, 'lecture_attendance.html',
+#                                   {'lecture_percent': "{0:.2f}".format(lecture_percentage),
+#                                    'selected_from_date': selected_from_date,
+#                                    'selected_to_date': selected_to_date,
+#                                    'individual_attendance': individual_attendance})
+#
+#             elif request.method == "GET":
+#                 faculty = user.faculty
+#                 timetables = faculty.timetable_set.all()
+#                 faculty_subject = FacultySubject.objects.filter(faculty=faculty)
+#                 return render(request, 'select_check_attendance.html',
+#                               {'faculty_subject': timetables, 'subjects': faculty_subject})
+#         else:
+#             return HttpResponseRedirect('/login/')
+#     else:
+#         return HttpResponseRedirect('/login/')
 
 
 @csrf_exempt
@@ -365,7 +365,7 @@ def mark_from_excel(request):
         token = each_student.split(',')
         roll = int(token[0])
 
-        student = StudentRollNumber.objects.filter(roll_number=roll)
+        student = StudentDetail.objects.filter(roll_number=roll)
 
         if student:
             student = student[0].student
@@ -408,11 +408,11 @@ def android_fill(request):
 
 
 def reload_student_roll(request):
-    students = Student.objects.all()
-    for each_student in students:
-        studentRollNumber = StudentRollNumber.objects.filter(student=each_student)
-        if not studentRollNumber:
-            StudentRollNumber.objects.create(student=each_student, roll_number=
-            [gr_roll_dict[i] for i in gr_roll_dict if i == each_student.gr_number][0])
+    # students = Student.objects.all()
+    # for each_student in students:
+    #     studentRollNumber = StudentRollNumber.objects.filter(student=each_student)
+    #     if not studentRollNumber:
+    #         StudentRollNumber.objects.create(student=each_student, roll_number=
+    #         [gr_roll_dict[i] for i in gr_roll_dict if i == each_student.gr_number][0])
 
-    return HttpResponse("ok")
+    return HttpResponse("not ok")

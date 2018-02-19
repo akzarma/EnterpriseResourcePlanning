@@ -12,8 +12,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
-from General.models import StudentDivision, CollegeExtraDetail
-from Registration.models import Faculty, Student, Branch, StudentRollNumber
+from General.models import StudentDetail, CollegeExtraDetail
+from Registration.models import Faculty, Student, Branch
 from Timetable.models import Timetable
 from UserModel.models import User
 import json
@@ -68,7 +68,7 @@ def login_android(request):
 
                     for each_division in all_divisions:
 
-                        all_student = [each.student for each in StudentDivision.objects.filter(division=each_division).distinct()]
+                        all_student = [each.student for each in StudentDetail.objects.filter(batch__division=each_division).distinct()]
 
                         year = each_division.year.year
 
@@ -78,26 +78,40 @@ def login_android(request):
                         if year in attendance_list:
 
                             if branch in attendance_list[year]:
-                                if not division in attendance_list[year][branch]:
-                                    attendance_list[year][branch][division] = []
+                                if division in attendance_list[year][branch]:
+                                    pass
+                                else:
+                                    attendance_list[year][branch][division] = {}
                             else:
                                 attendance_list[year][branch] = {}
-                                attendance_list[year][branch][division] = []
+                                attendance_list[year][branch][division] = {}
 
                         else:
                             attendance_list[year] = {}
                             attendance_list[year][branch] = {}
-                            attendance_list[year][branch][division] = []
+                            attendance_list[year][branch][division] = {}
                         # attendance_list[year][branch][division] = sorted([
                         #     StudentRollNumber.objects.get(student=each_student.student, is_active=True) for
                         #     each_student in all_student])
 
                         for each_student in all_student:
 
-                            roll_number = StudentRollNumber.objects.filter(student=each_student,
+                            roll_number = StudentDetail.objects.filter(student=each_student,
                                                                         is_active=True)[0].roll_number
 
-                            attendance_list[year][branch][division].append(roll_number)
+                            if 'all' in attendance_list[year][branch][division]:
+                                attendance_list[year][branch][division]['all'].append(roll_number)
+                            else:
+                                attendance_list[year][branch][division]['all'] = []
+                                attendance_list[year][branch][division]['all'].append(roll_number)
+                            curr_batch = StudentDetail.objects.get(student=each_student).batch.batch_name
+                            if curr_batch in attendance_list[year][branch][division]:
+                                attendance_list[year][branch][division][curr_batch].append(roll_number)
+                            else:
+                                attendance_list[year][branch][division][curr_batch] = []
+                                attendance_list[year][branch][division][curr_batch].append(roll_number)
+
+
                             # attendance_list[year][branch][division] = {}
                         #
                         # for each_student in all_student:
@@ -109,10 +123,10 @@ def login_android(request):
                     print(faculty_response)
 
 
-                    return HttpResponse(str(faculty_response))
+                    return HttpResponse(json.dumps(faculty_response))
                 elif user.role == 'Student':
                     student = user.student
-                    student_division = StudentDivision.objects.get(student=student)
+                    student_division = StudentDetail.objects.get(student=student)
                     branch = student.branch
 
                     student_response = {

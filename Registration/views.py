@@ -7,10 +7,10 @@ from django.shortcuts import render, HttpResponse
 
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
-from General.models import CollegeExtraDetail, Shift, StudentDivision, CollegeYear, BranchSubject, Semester, \
-    FacultySubject
+from General.models import CollegeExtraDetail, Shift, StudentDetail, CollegeYear, BranchSubject, Semester, \
+    FacultySubject, Batch
 from Login.views import generate_activation_key
-from Registration.models import Student, Branch, Faculty, Subject, StudentRollNumber
+from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User
 from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict
 from Configuration.stateConf import states
@@ -56,25 +56,25 @@ def register_student(request):
                                                 email=form.cleaned_data.get('email'),
                                                 role='Student')
             new_user.save()
-            division = form.cleaned_data.get('division')
-            shift = form.cleaned_data.get('shift')
-            branch = form.cleaned_data.get('branch')
-            year = form.cleaned_data.get('year')
+            # division = form.cleaned_data.get('division')
+            # shift = form.cleaned_data.get('shift')
+            # branch = form.cleaned_data.get('branch')
+            # year = form.cleaned_data.get('year')
 
             student.user = new_user
 
             student.save()
 
-            branch_obj = Branch.objects.get(branch=branch)
-            college_year_obj = CollegeYear.objects.get(year=year)
-            shift_obj = Shift.objects.get(shift=shift)
-            new_student_division = StudentDivision(student=student,
-                                                   division=CollegeExtraDetail.objects.get(branch=branch_obj,
-                                                                                           year=college_year_obj,
-                                                                                           division=division,
-                                                                                           shift=shift_obj))
-            StudentRollNumber.objects.create(student=student, roll_number=[gr_roll_dict[i] for i in gr_roll_dict if i==student.gr_number][0])
-            new_student_division.save()
+            # branch_obj = Branch.objects.get(branch=branch)
+            # college_year_obj = CollegeYear.objects.get(year=year)
+            # shift_obj = Shift.objects.get(shift=shift)
+            # new_student_division = StudentDetail(student=student,
+            #                                      division=CollegeExtraDetail.objects.get(branch=branch_obj,
+            #                                                                                year=college_year_obj,
+            #                                                                                division=division,
+            #                                                                                shift=shift_obj))
+            # StudentRollNumber.objects.create(student=student, roll_number=[gr_roll_dict[i] for i in gr_roll_dict if i==student.gr_number][0])
+            # new_student_division.save()
             request.session['user_id'] = student.pk
             return HttpResponseRedirect('/register/student/success/')
             # return HttpResponse(form.errors)
@@ -337,3 +337,30 @@ def verification_process(request, key, username):
                 return render(request, 'login.html', {'error': 'Something is wrong.'})
     else:
         return render(request, 'login.html', {'error': 'Something is wrong.'})
+
+
+# def load_student_detail():
+#     all_students = Student.objects.all()
+#     for each_student in all_students:
+#         try:
+#             curr_roll = gr_roll_dict[each_student.gr_number]
+#             branch = Branch.objects.get(branch='Computer')
+#             year = CollegeYear.objects.get(year='TE')
+#             curr_division = CollegeExtraDetail.objects.get(branch=branch, year=year, division='B', shift__shift=1)
+#
+#             curr_batch = Batch.objects.get(division=curr_division, batch_name='B1' if int(curr_roll) in range(322001, 322022)
+#                                            else 'B2' if int(curr_roll) in range(322022, 322044)
+#                                            else 'B3' if int(curr_roll) in range(322044, 322066)
+#                                            else 'B4')
+#             StudentDetail.objects.create(
+#                 student=each_student,
+#                 batch=curr_batch,
+#                 roll_number=curr_roll
+#             )
+#             print('Created ', each_student.first_name)
+#         except:
+#             pass
+#
+#     return HttpResponse(StudentDetail.objects.all())
+#
+# load_student_detail()

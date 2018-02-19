@@ -12,8 +12,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
 
-from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch, SemesterPeriod, \
-    StudentDivision
+from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch, SemesterPeriod, StudentDetail
 from Registration.models import Branch, Subject, Faculty, Student
 from Registration.models import Branch, Subject
 from .models import Time, Room, Timetable, DateTimetable
@@ -593,7 +592,7 @@ def android_timetable_json(request):
 
             branch_obj = Branch.objects.get(branch='Computer')
 
-            college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
+            college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
 
             full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj, division=college_extra_detail)
             # faculty_json = {}

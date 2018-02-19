@@ -196,10 +196,10 @@ class HOD(models.Model):
         return str(self.faculty) + str(self.branch)
 
 
-class StudentRollNumber(models.Model):
-    student = models.ForeignKey(Student)
-    roll_number = models.IntegerField()
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return str(self.student.gr_number) + ' ' + str(self.roll_number) + ' ' + str(self.student.first_name)
+# class StudentRollNumber(models.Model):
+#     student = models.ForeignKey(Student)
+#     roll_number = models.IntegerField()
+#     is_active = models.BooleanField(default=True)
+#
+#     def __str__(self):
+#         return str(self.student.gr_number) + ' ' + str(self.roll_number) + ' ' + str(self.student.first_name)

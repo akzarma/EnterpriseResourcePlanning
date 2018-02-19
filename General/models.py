@@ -39,11 +39,9 @@ class CollegeExtraDetail(models.Model):
 class Batch(models.Model):
     division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
     batch_name = models.CharField(max_length=10)
-    # starting_roll_number = models.PositiveIntegerField()
-    # ending_roll_number = models.PositiveIntegerField()
 
     def __str__(self):
-        return self.batch_name
+        return self.division.year.year + " " + self.division.division + " " + self.batch_name
 
 
 class BranchSubject(models.Model):
@@ -68,20 +66,20 @@ class FacultySubject(models.Model):
         return self.faculty.user.first_name + self.subject.name + self.division.division + " " + self.faculty.initials
 
 
-class StudentDivision(models.Model):
+class StudentDetail(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
     # batch = models.CharField(max_length=10)
+    roll_number = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.division.division + " " + self.student.first_name
+        return str(self.batch.division) + " " + str(self.student.first_name)
 
 
 class StudentSubject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-
 
 
 class SemesterPeriod(models.Model):

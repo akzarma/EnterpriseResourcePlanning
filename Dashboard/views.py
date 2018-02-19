@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_date
 
-from General.models import Batch, StudentDivision, CollegeExtraDetail, CollegeYear
+from General.models import Batch, StudentDetail, CollegeExtraDetail, CollegeYear
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student, Branch
 import datetime
@@ -72,7 +72,7 @@ def show_dashboard(request):
             if request.method == "GET":
                 date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
 
-                college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
+                college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
                 timetable = sorted(
                     DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
                     key=lambda x: (x.date, x.original.time.starting_time))
@@ -96,7 +96,7 @@ def show_dashboard(request):
 
                 date_range = [current_date + datetime.timedelta(n) for n in [-1, 0, 1]]
 
-                college_extra_detail = StudentDivision.objects.get(student=student, is_active=True).division
+                college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
                 timetable = sorted(
                     DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
                     key=lambda x: (x.date, x.original.time.starting_time))
