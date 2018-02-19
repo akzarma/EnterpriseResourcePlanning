@@ -71,7 +71,7 @@ class FacultySubject(models.Model):
 class StudentDivision(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
-    batch = models.CharField(max_length=10)
+    # batch = models.CharField(max_length=10)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
