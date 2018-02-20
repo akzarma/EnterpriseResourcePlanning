@@ -58,7 +58,7 @@ def login_android(request):
                     faculty_response = {
                         'user_type': 'Faculty',
                         'initials': user.faculty.initials,
-                        'name': user.faculty.first_name
+                        'name': user.faculty.first_name + user.faculty.last_name
                     }
 
                     # return HttpResponse(str(faculty_response))
@@ -120,21 +120,19 @@ def login_android(request):
 
                     faculty_response['attendance_list'] = attendance_list
 
-                    print(faculty_response)
-
-
                     return HttpResponse(json.dumps(faculty_response))
                 elif user.role == 'Student':
                     student = user.student
-                    student_division = StudentDetail.objects.get(student=student)
+                    student_detail = StudentDetail.objects.get(student=student)
                     branch = student.branch
 
                     student_response = {
                         'user_type': 'Student',
-                        'year': student_division.division.year.year,
+                        'year': student_detail.division.year.year,
                         'branch': branch,
-                        'division': student_division.division.division,
-                        'name': user.student.first_name
+                        'division': student_detail.division.division,
+                        'batch': student_detail.batch.batch_name,
+                        'name': user.student.first_name + user.student.last_name
                     }
 
                     return HttpResponse(str(student_response))

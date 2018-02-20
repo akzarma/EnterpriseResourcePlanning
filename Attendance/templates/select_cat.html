@@ -94,6 +94,9 @@
                                         {{ each.substitute.division.branch }}<br/>
                                         {{ each.substitute.division.year }}
                                         {{ each.substitute.division.division }}
+                                        {% if each.substitute.is_practical %}
+                                            {{ each.substitute.batch.batch_name }}
+                                        {% endif %}
                                     </div>
                                 </div>
                             </button>
@@ -109,6 +112,9 @@
                                         {{ each.original.division.branch }}<br/>
                                         {{ each.original.division.year }}
                                         {{ each.original.division.division }}
+                                        {% if each.original.is_practical %}
+                                            {{ each.original.batch.batch_name }}
+                                        {% endif %}
                                     </div>
                                 </div>
                             </button>

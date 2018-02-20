@@ -52,20 +52,26 @@ def register_student(request):
         if form.is_valid():
             student = form.save(commit=False)
             student.key = generate_activation_key()
-            new_user = User.objects.create_user(username=student.gr_number,
-                                                email=form.cleaned_data.get('email'),
-                                                role='Student')
+            new_user = User.objects.create_user(username=student.gr_number, email=form.cleaned_data.get('email'), role='Student')
             new_user.save()
-            # division = form.cleaned_data.get('division')
-            # shift = form.cleaned_data.get('shift')
-            # branch = form.cleaned_data.get('branch')
-            # year = form.cleaned_data.get('year')
+            division = form.cleaned_data.get('division')
+            shift = form.cleaned_data.get('shift')
+            branch = form.cleaned_data.get('branch')
+            year = form.cleaned_data.get('year')
+            batch = form.cleaned_data.get('batch')
+            batch = "".join(batch.split()).upper()
 
             student.user = new_user
 
             student.save()
 
-            # branch_obj = Branch.objects.get(branch=branch)
+            roll_number = gr_roll_dict[student.gr_number]
+            branch_obj = Branch.objects.get(branch=branch)
+            year_obj = CollegeYear.objects.get(year=year)
+            division_obj = CollegeExtraDetail.objects.get(branch=branch_obj, year=year_obj, division=division, shift__shift=shift)
+            batch_obj = Batch.objects.get(division=division_obj, batch_name=batch)
+            StudentDetail.objects.create(student=student,batch=batch_obj, roll_number=roll_number)
+
             # college_year_obj = CollegeYear.objects.get(year=year)
             # shift_obj = Shift.objects.get(shift=shift)
             # new_student_division = StudentDetail(student=student,

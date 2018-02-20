@@ -2,7 +2,7 @@ from django import forms
 
 from Configuration.countryConf import countries
 from Configuration.stateConf import states
-from General.models import CollegeExtraDetail, CollegeYear, Shift, Semester, FacultySubject
+from General.models import CollegeExtraDetail, CollegeYear, Shift, Semester, FacultySubject, Batch
 from .models import Faculty, Subject, Student, Branch
 
 semester_list = Semester.objects.all()
@@ -686,7 +686,7 @@ class StudentForm(forms.ModelForm):
     widgets = {
         'DOB': forms.DateInput(attrs={'class': 'datepicker'})
     }
-    # Setting branch only as Comp and Mech fot VU
+    # Setting branch only as Comp and Mech for VU
     branch = forms.ChoiceField(
         choices=[(i, i) for i in branch_list]
     )
@@ -704,11 +704,15 @@ class StudentForm(forms.ModelForm):
     )
 
     division = forms.ChoiceField(
-        choices=set([(i.division, i.division) for i in division_list])
+        choices=sorted(set([(i.division, i.division) for i in division_list]))
 
     )
     year = forms.ChoiceField(
         choices=[(i, i) for i in year_list]
+    )
+
+    batch = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': 'Eg: A1'})
     )
 
     def __init__(self, *args, **kwargs):

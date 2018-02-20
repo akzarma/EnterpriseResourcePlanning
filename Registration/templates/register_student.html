@@ -56,14 +56,14 @@
                                         <label class="control-label">{{ form.DOB.label_tag }}</label>
                                         <div class="">{{ form.DOB }}</div>
                                     </div>
-                                </div>
-
-                                <div class="col-md-6">
                                     <div class="form-element">
                                         <span class="error">{{ form.email.errors }}</span>
                                         <label class="control-label">{{ form.email.label_tag }}</label>
                                         <div class="">{{ form.email }}</div>
                                     </div>
+                                </div>
+
+                                <div class="col-md-6">
                                     <div class="form-element">
                                         <span class="error">{{ form.admission_type.errors }}</span>
                                         <label class="control-label">{{ form.admission_type.label_tag }}</label>
@@ -98,6 +98,11 @@
                                         <span class="error">{{ form.division.errors }}</span>
                                         <label class="control-label">{{ form.division.label_tag }}</label>
                                         <div class="">{{ form.division }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.batch.errors }}</span>
+                                        <label class="control-label">{{ form.batch.label_tag }}</label>
+                                        <div class="">{{ form.batch }}</div>
                                     </div>
                                 </div>
 
@@ -140,7 +145,7 @@
                     <a class="pad accordion-toggle" data-toggle="collapse" data-parent="#accordion"
                        href="#collapseTwo">
                         <h4 class="panel-title">
-                            Family
+                            Family (Optional)
                             <i class="indicator glyphicon glyphicon-chevron-up  pull-right"></i>
                         </h4>
                     </a>
@@ -241,7 +246,7 @@
                     <a class="pad accordion-toggle" data-toggle="collapse" data-parent="#accordion"
                        href="#collapseThree">
                         <h4 class="panel-title">
-                            Address and Documents
+                            Address and Documents (Optional)
                             <i class="indicator glyphicon glyphicon-chevron-up pull-right"></i>
                         </h4>
                     </a>

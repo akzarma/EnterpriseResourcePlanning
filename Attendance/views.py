@@ -126,15 +126,31 @@ def save(request):
                     selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
                     old_attendance_obj = StudentAttendance.objects.filter(timetable=selected_timetable)
 
-
-
                     present_student_objs = list(StudentDetail.objects.filter(
                         roll_number__in=request.POST.getlist('present')))
 
                     if not old_attendance_obj:
                         student_attendance = []
-                        all_students = StudentDetail.objects.filter(batch__division=selected_timetable.original.division) \
-                            .values_list('student', flat=True)
+
+                        if not selected_timetable.is_substituted:
+                            if selected_timetable.original.is_practical:
+                                all_students = StudentDetail.objects.filter(
+                                    batch=selected_timetable.original.batch) \
+                                    .values_list('student', flat=True)
+                            else:
+                                all_students = StudentDetail.objects.filter(
+                                    batch__division=selected_timetable.original.division) \
+                                    .values_list('student', flat=True)
+
+                        else:
+                            if selected_timetable.substitute.is_practical:
+                                all_students = StudentDetail.objects.filter(
+                                    batch=selected_timetable.substitute.batch) \
+                                    .values_list('student', flat=True)
+                            else:
+                                all_students = StudentDetail.objects.filter(
+                                    batch__division=selected_timetable.substitute.division) \
+                                    .values_list('student', flat=True)
 
                         all_students_roll = [
                             StudentDetail.objects.get(student=each, is_active=True) for each in
@@ -142,11 +158,13 @@ def save(request):
 
                         for roll in all_students_roll:
                             if roll in present_student_objs:
-                                student_attendance += [StudentAttendance(student=roll.student, timetable=selected_timetable,
-                                                                         attended=True)]
+                                student_attendance += [
+                                    StudentAttendance(student=roll.student, timetable=selected_timetable,
+                                                      attended=True)]
                             else:
-                                student_attendance += [StudentAttendance(student=roll.student, timetable=selected_timetable,
-                                                                         attended=False)]
+                                student_attendance += [
+                                    StudentAttendance(student=roll.student, timetable=selected_timetable,
+                                                      attended=False)]
 
                         StudentAttendance.objects.bulk_create(student_attendance)
 
@@ -189,15 +207,33 @@ def select_cat(request):
 
                     selected_class_obj = DateTimetable.objects.get(pk=request.POST.get('date_timetable'))
 
-                    attendance = StudentAttendance.objects.filter(timetable=selected_class_obj)
-                    present_roll = sorted([StudentDetail.objects.get(student=each.student).roll_number
-                                           for each in attendance if each.attended is True])
+                    if selected_class_obj.original.is_practical:
+                        attendance = StudentAttendance.objects.filter(
+                            student__studentdetail__batch=selected_class_obj.original.batch,
+                            timetable=selected_class_obj)
 
-                    all_students = StudentDetail.objects.filter(batch__division=selected_class_obj.original.division) \
-                        .values_list('student', flat=True)
-                    all_students_roll = sorted(
-                        [StudentDetail.objects.get(student=each, is_active=True).roll_number for
-                         each in all_students])
+                        present_roll = sorted(
+                            [StudentDetail.objects.get(student=each.student).roll_number for each in attendance if
+                             each.attended is True])
+
+                        all_students = StudentDetail.objects.filter(
+                            batch=selected_class_obj.original.batch).values_list('student', flat=True)
+                        all_students_roll = sorted(
+                            [StudentDetail.objects.get(student=each, is_active=True).roll_number for
+                             each in all_students])
+
+
+                    else:
+                        attendance = StudentAttendance.objects.filter(timetable=selected_class_obj)
+                        present_roll = sorted([StudentDetail.objects.get(student=each.student).roll_number
+                                               for each in attendance if each.attended is True])
+
+                        all_students = StudentDetail.objects.filter(
+                            batch__division=selected_class_obj.original.division) \
+                            .values_list('student', flat=True)
+                        all_students_roll = sorted(
+                            [StudentDetail.objects.get(student=each, is_active=True).roll_number for
+                             each in all_students])
 
                     if attendance:
                         att = 1
