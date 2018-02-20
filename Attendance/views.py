@@ -222,7 +222,6 @@ def select_cat(request):
                             [StudentDetail.objects.get(student=each, is_active=True).roll_number for
                              each in all_students])
 
-
                     else:
                         attendance = StudentAttendance.objects.filter(timetable=selected_class_obj)
                         present_roll = sorted([StudentDetail.objects.get(student=each.student).roll_number
