@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import datetime
+import json
 
 from django.db.models import Avg, Sum, Count
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -16,7 +17,7 @@ from General.models import FacultySubject, StudentDetail
 from Registration.models import Student, Subject, Faculty
 from General.models import FacultySubject
 from Registration.models import Student, Subject
-from Timetable.models import Timetable, DateTimetable
+from Timetable.models import Timetable, DateTimetable, Time, Room
 from .models import StudentAttendance, TotalAttendance
 
 
@@ -437,9 +438,50 @@ def mark_from_excel(request):
 
 
 @csrf_exempt
-def android_fill(request):
-    if request.POST.get('attendance_request'):
-        return HttpResponse(20)
+def android_fill_attendance(request):
+    if request.method == "POST":
+        print(request.POST)
+        for each in request.POST:
+            if each.__contains__('attendance_'):
+                attendance_json = json.loads(request.POST.get(each))
+                time_obj = Time.objects.get(starting_time=int(attendance_json['start_time']),
+                                            ending_time=int(attendance_json['end_time']))
+                branch_obj = Branch.objects.get(branch=attendance_json['branch'])
+                room_obj = Room.objects.get(branch=branch_obj, room_number=attendance_json['room'])
+                faculty = Faculty.objects.get(faculty_code=attendance_json['faculty_code'])
+                year_obj = CollegeYear.objects.get(year=attendance_json['year'])
+                subject_obj = Subject.objects.get(short_form=attendance_json['subject'])
+                division_obj = CollegeExtraDetail.objects.get(branch=branch_obj, year=year_obj,
+                                                              division=attendance_json['division'])
+                branch_subject = BranchSubject.objects.get(branch=branch_obj, subject=subject_obj, year=year_obj)
+
+                date = datetime.datetime.strptime(attendance_json['date'], '%Y,%m,%d').date()
+                timetable_obj = Timetable.objects.get(room=room_obj, time=time_obj, day=attendance_json['day'],
+                                                      faculty=faculty, division=division_obj,
+                                                      branch_subject=branch_subject)
+                selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
+
+                attendance = []
+
+                old_attendance_obj = StudentAttendance.objects.filter(timetable=selected_timetable)
+
+                if not old_attendance_obj:
+                    for roll_number in attendance_json['attendance']:
+                        student = StudentDetail.objects.get(roll_number=roll_number, batch__division=division_obj, is_active=True).student
+                        attendance += [StudentAttendance(student=student, timetable=selected_timetable,
+                                                         attended=bool(attendance_json['attendance'][roll_number]))]
+
+                    StudentAttendance.objects.bulk_create(attendance)
+
+                else:
+                    for i in old_attendance_obj:
+                        roll_number = StudentDetail.objects.get(student=i.student, is_active=True).roll_number
+                        i.attended = bool(attendance_json['attendance'][roll_number])
+                        i.save()
+
+
+        return HttpResponse('true')
+    return HttpResponse('ERROR')
 
 
 def reload_student_roll(request):
