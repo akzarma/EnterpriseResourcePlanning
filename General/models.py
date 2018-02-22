@@ -74,7 +74,7 @@ class StudentDetail(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.batch.division) + " " + str(self.student.first_name)
+        return str(self.batch.division) + " " + str(self.student.first_name) + " " + str(self.roll_number)
 
 
 class StudentSubject(models.Model):
