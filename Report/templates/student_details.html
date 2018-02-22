@@ -1,0 +1,98 @@
+{% extends 'dashboard_faculty.html' %}
+{% block title %}
+    Excel-Student | ERP
+{% endblock title %}
+
+
+{% block content %}
+    <form action="{% url 'report:student_details' %}" method="POST">
+    {% csrf_token %}
+        <div class="row">
+
+            <div class="col-md-3">
+                <label>Select Branch</label>
+                <select class="form-control" id="branch_select" onload="loadYear()" onchange="loadYear()" name="branch">
+                    <option value="all">All</option>
+                    {% for i in timetable.keys %}
+                        <option value="{{ i }}">{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label>Select Year</label>
+                <select class="form-control" id="year_select" onload="loadDivision()" onchange="loadDivision()"
+                        name="year">
+
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label>Select Division</label>
+                <select class="form-control" id="division_select" name="division">
+
+                </select>
+            </div>
+
+            <input type="submit" class="btn btn-primary">
+
+
+        </div>
+        <div class="row">
+            {% for field in fields %}
+                <label><input type="checkbox" name="fields" value="{{ field.name }}">
+                    {{ field.label }}</label>
+            {% endfor %}
+            <label><input type="checkbox" name="fields" value="roll_number">
+                Roll Number</label>
+        </div>
+    </form>
+    <script>
+
+        var timetable = {{ timetable|safe }}
+
+            function loadYear() {
+                let branch = document.getElementById('branch_select').value;
+                if (branch !== 'all') {
+                    let year_select = document.getElementById('year_select');
+                    let option = document.createElement('option');
+                    option.value = "all";
+                    option.text = "All";
+                    year_select.appendChild(option);
+
+                    for (let each in timetable[branch]) {
+                        let option = document.createElement('option');
+                        option.value = each;
+                        option.text = each;
+                        year_select.appendChild(option);
+                    }
+
+                }
+            }
+
+        function loadDivision() {
+            let branch = document.getElementById('branch_select').value;
+
+            let year = document.getElementById('year_select').value;
+            if (year.value !== 'all') {
+                let division_select = document.getElementById('division_select');
+                while (division_select.firstChild) {
+                    division_select.removeChild(division_select.firstChild);
+                }
+                let option = document.createElement('option');
+                option.value = "all";
+                option.text = "All";
+                division_select.appendChild(option);
+
+                if (branch !== "all") {
+                    for (let each in timetable[branch][year]) {
+                        let option = document.createElement('option');
+                        option.value = timetable[branch][year][each];
+                        option.text = timetable[branch][year][each];
+                        division_select.appendChild(option);
+                    }
+
+                }
+            }
+        }
+    </script>
+
+{% endblock content %}

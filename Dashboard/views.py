@@ -368,7 +368,7 @@ def download_excel_timetable(request):
         answer = OrderedDict(sorted(answer.items(), key=lambda x: days.index(x[0])))
 
         # Create a workbook and add a worksheet.
-        workbook = xlsxwriter.Workbook('Media/Excel/timetable_' + branch + '_' + year + '_' + division + '.xlsx')
+        workbook = xlsxwriter.Workbook('timetable_' + branch + '_' + year + '_' + division + '.xlsx')
         worksheet = workbook.add_worksheet()
 
         col = 1

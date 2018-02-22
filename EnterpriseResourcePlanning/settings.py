@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'Requests.apps.RequestsConfig',
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
+    'Report.apps.ReportConfig',
     'django.contrib.humanize',
     'widget_tweaks',
 
