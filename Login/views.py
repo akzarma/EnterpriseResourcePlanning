@@ -128,9 +128,9 @@ def login_android(request):
 
                     student_response = {
                         'user_type': 'Student',
-                        'year': student_detail.division.year.year,
+                        'year': student_detail.batch.division.year.year,
                         'branch': branch,
-                        'division': student_detail.division.division,
+                        'division': student_detail.batch.division.division,
                         'batch': student_detail.batch.batch_name,
                         'name': user.student.first_name + user.student.last_name
                     }
