@@ -432,21 +432,22 @@ def mark_from_excel(request):
                 if not totalAttendance:
                     TotalAttendance.objects.create(student=student, subject=subject_obj, total_lectures=total,
                                                    attended_lectures=attended)
-                else:
-                    totalAttendance[0].total_lectures = total
-                    totalAttendance[0].attended_lectures = attended
-                    totalAttendance[0].save()
                     try:
                         new.append(
                             student.gr_number + " " + student.first_name + " " + str(student.studentdetail_set.first().roll_number))
                     except:
                         pass
+                else:
+                    totalAttendance[0].total_lectures = total
+                    totalAttendance[0].attended_lectures = attended
+                    totalAttendance[0].save()
+
 
 
         else:
             pass
 
-    return HttpResponse("Done new: ", new)
+    return HttpResponse("Done new: "+ str(new))
 
 
 @csrf_exempt
