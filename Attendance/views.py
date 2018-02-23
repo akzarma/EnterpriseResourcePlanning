@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import datetime
 import json
 
+import os
 from django.db.models import Avg, Sum, Count
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -383,9 +384,15 @@ def android_display_attendance(request):
 
 
 def mark_from_excel(request):
-    path = 'Attendance/Documents/TE_B_attendance.csv'
+    cwd = os.getcwd()
+    app_name = '/EnterpriseResourcePlanning'
+    if cwd.__contains__(app_name):
+        path = cwd + '/Attendance/Documents/TE_B_attendance.csv'
+    else:
+        path = cwd + app_name + '/Attendance/Documents/TE_B_attendance.csv'
 
-    file = open('path', 'r')
+    new = []
+    file = open(path, 'r')
 
     full_text = file.read()
 
@@ -415,7 +422,7 @@ def mark_from_excel(request):
                 total = 0
 
                 # print(lect_split)
-                if lect_split[0].strip() != '':
+                if lect_split.__len__() != 1:
                     attended = int(lect_split[0].strip())
                     total = int(lect_split[1].strip())
 
@@ -429,12 +436,17 @@ def mark_from_excel(request):
                     totalAttendance[0].total_lectures = total
                     totalAttendance[0].attended_lectures = attended
                     totalAttendance[0].save()
+                    try:
+                        new.append(
+                            student.gr_number + " " + student.first_name + " " + str(student.studentdetail_set.first().roll_number))
+                    except:
+                        pass
+
 
         else:
-            # print(token[1])
-            {}
+            pass
 
-    return HttpResponse("here")
+    return HttpResponse("Done new: ", new)
 
 
 @csrf_exempt
@@ -467,7 +479,8 @@ def android_fill_attendance(request):
 
                 if not old_attendance_obj:
                     for roll_number in attendance_json['attendance']:
-                        student = StudentDetail.objects.get(roll_number=roll_number, batch__division=division_obj, is_active=True).student
+                        student = StudentDetail.objects.get(roll_number=roll_number, batch__division=division_obj,
+                                                            is_active=True).student
                         attendance += [StudentAttendance(student=student, timetable=selected_timetable,
                                                          attended=bool(attendance_json['attendance'][roll_number]))]
 
@@ -475,10 +488,13 @@ def android_fill_attendance(request):
 
                 else:
                     for i in old_attendance_obj:
-                        roll_number = StudentDetail.objects.get(student=i.student, is_active=True).roll_number
-                        i.attended = bool(attendance_json['attendance'][roll_number])
-                        i.save()
-
+                        # Ye try nikalna hai
+                        try:
+                            roll_number = StudentDetail.objects.get(student=i.student, is_active=True).roll_number
+                            i.attended = bool(attendance_json['attendance'][roll_number])
+                            i.save()
+                        except:
+                            {}
 
         return HttpResponse('true')
     return HttpResponse('ERROR')
