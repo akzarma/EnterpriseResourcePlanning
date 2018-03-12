@@ -10,7 +10,7 @@ from django.shortcuts import render
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
-from General.models import CollegeYear, CollegeExtraDetail, StudentDetail, BranchSubject
+from General.models import CollegeYear, CollegeExtraDetail, StudentDetail, BranchSubject, Batch
 from Registration.forms import gr_roll_dict
 from Registration.models import Student, Subject, Branch
 from General.models import FacultySubject, StudentDetail
@@ -456,10 +456,19 @@ def android_fill_attendance(request):
                 branch_subject = BranchSubject.objects.get(branch=branch_obj, subject=subject_obj, year=year_obj)
 
                 date = datetime.datetime.strptime(attendance_json['date'], '%Y,%m,%d').date()
-                timetable_obj = Timetable.objects.get(room=room_obj, time=time_obj, day=attendance_json['day'],
-                                                      faculty=faculty, division=division_obj,
-                                                      branch_subject=branch_subject)
-                selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
+
+                if attendance_json['is_practical'] is 'true':
+                    batch = Batch.objects.get(division=division_obj, batch_name=attendance_json['batch'])
+                    timetable_obj = Timetable.objects.get(room=room_obj, time=time_obj, day=attendance_json['day'],
+                                                          faculty=faculty, division=division_obj,
+                                                          branch_subject=branch_subject, is_practical=True, batch=batch)
+                    selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
+
+                else:
+                    timetable_obj = Timetable.objects.get(room=room_obj, time=time_obj, day=attendance_json['day'],
+                                                          faculty=faculty, division=division_obj,
+                                                          branch_subject=branch_subject)
+                    selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
 
                 attendance = []
 
@@ -467,21 +476,24 @@ def android_fill_attendance(request):
 
                 if not old_attendance_obj:
                     for roll_number in attendance_json['attendance']:
-                        student = StudentDetail.objects.get(roll_number=roll_number, batch__division=division_obj, is_active=True).student
+                        student = StudentDetail.objects.get(roll_number=roll_number, batch__division=division_obj,
+                                                            is_active=True).student
                         attendance += [StudentAttendance(student=student, timetable=selected_timetable,
-                                                         attended=bool(attendance_json['attendance'][roll_number]))]
+                                                         attended=bool(
+                                                             attendance_json['attendance'][str(roll_number)]))]
 
                     StudentAttendance.objects.bulk_create(attendance)
 
                 else:
                     for i in old_attendance_obj:
                         roll_number = StudentDetail.objects.get(student=i.student, is_active=True).roll_number
-                        i.attended = bool(attendance_json['attendance'][roll_number])
+                        i.attended = bool(attendance_json['attendance'][str(roll_number)])
                         i.save()
 
-
         return HttpResponse('true')
-    return HttpResponse('ERROR')
+
+    else:
+        return HttpResponse('ERROR')
 
 
 def reload_student_roll(request):
@@ -493,3 +505,51 @@ def reload_student_roll(request):
     #         [gr_roll_dict[i] for i in gr_roll_dict if i == each_student.gr_number][0])
 
     return HttpResponse("not ok")
+
+
+#<QueryDict: {'I_WANT_THE_INSTANCE_BRUV': ['{"subject":"WTL","is_practical":"false","batch":"B4","faculty":"SBT","branch":"Computer","year":"TE","faculty_code":"F2018001","division":"B","start_time":"1015","end_time":"1115","date":"2018,3,12","room":"B-103","day":"Monday"}']}>
+
+
+@csrf_exempt
+def android_instance(request):
+    if request.method == "POST":
+        print(request.POST)
+        timetable_json = json.loads(request.POST.get('I_WANT_THE_INSTANCE_BRUV'))
+        time_obj = Time.objects.get(starting_time=int(timetable_json['start_time']),
+                                    ending_time=int(timetable_json['end_time']))
+
+        branch_obj = Branch.objects.get(branch=timetable_json['branch'])
+        room_obj = Room.objects.get(branch=branch_obj, room_number=timetable_json['room'])
+        faculty = Faculty.objects.get(faculty_code=timetable_json['faculty_code'])
+        year_obj = CollegeYear.objects.get(year=timetable_json['year'])
+        subject_obj = Subject.objects.get(short_form=timetable_json['subject'])
+        division_obj = CollegeExtraDetail.objects.get(branch=branch_obj, year=year_obj,
+                                                      division=timetable_json['division'])
+        branch_subject = BranchSubject.objects.get(branch=branch_obj, subject=subject_obj, year=year_obj)
+
+        date = datetime.datetime.strptime(timetable_json['date'], '%Y,%m,%d').date()
+
+        if timetable_json['is_practical'] is 'true':
+            batch = Batch.objects.get(division=division_obj, batch_name=timetable_json['batch'])
+            timetable_obj = Timetable.objects.get(room=room_obj, time=time_obj, day=timetable_json['day'],
+                                                  faculty=faculty, division=division_obj,
+                                                  branch_subject=branch_subject, is_practical=True, batch=batch)
+            selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
+
+        else:
+            timetable_obj = Timetable.objects.get(room=room_obj, time=time_obj, day=timetable_json['day'],
+                                                  faculty=faculty, division=division_obj,
+                                                  branch_subject=branch_subject)
+            selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
+
+        response = {'present_students': [StudentDetail.objects.get(student=i.student).roll_number for i in
+                                         StudentAttendance.objects.filter(timetable=selected_timetable, attended=True)]}
+        print(response)
+
+        return HttpResponse(json.dumps(response))
+
+
+
+
+    else:
+        return HttpResponse('ERROR')
