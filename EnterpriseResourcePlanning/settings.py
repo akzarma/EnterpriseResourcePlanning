@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'Requests.apps.RequestsConfig',
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
+    'Report.apps.ReportConfig',
     'django.contrib.humanize',
     'widget_tweaks',
 
@@ -137,8 +138,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
+
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 MEDIA_URL = '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, '')

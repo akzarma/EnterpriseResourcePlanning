@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import datetime
 import json
 
+import os
 from django.db.models import Avg, Sum, Count
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
@@ -383,9 +384,15 @@ def android_display_attendance(request):
 
 
 def mark_from_excel(request):
-    path = 'Attendance/Documents/TE_B_attendance.csv'
+    cwd = os.getcwd()
+    app_name = '/EnterpriseResourcePlanning'
+    if cwd.__contains__(app_name):
+        path = cwd + '/Attendance/Documents/TE_B_attendance.csv'
+    else:
+        path = cwd + app_name + '/Attendance/Documents/TE_B_attendance.csv'
 
-    file = open('path', 'r')
+    new = []
+    file = open(path, 'r')
 
     full_text = file.read()
 
@@ -415,7 +422,7 @@ def mark_from_excel(request):
                 total = 0
 
                 # print(lect_split)
-                if lect_split[0].strip() != '':
+                if lect_split.__len__() != 1:
                     attended = int(lect_split[0].strip())
                     total = int(lect_split[1].strip())
 
@@ -425,16 +432,22 @@ def mark_from_excel(request):
                 if not totalAttendance:
                     TotalAttendance.objects.create(student=student, subject=subject_obj, total_lectures=total,
                                                    attended_lectures=attended)
+                    try:
+                        new.append(
+                            student.gr_number + " " + student.first_name + " " + str(student.studentdetail_set.first().roll_number))
+                    except:
+                        pass
                 else:
                     totalAttendance[0].total_lectures = total
                     totalAttendance[0].attended_lectures = attended
                     totalAttendance[0].save()
 
-        else:
-            # print(token[1])
-            {}
 
-    return HttpResponse("here")
+
+        else:
+            pass
+
+    return HttpResponse("Done new: "+ str(new))
 
 
 @csrf_exempt
