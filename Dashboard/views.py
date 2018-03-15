@@ -5,7 +5,7 @@ from itertools import chain
 import xlsxwriter
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_date
 
@@ -16,7 +16,7 @@ import datetime
 
 # Student dashboard
 from Research.models import Paper
-from Timetable.models import Timetable, DateTimetable, Time
+from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
 from UserModel.models import User
 
@@ -296,179 +296,248 @@ def download_excel_timetable(request):
 
         print(full_timetable)
 
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        generate_excel_from_query_set(full_timetable, 'timetable' + branch + '_' + year + '_' + division)
 
-        # branch_obj = Branch.objects.get(branch='Computer')
-        # full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj)
+    return HttpResponse('Done')
 
-        answer = OrderedDict()
 
-        for each in sorted(full_timetable,
-                           key=lambda x: (days.index(x.day), x.division.year.number, x.time.starting_time)):
-            year = each.branch_subject.year.year
-            branch = each.branch_subject.branch.branch
+def generate_excel_from_query_set(full_timetable, file_name, is_room=False, room_number='', param1='room',
+                                  param2='faculty',
+                                  param3='subject'):
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-            division = each.division.division
+    # branch_obj = Branch.objects.get(branch='Computer')
+    # full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj)
 
-            day = each.day
+    answer = OrderedDict()
 
-            time = each.time
+    for each in sorted(full_timetable,
+                       key=lambda x: (days.index(x.day), x.division.year.number, x.time.starting_time)):
+        year = each.branch_subject.year.year
+        branch = each.branch_subject.branch.branch
 
-            faculty = each.faculty.initials
+        division = each.division.division
 
-            room = each.room.room_number
-            subject = each.branch_subject.subject.short_form
+        day = each.day
 
-            if day in answer:
-                if year in answer[day]:
-                    if division in answer[day][year]:
-                        if time in answer[day][year][division]:
-                            OrderedDict()
-                        else:
-                            answer[day][year][division][time] = OrderedDict()
+        time = each.time
+
+        faculty = each.faculty.initials
+
+        room = each.room.room_number
+        subject = each.branch_subject.subject.short_form
+
+        if day in answer:
+            if year in answer[day]:
+                if division in answer[day][year]:
+                    if time in answer[day][year][division]:
+                        OrderedDict()
                     else:
-                        answer[day][year][division] = OrderedDict()
                         answer[day][year][division][time] = OrderedDict()
                 else:
-                    answer[day][year] = OrderedDict()
                     answer[day][year][division] = OrderedDict()
                     answer[day][year][division][time] = OrderedDict()
             else:
-                answer[day] = OrderedDict()
                 answer[day][year] = OrderedDict()
                 answer[day][year][division] = OrderedDict()
                 answer[day][year][division][time] = OrderedDict()
+        else:
+            answer[day] = OrderedDict()
+            answer[day][year] = OrderedDict()
+            answer[day][year][division] = OrderedDict()
+            answer[day][year][division][time] = OrderedDict()
 
-            is_practical = each.is_practical
+        is_practical = each.is_practical
 
-            if is_practical:
-                batch = each.batch.batch_name
-                if 'is_practical' in answer[day][year][division][time]:
-                    {}
-                else:
-                    answer[day][year][division][time] = {
-                        'is_practical': is_practical
-                    }
-
-                answer[day][year][division][time][batch] = {
-                    'faculty': faculty,
-                    'room': room,
-                    'subject': subject,
-                }
-
-
+        if is_practical:
+            batch = each.batch.batch_name
+            if 'is_practical' in answer[day][year][division][time]:
+                {}
             else:
                 answer[day][year][division][time] = {
-                    'faculty': faculty,
-                    'room': room,
-                    'subject': subject,
                     'is_practical': is_practical
                 }
 
-        answer = OrderedDict(sorted(answer.items(), key=lambda x: days.index(x[0])))
+            answer[day][year][division][time][batch] = {
+                'faculty': faculty,
+                'room': room,
+                'subject': subject,
+                'year': year + division
+            }
 
-        # Create a workbook and add a worksheet.
-        workbook = xlsxwriter.Workbook('timetable_' + branch + '_' + year + '_' + division + '.xlsx')
-        worksheet = workbook.add_worksheet()
 
-        col = 1
+        else:
+            answer[day][year][division][time] = {
+                'faculty': faculty,
+                'room': room,
+                'subject': subject,
+                'is_practical': is_practical,
+                'year': year + division
+            }
 
-        year_format = workbook.add_format({
+    answer = OrderedDict(sorted(answer.items(), key=lambda x: days.index(x[0])))
+
+    # Create a workbook and add a worksheet.
+    workbook = xlsxwriter.Workbook(file_name + '.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    col = 1
+
+    year_format = workbook.add_format({
+        'bold': 1,
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+        'fg_color': 'yellow'})
+
+    subject_format = workbook.add_format({
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+        'fg_color': '#f0bfff'})
+    time_format = workbook.add_format({
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+        'color': 'red'})
+
+    practical_format = workbook.add_format({
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+        'fg_color': '#77abff'})
+
+    full_time = [each.__str__() for each in sorted(Time.objects.all(), key=lambda x: x.starting_time)]
+
+    multiplier = 8
+
+    if is_room:
+        multiplier = 4
+
+    for each_day in answer.items():
+
+        merge_format = workbook.add_format({
             'bold': 1,
             'border': 1,
             'align': 'center',
             'valign': 'vcenter',
-            'fg_color': 'yellow'})
+            'fg_color': 'red'})
 
-        subject_format = workbook.add_format({
-            'border': 1,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': '#f0bfff'})
-        time_format = workbook.add_format({
-            'border': 1,
-            'align': 'center',
-            'valign': 'vcenter',
-            'color': 'red'})
+        row = 1
+        temp = col
 
-        practical_format = workbook.add_format({
-            'border': 1,
-            'align': 'center',
-            'valign': 'vcenter',
-            'fg_color': '#77abff'})
+        # each_year_sorted = [each[0] for each in each_day[1].items()]
 
-        full_time = [each.__str__() for each in sorted(Time.objects.all(), key=lambda x: x.starting_time)]
-
-        for each_day in answer.items():
-
-            merge_format = workbook.add_format({
-                'bold': 1,
-                'border': 1,
-                'align': 'center',
-                'valign': 'vcenter',
-                'fg_color': 'red'})
-
-            row = 1
-            temp = col
-
-            # each_year_sorted = [each[0] for each in each_day[1].items()]
-
-            for each_year in each_day[1].items():
-                for each_division in each_year[1].items():
+        for each_year in each_day[1].items():
+            for each_division in each_year[1].items():
+                if is_room == False:
                     worksheet.merge_range(row, temp, row, temp + 1, each_year[0] + each_division[0], year_format)
+                else:
+                    worksheet.merge_range(row, temp, row, temp + 1, room_number, year_format)
 
-                    each_division_sorted = OrderedDict(
-                        sorted(each_division[1].items(), key=lambda x: x[0].starting_time))
-                    row = 2
-                    temp_row = row
-                    for each_time in each_division_sorted.items():
+                each_division_sorted = OrderedDict(
+                    sorted(each_division[1].items(), key=lambda x: x[0].starting_time))
+                row = 2
+                temp_row = row
+                for each_time in each_division_sorted.items():
 
-                        temp_row = full_time.index(each_time[0].__str__()) * 8 + row
+                    temp_row = full_time.index(each_time[0].__str__()) * multiplier + row
 
-                        if not each_time[1]['is_practical']:
-                            worksheet.merge_range(temp_row, temp, temp_row + 3, temp, str(each_time[1]['room']),
-                                                  subject_format)
-                            worksheet.merge_range(temp_row, temp + 1, temp_row + 3, temp + 1,
-                                                  str(each_time[1]['faculty']),
-                                                  subject_format)
+                    if not each_time[1]['is_practical']:
+                        worksheet.merge_range(temp_row, temp, temp_row + int(multiplier / 2) - 1, temp,
+                                              each_time[1][param1],
+                                              subject_format)
+                        worksheet.merge_range(temp_row, temp + 1, temp_row + int(multiplier / 2) - 1, temp + 1,
+                                              str(each_time[1][param2]),
+                                              subject_format)
 
-                            worksheet.merge_range(temp_row + 4, temp, temp_row + 7, temp + 1, each_time[1]['subject'],
-                                                  subject_format)
-                            # temp_row += 8
+                        worksheet.merge_range(temp_row + int(multiplier / 2), temp, temp_row + multiplier - 1,
+                                              temp + 1, each_time[1][param3],
+                                              subject_format)
+                        # temp_row += 8
+                        # workbook.close()
+                        # print('here')
+                        # workbook.close()
+                    else:
+                        for each_key in sorted(each_time[1].keys()):
+                            if not each_key == 'is_practical':
+                                worksheet.write(temp_row, temp, each_key, practical_format)
+                                worksheet.write(temp_row, temp + 1, each_time[1][each_key][param3],
+                                                practical_format)
+                                worksheet.write(temp_row + 1, temp, each_time[1][each_key][param1],
+                                                practical_format)
+                                worksheet.write(temp_row + 1, temp + 1, each_time[1][each_key][param2],
+                                                practical_format)
+                                temp_row += 2
 
-                        else:
-                            for each_key in sorted(each_time[1].keys()):
-                                if not each_key == 'is_practical':
-                                    worksheet.write(temp_row, temp, each_key, practical_format)
-                                    worksheet.write(temp_row, temp + 1, each_time[1][each_key]['subject'],
-                                                    practical_format)
-                                    worksheet.write(temp_row + 1, temp, each_time[1][each_key]['room'],
-                                                    practical_format)
-                                    worksheet.write(temp_row + 1, temp + 1, each_time[1][each_key]['faculty'],
-                                                    practical_format)
-                                    temp_row += 2
-
+                if is_room == False:
                     temp += 2
-                    row = 1
-
-            row = 0
-            worksheet.merge_range(0, col, 0, temp - 1, each_day[0], merge_format)
-            col = temp
-
-        row_offset = 2
-        col_offset = 0
-
+                row = 1
+        if is_room:
+            temp += 2
         row = 0
-        col = 0
+        worksheet.merge_range(0, col, 0, temp - 1, each_day[0], merge_format)
+        col = temp
 
-        worksheet.write(row, col, 'Time')
+    row_offset = 2
+    col_offset = 0
 
-        for each_time in full_time:
-            worksheet.merge_range(row + row_offset, col + col_offset, row + row_offset + 7, col + col_offset,
-                                  each_time, time_format)
-            worksheet.set_column(col + col_offset, col + col_offset, len(str(each_time)))
-            row += 8
+    row = 0
+    col = 0
 
-        workbook.close()
+    worksheet.write(row, col, 'Time')
 
-    return HttpResponse('Done')
+    # Set time
+    for each_time in full_time:
+        worksheet.merge_range(row + row_offset, col + col_offset, row + row_offset + multiplier - 1, col + col_offset,
+                              each_time, time_format)
+        worksheet.set_column(col + col_offset, col + col_offset, len(str(each_time)))
+        row += multiplier
+
+    workbook.close()
+    # workbook.filename()
+
+
+def excel_room_schedule(request):
+    branch = Branch.objects.all()
+
+    branch_room_json = {}
+
+    for each_branch in branch:
+        branch_room_json[each_branch.branch] = list(each_branch.room_set.values_list('room_number', flat=True))
+
+    return render(request, 'excel_room_schedule.html', {
+        'branch_room_json': branch_room_json
+    })
+
+
+def download_excel_room_schedule(request):
+    # Code for all is remaining
+    if request.is_ajax():
+        branch = request.POST.get('branch')
+
+        room = request.POST.get('room')
+
+        full_timetable = Timetable.objects.all()
+
+        if branch != 'all':
+            branch_obj = Branch.objects.get(branch=branch)
+
+            college_extra_detail = CollegeExtraDetail.objects.filter(branch=branch_obj)
+
+            full_timetable = full_timetable.filter(division__in=college_extra_detail)
+            if room != 'all':
+                room_obj = Room.objects.filter(branch=branch_obj, room_number=room)
+                full_timetable = full_timetable.filter(room__in=room_obj)
+                filename = 'room_schedule' + '_' + branch + '_' + room
+                generate_excel_from_query_set(full_timetable, filename, True, room, 'year')
+                return HttpResponse(filename)
+            else:
+                all_rooms = branch_obj.room_set.all()
+                for each_room in all_rooms:
+                    full_timetable = full_timetable.filter(room=each_room)
+                    filename = 'room_schedule' + '_' + branch + '_' + each_room.room_number
+                    generate_excel_from_query_set(full_timetable, filename, True, each_room.room_number, 'year')
+                return HttpResponse(list(all_rooms.values_list('room_number', flat=True)))
+    else:
+        return HttpResponseBadRequest('Not get')

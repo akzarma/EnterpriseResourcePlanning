@@ -29,7 +29,7 @@ DEBUG = True
 AUTH_USER_MODEL = 'UserModel.User'
 
 ALLOWED_HOSTS = ['192.168.0.13', '192.168.0.111', '192.168.43.155', '127.0.0.1', '172.20.10.3',
-                 'akzarma.pythonanywhere.com', '10.42.0.1', '10.1.136.17','192.168.0.15']
+                 'akzarma.pythonanywhere.com', '10.42.0.1', '10.1.136.17','192.168.0.15','192.168.0.7']
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
@@ -141,8 +141,6 @@ USE_TZ = True
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
-
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 MEDIA_URL = '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, '')

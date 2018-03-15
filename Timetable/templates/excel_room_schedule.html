@@ -1,0 +1,95 @@
+{% extends 'dashboard_faculty.html' %}
+{% block title %}
+    Excel-Room Schedule | ERP
+{% endblock title %}
+
+
+{% block content %}
+
+    <div class="row">
+        {#        <form action="{% url 'dashboard:download_excel_room_schedule' %}" method="get">#}
+        <div class="col-md-3">
+            <label>Select Branch</label>
+            <select class="form-control" id="branch_select" onload="loadRoom()" onchange="loadRoom()" name="branch">
+                <option value="all">All</option>
+                {% for i in branch_room_json.keys %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Select Room</label>
+            <select class="form-control" id="room_select" name="room">
+                <option value="all">All</option>
+
+            </select>
+        </div>
+
+        <input type="submit" onclick="download_file()">
+
+        {#        </form>#}
+    </div>
+    <script>
+
+        var branch_room_json = {{ branch_room_json|safe }};
+        {#alert(branch_room_json);#}
+        console.log(branch_room_json);
+
+        function loadRoom() {
+
+
+            let branch = document.getElementById('branch_select').value;
+            let room_select = document.getElementById('room_select');
+
+            $('#room_select')
+                .find('option')
+                .remove()
+                .end();
+
+            let option = document.createElement('option');
+            option.value = "all";
+            option.text = "All";
+            room_select.appendChild(option);
+
+
+            if (branch !== 'all') {
+                for (let each in branch_room_json[branch]) {
+                    let option = document.createElement('option');
+                    option.value = branch_room_json[branch][each];
+                    option.text = branch_room_json[branch][each];
+                    room_select.appendChild(option);
+                }
+
+            }
+
+        }
+
+        function download_file() {
+            let room = document.getElementById('room_select');
+            let branch = document.getElementById('branch_select');
+            {#let data = '';#}
+            $.ajax({
+                type: "POST",
+                async: false,
+                url: '{% url 'dashboard:download_excel_room_schedule' %}',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'room': room.value,
+                    'branch': branch.value
+                },
+                success: function (data) {
+                    alert(data);
+                    if (room.value !== 'all') {
+                        window.open('/' + data + '.xlsx', '_blank');
+                    }
+                    else {
+                        console.log(data);
+                    }
+                }
+            });
+
+
+        }
+    </script>
+
+{% endblock content %}
