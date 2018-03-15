@@ -1,0 +1,122 @@
+{% extends 'dashboard_faculty.html' %}
+{% block title %}
+    Excel-Room Schedule | ERP
+{% endblock title %}
+
+
+{% block content %}
+    <div class="showbox" id="loading_div" style="display: none;">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2"
+                        stroke-miterlimit="10"></circle>
+            </svg>
+        </div>
+    </div>
+    <div class="row" id="main_content">
+        {#        <form action="{% url 'dashboard:download_excel_room_schedule' %}" method="get">#}
+        <div class="col-md-3">
+            <label>Select Branch</label>
+            <select class="form-control" id="branch_select" onload="loadRoom()" onchange="loadRoom()" name="branch">
+                {#                <option value="all">All</option>#}
+                {% for i in branch_room_json.keys %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label>Select Room</label>
+            <select class="form-control" id="room_select" name="room">
+                <option value="all">All</option>
+
+            </select>
+        </div>
+
+        <input type="submit" onclick="download_file()">
+
+        {#        </form>#}
+    </div>
+    <script>
+
+        var branch_room_json = {{ branch_room_json|safe }};
+        {#alert(branch_room_json);#}
+        console.log(branch_room_json);
+
+        function loadRoom() {
+
+            let branch = document.getElementById('branch_select').value;
+            let room_select = document.getElementById('room_select');
+
+            $('#room_select')
+                .find('option')
+                .remove()
+                .end();
+
+            let option = document.createElement('option');
+            option.value = "all";
+            option.text = "All";
+            room_select.appendChild(option);
+
+
+            if (branch !== 'all') {
+                for (let each in branch_room_json[branch]) {
+                    let option = document.createElement('option');
+                    option.value = branch_room_json[branch][each];
+                    option.text = branch_room_json[branch][each];
+                    room_select.appendChild(option);
+                }
+
+            }
+
+        }
+
+        function download_file() {
+            let main_content = document.getElementById('main_content');
+            main_content.style.opacity = .2;
+            let loading = document.getElementById('loading_div');
+            loading.hidden = false;
+            loading.style.display = 'block';
+
+            for (let i = 0; i < 5000; i++) {
+                console.log(i);
+            }
+            let room = document.getElementById('room_select');
+            let branch = document.getElementById('branch_select');
+            {#let data = '';#}
+            $.ajax({
+                type: "POST",
+                url: '{% url 'dashboard:download_excel_room_schedule' %}',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'room': room.value,
+                    'branch': branch.value
+                },
+                success: function (data) {
+                    loading.style.display = "none";
+                    main_content.style.opacity = 1;
+                    if (room.value !== 'all') {
+                        let file_path = '/' + data + '.xlsx';
+                        let a = document.createElement('a');
+                        a.href = file_path;
+                        a.click();
+                    }
+                    else {
+                        data = JSON.parse(data);
+                        console.log(data);
+                        for (let each_file in data) {
+                            {#window.open('/' + data[each_file] + '.xlsx', '_blank');#}
+                            let file_path = '/' + data[each_file] + '.xlsx';
+                            let a = document.createElement('a');
+                            a.href = file_path;
+                            a.click();
+
+                        }
+                    }
+                }
+            });
+
+
+        }
+    </script>
+
+{% endblock content %}

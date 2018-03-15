@@ -21,8 +21,14 @@ urlpatterns = [
     # /dashboard/download_timetable_excel
     url(r'^download_timetable_excel/$', views.download_excel_timetable, name='download_excel_timetable'),
 
-    # /dashboard/get_all_excel/
+    # /dashboard/download_excel_room_schedule
+    url(r'^download_excel_room_schedule/$', views.download_excel_room_schedule, name='download_excel_room_schedule'),
+
+    # /dashboard/excel_timetable/
     url(r'^excel_timetable/$', views.excel_timetable, name='excel_timetable'),
+
+    # /dashboard/excel_room_schedule/
+    url(r'^excel_room_schedule/$', views.excel_room_schedule, name='excel_room_schedule'),
 
     # /dashboard/get_excel
     url(r'^get_excel/$', views.get_excel, name='get_excel'),

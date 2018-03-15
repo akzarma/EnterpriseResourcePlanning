@@ -956,7 +956,7 @@
     function checkFacultyClash(object, batch) {
         batch = batch.split(',');
         var currentFaculty = object.id.split('_');
-        alert(currentFaculty);
+        {#alert(currentFaculty);#}
         var currentSubject = document.getElementById('modal_subject_' + currentFaculty[2]);
         var index = batch.indexOf(currentFaculty[2]);
         batch.splice(index, 1);
@@ -991,7 +991,7 @@
         var newValue = obj.value;
         batch = batch.split(',');
         var roomId = obj.id.split('_');
-        alert(batch);
+        {#alert(batch);#}
         {#        alert(iList);#}
 
         var index = batch.indexOf(roomId[2]);
