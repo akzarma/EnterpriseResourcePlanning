@@ -534,10 +534,12 @@ def download_excel_room_schedule(request):
                 return HttpResponse(filename)
             else:
                 all_rooms = branch_obj.room_set.all()
+                data = []
                 for each_room in all_rooms:
                     full_timetable = full_timetable.filter(room=each_room)
                     filename = 'room_schedule' + '_' + branch + '_' + each_room.room_number
                     generate_excel_from_query_set(full_timetable, filename, True, each_room.room_number, 'year')
-                return HttpResponse(list(all_rooms.values_list('room_number', flat=True)))
+                    data.append(filename)
+                return HttpResponse(json.dumps(data))
     else:
         return HttpResponseBadRequest('Not get')

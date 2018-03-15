@@ -78,12 +78,28 @@
                     'branch': branch.value
                 },
                 success: function (data) {
-                    alert(data);
+
                     if (room.value !== 'all') {
-                        window.open('/' + data + '.xlsx', '_blank');
+
                     }
                     else {
+                        data = JSON.parse(data);
+                        alert(data);
                         console.log(data);
+                        for (var each_file in data) {
+                            {#alert(each_file);#}
+                            {##}
+                            {#window.open('/' + data[each_file] + '.xlsx', '_blank');#}
+                            var file_path = '/' + data[each_file] + '.xlsx';
+                            alert(file_path);
+                            var a = document.createElement('a');
+                            a.href = file_path;
+                            {#a.download = file_path.substr(file_path.lastIndexOf('/') + 1);#}
+                            {#document.body.appendChild(a);#}
+                            a.click();
+                            {#document.body.removeChild(a);#}
+
+                        }
                     }
                 }
             });
