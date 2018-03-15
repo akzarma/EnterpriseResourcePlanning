@@ -50,11 +50,9 @@ def student_details(request):
                         worksheet.write(row + i_row, col + i_col, each_student.studentdetail_set.first().batch.batch_name,
                                         light_gray if i_row % 2 == 0 else dark_gray)
                     elif each_field == 'branch':
-                        print(each_student.first_name)
                         worksheet.write(row + i_row, col + i_col, each_student.studentdetail_set.first().batch.division.branch.branch,
                                         light_gray if i_row % 2 == 0 else dark_gray)
                     elif each_field == 'roll_number':
-                        print(each_student.first_name)
                         worksheet.write(row + i_row, col + i_col, each_student.studentdetail_set.first().roll_number,
                                         light_gray if i_row % 2 == 0 else dark_gray)
                     else:

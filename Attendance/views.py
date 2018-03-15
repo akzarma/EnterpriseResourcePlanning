@@ -453,7 +453,6 @@ def mark_from_excel(request):
 @csrf_exempt
 def android_fill_attendance(request):
     if request.method == "POST":
-        print(request.POST)
         for each in request.POST:
             if each.__contains__('attendance_'):
                 attendance_json = json.loads(request.POST.get(each))
@@ -487,7 +486,6 @@ def android_fill_attendance(request):
 
                 old_attendance_obj = StudentAttendance.objects.filter(timetable=selected_timetable)
                 print(old_attendance_obj)
-
                 if not old_attendance_obj:
                     for roll_number in attendance_json['attendance']:
                         student = StudentDetail.objects.get(roll_number=roll_number, batch__division=division_obj,
@@ -502,11 +500,13 @@ def android_fill_attendance(request):
                     for i in old_attendance_obj:
                         roll_number = StudentDetail.objects.get(student=i.student, is_active=True).roll_number
                         i.attended = bool(attendance_json['attendance'][str(roll_number)])
+                        print(roll_number,attendance_json['attendance'][str(roll_number)])
                         i.save()
-
+        print('Done android')
         return HttpResponse('true')
 
     else:
+        print('error_android')
         return HttpResponse('ERROR')
 
 
@@ -527,7 +527,6 @@ def reload_student_roll(request):
 @csrf_exempt
 def android_instance(request):
     if request.method == "POST":
-        print(request.POST)
         timetable_json = json.loads(request.POST.get('I_WANT_THE_INSTANCE_BRUV'))
         time_obj = Time.objects.get(starting_time=int(timetable_json['start_time']),
                                     ending_time=int(timetable_json['end_time']))
@@ -561,7 +560,6 @@ def android_instance(request):
 
         for i in StudentAttendance.objects.filter(timetable=selected_timetable):
             response[StudentDetail.objects.get(student=i.student).roll_number] = 1 if i.attended else 0
-        print(response)
 
         return HttpResponse(json.dumps(response))
 
