@@ -486,6 +486,7 @@ def android_fill_attendance(request):
                 attendance = []
 
                 old_attendance_obj = StudentAttendance.objects.filter(timetable=selected_timetable)
+                print(old_attendance_obj)
 
                 if not old_attendance_obj:
                     for roll_number in attendance_json['attendance']:
@@ -555,14 +556,14 @@ def android_instance(request):
                                                   branch_subject=branch_subject)
             selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
 
-        response = {'present_students': [StudentDetail.objects.get(student=i.student).roll_number for i in
-                                         StudentAttendance.objects.filter(timetable=selected_timetable, attended=True)]}
+
+        response = {}
+
+        for i in StudentAttendance.objects.filter(timetable=selected_timetable):
+            response[StudentDetail.objects.get(student=i.student).roll_number] = 1 if i.attended else 0
         print(response)
 
         return HttpResponse(json.dumps(response))
-
-
-
 
     else:
         return HttpResponse('ERROR')
