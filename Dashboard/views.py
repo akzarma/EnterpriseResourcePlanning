@@ -263,7 +263,6 @@ def excel_timetable(request):
 
         timetable_json[branch][year].append(division)
 
-
     return render(request, 'excel_timetable.html', {
         'timetable': timetable_json
     })
@@ -292,7 +291,6 @@ def download_excel_timetable(request):
             college_extra_detail = college_extra_detail.filter(division=division)
 
         full_timetable = full_timetable.filter(division__in=college_extra_detail)
-
 
         generate_excel_from_query_set(full_timetable, 'timetable' + branch + '_' + year + '_' + division)
 
@@ -502,7 +500,7 @@ def excel_room_schedule(request):
     branch_room_json = {}
 
     for each_branch in branch:
-        branch_room_json[each_branch.branch] = list(each_branch.room_set.values_list('room_number', flat=True))
+        branch_room_json[each_branch.branch] = list(set(each_branch.room_set.values_list('room_number', flat=True)))
 
     return render(request, 'excel_room_schedule.html', {
         'branch_room_json': branch_room_json
@@ -531,12 +529,13 @@ def download_excel_room_schedule(request):
                 generate_excel_from_query_set(full_timetable, filename, True, room, 'year')
                 return HttpResponse(filename)
             else:
-                all_rooms = branch_obj.room_set.all()
+                all_rooms = set(branch_obj.room_set.all().values_list('room_number', flat=True))
                 data = []
                 for each_room in all_rooms:
-                    full_timetable = full_timetable.filter(room=each_room)
-                    filename = 'room_schedule' + '_' + branch + '_' + each_room.room_number
-                    generate_excel_from_query_set(full_timetable, filename, True, each_room.room_number, 'year')
+                    room_obj = Room.objects.filter(branch=branch_obj, room_number=each_room)
+                    temp_timetable = full_timetable.filter(room__in=room_obj)
+                    filename = 'room_schedule' + '_' + branch + '_' + each_room
+                    generate_excel_from_query_set(temp_timetable, filename, True, each_room, 'year')
                     data.append(filename)
                 return HttpResponse(json.dumps(data))
     else:
@@ -574,4 +573,3 @@ def excel_attendance(request):
 def download_excel_attendance_subject(request):
     if request.is_ajax():
         return HttpResponse()
-
