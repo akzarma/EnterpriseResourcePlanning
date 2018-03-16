@@ -263,8 +263,6 @@ def excel_timetable(request):
 
         timetable_json[branch][year].append(division)
 
-    print(timetable_json)
-
     return render(request, 'excel_timetable.html', {
         'timetable': timetable_json
     })
@@ -543,3 +541,37 @@ def download_excel_room_schedule(request):
                 return HttpResponse(json.dumps(data))
     else:
         return HttpResponseBadRequest('Not get')
+
+
+def excel_attendance(request):
+    timetable_json = {}
+
+    college_extra_detail = CollegeExtraDetail.objects.all()
+
+    for each in college_extra_detail:
+        branch = each.branch.branch
+        year = each.year.year
+        division = each.division
+
+        if branch in timetable_json:
+            if year in timetable_json[branch]:
+                {}
+            else:
+                timetable_json[branch][year] = []
+        else:
+            timetable_json[branch] = {}
+            timetable_json[branch][year] = []
+
+        timetable_json[branch][year].append(division)
+
+    print(timetable_json)
+
+    return render(request, 'excel_attendance.html', {
+        'timetable': timetable_json
+    })
+
+
+def download_excel_attendance_subject(request):
+    if request.is_ajax():
+        return HttpResponse()
+
