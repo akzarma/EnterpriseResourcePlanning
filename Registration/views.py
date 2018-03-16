@@ -242,13 +242,11 @@ def change_password(request):
         gr_number = request.POST.get('gr_number')
         new = request.POST.get('new_pwd')
         cnf = request.POST.get('cnf_pwd')
-        # print("user:",User.objects.get(pk=user).username)
         try:
             user = User.objects.get(username=gr_number)
         except:
             return render(request, 'login.html', {'error': 'No user found.'})
         if new != cnf:
-            # print('new !=cnf')
             return render(request, 'change_password.html', {
                 'error': "Confirm Password didn't match new Password!",
                 'gr_number': gr_number
@@ -300,8 +298,6 @@ def forgot_password(request):
 
 
 def verification_process(request, key, username):
-    # print('key= ' + key)
-    # print('username= ' + username)
     try:
         user = User.objects.get(username=username)
         student = Student.objects.get(user=user)
@@ -315,13 +311,11 @@ def verification_process(request, key, username):
                 gr_number = request.POST.get('gr_number')
                 new = request.POST.get('new_pwd')
                 cnf = request.POST.get('cnf_pwd')
-                # print("user:",User.objects.get(pk=user).username)
                 try:
                     user = User.objects.get(username=gr_number)
                 except:
                     return render(request, 'login.html', {'error': 'No user found.'})
                 if new != cnf:
-                    # print('new !=cnf')
                     return render(request, 'change_password.html', {
                         'error': "Confirm Password didn't match new Password!",
                         'gr_number': gr_number

@@ -263,6 +263,7 @@ def excel_timetable(request):
 
         timetable_json[branch][year].append(division)
 
+
     return render(request, 'excel_timetable.html', {
         'timetable': timetable_json
     })
@@ -292,7 +293,6 @@ def download_excel_timetable(request):
 
         full_timetable = full_timetable.filter(division__in=college_extra_detail)
 
-        print(full_timetable)
 
         generate_excel_from_query_set(full_timetable, 'timetable' + branch + '_' + year + '_' + division)
 
