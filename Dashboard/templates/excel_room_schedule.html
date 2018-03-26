@@ -104,6 +104,9 @@
                         data = JSON.parse(data);
                         console.log(data);
                         for (let each_file in data) {
+                            {#alert(data);#}
+                            sleep(300);
+
                             {#window.open('/' + data[each_file] + '.xlsx', '_blank');#}
                             let file_path = '/' + data[each_file] + '.xlsx';
                             let a = document.createElement('a');
@@ -116,6 +119,18 @@
             });
 
 
+        }
+    </script>
+
+
+    <script>
+        function sleep(milliseconds) {
+            var start = new Date().getTime();
+            for (var i = 0; i < 1e7; i++) {
+                if ((new Date().getTime() - start) > milliseconds) {
+                    break;
+                }
+            }
         }
     </script>
 
