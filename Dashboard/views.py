@@ -572,4 +572,4 @@ def excel_attendance(request):
 
 def download_excel_attendance_subject(request):
     if request.is_ajax():
-        return HttpResponse()
+        return HttpResponse('Done')

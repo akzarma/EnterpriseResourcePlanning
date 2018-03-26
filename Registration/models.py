@@ -173,6 +173,7 @@ class Subject(models.Model):
     short_form = models.CharField(max_length=10)
     is_practical = models.BooleanField(default=False)
     semester = models.IntegerField(default=1)
+    credits = models.IntegerField()
 
     def __str__(self):
         return self.name
