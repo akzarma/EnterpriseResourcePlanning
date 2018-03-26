@@ -180,8 +180,15 @@ def save(request):
                                 each.attended = False
                                 each.save()
 
-                    return render(request, 'select_cat.html', {'success': 'Attendance saved.'})
-    return render(request, 'select_cat.html', {'error': 'Some problem is there.'})
+                    timetable = sorted(
+                        DateTimetable.objects.filter(date=selected_timetable.date, original__faculty=faculty),
+                        key=lambda x: (x.date, x.original.time.starting_time))
+
+                    return render(request, 'dashboard_faculty.html', {'success': 'Attendance saved.',
+                                                                      'selected_date': selected_timetable.date.strftime(
+                                                                          '%d-%m-%Y'),
+                                                                      'timetable': timetable})
+    return render(request, 'dashboard_faculty.html', {'error': 'Some problem is there.'})
 
 
 def select_cat(request):
@@ -196,7 +203,7 @@ def select_cat(request):
                         DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
-                    return render(request, 'select_cat.html', {
+                    return render(request, 'dashboard_faculty.html', {
                         'timetable': timetable,
                         'selected_date': selected_date,
                     })
@@ -242,7 +249,7 @@ def select_cat(request):
                     else:
                         att = 0
 
-                    return render(request, 'select_cat.html', {
+                    return render(request, 'dashboard_faculty.html', {
                         'timetable': timetable,
                         'selected_date': selected_date,
                         'att': att,
@@ -434,7 +441,8 @@ def mark_from_excel(request):
                                                    attended_lectures=attended)
                     try:
                         new.append(
-                            student.gr_number + " " + student.first_name + " " + str(student.studentdetail_set.first().roll_number))
+                            student.gr_number + " " + student.first_name + " " + str(
+                                student.studentdetail_set.first().roll_number))
                     except:
                         pass
                 else:
@@ -447,7 +455,7 @@ def mark_from_excel(request):
         else:
             pass
 
-    return HttpResponse("Done new: "+ str(new))
+    return HttpResponse("Done new: " + str(new))
 
 
 @csrf_exempt
@@ -500,7 +508,7 @@ def android_fill_attendance(request):
                     for i in old_attendance_obj:
                         roll_number = StudentDetail.objects.get(student=i.student, is_active=True).roll_number
                         i.attended = bool(attendance_json['attendance'][str(roll_number)])
-                        print(roll_number,attendance_json['attendance'][str(roll_number)])
+                        print(roll_number, attendance_json['attendance'][str(roll_number)])
                         i.save()
         print('Done android')
         return HttpResponse('true')
@@ -519,9 +527,6 @@ def reload_student_roll(request):
     #         [gr_roll_dict[i] for i in gr_roll_dict if i == each_student.gr_number][0])
 
     return HttpResponse("not ok")
-
-
-#<QueryDict: {'I_WANT_THE_INSTANCE_BRUV': ['{"subject":"WTL","is_practical":"false","batch":"B4","faculty":"SBT","branch":"Computer","year":"TE","faculty_code":"F2018001","division":"B","start_time":"1015","end_time":"1115","date":"2018,3,12","room":"B-103","day":"Monday"}']}>
 
 
 @csrf_exempt
@@ -554,7 +559,6 @@ def android_instance(request):
                                                   faculty=faculty, division=division_obj,
                                                   branch_subject=branch_subject)
             selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
-
 
         response = {}
 

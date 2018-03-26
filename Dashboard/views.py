@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadReque
 from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_date
 
+from Attendance.models import StudentAttendance
 from General.models import Batch, StudentDetail, CollegeExtraDetail, CollegeYear
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student, Branch
@@ -114,40 +115,78 @@ def show_dashboard(request):
             faculty = user.faculty
 
             if request.method == "GET":
-                date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
-
                 timetable = sorted(
-                    DateTimetable.objects.filter(date__in=date_range, original__faculty=faculty),
+                    DateTimetable.objects.filter(date=datetime.date.today(), original__faculty=faculty),
                     key=lambda x: (x.date, x.original.time.starting_time))
                 return render(request, 'dashboard_faculty.html', {
                     'timetable': timetable,
-                    'date_range': date_range,
-                    'days': days,
-                    'current_date': datetime.date.today().strftime('%Y-%m-%d'),
+                    'selected_date': datetime.date.today().strftime('%d-%m-%Y'),
                 })
 
             else:
-                current_date = parse_date(request.POST.get('current_date'))
-                # current_date = datetime.datetime.strptime(request.POST.get('current_date'), '%Y-%m-%d')
-                if request.POST.get('previous'):
-                    current_date = current_date + datetime.timedelta(-3)
+                if 'GO' in request.POST:
+                    selected_date = datetime.datetime.strptime(request.POST.get('selected_date'),'%d-%m-%Y').date()
+                    timetable = sorted(
+                        DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
+                        key=lambda x: (x.date, x.original.time.starting_time))
 
-                if request.POST.get('next'):
-                    current_date = current_date + datetime.timedelta(3)
+                    return render(request, 'dashboard_faculty.html', {
+                        'timetable': timetable,
+                        'selected_date': selected_date.strftime('%d-%m-%Y'),
+                    })
 
-                date_range = [current_date + datetime.timedelta(n) for n in [-1, 0, 1]]
+                elif 'date_timetable' in request.POST:
+                    selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
+                    timetable = sorted(
+                        DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
+                        key=lambda x: (x.date, x.original.time.starting_time))
 
-                timetable = sorted(
-                    DateTimetable.objects.filter(date__in=date_range, original__faculty=faculty),
-                    key=lambda x: (x.date, x.original.time.starting_time))
-                return render(request, 'dashboard_faculty.html', {
-                    'timetable': timetable,
-                    'date_range': date_range,
-                    'days': days,
-                    'current_date': current_date.strftime('%Y-%m-%d')
-                })
+                    selected_class_obj = DateTimetable.objects.get(pk=request.POST.get('date_timetable'))
+
+                    if selected_class_obj.original.is_practical:
+                        attendance = StudentAttendance.objects.filter(
+                            student__studentdetail__batch=selected_class_obj.original.batch,
+                            timetable=selected_class_obj)
+
+                        present_roll = sorted(
+                            [StudentDetail.objects.get(student=each.student).roll_number for each in attendance if
+                             each.attended is True])
+
+                        all_students = StudentDetail.objects.filter(
+                            batch=selected_class_obj.original.batch).values_list('student', flat=True)
+                        all_students_roll = sorted(
+                            [StudentDetail.objects.get(student=each, is_active=True).roll_number for
+                             each in all_students])
+
+                    else:
+                        attendance = StudentAttendance.objects.filter(timetable=selected_class_obj)
+                        present_roll = sorted([StudentDetail.objects.get(student=each.student).roll_number
+                                               for each in attendance if each.attended is True])
+
+                        all_students = StudentDetail.objects.filter(
+                            batch__division=selected_class_obj.original.division) \
+                            .values_list('student', flat=True)
+                        all_students_roll = sorted(
+                            [StudentDetail.objects.get(student=each, is_active=True).roll_number for
+                             each in all_students])
+
+                    if attendance:
+                        att = 1
+
+                    else:
+                        att = 0
+
+                    return render(request, 'dashboard_faculty.html', {
+                        'timetable': timetable,
+                        'selected_date': selected_date.strftime('%d-%m-%Y'),
+                        'att': att,
+                        'selected_timetable': selected_class_obj,
+                        'all_students_roll': all_students_roll,
+                        'present_roll': present_roll,
+                    })
+
         else:
-            logout_user(request)
+            logout_user(request)  # Show 404 Page
             return redirect('/login/')
     else:
         return redirect('/login/')
@@ -263,7 +302,6 @@ def excel_timetable(request):
 
         timetable_json[branch][year].append(division)
 
-
     return render(request, 'excel_timetable.html', {
         'timetable': timetable_json
     })
@@ -292,7 +330,6 @@ def download_excel_timetable(request):
             college_extra_detail = college_extra_detail.filter(division=division)
 
         full_timetable = full_timetable.filter(division__in=college_extra_detail)
-
 
         generate_excel_from_query_set(full_timetable, 'timetable' + branch + '_' + year + '_' + division)
 
@@ -541,3 +578,13 @@ def download_excel_room_schedule(request):
                 return HttpResponse(json.dumps(data))
     else:
         return HttpResponseBadRequest('Not get')
+
+
+def get_timetable(request):
+    faculty = request.user.faculty
+    selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%m-%d-%Y').date()
+    timetable = sorted(
+        DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
+        key=lambda x: (x.date, x.original.time.starting_time))
+
+    return HttpResponse(timetable)

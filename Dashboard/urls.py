@@ -33,5 +33,7 @@ urlpatterns = [
     # /dashboard/get_excel
     url(r'^get_excel/$', views.get_excel, name='get_excel'),
 
+    url(r'^get_timetable/$', views.get_timetable, name='get_timetable'),
+
 
 ]
