@@ -32,19 +32,19 @@ class CollegeExtraDetail(models.Model):
 
 class Semester(models.Model):
     semester = models.PositiveIntegerField()
-    start_date = models.DateField()
-    end_date = models.DateField()
-    lectures_start_date = models.DateTimeField()
-    lectures_end_date = models.DateTimeField()
+    # start_date = models.DateField()
+    # end_date = models.DateField()
+    # lectures_start_date = models.DateTimeField()
+    # lectures_end_date = models.DateTimeField()
 
     def __str__(self):
         return str(self.semester)
 
-    def is_current(self):
-        if self.start_date <= datetime.date.today() <= self.end_date:
-            return True
-        else:
-            return False
+    # def is_current(self):
+    #     if self.start_date <= datetime.date.today() <= self.end_date:
+    #         return True
+    #     else:
+    #         return False
 
 
 class Batch(models.Model):

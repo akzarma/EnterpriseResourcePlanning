@@ -12,7 +12,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
 
-from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch, SemesterPeriod, \
+from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch, \
     StudentDetail, Semester
 from Registration.models import Branch, Subject, Faculty, Student
 from Registration.models import Branch, Subject
