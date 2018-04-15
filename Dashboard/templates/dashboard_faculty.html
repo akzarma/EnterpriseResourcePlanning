@@ -249,6 +249,14 @@
             }
 
             /* end .squaredOne */
+
+            /*Overlay*/
+            #overlay {
+                display: none; /* Hidden by default */
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+            }
         {% endblock extra_style %}
 
     </style>
@@ -342,10 +350,17 @@
                             <div class="row" id="timetable">
                                 {% if timetable %}
                                     {% for each in timetable %}
-                                        {% if each.is_substituted is True %}
-                                            <button name="date_timetable    " class="card btn btn-info"
-                                                    style="width: 100%; font-weight: bold; margin-bottom: 5px;"
-                                                    value="{{ each.pk }}">
+                                        <button name="date_timetable" class="card btn btn-info"
+                                                style="width: 100%; font-weight: bold; margin-bottom: 5px;"
+                                                value="{{ each.pk }}">
+                                            {% if each.not_available == True %}
+                                                <div id="overlay" style="display: block !important;">You're not
+                                                    available
+                                                </div>
+                                            {% else %}
+                                                <div id="overlay">You're not available</div>
+                                            {% endif %}
+                                            {% if each.is_substituted is True %}
                                                 <div class="card-header"
                                                      style="border-bottom: 2px solid white;">{{ each.substitute.time }}</div>
                                                 <div class="row">
@@ -360,11 +375,7 @@
                                                         {% endif %}
                                                     </div>
                                                 </div>
-                                            </button>
-                                        {% else %}
-                                            <button type="submit" name="date_timetable" class="card btn btn-info"
-                                                    style="width: 100%; font-weight: bold; margin-bottom: 5px;"
-                                                    value="{{ each.pk }}">
+                                            {% else %}
                                                 <div class="card-header"
                                                      style="border-bottom: 2px solid white;">{{ each.original.time }}</div>
                                                 <div class="row">
@@ -379,9 +390,16 @@
                                                         {% endif %}
                                                     </div>
                                                 </div>
-                                            </button>
-                                        {% endif %}
+
+                                            {% endif %}
+                                        </button>
                                     {% endfor %}
+                                    <button name="previous" value="previous" class="btn left carousel-control"
+                                            style="border: 0 !important;"><span
+                                            class="glyphicon glyphicon-chevron-left"></span></button>
+                                    <button name="next" value="next" type="submit" class="btn right carousel-control"
+                                            style="border: 0 !important;"><span
+                                            class="glyphicon glyphicon-chevron-right"></span></button>
                                 {% else %}
                                     <p style="text-align: center;">Sorry! No lectures on {{ selected_date }}</p>
                                 {% endif %}
@@ -453,6 +471,8 @@
             {% endblock %}
         </div>
     </div>
+
+
 {% endblock body %}
 {% block html %}
 
@@ -495,19 +515,80 @@
 
             document.addEventListener("contextmenu", function (e) {
                 e.preventDefault();
-                console.log(e);
                 console.log(e.path.findIndex(function (param) {
                     return param.className === 'card btn btn-info'
                 }));
                 let index = e.path.findIndex(function (param) {
                     return param.className === 'card btn btn-info'
                 });
-                alert(e.path[index].value);
-                {#if(e.path[1].)#}
+
+                if (index) {
+                    let element = $("button[name='date_timetable'][value='" + e.path[index].value + "']");
+                    if (element.find('#overlay').css("display") === "none") {
+                        $(element).contextMenu({
+                            selector: 'div',
+                            callback: function (key, options) {
+
+                                var m = "clicked: " + key + " on " + $(this).text;
+                                window.console && console.log(m) || alert(e.path[index]);
+                                console.log(e.path[index]);
+
+                                $.ajax({
+                                    url: '{% url 'dashboard:toggle_availability' %}',
+                                    type: 'POST',
+                                    data: {
+                                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                        'selected_timetable': e.path[index].value,
+                                        'available' : true
+                                    },
+                                    success: function (data) {
+                                        alert(data);
+
+                                        $(element).find('#overlay').css("display", "block");
+
+                                    }
+
+                                });
+                            },
+                            items: {
+                                "not_available": {name: "I'm not available!", icon: "info"}
+                            }
+                        });
+                    }
+                    else {
+                        $(element).contextMenu({
+                            selector: 'div',
+                            callback: function (key, options) {
+
+                                var m = "clicked: " + key + " on " + $(this).text;
+                                window.console && console.log(m) || alert(e.path[index]);
+                                console.log(e.path[index]);
+
+                                $.ajax({
+                                    url: '{% url 'dashboard:toggle_availability' %}',
+                                    type: 'POST',
+                                    data: {
+                                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                        'selected_timetable': e.path[index].value,
+                                        'available' : false
+                                    },
+                                    success: function (data) {
+                                        $(element).find('#overlay').css("display", "none");
+                                    }
+
+                                });
+                            },
+                            items: {
+                                "not_available": {name: "I'm available!", icon: "info"}
+                            }
+                        });
+                    }
+                }
 
             });
 
         })();
+
 
     </script>
 {% endblock html %}

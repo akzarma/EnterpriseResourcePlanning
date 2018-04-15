@@ -5,6 +5,7 @@ from itertools import chain
 import xlsxwriter
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_date
@@ -135,10 +136,27 @@ def show_dashboard(request):
                         'selected_date': selected_date.strftime('%d-%m-%Y'),
                     })
 
+                elif request.POST.__contains__('previous') or request.POST.__contains__('next'):
+                    selected_date = datetime.datetime.strptime(request.POST.get('selected_date'),'%d-%m-%Y').date()
+                    if request.POST.get('previous'):
+                        selected_date = selected_date + datetime.timedelta(-1)
+
+                    if request.POST.get('next'):
+                        selected_date = selected_date + datetime.timedelta(1)
+
+                    timetable = sorted(
+                        DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
+                        key=lambda x: (x.date, x.original.time.starting_time))
+
+                    return render(request, 'dashboard_faculty.html', {
+                        'timetable': timetable,
+                        'selected_date':  selected_date.strftime('%d-%m-%Y'),
+                    })
+
                 elif 'date_timetable' in request.POST:
                     selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
                     timetable = sorted(
-                        DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
+                        DateTimetable.objects.filter(Q(date=selected_date), Q(original__faculty=faculty)|Q(substitute__faculty=faculty)),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
                     selected_class_obj = DateTimetable.objects.get(pk=request.POST.get('date_timetable'))
@@ -621,3 +639,10 @@ def excel_attendance(request):
 def download_excel_attendance_subject(request):
     if request.is_ajax():
         return HttpResponse('Done')
+
+
+def toggle_availability(request):
+    selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
+    selected_timetable.not_available = True if request.POST.get('available') == 'true' else False
+    selected_timetable.save()
+    return HttpResponse('success')
