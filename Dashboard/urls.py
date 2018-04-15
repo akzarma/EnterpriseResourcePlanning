@@ -43,7 +43,7 @@ urlpatterns = [
     url(r'^get_timetable/$', views.get_timetable, name='get_timetable'),
 
 
-    url(r'^not_available/$', views.not_available, name='not_available'),
+    url(r'^toggle_availability/$', views.toggle_availability, name='toggle_availability'),
 
 
 ]

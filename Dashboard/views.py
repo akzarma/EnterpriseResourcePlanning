@@ -641,8 +641,8 @@ def download_excel_attendance_subject(request):
         return HttpResponse('Done')
 
 
-def not_available(request):
+def toggle_availability(request):
     selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
-    selected_timetable.not_available = True
+    selected_timetable.not_available = True if request.POST.get('available') == 'true' else False
     selected_timetable.save()
     return HttpResponse('success')

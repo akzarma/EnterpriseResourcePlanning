@@ -352,11 +352,13 @@
                                         <button name="date_timetable" class="card btn btn-info"
                                                 style="width: 100%; font-weight: bold; margin-bottom: 5px;"
                                                 value="{{ each.pk }}">
-                                        {% if each.not_available == True %}
-                                            <div id="overlay" style="display: block !important;">You're not available</div>
-                                        {% else %}
-                                            <div id="overlay">You're not available</div>
-                                        {% endif %}
+                                            {% if each.not_available == True %}
+                                                <div id="overlay" style="display: block !important;">You're not
+                                                    available
+                                                </div>
+                                            {% else %}
+                                                <div id="overlay">You're not available</div>
+                                            {% endif %}
                                             {% if each.is_substituted is True %}
                                                 <div class="card-header"
                                                      style="border-bottom: 2px solid white;">{{ each.substitute.time }}</div>
@@ -519,34 +521,66 @@
                 });
 
                 if (index) {
-                    $("button[name='date_timetable'][value='" + e.path[index].value + "']").contextMenu({
-                        selector: 'div',
-                        callback: function (key, options) {
+                    let element = $("button[name='date_timetable'][value='" + e.path[index].value + "']");
+                    if (element.find('#overlay').css("display") === "none") {
+                        $(element).contextMenu({
+                            selector: 'div',
+                            callback: function (key, options) {
 
-                            var m = "clicked: " + key + " on " + $(this).text;
-                            window.console && console.log(m) || alert(e.path[index]);
-                            console.log(e.path[index]);
+                                var m = "clicked: " + key + " on " + $(this).text;
+                                window.console && console.log(m) || alert(e.path[index]);
+                                console.log(e.path[index]);
 
-                            $.ajax({
-                                url: '{% url 'dashboard:not_available' %}',
-                                type: 'POST',
-                                data: {
-                                    'csrfmiddlewaretoken': '{{ csrf_token }}',
-                                    'selected_timetable': e.path[index].value
-                                },
-                                success: function (data) {
-                                    alert(data);
+                                $.ajax({
+                                    url: '{% url 'dashboard:toggle_availability' %}',
+                                    type: 'POST',
+                                    data: {
+                                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                        'selected_timetable': e.path[index].value,
+                                        'available' : true
+                                    },
+                                    success: function (data) {
+                                        alert(data);
 
-                                    $("button[name='date_timetable'][value='" + e.path[index].value + "']").find('#overlay').css("display","block");
+                                        $(element).find('#overlay').css("display", "block");
 
-                                }
+                                    }
 
-                            });
-                        },
-                        items: {
-                            "not_available": {name: "I'm not available!", icon: "info"}
-                        }
-                    });
+                                });
+                            },
+                            items: {
+                                "not_available": {name: "I'm not available!", icon: "info"}
+                            }
+                        });
+                    }
+                    else {
+                        $(element).contextMenu({
+                            selector: 'div',
+                            callback: function (key, options) {
+
+                                var m = "clicked: " + key + " on " + $(this).text;
+                                window.console && console.log(m) || alert(e.path[index]);
+                                console.log(e.path[index]);
+
+                                $.ajax({
+                                    url: '{% url 'dashboard:toggle_availability' %}',
+                                    type: 'POST',
+                                    data: {
+                                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                        'selected_timetable': e.path[index].value,
+                                        'available' : false
+                                    },
+                                    success: function (data) {
+                                        $(element).find('#overlay').css("display", "none");
+                                    }
+
+                                });
+                            },
+                            items: {
+                                "not_available": {name: "I'm available!", icon: "info"}
+                            }
+                        });
+                    }
                 }
 
             });
