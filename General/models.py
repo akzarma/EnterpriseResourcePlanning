@@ -32,6 +32,7 @@ class CollegeExtraDetail(models.Model):
 
 class Semester(models.Model):
     semester = models.PositiveIntegerField()
+
     # start_date = models.DateField()
     # end_date = models.DateField()
     # lectures_start_date = models.DateTimeField()
@@ -83,7 +84,7 @@ class StudentDetail(models.Model):
     # batch = models.CharField(max_length=10)
     roll_number = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
-    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, default=1)
+    # semester = models.ForeignKey(Semester, on_delete=models.CASCADE, default=1)  # Should not be default to 1
 
     def __str__(self):
         return str(self.batch.division) + " " + str(self.student.first_name) + " " + str(self.roll_number)
