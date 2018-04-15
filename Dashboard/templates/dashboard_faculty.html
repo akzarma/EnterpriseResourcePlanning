@@ -60,6 +60,7 @@
         .wrapper {
             display: flex;
             align-items: stretch;
+            overflow-x: hidden;
         }
 
         #sidebar {
@@ -407,12 +408,13 @@
                                 <div class="container">
                                     <div class="row">
                                         {% for i in all_students_roll %}
-                                            {% if forloop.counter0|divisibleby:5 %}
+                                            {% if forloop.counter0|divisibleby:9 %}
                                                 </div>
                                                 <div class="row">
                                             {% endif %}
-                                            <div class="col-md-1" id="test">
-                                                <section>
+                                            <div class="col-lg-1" id="test"
+                                                 style="padding-right: 0;padding-left: 0;width: 5%">
+                                                <section style="width: 50px">
                                                     <!-- .squaredOne -->
                                                     <div class="squaredOne">
                                                         {% if not att %}
