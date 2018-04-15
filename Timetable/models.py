@@ -61,5 +61,6 @@ class Timetable(models.Model):
 class DateTimetable(models.Model):
     date = models.DateField()
     original = models.ForeignKey(Timetable, on_delete=models.CASCADE, related_name='original')
+    not_available = models.BooleanField(default=False)
     is_substituted = models.BooleanField(default=False)
     substitute = models.ForeignKey(Timetable, related_name='substitute', null=True)
