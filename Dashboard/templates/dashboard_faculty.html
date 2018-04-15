@@ -9,6 +9,10 @@
             margin-left: 20px;
         }
 
+        .cb {
+            margin-right: 10%;
+        }
+
         #datepicker {
             width: 180px;
             margin: 0 20px 20px 20px;
@@ -216,7 +220,7 @@
                 cursor: pointer;
                 padding-top: 20%;
                 text-align: center;
-
+                margin-left: 0px !important;
             }
 
             .squaredOne label:after {
@@ -416,37 +420,46 @@
                             <form action="{% url 'attendance:save' %}" method="post">
                                 {% csrf_token %}
                                 <input class="hidden" name="selected_timetable" value="{{ selected_timetable.pk }}">
-                                <div class="row">
-                                    {% for i in all_students_roll %}
-                                        <div class="col-lg-1" id="test">
-                                            <section>
-                                                <!-- .squaredOne -->
-                                                <div class="squaredOne">
-                                                    {% if not att %}
-                                                        <input class="cb" type="checkbox" value="{{ i }}"
-                                                               id="squaredOne{{ forloop.counter }}"
-                                                               name="present"/>
-                                                    {% else %}
-                                                        {% if i in present_roll %}
-                                                            <input class="cb" type="checkbox" value="{{ i }}"
-                                                                   id="squaredOne{{ forloop.counter }}"
-                                                                   name="present" checked/>
-                                                        {% else %}
+                                <div class="container">
+                                    <div class="row">
+                                        {% for i in all_students_roll %}
+                                            {% if forloop.counter0|divisibleby:5 %}
+                                                </div>
+                                                <div class="row">
+                                            {% endif %}
+                                            <div class="col-md-1" id="test">
+                                                <section>
+                                                    <!-- .squaredOne -->
+                                                    <div class="squaredOne">
+                                                        {% if not att %}
                                                             <input class="cb" type="checkbox" value="{{ i }}"
                                                                    id="squaredOne{{ forloop.counter }}"
                                                                    name="present"/>
+                                                        {% else %}
+                                                            {% if i in present_roll %}
+                                                                <input class="cb" type="checkbox" value="{{ i }}"
+                                                                       id="squaredOne{{ forloop.counter }}"
+                                                                       name="present" checked/>
+                                                            {% else %}
+                                                                <input class="cb" type="checkbox" value="{{ i }}"
+                                                                       id="squaredOne{{ forloop.counter }}"
+                                                                       name="present"/>
+                                                            {% endif %}
                                                         {% endif %}
-                                                    {% endif %}
-                                                    <label for="squaredOne{{ forloop.counter }}">{{ i }}</label>
-                                                </div>
-                                                <!-- end .squaredOne -->
-                                            </section>
+                                                        <label for="squaredOne{{ forloop.counter }}">{{ i }}</label>
+                                                    </div>
+                                                    <!-- end .squaredOne -->
+                                                </section>
+                                            </div>
+                                            {#                                        {% if forloop.counter0|divisibleby:12 %}#}
+                                            {#                                            </div>#}
+                                            {#                                        {% endif %}#}
+                                        {% endfor %}
                                         </div>
-                                    {% endfor %}
-                                </div>
-                                <div class="row">
-                                    <input class="btn btn-primary" type="submit" name="save_attendance" value="Save">
-                                </div>
+                                    <div class="row">
+                                        <input class="btn btn-primary" type="submit" name="save_attendance"
+                                               value="Save">
+                                    </div>
                             </form>
                         </div>
                     {% endif %}

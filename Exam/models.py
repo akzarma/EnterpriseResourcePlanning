@@ -1,8 +1,7 @@
 from django.db import models
 
-
 # Create your models here.
-from General.models import CollegeExtraDetail
+from General.models import CollegeExtraDetail, Semester, StudentSubject
 
 
 class ExamMaster(models.Model):
@@ -15,6 +14,21 @@ class ExamMaster(models.Model):
 
 class ExamDetail(models.Model):
     exam = models.ForeignKey(ExamMaster)
-    year = models.ForeignKey(CollegeExtraDetail)
+    year = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     schedule_start_date = models.DateField()
     schedule_end_date = models.DateField()
+
+
+class Mark(models.Model):
+    exam = models.ForeignKey(ExamDetail, on_delete=models.CASCADE)
+    student_subject = models.ForeignKey(StudentSubject, on_delete=models.CASCADE)
+    max_total = models.IntegerField()
+
+
+class MarksType(models.Model):
+    type_of_marks = models.CharField(max_length=200)
+    marks = models.ForeignKey(Mark, on_delete=models.CASCADE)
+    marks_obtained = models.IntegerField()
+    max_marks = models.PositiveIntegerField()
+    cut_off_marks = models.IntegerField(default=0)

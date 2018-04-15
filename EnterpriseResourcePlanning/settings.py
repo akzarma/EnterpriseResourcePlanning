@@ -29,10 +29,10 @@ DEBUG = True
 AUTH_USER_MODEL = 'UserModel.User'
 
 ALLOWED_HOSTS = ['192.168.0.10', '192.168.0.111', '192.168.43.155', '127.0.0.1', '172.20.10.3',
-                 'akzarma.pythonanywhere.com', '10.42.0.1', '10.1.136.17','192.168.0.15','192.168.0.7']
+                 'akzarma.pythonanywhere.com', '10.42.0.1', '10.1.136.17', '192.168.0.15', '192.168.0.7',
+                 '192.168.43.154']
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
-
 
 EMAIL_PORT = '587'
 EMAIL_USE_TLS = True

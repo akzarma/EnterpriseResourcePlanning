@@ -12,7 +12,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
 
-from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch, SemesterPeriod, StudentDetail
+from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch, \
+    StudentDetail, Semester
 from Registration.models import Branch, Subject, Faculty, Student
 from Registration.models import Branch, Subject
 from .models import Time, Room, Timetable, DateTimetable
@@ -164,9 +165,11 @@ def fill_timetable(request):
 
 def fill_date_timetable(new_date_timetable):
     creation_list = []
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday']
-    start_date = SemesterPeriod.objects.all()[0].start_date
-    end_date = SemesterPeriod.objects.all()[0].end_date
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    # Should always return 1 object
+    semester_obj = Semester.objects.get(start_date__lte=datetime.date.today(), end_date__gte=datetime.date.today())
+    start_date = semester_obj.start_date
+    end_date = semester_obj.end_date
     date_range = (end_date - start_date).days + 1
     for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
         for each in new_date_timetable:
@@ -398,8 +401,6 @@ def to_json():
 
 
 def get_excel(request):
-
-
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     branch_obj = Branch.objects.get(branch='Computer')
@@ -473,7 +474,6 @@ def get_excel(request):
     # Create a workbook and add a worksheet.
     workbook = xlsxwriter.Workbook('Expenses01.xlsx')
     worksheet = workbook.add_worksheet()
-
 
     col = 1
 
