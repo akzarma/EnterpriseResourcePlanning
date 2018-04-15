@@ -8,3 +8,5 @@ class User(AbstractUser):
     role = models.CharField(max_length=100)
     is_admin = models.BooleanField(default=False)
     objects = UserManager()
+
+

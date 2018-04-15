@@ -306,7 +306,8 @@
 
                         {#                            <input type="hidden" name="selected_date"#}
                         {#                                   value="{{ selected_date }}">#}
-                        <form action="{% url 'dashboard:dashboard' %}" method="post" onsubmit="event.preventDefault();" id="date_form">
+                        <form action="{% url 'dashboard:dashboard' %}" method="post" onsubmit="event.preventDefault();"
+                              id="date_form">
                             {% csrf_token %}
                             <h4 style="text-align:center;text-transform: uppercase ">Lectures
                                 on {{ selected_date }}
@@ -337,7 +338,7 @@
                                 {% if timetable %}
                                     {% for each in timetable %}
                                         {% if each.is_substituted is True %}
-                                            <button name="date_timetable" class="card btn btn-info"
+                                            <button name="date_timetable    " class="card btn btn-info"
                                                     style="width: 100%; font-weight: bold; margin-bottom: 5px;"
                                                     value="{{ each.pk }}">
                                                 <div class="card-header"
@@ -469,10 +470,29 @@
         function change_timetable() {
             var form = document.getElementById('date_form');
             var input = document.createElement('input');
-            input.setAttribute('name','GO');
-            input.setAttribute('type','hidden');
+            input.setAttribute('name', 'GO');
+            input.setAttribute('type', 'hidden');
             form.appendChild(input);
             form.submit();
         }
+
+        (function () {
+
+            document.addEventListener("contextmenu", function (e) {
+                e.preventDefault();
+                console.log(e);
+                console.log(e.path.findIndex(function (param) {
+                    return param.className === 'card btn btn-info'
+                }));
+                let index = e.path.findIndex(function (param) {
+                    return param.className === 'card btn btn-info'
+                });
+                alert(e.path[index].value);
+                {#if(e.path[1].)#}
+
+            });
+
+        })();
+
     </script>
 {% endblock html %}

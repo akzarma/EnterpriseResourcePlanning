@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 
 from Registration.models import Subject, Faculty, Branch, Student
@@ -9,14 +10,6 @@ class CollegeYear(models.Model):
 
     def __str__(self):
         return self.year
-
-
-class Semester(models.Model):
-    semester = models.PositiveIntegerField()
-    # detail = models.ForeignKey(CollegeExtraDetail)
-
-    def __str__(self):
-        return str(self.semester)
 
 
 class Shift(models.Model):
@@ -35,6 +28,23 @@ class CollegeExtraDetail(models.Model):
 
     def __str__(self):
         return self.branch.branch + ' ' + str(self.year) + ' ' + self.division
+
+
+class Semester(models.Model):
+    semester = models.PositiveIntegerField()
+    start_date = models.DateField()
+    end_date = models.DateField()
+    lectures_start_date = models.DateTimeField()
+    lectures_end_date = models.DateTimeField()
+
+    def __str__(self):
+        return str(self.semester)
+
+    def is_current(self):
+        if self.start_date <= datetime.date.today() <= self.end_date:
+            return True
+        else:
+            return False
 
 
 class Batch(models.Model):
@@ -73,7 +83,7 @@ class StudentDetail(models.Model):
     # batch = models.CharField(max_length=10)
     roll_number = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
-    semester = models.ForeignKey(Semester,on_delete=models.CASCADE)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, default=1)
 
     def __str__(self):
         return str(self.batch.division) + " " + str(self.student.first_name) + " " + str(self.roll_number)
@@ -82,8 +92,4 @@ class StudentDetail(models.Model):
 class StudentSubject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-
-
-class SemesterPeriod(models.Model):
-    start_date = models.DateField()
-    end_date = models.DateField()
+    is_active = models.BooleanField(default=True)
