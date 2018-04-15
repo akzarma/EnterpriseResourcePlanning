@@ -39,18 +39,23 @@ def student_details(request):
             for each_field in fields:
                 try:
                     if each_field == 'email':
-                        worksheet.write(row + i_row, col + i_col, each_student.user.email, light_gray if i_row%2 ==0 else dark_gray)
+                        worksheet.write(row + i_row, col + i_col, each_student.user.email,
+                                        light_gray if i_row % 2 == 0 else dark_gray)
                     elif each_field == 'division':
-                        worksheet.write(row + i_row, col + i_col, each_student.studentdetail_set.first().batch.division.division,
+                        worksheet.write(row + i_row, col + i_col,
+                                        each_student.studentdetail_set.first().batch.division.division,
                                         light_gray if i_row % 2 == 0 else dark_gray)
                     elif each_field == 'year':
-                        worksheet.write(row + i_row, col + i_col, each_student.studentdetail_set.first().batch.division.year.year,
+                        worksheet.write(row + i_row, col + i_col,
+                                        each_student.studentdetail_set.first().batch.division.year.year,
                                         light_gray if i_row % 2 == 0 else dark_gray)
                     elif each_field == 'batch':
-                        worksheet.write(row + i_row, col + i_col, each_student.studentdetail_set.first().batch.batch_name,
+                        worksheet.write(row + i_row, col + i_col,
+                                        each_student.studentdetail_set.first().batch.batch_name,
                                         light_gray if i_row % 2 == 0 else dark_gray)
                     elif each_field == 'branch':
-                        worksheet.write(row + i_row, col + i_col, each_student.studentdetail_set.first().batch.division.branch.branch,
+                        worksheet.write(row + i_row, col + i_col,
+                                        each_student.studentdetail_set.first().batch.division.branch.branch,
                                         light_gray if i_row % 2 == 0 else dark_gray)
                     elif each_field == 'roll_number':
                         worksheet.write(row + i_row, col + i_col, each_student.studentdetail_set.first().roll_number,

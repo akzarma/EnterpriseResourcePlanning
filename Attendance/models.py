@@ -16,7 +16,7 @@ from Timetable.models import Timetable, DateTimetable
 
 class StudentAttendance(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    timetable = models.ForeignKey(DateTimetable, on_delete=models.CASCADE,null=True)#Should not be null
+    timetable = models.ForeignKey(DateTimetable, on_delete=models.CASCADE, null=True)  # Should not be null
     attended = models.BooleanField(default=False)
 
     def __str__(self):

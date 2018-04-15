@@ -68,7 +68,8 @@ def login_android(request):
 
                     for each_division in all_divisions:
 
-                        all_student = [each.student for each in StudentDetail.objects.filter(batch__division=each_division).distinct()]
+                        all_student = [each.student for each in
+                                       StudentDetail.objects.filter(batch__division=each_division).distinct()]
 
                         year = each_division.year.year
 
@@ -97,7 +98,7 @@ def login_android(request):
                         for each_student in all_student:
 
                             roll_number = StudentDetail.objects.filter(student=each_student,
-                                                                        is_active=True)[0].roll_number
+                                                                       is_active=True)[0].roll_number
 
                             if 'all' in attendance_list[year][branch][division]:
                                 attendance_list[year][branch][division]['all'].append(roll_number)
@@ -110,7 +111,6 @@ def login_android(request):
                             else:
                                 attendance_list[year][branch][division][curr_batch] = []
                                 attendance_list[year][branch][division][curr_batch].append(roll_number)
-
 
                             # attendance_list[year][branch][division] = {}
                         #

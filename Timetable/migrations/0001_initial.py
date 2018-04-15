@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -47,9 +46,12 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('day', models.CharField(max_length=10)),
                 ('is_practical', models.BooleanField(default=False)),
-                ('batch', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='General.Batch')),
-                ('branch_subject', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='General.BranchSubject')),
-                ('division', models.ForeignKey(max_length=10, on_delete=django.db.models.deletion.CASCADE, to='General.CollegeExtraDetail')),
+                (
+                'batch', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='General.Batch')),
+                ('branch_subject',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='General.BranchSubject')),
+                ('division', models.ForeignKey(max_length=10, on_delete=django.db.models.deletion.CASCADE,
+                                               to='General.CollegeExtraDetail')),
                 ('faculty', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Registration.Faculty')),
                 ('room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Timetable.Room')),
                 ('time', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Timetable.Time')),
@@ -58,11 +60,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='datetimetable',
             name='original',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='original', to='Timetable.Timetable'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='original',
+                                    to='Timetable.Timetable'),
         ),
         migrations.AddField(
             model_name='datetimetable',
             name='substitute',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='substitute', to='Timetable.Timetable'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='substitute',
+                                    to='Timetable.Timetable'),
         ),
     ]
