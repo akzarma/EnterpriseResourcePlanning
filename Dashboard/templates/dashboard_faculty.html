@@ -640,10 +640,11 @@
 
                 if (target.tagName === "BUTTON") {
                     selected_ajax = target.value;
-                    alert(target.value);
+
                 }
                 else {
-                    selected_ajax = target.name;
+                    selected_ajax = target.attributes.name.nodeValue;
+                    alert(target.attributes.name.nodeValue);
                 }
                 // Show contextmenu
                 $(".custom-menu").finish().toggle(100).// In the right position (the mouse)
