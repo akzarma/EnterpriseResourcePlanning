@@ -4,6 +4,7 @@ from collections import OrderedDict
 import datetime
 
 import firebase_admin
+from django.db.models import Q
 from django.http.response import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from firebase_admin import credentials, db
@@ -675,61 +676,69 @@ def android_timetable_json(request):
 
             faculty = Faculty.objects.get(faculty_code=faculty_code)
 
-            full_timetable = Timetable.objects.filter(faculty=faculty)
+            full_timetable = DateTimetable.objects.filter(Q(original__faculty=faculty) | Q(substitute__faculty=faculty))
             faculty_json = {}
             for each in full_timetable:
-                year = each.branch_subject.year.year
-                branch = each.branch_subject.branch.branch
+                year = each.original.branch_subject.year.year
+                branch = each.original.branch_subject.branch.branch
 
-                division = each.division.division
+                division = each.original.division.division
 
-                day = each.day
+                date = str(each.date.strftime('%d-%m-%y'))
 
-                time = each.time.format_for_json()
+                time = each.original.time.format_for_json()
 
-                faculty = each.faculty.initials
+                faculty = each.original.faculty.initials
 
-                room = each.room.room_number
-                subject = each.branch_subject.subject.short_form
+                room = each.original.room.room_number
+                subject = each.original.branch_subject.subject.short_form
 
                 if faculty in faculty_json:
-                    if day in faculty_json[faculty]:
-                        if time in faculty_json[faculty][day]:
+                    if date in faculty_json[faculty]:
+                        if time in faculty_json[faculty][date]:
                             var = {}
                         else:
-                            faculty_json[faculty][day][time] = {}
+                            faculty_json[faculty][date][time] = {}
 
                     else:
-                        faculty_json[faculty][day] = {}
-                        faculty_json[faculty][day][time] = {}
+                        faculty_json[faculty][date] = {}
+                        faculty_json[faculty][date][time] = {}
 
                 else:
                     faculty_json[faculty] = {}
-                    faculty_json[faculty][day] = {}
-                    faculty_json[faculty][day][time] = {}
+                    faculty_json[faculty][date] = {}
+                    faculty_json[faculty][date][time] = {}
 
-                is_practical = each.is_practical
-
+                is_practical = each.original.is_practical
+                substitute = ''
+                if each.is_substituted:
+                    substitute = each.substitute.faculty.initials
                 if is_practical:
-                    batch = each.batch.batch_name
+                    batch = each.original.batch.batch_name
 
-                    faculty_json[faculty][day][time] = {
+
+                    faculty_json[faculty][date][time] = {
                         'branch': branch,
                         'division': division,
                         'room': room,
                         'subject': subject,
                         'year': year,
-
-                        'batch': batch
+                        'batch': batch,
+                        'not_available': each.not_available,
+                        'is_substituted': each.is_substituted,
+                        'substitute': substitute
                     }
                 else:
 
-                    faculty_json[faculty][day][time] = {
+                    faculty_json[faculty][date][time] = {
                         'branch': branch,
                         'division': division,
                         'room': room,
                         'subject': subject,
-                        'year': year
+                        'year': year,
+                        'not_available': each.not_available,
+                        'is_substituted': each.is_substituted,
+                        'substitute': substitute
                     }
             return JsonResponse(faculty_json)
 
