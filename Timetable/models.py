@@ -64,3 +64,4 @@ class DateTimetable(models.Model):
     not_available = models.BooleanField(default=False)
     is_substituted = models.BooleanField(default=False)
     substitute = models.ForeignKey(Timetable, related_name='substitute', null=True)
+
