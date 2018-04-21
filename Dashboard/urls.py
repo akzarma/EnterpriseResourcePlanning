@@ -46,4 +46,7 @@ urlpatterns = [
     url(r'^toggle_availability/$', views.toggle_availability, name='toggle_availability'),
 
 
+    url(r'^get_notifications/$', views.get_notifications, name='get_notifications'),
+
+
 ]

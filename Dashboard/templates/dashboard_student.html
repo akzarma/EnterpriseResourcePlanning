@@ -270,19 +270,19 @@
         </div>
     </div>
 {% endblock body %}
+{% block on_ready %}
+    $('#sidebarCollapse').on('click', function () {
+    $('#sidebar').toggleClass('active');
+    });
+    $('.carousel').carousel({
+    interval: false
+    });
+    $('[data-toggle="tooltip"]').tooltip();
+{% endblock %}
+
 {% block html %}
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#sidebarCollapse').on('click', function () {
-                $('#sidebar').toggleClass('active');
-            });
-            $('.carousel').carousel({
-                interval: false
-            });
-            $('[data-toggle="tooltip"]').tooltip();
-
-        });
 
 
-    </script>
+
+
 {% endblock html %}

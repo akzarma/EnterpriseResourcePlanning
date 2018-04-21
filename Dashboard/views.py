@@ -11,6 +11,7 @@ from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_date
 
 from Attendance.models import StudentAttendance
+from Dashboard.models import SpecificNotification
 from General.models import Batch, StudentDetail, CollegeExtraDetail, CollegeYear, FacultySubject
 from General.views import notify_users
 from Registration.forms import StudentForm, FacultyForm
@@ -674,7 +675,7 @@ def toggle_availability(request):
                 all_faculty_at_that_time.append((each_tt.original.faculty.user.username))
 
     free_faculty = (
-            set(all_faculty_that_div) - (set(list(all_faculty_at_that_time)+[timetable_obj.faculty.user.username])))
+            set(all_faculty_that_div) - (set(list(all_faculty_at_that_time) + [timetable_obj.faculty.user.username])))
     # free_faculty
     free_faculty = [Faculty.objects.get(pk=each) for each in free_faculty]
     print(free_faculty)
@@ -690,3 +691,27 @@ def toggle_availability(request):
     notify_users(notification_type, message, heading, users_obj)
 
     return HttpResponse('success')
+
+
+def get_notifications(request):
+    user = request.user
+    if not user.is_anonymous:
+        if request.is_ajax():
+            notification_objs = SpecificNotification.objects.filter(user=user)
+
+            heading = [each.heading for each in notification_objs]
+            notification = [each.notification for each in notification_objs]
+            number = len(notification)
+
+            data = {
+                'notification': notification,
+                'heading': heading,
+                'number': number
+            }
+
+            return HttpResponse(json.dumps(data))
+
+        else:
+            return HttpResponse("Not ajax.Should be ajax")
+    else:
+        return redirect('/login/')

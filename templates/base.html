@@ -270,5 +270,34 @@
 {% block html %}
 {% endblock html %}
 
+<script>
+
+    $(document).ready(function () {
+
+        //Gets notification
+        $.ajax({
+
+            url: '{% url 'dashboard:get_notifications' %}',
+            type: 'POST',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'selected_timetable': selected_ajax,
+                'available': true
+            },
+            success: function (data) {
+
+                let notifications_json = JSON.parse(data);
+
+                alert(data);
+                {#$(element).find('#overlay').css("display", "block");#}
+
+            }
+
+        });
+
+        {% block on_ready %}
+        {% endblock on_ready %}
+    });
+</script>
 
 </html>
