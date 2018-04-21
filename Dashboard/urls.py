@@ -45,5 +45,8 @@ urlpatterns = [
 
     url(r'^toggle_availability/$', views.toggle_availability, name='toggle_availability'),
 
+    url(r'^android/toggle_availability/$', views.android_toggle_availability, name='android_toggle_availability'),
+
+
 
 ]

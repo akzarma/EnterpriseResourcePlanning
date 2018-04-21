@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_date
+from django.views.decorators.csrf import csrf_exempt
 
 from Attendance.models import StudentAttendance
 from General.models import Batch, StudentDetail, CollegeExtraDetail, CollegeYear, FacultySubject
@@ -129,7 +130,8 @@ def show_dashboard(request):
                 if 'GO' in request.POST:
                     selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
                     timetable = sorted(
-                        DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
+                        DateTimetable.objects.filter(Q(date=selected_date),
+                                                     Q(original__faculty=faculty) | Q(substitute__faculty=faculty)),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
                     return render(request, 'dashboard_faculty.html', {
@@ -146,7 +148,8 @@ def show_dashboard(request):
                         selected_date = selected_date + datetime.timedelta(1)
 
                     timetable = sorted(
-                        DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
+                        DateTimetable.objects.filter(Q(date=selected_date),
+                                                     Q(original__faculty=faculty) | Q(substitute__faculty=faculty)),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
                     return render(request, 'dashboard_faculty.html', {
@@ -649,7 +652,14 @@ def download_excel_attendance_subject(request):
 ####
 def toggle_availability(request):
     selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
-    selected_timetable.not_available = True if request.POST.get('available') == 'true' else False
+    if selected_timetable.not_available is True:
+        if selected_timetable.is_substituted is False:
+            selected_timetable.not_available = False
+        else:
+            return HttpResponse('Sorry, ' + selected_timetable.substitute.faculty.initials + ' has already taken your lecture!')
+    else:
+        selected_timetable.not_available = True
+
     selected_timetable.save()
     timetable_obj = selected_timetable.original
     # date = timetable_obj.date
@@ -690,3 +700,7 @@ def toggle_availability(request):
     notify_users(notification_type, message, heading, users_obj)
 
     return HttpResponse('success')
+
+@csrf_exempt
+def android_toggle_availability(request):
+    return HttpResponse("Yeah!")

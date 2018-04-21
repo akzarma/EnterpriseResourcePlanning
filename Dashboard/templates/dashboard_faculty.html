@@ -278,7 +278,7 @@
             /* end .squaredOne */
 
             /*Overlay*/
-            #overlay {
+            .overlay {
                 display: none; /* Hidden by default */
                 width: 100%;
                 height: 100%;
@@ -379,13 +379,17 @@
                                     {% for each in timetable %}
                                         <button name="date_timetable" class="card btn btn-info my-context-menu"
                                                 style="width: 100%; font-weight: bold; margin-bottom: 5px;"
-                                                value="{{ each.pk }}">
+                                                value="{{ each.pk }}"
+                                                onclick="checkTimetable(this);">
                                             {% if each.not_available == True %}
-                                                <div id="overlay" style="display: block !important;">You're not
+                                                <div id="{{ each.pk }}" style="display: block !important;"
+                                                     name="{{ each.pk }}" class="overlay my-context-menu">I'm not
                                                     available
                                                 </div>
                                             {% else %}
-                                                <div id="overlay">You're not available</div>
+                                                <div id="{{ each.pk }}" name="{{ each.pk }}"
+                                                     class="overlay my-context-menu">I'm not available
+                                                </div>
                                             {% endif %}
                                             {% if each.is_substituted is True %}
                                                 <div class="card-header my-context-menu"
@@ -507,9 +511,9 @@
 
     {#For context menu#}
     <ul class='custom-menu'>
-        <li data-action="availability">I am not available</li>
-
+        <li data-action="availability" id="availability"></li>
     </ul>
+
 {% endblock body %}
 {% block html %}
 
@@ -646,6 +650,15 @@
                     selected_ajax = target.attributes.name.nodeValue;
                     alert(target.attributes.name.nodeValue);
                 }
+
+                alert($('#' + selected_ajax).css("display"));
+
+                if ($('#' + selected_ajax).css("display") === 'none') {
+                    document.getElementById("availability").innerHTML = "I'm not available";
+                } else {
+                    document.getElementById("availability").innerHTML = "I'm available";
+                }
+
                 // Show contextmenu
                 $(".custom-menu").finish().toggle(100).// In the right position (the mouse)
                 css({
@@ -699,17 +712,36 @@
                 type: 'POST',
                 data: {
                     'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    'selected_timetable': selected_ajax,
-                    'available': true
+                    'selected_timetable': selected_ajax
                 },
                 success: function (data) {
                     alert(data);
 
-                    $(element).find('#overlay').css("display", "block");
+                    var overlay = $('#' + selected_ajax);
+
+                    if (overlay.css("display") === "none") {
+                        overlay.css("display", "block");
+                    } else {
+                        overlay.css("display", "none");
+                    }
 
                 }
 
             });
+        }
+
+        function checkTimetable(obj) {
+            var pk = obj.value;
+
+            var overlay = $('#' + pk);
+            if (overlay.css("display") === "none") {
+               $("#timetable_form").submit;
+            } else {
+                alert('You can\'t mark attendance for this lecture');
+                event.preventDefault();
+            }
+
+
         }
     </script>
 {% endblock html %}
