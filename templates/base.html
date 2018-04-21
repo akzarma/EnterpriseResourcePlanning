@@ -20,12 +20,10 @@
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <meta charset="utf-8">
-    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet"
           type="text/css"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet"
           type="text/css"/>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script>
     {#    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
     {#    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
@@ -170,6 +168,19 @@
             color: #999;
         }
 
+        /*
+        Notification style
+
+        */
+        .badge-notify {
+            font-size: 10px;
+            background: red;
+            position: absolute;
+            top: 5px;
+            left: 25px;
+            border-radius: 50%;
+        }
+
     </style>
     {% block style %}
 
@@ -194,13 +205,35 @@
                 <li><a href="#">Support</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
+                <li class="bell-icon dropdown">
+                    <button class="btn btn-default btn-lg btn-link dropdown-toggle"
+                            style="font-size:20px;display: inline;" data-toggle="dropdown" role="button"
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        <span class="glyphicon glyphicon-bell"></span>
+                    </button>
+                    <span class="badge badge-notify dropdown-toggle" id="nos-notification" data-toggle="dropdown"
+                          role="button"
+                          aria-haspopup="true"
+                          aria-expanded="false">3</span>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                    </ul>
+                </li>
                 <li class="dropdown">
                     {% block navbar-right %}
                         {% if user.is_authenticated %}
+
+
                             {% if user.student %}
+
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                                    aria-haspopup="true"
-                                   aria-expanded="false">Welcome <span
+                                   aria-expanded="false">
+
+
+                                    Welcome <span
                                         style="color: #0379C4; text-transform: uppercase;">{{ user.student.first_name }}</span><span
                                         class="caret"></span></a>
                                 <ul class="dropdown-menu">
@@ -215,6 +248,7 @@
                                     </li>
                                 </ul>
                             {% else %}
+
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                                    aria-haspopup="true"
                                    aria-expanded="false">Welcome <span
@@ -242,6 +276,7 @@
                         {#                    </ul>#}
                     {% endblock navbar-right %}
                 </li>
+
             </ul>
         </div>
     </div>
