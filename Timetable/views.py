@@ -397,8 +397,8 @@ def to_json():
                 'year': year
             }
 
-    write_to_firebase(answer, 'Student')
-    write_to_firebase(faculty_json, 'Faculty')
+    # write_to_firebase(answer, 'Student')
+    # write_to_firebase(faculty_json, 'Faculty')
 
 
 def get_excel(request):
