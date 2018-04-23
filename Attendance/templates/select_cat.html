@@ -91,8 +91,8 @@
                                     <div class="col-md-4">{{ each.substitute.branch_subject.subject.short_form }}</div>
                                     <div class="col-md-4">{{ each.substitute.room.room_number }}</div>
                                     <div class="col-md-4">
-                                        {{ each.substitute.division.branch }}<br/>
-                                        {{ each.substitute.division.year }}
+                                        {{ each.substitute.division.year_branch.branch }}<br/>
+                                        {{ each.substitute.division.year_branch.year }}
                                         {{ each.substitute.division.division }}
                                         {% if each.substitute.is_practical %}
                                             {{ each.substitute.batch.batch_name }}
@@ -109,8 +109,8 @@
                                     <div class="col-md-4">{{ each.original.branch_subject.subject.short_form }}</div>
                                     <div class="col-md-4">{{ each.original.room.room_number }}</div>
                                     <div class="col-md-4">
-                                        {{ each.original.division.branch }}<br/>
-                                        {{ each.original.division.year }}
+                                        {{ each.original.division.year_branch.branch }}<br/>
+                                        {{ each.original.division.year_branch.year }}
                                         {{ each.original.division.division }}
                                         {% if each.original.is_practical %}
                                             {{ each.original.batch.batch_name }}
@@ -131,12 +131,12 @@
                 <p>{{ selected_timetable.substitute.time }}</p>
                 <p>{{ selected_timetable.substitute.branch_subject.subject.short_form }}</p>
                 <p>{{ selected_timetable.substitute.room.room_number }}</p>
-                <p>{{ selected_timetable.substitute.division.branch }} {{ selected_timetable.substitute.division.year }} {{ selected_timetable.substitute.division.division }}</p>
+                <p>{{ selected_timetable.substitute.division.year_branch.branch }} {{ selected_timetable.substitute.division.year_branch.year }} {{ selected_timetable.substitute.division.division }}</p>
             {% else %}
                 <p>{{ selected_timetable.original.time }}</p>
                 <p>{{ selected_timetable.original.branch_subject.subject.short_form }}</p>
                 <p>{{ selected_timetable.original.room.room_number }}</p>
-                <p>{{ selected_timetable.original.division.branch }} {{ selected_timetable.original.division.year }} {{ selected_timetable.original.division.division }}</p>
+                <p>{{ selected_timetable.original.division.year_branch.braanch }} {{ selected_timetable.original.division.year_branch.year }} {{ selected_timetable.original.division.division }}</p>
             {% endif %}
             <form action="{% url 'attendance:save' %}" method="post">
                 {% csrf_token %}

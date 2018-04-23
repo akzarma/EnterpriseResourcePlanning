@@ -8,7 +8,7 @@ from django.shortcuts import render, HttpResponse
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSubject, Semester, \
-    FacultySubject, Batch
+    FacultySubject, Batch, YearBranch
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User
@@ -196,7 +196,7 @@ def test(request):
 
 def get_division(request):
     branch = request.POST.get('branch')
-    division_list = Division.objects.filter(branch=Branch.objects.get(branch=branch)).values_list('division',
+    division_list = Division.objects.filter(year_branch__branch=Branch.objects.get(branch=branch)).values_list('division',
                                                                                                   flat=True)
     return HttpResponse(division_list)
 
@@ -221,7 +221,8 @@ def register_subject(request):
             year_obj = CollegeYear.objects.get(year=subject_form.cleaned_data.get('year'))
             semester_obj = Semester.objects.get(semester=subject_form.cleaned_data.get('semester'))
             # subject_obj = Subject.objects.get(code=subject_form.cleaned_data.get('code'))
-            branch_subject = BranchSubject(branch=branch_object, year=year_obj,
+            year_branch_obj = YearBranch.objects.get(branch=branch_object, year=year_obj)
+            branch_subject = BranchSubject(year_branch=year_branch_obj,
                                            semester=semester_obj, subject=subject_obj)
             branch_subject.save()
 

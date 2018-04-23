@@ -46,7 +46,7 @@ def fill_timetable(request):
     # branch = Branch.objects.all().values_list('branch', flat=True)
     theory_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=False)]
     practical_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=True)]
-    college_detail = Division.objects.filter(year_branch__in=year_branch_obj)
+    # college_detail = Division.objects.filter(year_branch__in=year_branch_obj)
     # subjects_obj = BranchSubject.objects.filter(year_branch=college_detail[0])
     subjects = []
     faculty = list(
@@ -606,11 +606,11 @@ def android_timetable_json(request):
 
             college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
 
-            full_timetable = Timetable.objects.filter(branch_subject__college_detail__branch=branch_obj, division=college_extra_detail)
+            full_timetable = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj, division=college_extra_detail)
             # faculty_json = {}
             for each in full_timetable:
-                year = each.branch_subject.year.year
-                branch = each.branch_subject.branch.branch
+                year = each.branch_subject.year_branch.year.year
+                branch = each.branch_subject.year_branch.branch.branch
 
                 division = each.division.division
 
@@ -690,8 +690,8 @@ def android_timetable_json(request):
             full_timetable = DateTimetable.objects.filter(Q(original__faculty=faculty) | Q(substitute__faculty=faculty))
             faculty_json = {}
             for each in full_timetable:
-                year = each.original.branch_subject.year.year
-                branch = each.original.branch_subject.branch.branch
+                year = each.original.branch_subject.year_branch.year.year
+                branch = each.original.branch_subject.year_branch.branch.branch
 
                 division = each.original.division.division
 

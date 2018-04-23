@@ -346,11 +346,11 @@ def download_excel_timetable(request):
 
         if branch != 'all':
             branch_obj = Branch.objects.get(branch=branch)
-            college_extra_detail = college_extra_detail.filter(branch=branch_obj)
+            college_extra_detail = college_extra_detail.filter(year_branch__branch=branch_obj)
 
         if year != 'all':
             year_obj = CollegeYear.objects.get(year=year)
-            college_extra_detail = college_extra_detail.filter(year=year_obj)
+            college_extra_detail = college_extra_detail.filter(year_branch__year=year_obj)
 
         if division != 'all':
             college_extra_detail = college_extra_detail.filter(division=division)
@@ -373,9 +373,9 @@ def generate_excel_from_query_set(full_timetable, file_name, is_room=False, room
     answer = OrderedDict()
 
     for each in sorted(full_timetable,
-                       key=lambda x: (days.index(x.day), x.division.year.number, x.time.starting_time)):
-        year = each.branch_subject.year.year
-        branch = each.branch_subject.branch.branch
+                       key=lambda x: (days.index(x.day), x.division.year_branch.year.number, x.time.starting_time)):
+        year = each.branch_subject.year_branch.year.year
+        branch = each.branch_subject.year_branch.branch.branch
 
         division = each.division.division
 
@@ -584,7 +584,7 @@ def download_excel_room_schedule(request):
         if branch != 'all':
             branch_obj = Branch.objects.get(branch=branch)
 
-            college_extra_detail = Division.objects.filter(branch=branch_obj)
+            college_extra_detail = Division.objects.filter(year_branch__branch=branch_obj)
 
             full_timetable = full_timetable.filter(division__in=college_extra_detail)
             if room != 'all':
@@ -623,8 +623,8 @@ def excel_attendance(request):
     college_extra_detail = Division.objects.all()
 
     for each in college_extra_detail:
-        branch = each.branch.branch
-        year = each.year.year
+        branch = each.year_branch.branch.branch
+        year = each.year_branch.year.year
         division = each.division
 
         if branch in timetable_json:

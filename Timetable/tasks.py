@@ -23,7 +23,7 @@ def save_timetable_celery(post):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     branch = Branch.objects.get(branch='Computer')
-    full_timetable = list(Timetable.objects.filter(branch_subject__college_detail__branch=branch))
+    full_timetable = list(Timetable.objects.filter(branch_subject__year_branch__branch=branch))
 
     for i in post:
         if i.__contains__('_room_'):
@@ -53,21 +53,20 @@ def save_timetable_celery(post):
 
             # branch = Branch.objects.get(branch='Computer')
             year = CollegeYear.objects.get(year=year)
-            college_detail = Division.objects.filter(branch=branch, year=year)
-            branch_subject = BranchSubject.objects.get(year_branch=college_detail[0],
+            branch_subject = BranchSubject.objects.get(year_branch__branch=branch, year_branch__year=year,
                                                        subject__short_form=subject_short_name)
             # room = Room.objects.get(room_number=room_number, branch=branch_subject.branch,lab=i)
 
             faculty = Faculty.objects.get(
                 initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
 
-            division = Division.objects.get(division=division, branch=branch_subject.branch,
-                                            year=branch_subject.year)
+            division = Division.objects.get(division=division, branch=branch_subject.year_branch.branch,
+                                            year=branch_subject.year_branch.year)
 
             if len(token) < 5:  # theory
                 timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                      is_practical=False)
-                room = Room.objects.get(room_number=room_number, branch=branch_subject.branch, lab=False)
+                room = Room.objects.get(room_number=room_number, branch=branch_subject.year_branch.branch, lab=False)
 
                 if timetable:
                     full_timetable.remove(timetable[0])
@@ -93,7 +92,7 @@ def save_timetable_celery(post):
                 timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                      is_practical=True,
                                                      batch=batch)
-                room = Room.objects.get(room_number=room_number, branch=branch_subject.branch, lab=True)
+                room = Room.objects.get(room_number=room_number, branch=branch_subject.year_branch.branch, lab=True)
 
                 if timetable:
                     full_timetable.remove(timetable[0])
@@ -124,13 +123,13 @@ def save_timetable_celery(post):
     ays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     branch_obj = Branch.objects.get(branch='Computer')
-    full_timetable = Timetable.objects.filter(branch_subject__college_detail__branch=branch_obj)
+    full_timetable = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj)
 
     answer = OrderedDict()
 
-    for each in sorted(full_timetable, key=lambda x: (days.index(x.day), x.division.year.number, x.time.starting_time)):
-        year = each.branch_subject.year.year
-        branch = each.branch_subject.branch.branch
+    for each in sorted(full_timetable, key=lambda x: (days.index(x.day), x.division.year_branch.year.number, x.time.starting_time)):
+        year = each.branch_subject.year_branch.year.year
+        branch = each.branch_subject.year_branch.branch.branch
 
         division = each.division.division
 
