@@ -27,7 +27,7 @@ def register_faculty_subject(request):
         if form.is_valid():
             faculty = Faculty.objects.get(pk=form.cleaned_data.get('faculty'))
             subject = Subject.objects.get(pk=form.cleaned_data.get('subject'))
-            division = division.objects.get(pk=form.cleaned_data.get('division'))
+            division = Division.objects.get(pk=form.cleaned_data.get('division'))
 
             if FacultySubject.objects.filter(faculty=faculty,
                                              subject=subject,
@@ -68,7 +68,7 @@ def register_student(request):
             roll_number = gr_roll_dict[student.gr_number]
             branch_obj = Branch.objects.get(branch=branch)
             year_obj = CollegeYear.objects.get(year=year)
-            division_obj = division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
+            division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
                                                 division=division, shift__shift=shift)
             batch_obj = Batch.objects.get(division=division_obj, batch_name=batch)
             StudentDetail.objects.create(student=student,batch=batch_obj, roll_number=roll_number)
