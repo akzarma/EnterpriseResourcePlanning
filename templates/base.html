@@ -196,6 +196,17 @@
             cursor: pointer; /* Add a pointer on hover */
         }
 
+        #notification_overlay_text {
+            position: absolute;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            font-size: 50px;
+            color: white;
+            transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+        }
+
     </style>
     {% block style %}
 
@@ -309,7 +320,9 @@
         {% autoescape off %}{{ success }} {% endautoescape %}
     </div>
 {% endif %}
-<div id="notification_overlay"></div>
+<div id="notification_overlay" onclick="overlay_off()">
+    <div id="notification_overlay_text"></div>
+</div>
 
 {% block body %}
 {% endblock body %}
@@ -321,6 +334,7 @@
 
 <script>
     var current_date;
+    var notifications_json;
     $(document).ready(function () {
         //Gets notification
         $.ajax({
@@ -332,65 +346,78 @@
             },
             success: function (data) {
                 console.log(data);
-                var notifications_json = JSON.parse(data);
-                {#console.log(notifications_json.length);#}
+                notifications_json = JSON.parse(data);
                 console.log(notifications_json);
                 current_date = new Date(notifications_json['today']);
 
-                document.getElementById('notification_count').innerHTML = notifications_json['number'];
-
                 var notification_list = document.getElementById('notification_dropdown');
 
-                for (var i = 0; i < notifications_json['notification'].length; i++) {
-                    let li = document.createElement('li');
-                    let a = document.createElement('a');
-                    let heading = document.createElement('h4');
-                    heading.innerHTML = notifications_json['heading'][i];
-                    a.appendChild(heading);
-                    let para = document.createElement('p');
-                    para.innerHTML = notifications_json['notification'][i];
-                    a.appendChild(para);
-                    a.setAttribute("value", i);
-                    a.setAttribute("onclick", "showExpandedNotification('" + i + "')");
-                    li.appendChild(a);
-                    notification_list.appendChild(li);
-                }
-
-                let notification_num_obj = document.getElementById('number_notification');
+                let notification_num_obj = document.getElementById('notification_count');
 
                 let num_of_notifications = 0;
-                let notification_list_obj = document.getElementById("notification_dropdown");
                 for (each in notifications_json) {
                     num_of_notifications++;
-                    let new_link = document.createElement('a');
-                    new_link.setAttribute("href", "#");
+
+                    let li = document.createElement('li');
+                    let a = document.createElement('a');
                     let temp_json = JSON.parse(notifications_json[each]);
-                    {#console.log(temp_json);#}
-                    new_link.innerHTML = temp_json.fields.heading;
-                    let new_notification = document.createElement("li");
-                    new_notification.appendChild(new_link);
-                    notification_list_obj.appendChild(new_notification);
+
+                    let heading = document.createElement('h4');
+                    heading.innerHTML = temp_json.fields.heading;
+                    a.appendChild(heading);
+                    let para = document.createElement('p');
+                    para.innerHTML = temp_json.fields.notification.substr(0,100) + '...';
+                    a.appendChild(para);
+                    a.setAttribute("value", each);
+                    a.setAttribute("onclick", "showExpandedNotification('" + each + "')");
+                    li.appendChild(a);
+                    notification_list.appendChild(li);
 
                 }
+                let li = document.createElement('li');
+                let a = document.createElement('a');
+                a.style.textAlign = "center";
+                a.innerHTML = "Show all notifications";
+                a.href = '{% url 'dashboard:show_all_notifications' %}';
+                li.appendChild(a);
+                notification_list.appendChild(li);
 
                 notification_num_obj.innerHTML = num_of_notifications;
 
-                {#for (let i = 0; i < num_of_notifications; i++) {#}
-                {#    #}
-                {#}#}
+            }
 
-                }
-
-            });
+        });
 
         {% block on_ready %}
         {% endblock on_ready %}
     });
 </script>
 <script>
-    function showExpandedNotification(notification_index) {
+    function showExpandedNotification(index) {
+        let text = document.getElementById('notification_overlay_text');
+        while (text.firstChild) {
+            text.removeChild(text.firstChild);
+        }
+
+        let temp_json = JSON.parse(notifications_json[index]);
+
+        let heading = document.createElement('h2');
+        heading.innerHTML = temp_json.fields.heading;
+        text.appendChild(heading);
+
+        let para = document.createElement('h4');
+        para.innerHTML = temp_json.fields.notification;
+        text.appendChild(para);
+
+
+        document.getElementById("notification_overlay").style.display = "block";
+    }
+
+    function overlay_off() {
+        document.getElementById("notification_overlay").style.display = "none";
 
     }
+
 </script>
 
 </html>

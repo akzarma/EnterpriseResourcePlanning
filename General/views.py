@@ -1,3 +1,4 @@
+import datetime
 from django.http import HttpResponse
 from django.shortcuts import render
 # Create your views here.
@@ -11,7 +12,7 @@ def notify_users(notification_type, message, heading, user, action="Nothing for 
         notification_objs = []
         for each_user in user:
             notification_objs.append(
-                SpecificNotification(user=each_user, action=action, notification=message, heading=heading))
+                SpecificNotification(user=each_user, action=action, notification=message, heading=heading, date=datetime.date.today()))
 
         SpecificNotification.objects.bulk_create(notification_objs)
     elif notification_type == "general":

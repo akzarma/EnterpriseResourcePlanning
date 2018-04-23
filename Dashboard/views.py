@@ -726,7 +726,7 @@ def get_notifications(request):
             data={}
             for each in range(len(notification_objs)):
                 if not each in data:
-                    data[each] = serializers.serialize('json', [notification_objs[each],], fields=('heading','notification','has_read','action','priority'))
+                    data[each] = serializers.serialize('json', [notification_objs[each],], fields=('heading','date','notification','has_read','action','priority'))
                     struct = json.loads(data[each])
                     data[each] = json.dumps(struct[0])
 
@@ -743,3 +743,20 @@ def get_notifications(request):
 @csrf_exempt
 def android_toggle_availability(request):
     return HttpResponse("Yeah!")
+
+
+def show_all_notifications(request):
+    user = request.user
+    if not user.is_anonymous:
+        if user.role == "Faculty":
+            notification_objs = SpecificNotification.objects.filter(user=user)
+            data = {}
+            for each in range(len(notification_objs)):
+                if not each in data:
+                    data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
+                    'heading', 'notification', 'has_read', 'action', 'priority'))
+                    struct = json.loads(data[each])
+                    data[each] = json.dumps(struct[0])
+            return render(request,'all_notifications.html')
+        return HttpResponse("Go Somewhere Else")
+    return HttpResponse("go to login")

@@ -47,9 +47,9 @@ urlpatterns = [
 
     url(r'^android/toggle_availability/$', views.android_toggle_availability, name='android_toggle_availability'),
 
-
-
     url(r'^get_notifications/$', views.get_notifications, name='get_notifications'),
+
+    url(r'^show_all_notifications/$', views.show_all_notifications, name='show_all_notifications'),
 
 
 ]
