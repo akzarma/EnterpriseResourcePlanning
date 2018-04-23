@@ -52,5 +52,7 @@ urlpatterns = [
     url(r'^set_roles_temp/$', views.set_roles, name='set_roles'),
 
 
+    url(r'^show_all_notifications/$', views.show_all_notifications, name='show_all_notifications'),
+
 
 ]

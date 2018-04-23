@@ -709,8 +709,8 @@ def get_notifications(request):
     user = request.user
     if not user.is_anonymous:
         if request.is_ajax():
-            date = datetime.date.today().strftime('%d-%m-%Y')
-            notification_objs = SpecificNotification.objects.filter(user=user, is_active=True)
+            date = datetime.date.today().strftime('%Y-%m-%d')
+            notification_objs = SpecificNotification.objects.filter(user=user)
 
             # heading = [each.heading for each in notification_objs]
             # notification = [each.notification for each in notification_objs]
@@ -726,8 +726,7 @@ def get_notifications(request):
             data = {}
             for each in range(len(notification_objs)):
                 if not each in data:
-                    data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                    'heading', 'notification', 'has_read', 'action', 'priority'))
+                    data[each] = serializers.serialize('json', [notification_objs[each],], fields=('heading','date','notification','has_read','action','priority'))
                     struct = json.loads(data[each])
                     data[each] = json.dumps(struct[0])
 
@@ -745,6 +744,22 @@ def get_notifications(request):
 def android_toggle_availability(request):
     return HttpResponse("Yeah!")
 
+
+def show_all_notifications(request):
+    user = request.user
+    if not user.is_anonymous:
+        if user.role == "Faculty":
+            notification_objs = SpecificNotification.objects.filter(user=user)
+            data = {}
+            for each in range(len(notification_objs)):
+                if not each in data:
+                    data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
+                    'heading', 'notification', 'has_read', 'action', 'priority'))
+                    struct = json.loads(data[each])
+                    data[each] = json.dumps(struct[0])
+            return render(request,'all_notifications.html')
+        return HttpResponse("Go Somewhere Else")
+    return HttpResponse("go to login")
 
 def set_roles(request):
     stud_obj = Student.objects.all()
