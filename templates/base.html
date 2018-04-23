@@ -322,8 +322,8 @@
             success: function (data) {
 
                 var notifications_json = JSON.parse(data);
-                console.log(notifications_json.length);
-                console.log(notifications_json);
+                {#console.log(notifications_json.length);#}
+                {#console.log(notifications_json);#}
                 {#alert(notifications_json);#}
                 {#$(element).find('#overlay').css("display", "block");#}
 
@@ -336,7 +336,7 @@
                     let new_link = document.createElement('a');
                     new_link.setAttribute("href", "#");
                     let temp_json = JSON.parse(notifications_json[each]);
-                    console.log(temp_json);
+                    {#console.log(temp_json);#}
                     new_link.innerHTML = temp_json.fields.heading;
                     let new_notification = document.createElement("li");
                     new_notification.appendChild(new_link);
