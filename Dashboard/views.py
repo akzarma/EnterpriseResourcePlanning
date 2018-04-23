@@ -41,6 +41,7 @@ from UserModel.models import User
 #         })
 #     else:
 #         return HttpResponseRedirect('/login/')
+from UserModel.models import RoleMaster, RoleManager
 
 
 def logout_user(request):
@@ -743,3 +744,22 @@ def get_notifications(request):
 @csrf_exempt
 def android_toggle_availability(request):
     return HttpResponse("Yeah!")
+
+
+def set_roles(request):
+    stud_obj = Student.objects.all()
+    faculty_obj = Faculty.objects.all()
+
+    stud_role = RoleMaster.objects.get(role='student')
+    faculty_role = RoleMaster.objects.get(role='faculty')
+
+    for each in stud_obj:
+        RoleManager.objects.create(user=each.user,role=stud_role,start_date=datetime.date.today())
+
+    for each in faculty_obj:
+        RoleManager.objects.create(user=each.user,role=faculty_role,start_date=datetime.date.today())
+
+    # for each in stud_obj:
+#
+# def set_roles(request):
+#     return None
