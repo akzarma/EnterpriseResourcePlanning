@@ -23,7 +23,7 @@ def save_timetable_celery(post):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     branch = Branch.objects.get(branch='Computer')
-    full_timetable = list(Timetable.objects.filter(branch_subject__branch=branch))
+    full_timetable = list(Timetable.objects.filter(branch_subject__college_detail__branch=branch))
 
     for i in post:
         if i.__contains__('_room_'):
@@ -53,7 +53,8 @@ def save_timetable_celery(post):
 
             # branch = Branch.objects.get(branch='Computer')
             year = CollegeYear.objects.get(year=year)
-            branch_subject = BranchSubject.objects.get(branch=branch, year=year,
+            college_detail = CollegeExtraDetail.objects.filter(branch=branch, year=year)
+            branch_subject = BranchSubject.objects.get(year_branch=college_detail[0],
                                                        subject__short_form=subject_short_name)
             # room = Room.objects.get(room_number=room_number, branch=branch_subject.branch,lab=i)
 
@@ -61,8 +62,7 @@ def save_timetable_celery(post):
                 initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
 
             division = CollegeExtraDetail.objects.get(division=division, branch=branch_subject.branch,
-                                                      year=branch_subject.year
-                                                      )
+                                                      year=branch_subject.year)
 
             if len(token) < 5:  # theory
                 timetable = Timetable.objects.filter(time=time, day=day, division=division,
@@ -124,7 +124,7 @@ def save_timetable_celery(post):
     ays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     branch_obj = Branch.objects.get(branch='Computer')
-    full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj)
+    full_timetable = Timetable.objects.filter(branch_subject__college_detail__branch=branch_obj)
 
     answer = OrderedDict()
 

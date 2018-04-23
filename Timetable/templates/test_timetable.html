@@ -549,11 +549,12 @@
 
         //Sets option of combo box with subjects_json
         function set_subject() {
-
+            {#alert('set subjects');#}
             var selected_year = document.getElementById("id_year").value;
             var current_subjects_theory = subjects_json[selected_year]["theory"];
             var current_subjects_practical = subjects_json[selected_year]["practical"];
-
+            console.log(current_subjects_practical);
+            console.log(current_subjects_theory);
             //clears select options
             $('#id_subject').find('option').remove();
             //add theory subject
@@ -632,6 +633,8 @@
 
                 let id = checkbox_object.id;
                 let selected_subject = document.getElementById("id_subject").value;
+                {#alert('dict');#}
+                console.log(selected_subject);
                 let id_splilt_array = id.split('_');
                 let division = id_splilt_array[configuration['division_index']];
                 let time = id_splilt_array[configuration['time_index']];
@@ -1169,12 +1172,14 @@
                 cbx_obj.checked = true;
 
                 add_remove_from_dictionary(cbx_obj);
+                console.log(cbx_obj);
 
                 let room_id = 'id_room_' + time + '_' + division + '_' + day + '_' + year;
                 {#$('#' + room_id).val(room);#}
 
-
+                console.log(room_id);
                 let room_obj = document.getElementById(room_id);
+                console.log(room_obj);
                 previous_room = room_obj.value;
                 room_obj.value = room;
                 {#cbx_obj.checked = true;#}

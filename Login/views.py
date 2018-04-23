@@ -46,13 +46,15 @@ def login_android(request):
     }
     if request.method == 'POST':
         try:
+            print(request.POST)
             username = request.POST.get('username')
             password = request.POST.get('password')
             user = authenticate(username=username, password=password)
-
+            print(user)
             if user:
 
                 user = User.objects.get(username=username)
+                # print(user.role)
                 if user.role == 'Faculty':
                     faculty = user.faculty
                     faculty_response = {
@@ -119,7 +121,7 @@ def login_android(request):
                         #         StudentRollNumber.objects.get(student=each_student, is_active=True).roll_number)
 
                     faculty_response['attendance_list'] = attendance_list
-
+                    print(HttpResponse(json.dumps(faculty_response)))
                     return HttpResponse(json.dumps(faculty_response))
                 elif user.role == 'Student':
                     student = user.student
@@ -144,7 +146,7 @@ def login_android(request):
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
 
-            return HttpResponse(str(response))
+            return HttpResponse(str(message))
     else:
         return render(request, 'login.html')
 

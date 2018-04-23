@@ -2,7 +2,7 @@ from django import forms
 
 from Configuration.countryConf import countries
 from Configuration.stateConf import states
-from General.models import CollegeExtraDetail, CollegeYear, Shift, Semester, FacultySubject, Batch
+from General.models import CollegeYear, Shift, Semester, FacultySubject, Batch, CollegeExtraDetail
 from .models import Faculty, Subject, Student, Branch
 
 semester_list = Semester.objects.all()
@@ -13,7 +13,7 @@ subject_list = Subject.objects.all()
 
 faculty_list = Faculty.objects.all()
 
-division_list = CollegeExtraDetail.objects.filter(branch=Branch.objects.get(branch='Computer'))
+division_list = CollegeExtraDetail.objects.filter(year_branch__branch=Branch.objects.get(branch='Computer'))
 
 year_list = CollegeYear.objects.all()
 

@@ -2,6 +2,7 @@ import json
 from collections import OrderedDict
 
 import datetime
+from ipaddress import collapse_addresses
 
 import firebase_admin
 from django.http.response import HttpResponseRedirect
@@ -13,7 +14,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 
 from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch, \
-    StudentDetail, Semester
+    StudentDetail, Semester, YearBranch
 from Registration.models import Branch, Subject, Faculty, Student
 from Registration.models import Branch, Subject
 from .models import Time, Room, Timetable, DateTimetable
@@ -29,6 +30,7 @@ def fill_timetable(request):
     years = []
     # branch = Branch.objects.all()
     branch_obj = Branch.objects.get(branch='Computer')
+    year_branch_obj = YearBranch.objects.filter(branch=branch_obj)
     branch = branch_obj.branch
     for i in Time.objects.all().order_by('starting_time'):
         times.append(i.__str__())
@@ -36,17 +38,18 @@ def fill_timetable(request):
     for i in CollegeYear.objects.all().order_by('year').values_list('year', flat=True).distinct():
         years.append(i)
 
-    divisions = CollegeExtraDetail.objects.filter(branch=branch_obj).order_by('division').values_list('division',
+    divisions = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj).order_by('division').values_list('division',
                                                                                                       flat=True).distinct()
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     # form = TimetableForm()
     # branch = Branch.objects.all().values_list('branch', flat=True)
     theory_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=False)]
     practical_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=True)]
-    subjects_obj = BranchSubject.objects.filter(branch=branch_obj)
+    college_detail = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj)
+    # subjects_obj = BranchSubject.objects.filter(year_branch=college_detail[0])
     subjects = []
     faculty = list(
-        FacultySubject.objects.filter(division__in=CollegeExtraDetail.objects.filter(branch=branch_obj)).values_list(
+        FacultySubject.objects.filter(division__in=CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj)).values_list(
             'faculty__initials', flat=True).distinct())
     divisions_js = ""
     for i in divisions:
@@ -55,9 +58,14 @@ def fill_timetable(request):
     # timetables = Timetable.objects.filter(is_practical=False)
     # timetable_prac = Timetable.objects.filter(is_practical=True)
     subjects_json = {}
-    all_subjects = BranchSubject.objects.filter(branch=branch_obj)
+    # college_detail = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj)
+    all_subjects = BranchSubject.objects.filter(year_branch__in=year_branch_obj)
+
     for year in years:
-        subjects = all_subjects.filter(year=CollegeYear.objects.get(year=year))
+        year_obj = CollegeYear.objects.get(year=year)
+        # college_detail = CollegeExtraDetail.objects.filter(year_branch__in=YearBranch.objects.filter(year=year_obj))
+        year_branch_objs = YearBranch.objects.filter(year=year_obj)
+        subjects = all_subjects.filter(year_branch__in=year_branch_objs)
         subjects_theory = list(subjects.filter(subject__is_practical=False).values_list(
             'subject__short_form', flat=True))
         subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
@@ -80,8 +88,7 @@ def fill_timetable(request):
     for each_subject in all_subjects:
         subject_teacher_json[each_subject.subject.short_form] = {}
         for each_division in divisions:
-            division_object = CollegeExtraDetail.objects.get(branch=branch_obj, division=each_division,
-                                                             year=each_subject.year)
+            division_object = CollegeExtraDetail.objects.get(year_branch=each_subject.year_branch, division=each_division)
             faculty_subjects_division = FacultySubject.objects.filter(subject=each_subject.subject,
                                                                       division=division_object).values_list(
                 'faculty__initials', flat=True)
@@ -96,16 +103,17 @@ def fill_timetable(request):
 
     batches_json = {}
 
-    college_extra_details_obj = CollegeExtraDetail.objects.filter(branch=branch_obj)
+    year_branch_objs = YearBranch.objects.filter(branch=branch_obj)
+    college_extra_details_obj = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_objs)
 
     for yr in college_extra_details_obj:
 
-        if yr.year.year in batches_json:
-            batches_json[yr.year.year][yr.division] = list(
+        if yr.year_branch.year in batches_json:
+            batches_json[yr.year_branch.year.year][yr.division] = list(
                 Batch.objects.filter(division=yr).values_list('batch_name', flat=True))
         else:
-            batches_json[yr.year.year] = {}
-            batches_json[yr.year.year][yr.division] = list(
+            batches_json[yr.year_branch.year.year] = {}
+            batches_json[yr.year_branch.year.year][yr.division] = list(
                 Batch.objects.filter(division=yr).values_list('batch_name', flat=True))
         # for div in divisions:
         #     batches_json[yr][div] = [
@@ -115,8 +123,8 @@ def fill_timetable(request):
         #                                                                                                 flat=True)
         #     ]
 
-    full_timetable_theory = Timetable.objects.filter(branch_subject__branch=branch_obj, is_practical=False)
-    full_timetable_practical = Timetable.objects.filter(branch_subject__branch=branch_obj, is_practical=True)
+    full_timetable_theory = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj, is_practical=False)
+    full_timetable_practical = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj, is_practical=True)
 
     timetable_instance = {}
     timetable_instance_practical = {}
@@ -124,7 +132,7 @@ def fill_timetable(request):
     for each_time_table in full_timetable_theory:
         timetable_instance[
             'id_room_' + each_time_table.time.__str__() + '_' + each_time_table.division.division + '_' + str(
-                days.index(each_time_table.day) + 2) + '_' + each_time_table.division.year.year + '_cbx'] = {
+                days.index(each_time_table.day) + 2) + '_' + each_time_table.division.year_branch.year.year + '_cbx'] = {
             'faculty': each_time_table.faculty.initials,
             'room': each_time_table.room.room_number,
             'subject': each_time_table.branch_subject.subject.short_form,
@@ -134,13 +142,16 @@ def fill_timetable(request):
     for each_time_table in full_timetable_practical:
         timetable_instance_practical[
             'id_room_' + each_time_table.time.__str__() + '_' + each_time_table.division.division + '_' + str(
-                days.index(each_time_table.day) + 2) + '_' + each_time_table.division.year.year + '_' +
+                days.index(each_time_table.day) + 2) + '_' + each_time_table.division.year_branch.year.year + '_' +
             each_time_table.batch.batch_name + '_cbx'] = {
             'faculty': each_time_table.faculty.initials,
             'room': each_time_table.room.room_number,
             'subject': each_time_table.branch_subject.subject.short_form,
             'is_practical': 'true'
         }
+
+
+    print(batches_json)
 
     context = {
         'branch': branch,
@@ -184,7 +195,7 @@ def save_timetable(request):
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
         branch = Branch.objects.get(branch='Computer')
-        full_timetable = list(Timetable.objects.filter(branch_subject__branch=branch))
+        full_timetable = list(Timetable.objects.filter(branch_subject__year_branch__branch=branch))
         new_timetable = []
         for i in request.POST:
 
@@ -196,13 +207,13 @@ def save_timetable(request):
                 end_time = int(time[1].split(':')[0] + time[1].split(':')[1])
 
                 subject = splitted[0] + '_subject_' + splitted[1]
-                subject_short_name = request.POST.get(subject)
-
-                division = token[1]
-
                 day = days[int(token[2]) - 2]
 
                 year = token[3]
+
+                subject_short_name = request.POST.get(subject)
+
+                division = token[1]
 
                 faculty_initials = request.POST.get(splitted[0] + '_teacher_' + splitted[1])
 
@@ -214,22 +225,22 @@ def save_timetable(request):
                 #     short_form=subject_short_name)  # this has to be changed, should  not get subject with  short_name directly
 
                 # branch = Branch.objects.get(branch='Computer')
-                year = CollegeYear.objects.get(year=year)
-                branch_subject = BranchSubject.objects.get(branch=branch, year=year,
+                year_obj = CollegeYear.objects.get(year=year)
+                year_branch_obj = YearBranch.objects.get(branch=branch, year=year_obj)
+
+                branch_subject = BranchSubject.objects.get(year_branch=year_branch_obj,
                                                            subject__short_form=subject_short_name)
                 # room = Room.objects.get(room_number=room_number, branch=branch_subject.branch,lab=i)
 
                 faculty = Faculty.objects.get(
                     initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
 
-                division = CollegeExtraDetail.objects.get(division=division, branch=branch_subject.branch,
-                                                          year=branch_subject.year
-                                                          )
+                division = CollegeExtraDetail.objects.get(division=division, year_branch=branch_subject.year_branch)
 
                 if len(token) < 5:  # theory
                     timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                          is_practical=False)
-                    room = Room.objects.get(room_number=room_number, branch=branch_subject.branch, lab=False)
+                    room = Room.objects.get(room_number=room_number, branch=branch_subject.year_branch.branch, lab=False)
 
                     if timetable:
                         full_timetable.remove(timetable[0])
@@ -256,7 +267,7 @@ def save_timetable(request):
                     timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                          is_practical=True,
                                                          batch=batch)
-                    room = Room.objects.get(room_number=room_number, branch=branch_subject.branch, lab=True)
+                    room = Room.objects.get(room_number=room_number, branch=branch_subject.year_branch.branch, lab=True)
 
                     if timetable:
                         full_timetable.remove(timetable[0])
@@ -293,13 +304,13 @@ def save_timetable(request):
 
 def to_json():
     branch_obj = Branch.objects.get(branch='Computer')
-    full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj)
+    full_timetable = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj)
 
     answer = {}
     faculty_json = {}
     for each in full_timetable:
-        year = each.branch_subject.year.year
-        branch = each.branch_subject.branch.branch
+        year = each.branch_subject.year_branch.year.year
+        branch = each.branch_subject.year_branch.branch.branch
 
         division = each.division.division
 
@@ -396,21 +407,21 @@ def to_json():
                 'year': year
             }
 
-    write_to_firebase(answer, 'Student')
-    write_to_firebase(faculty_json, 'Faculty')
+    # write_to_firebase(answer, 'Student')
+    # write_to_firebase(faculty_json, 'Faculty')
 
 
 def get_excel(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     branch_obj = Branch.objects.get(branch='Computer')
-    full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj)
+    full_timetable = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj)
 
     answer = OrderedDict()
 
-    for each in sorted(full_timetable, key=lambda x: (days.index(x.day), x.division.year.number, x.time.starting_time)):
+    for each in sorted(full_timetable, key=lambda x: (days.index(x.day), x.division.year_branch.year.number, x.time.starting_time)):
         year = each.branch_subject.year.year
-        branch = each.branch_subject.branch.branch
+        branch = each.branch_subject.year_branch.branch.branch
 
         division = each.division.division
 
@@ -579,7 +590,7 @@ def android_timetable_json(request):
     if request.method == 'POST':
 
         user_type = request.POST.get('user_type')
-
+        print(user_type)
         if user_type == 'Student':
             answer = {}
 
@@ -594,7 +605,7 @@ def android_timetable_json(request):
 
             college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
 
-            full_timetable = Timetable.objects.filter(branch_subject__branch=branch_obj, division=college_extra_detail)
+            full_timetable = Timetable.objects.filter(branch_subject__college_detail__branch=branch_obj, division=college_extra_detail)
             # faculty_json = {}
             for each in full_timetable:
                 year = each.branch_subject.year.year
@@ -669,7 +680,2564 @@ def android_timetable_json(request):
         else:
 
             faculty_code = request.POST.get('faculty_code')
-
+            print(request.POST)
+            if(faculty_code=='F2018002'):
+                return '''{
+  "SBT": {
+    "1-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "2-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "3-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "4-5-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "5-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "6-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "7-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "8-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "9-5-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "10-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "11-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "12-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "13-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "14-5-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "15-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "16-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "17-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "18-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "19-5-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "20-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "21-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "22-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "23-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "24-5-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "25-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "26-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "27-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "28-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "29-5-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "30-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "31-5-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "1-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "2-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "3-6-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "4-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "5-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "6-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "7-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "8-6-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "9-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "10-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "11-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "12-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "13-6-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "14-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "15-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "16-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "17-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "18-6-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "19-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "20-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "21-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "22-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "23-6-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "24-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "25-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "26-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "27-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "28-6-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "29-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "30-6-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "1-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "2-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "3-7-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "4-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "5-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "6-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "7-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "8-7-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "9-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "10-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "11-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "12-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "13-7-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "14-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "15-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "16-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "17-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "18-7-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "19-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "20-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1115-1215": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      }
+    },
+    "21-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B1",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "22-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B2",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "23-7-2018": {
+      "1315-1415": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "SDM"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B3",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "24-7-2018": {
+      "0900-1000": {
+        "year": "TE",
+        "division": "B",
+        "room": "B-202",
+        "branch": "Computer",
+        "subject": "WT"
+      },
+      "1015-1115": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      },
+      "1115-1215": {
+        "division": "B",
+        "batch": "B4",
+        "year": "TE",
+        "room": "B-103",
+        "branch": "Computer",
+        "subject": "WTL"
+      }
+    },
+    "25-7-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1115-1215":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         }
+      },
+      "26-7-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B1",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B1",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "27-7-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B2",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B2",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "28-7-2018":{
+         "1315-1415":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B3",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B3",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "29-7-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B4",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B4",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+    "30-7-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1115-1215":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         }
+      },
+      "31-7-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B1",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B1",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "1-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B2",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B2",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "2-8-2018":{
+         "1315-1415":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B3",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B3",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "3-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B4",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B4",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+    "4-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1115-1215":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         }
+      },
+      "5-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B1",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B1",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "6-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B2",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B2",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "7-8-2018":{
+         "1315-1415":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B3",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B3",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "8-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B4",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B4",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+    "9-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1115-1215":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         }
+      },
+      "10-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B1",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B1",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "11-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B2",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B2",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "12-8-2018":{
+         "1315-1415":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B3",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B3",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "13-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B4",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B4",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+    "14-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1115-1215":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         }
+      },
+      "15-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B1",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B1",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "16-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B2",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B2",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "17-8-2018":{
+         "1315-1415":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"SDM"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B3",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B3",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      },
+      "18-8-2018":{
+         "0900-1000":{
+            "year":"TE",
+            "division":"B",
+            "room":"B-202",
+            "branch":"Computer",
+            "subject":"WT"
+         },
+         "1015-1115":{
+            "division":"B",
+            "batch":"B4",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         },
+         "1115-1215":{
+            "division":"B",
+            "batch":"B4",
+            "year":"TE",
+            "room":"B-103",
+            "branch":"Computer",
+            "subject":"WTL"
+         }
+      }
+  }
+}'''
             if not faculty_code:
                 return HttpResponse('Error. no faculty code')
 
@@ -731,6 +3299,7 @@ def android_timetable_json(request):
                         'subject': subject,
                         'year': year
                     }
+            print(JsonResponse(faculty_json))
             return JsonResponse(faculty_json)
 
     else:

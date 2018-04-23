@@ -1,6 +1,6 @@
 from django.db import models
 from Registration.models import Faculty
-from General.models import BranchSubject, CollegeExtraDetail, Batch
+from General.models import BranchSubject, Batch, CollegeExtraDetail
 
 # from Attendance.models import Division
 from Registration.models import Faculty, Subject, Branch
