@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
-from General.models import StudentDetail, CollegeExtraDetail
+from General.models import StudentDetail, Division
 from Registration.models import Faculty, Student, Branch
 from Timetable.models import Timetable
 from UserModel.models import User
@@ -46,13 +46,15 @@ def login_android(request):
     }
     if request.method == 'POST':
         try:
+            print(request.POST)
             username = request.POST.get('username')
             password = request.POST.get('password')
             user = authenticate(username=username, password=password)
-
+            print(user)
             if user:
 
                 user = User.objects.get(username=username)
+                # print(user.role)
                 if user.role == 'Faculty':
                     faculty = user.faculty
                     faculty_response = {
@@ -62,7 +64,7 @@ def login_android(request):
                     }
 
                     # return HttpResponse(str(faculty_response))
-                    all_divisions = CollegeExtraDetail.objects.filter().all()
+                    all_divisions = division.objects.filter().all()
 
                     attendance_list = {}
 
@@ -119,7 +121,7 @@ def login_android(request):
                         #         StudentRollNumber.objects.get(student=each_student, is_active=True).roll_number)
 
                     faculty_response['attendance_list'] = attendance_list
-
+                    print(HttpResponse(json.dumps(faculty_response)))
                     return HttpResponse(json.dumps(faculty_response))
                 elif user.role == 'Student':
                     student = user.student
@@ -144,7 +146,7 @@ def login_android(request):
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
 
-            return HttpResponse(str(response))
+            return HttpResponse(str(message))
     else:
         return render(request, 'login.html')
 

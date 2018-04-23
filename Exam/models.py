@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from General.models import CollegeExtraDetail, Semester, StudentSubject
+from General.models import Division, Semester, StudentSubject
 
 
 class ExamMaster(models.Model):
@@ -14,7 +14,7 @@ class ExamMaster(models.Model):
 
 class ExamDetail(models.Model):
     exam = models.ForeignKey(ExamMaster)
-    year = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
+    year = models.ForeignKey(Division, on_delete=models.CASCADE)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     schedule_start_date = models.DateField()
     schedule_end_date = models.DateField()

@@ -5,6 +5,6 @@ from . import views
 app_name = 'report'
 
 urlpatterns = [
-    url(r'^student', views.student_details, name='student_details'),
+    # url(r'^student', views.student_details, name='student_details'),
 
 ]
