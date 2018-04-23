@@ -26,7 +26,6 @@ from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
 from UserModel.models import User
 
-
 # def student(request):
 #     user = request.user
 #     # If user exists in session (i.e. logged in)
@@ -41,7 +40,7 @@ from UserModel.models import User
 #         })
 #     else:
 #         return HttpResponseRedirect('/login/')
-from UserModel.models import RoleMaster, RoleManager
+# from UserModel.models import RoleMaster, RoleManager
 
 
 def logout_user(request):
@@ -711,7 +710,7 @@ def get_notifications(request):
     if not user.is_anonymous:
         if request.is_ajax():
             date = datetime.date.today().strftime('%d-%m-%Y')
-            notification_objs = SpecificNotification.objects.filter(user=user,is_active=True)
+            notification_objs = SpecificNotification.objects.filter(user=user, is_active=True)
 
             # heading = [each.heading for each in notification_objs]
             # notification = [each.notification for each in notification_objs]
@@ -724,10 +723,11 @@ def get_notifications(request):
             #     'today': date,
             #
             # }
-            data={}
+            data = {}
             for each in range(len(notification_objs)):
                 if not each in data:
-                    data[each] = serializers.serialize('json', [notification_objs[each],], fields=('heading','notification','has_read','action','priority'))
+                    data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
+                    'heading', 'notification', 'has_read', 'action', 'priority'))
                     struct = json.loads(data[each])
                     data[each] = json.dumps(struct[0])
 
@@ -754,12 +754,15 @@ def set_roles(request):
     faculty_role = RoleMaster.objects.get(role='faculty')
 
     for each in stud_obj:
-        RoleManager.objects.create(user=each.user,role=stud_role,start_date=datetime.date.today())
+        RoleManager.objects.create(user=each.user, role=stud_role, start_date=datetime.date.today())
 
     for each in faculty_obj:
-        RoleManager.objects.create(user=each.user,role=faculty_role,start_date=datetime.date.today())
+        RoleManager.objects.create(user=each.user, role=faculty_role, start_date=datetime.date.today())
 
     # for each in stud_obj:
+
+
 #
 # def set_roles(request):
 #     return None
+
