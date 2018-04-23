@@ -609,8 +609,8 @@ def android_timetable_json(request):
             full_timetable = Timetable.objects.filter(branch_subject__college_detail__branch=branch_obj, division=college_extra_detail)
             # faculty_json = {}
             for each in full_timetable:
-                year = each.branch_subject.year.year
-                branch = each.branch_subject.branch.branch
+                year = each.branch_subject.year_branch.year.year
+                branch = each.branch_subject.year_branch.branch.branch
 
                 division = each.division.division
 
@@ -690,8 +690,8 @@ def android_timetable_json(request):
             full_timetable = DateTimetable.objects.filter(Q(original__faculty=faculty) | Q(substitute__faculty=faculty))
             faculty_json = {}
             for each in full_timetable:
-                year = each.original.branch_subject.year.year
-                branch = each.original.branch_subject.branch.branch
+                year = each.original.branch_subject.year_branch.year.year
+                branch = each.original.branch_subject.year_branch.branch.branch
 
                 division = each.original.division.division
 

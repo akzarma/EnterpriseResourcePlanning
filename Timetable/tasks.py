@@ -61,13 +61,13 @@ def save_timetable_celery(post):
             faculty = Faculty.objects.get(
                 initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
 
-            division = Division.objects.get(division=division, branch=branch_subject.branch,
-                                            year=branch_subject.year)
+            division = Division.objects.get(division=division, branch=branch_subject.year_branch.branch,
+                                            year=branch_subject.year_branch.year)
 
             if len(token) < 5:  # theory
                 timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                      is_practical=False)
-                room = Room.objects.get(room_number=room_number, branch=branch_subject.branch, lab=False)
+                room = Room.objects.get(room_number=room_number, branch=branch_subject.year_branch.branch, lab=False)
 
                 if timetable:
                     full_timetable.remove(timetable[0])
@@ -93,7 +93,7 @@ def save_timetable_celery(post):
                 timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                      is_practical=True,
                                                      batch=batch)
-                room = Room.objects.get(room_number=room_number, branch=branch_subject.branch, lab=True)
+                room = Room.objects.get(room_number=room_number, branch=branch_subject.year_branch.branch, lab=True)
 
                 if timetable:
                     full_timetable.remove(timetable[0])
@@ -128,9 +128,9 @@ def save_timetable_celery(post):
 
     answer = OrderedDict()
 
-    for each in sorted(full_timetable, key=lambda x: (days.index(x.day), x.division.year.number, x.time.starting_time)):
-        year = each.branch_subject.year.year
-        branch = each.branch_subject.branch.branch
+    for each in sorted(full_timetable, key=lambda x: (days.index(x.day), x.division.year_branch.year.number, x.time.starting_time)):
+        year = each.branch_subject.year_branch.year.year
+        branch = each.branch_subject.year_branch.branch.branch
 
         division = each.division.division
 

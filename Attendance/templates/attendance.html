@@ -143,10 +143,10 @@
                 {% for each in faculty_subject %}
                     {% if each == selected_class %}
                         <option value="{{ each.id }}"
-                                selected>{{ each.division.year.year }} {{ each.division.division }} {{ each.branch_subject.subject.short_form }} {{ each.day }} {{ each.time.starting_time }}-{{ each.time.ending_time }} {{ each.room.room_number }}
+                                selected>{{ each.division.year_branch.year.year  }} {{ each.division.division }} {{ each.branch_subject.subject.short_form }} {{ each.day }} {{ each.time.starting_time }}-{{ each.time.ending_time }} {{ each.room.room_number }}
                         </option>
                     {% else %}
-                        <option value="{{ each.id }}">{{ each.division.year.year }} {{ each.division.division }} {{ each.branch_subject.subject.short_form }} {{ each.day }} {{ each.time.starting_time }}-{{ each.time.ending_time }} {{ each.room.room_number }}
+                        <option value="{{ each.id }}">{{ each.division.year_branch.year.year  }} {{ each.division.division }} {{ each.branch_subject.subject.short_form }} {{ each.day }} {{ each.time.starting_time }}-{{ each.time.ending_time }} {{ each.room.room_number }}
                         </option>
                     {% endif %}
                 {% endfor %}

@@ -372,9 +372,9 @@ def generate_excel_from_query_set(full_timetable, file_name, is_room=False, room
     answer = OrderedDict()
 
     for each in sorted(full_timetable,
-                       key=lambda x: (days.index(x.day), x.division.year.number, x.time.starting_time)):
-        year = each.branch_subject.year.year
-        branch = each.branch_subject.branch.branch
+                       key=lambda x: (days.index(x.day), x.division.year_branch.year.number, x.time.starting_time)):
+        year = each.branch_subject.year_branch.year.year
+        branch = each.branch_subject.year_branch.branch.branch
 
         division = each.division.division
 
@@ -622,8 +622,8 @@ def excel_attendance(request):
     college_extra_detail = Division.objects.all()
 
     for each in college_extra_detail:
-        branch = each.branch.branch
-        year = each.year.year
+        branch = each.year_branch.branch.branch
+        year = each.year_branch.year.year
         division = each.division
 
         if branch in timetable_json:
