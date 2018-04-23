@@ -212,13 +212,13 @@
                             aria-expanded="false">
                         <span class="glyphicon glyphicon-bell"></span>
                     </button>
-                    <span class="badge badge-notify dropdown-toggle" id="nos-notification" data-toggle="dropdown"
+                    <span class="badge badge-notify dropdown-toggle" id="number_notification" data-toggle="dropdown"
                           role="button"
                           aria-haspopup="true"
-                          aria-expanded="false">3</span>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Action</a></li>
-                        <li><a href="#">Another action</a></li>
+                          aria-expanded="false"></span>
+                    <ul class="dropdown-menu" id="notification_dropdown">
+                        {#                        <li><a href="#">Action</a></li>#}
+                        {#                        <li><a href="#">Another action</a></li>#}
                     </ul>
                 </li>
                 <li class="dropdown">
@@ -316,19 +316,43 @@
             type: 'POST',
             data: {
                 'csrfmiddlewaretoken': '{{ csrf_token }}',
-                'selected_timetable': selected_ajax,
+                {#'selected_timetable': selected_ajax,#}
                 'available': true
             },
             success: function (data) {
 
-                let notifications_json = JSON.parse(data);
+                var notifications_json = JSON.parse(data);
+                console.log(notifications_json.length);
                 console.log(notifications_json);
                 {#alert(notifications_json);#}
                 {#$(element).find('#overlay').css("display", "block");#}
 
-            }
+                let notification_num_obj = document.getElementById('number_notification');
 
-        });
+                let num_of_notifications = 0;
+                let notification_list_obj = document.getElementById("notification_dropdown");
+                for (each in notifications_json) {
+                    num_of_notifications++;
+                    let new_link = document.createElement('a');
+                    new_link.setAttribute("href", "#");
+                    let temp_json = JSON.parse(notifications_json[each]);
+                    console.log(temp_json);
+                    new_link.innerHTML = temp_json.fields.heading;
+                    let new_notification = document.createElement("li");
+                    new_notification.appendChild(new_link);
+                    notification_list_obj.appendChild(new_notification);
+
+                }
+
+                notification_num_obj.innerHTML = num_of_notifications;
+
+                {#for (let i = 0; i < num_of_notifications; i++) {#}
+                {#    #}
+                {#}#}
+
+                }
+
+            });
 
         {% block on_ready %}
         {% endblock on_ready %}
