@@ -28,7 +28,7 @@ class YearBranch(models.Model):
 
 
 # Will be known as division
-class CollegeExtraDetail(models.Model):
+class Division(models.Model):
     year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     division = models.CharField(max_length=1)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
@@ -55,7 +55,7 @@ class Semester(models.Model):
 
 
 class Batch(models.Model):
-    division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
+    division = models.ForeignKey(Division, on_delete=models.CASCADE)
     batch_name = models.CharField(max_length=10)
 
     def __str__(self):
@@ -79,7 +79,7 @@ class BranchSubject(models.Model):
 class FacultySubject(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
+    division = models.ForeignKey(Division, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.faculty.user.first_name + self.subject.name + self.division.division + " " + self.faculty.initials

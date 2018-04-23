@@ -14,7 +14,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
 
-from General.models import CollegeExtraDetail, BranchSubject, FacultySubject, CollegeYear, Batch, \
+from General.models import Division, BranchSubject, FacultySubject, CollegeYear, Batch, \
     StudentDetail, Semester, YearBranch
 from Registration.models import Branch, Subject, Faculty, Student
 from Registration.models import Branch, Subject
@@ -39,18 +39,18 @@ def fill_timetable(request):
     for i in CollegeYear.objects.all().order_by('year').values_list('year', flat=True).distinct():
         years.append(i)
 
-    divisions = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj).order_by('division').values_list('division',
-                                                                                                      flat=True).distinct()
+    divisions = Division.objects.filter(year_branch__in=year_branch_obj).order_by('division').values_list('division',
+                                                                                                          flat=True).distinct()
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     # form = TimetableForm()
     # branch = Branch.objects.all().values_list('branch', flat=True)
     theory_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=False)]
     practical_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=True)]
-    college_detail = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj)
+    college_detail = Division.objects.filter(year_branch__in=year_branch_obj)
     # subjects_obj = BranchSubject.objects.filter(year_branch=college_detail[0])
     subjects = []
     faculty = list(
-        FacultySubject.objects.filter(division__in=CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj)).values_list(
+        FacultySubject.objects.filter(division__in=Division.objects.filter(year_branch__in=year_branch_obj)).values_list(
             'faculty__initials', flat=True).distinct())
     divisions_js = ""
     for i in divisions:
@@ -89,7 +89,7 @@ def fill_timetable(request):
     for each_subject in all_subjects:
         subject_teacher_json[each_subject.subject.short_form] = {}
         for each_division in divisions:
-            division_object = CollegeExtraDetail.objects.get(year_branch=each_subject.year_branch, division=each_division)
+            division_object = Division.objects.get(year_branch=each_subject.year_branch, division=each_division)
             faculty_subjects_division = FacultySubject.objects.filter(subject=each_subject.subject,
                                                                       division=division_object).values_list(
                 'faculty__initials', flat=True)
@@ -105,7 +105,7 @@ def fill_timetable(request):
     batches_json = {}
 
     year_branch_objs = YearBranch.objects.filter(branch=branch_obj)
-    college_extra_details_obj = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_objs)
+    college_extra_details_obj = Division.objects.filter(year_branch__in=year_branch_objs)
 
     for yr in college_extra_details_obj:
 
@@ -236,7 +236,7 @@ def save_timetable(request):
                 faculty = Faculty.objects.get(
                     initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
 
-                division = CollegeExtraDetail.objects.get(division=division, year_branch=branch_subject.year_branch)
+                division = division.objects.get(division=division, year_branch=branch_subject.year_branch)
 
                 if len(token) < 5:  # theory
                     timetable = Timetable.objects.filter(time=time, day=day, division=division,

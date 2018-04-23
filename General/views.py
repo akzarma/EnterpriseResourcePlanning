@@ -3,7 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 from Dashboard.models import SpecificNotification
 
-from General.models import CollegeExtraDetail, CollegeYear, Shift, BranchSubject, YearBranch
+from General.models import Division, CollegeYear, Shift, BranchSubject, YearBranch
 from Registration.models import Branch
 
 def notify_users(notification_type, message, heading, user, action="Nothing for now"):
@@ -22,18 +22,18 @@ def notify_users(notification_type, message, heading, user, action="Nothing for 
 
 
 def general(request):
-    branch = Branch.objects.all()
-    year = CollegeYear.objects.all()
+    # branch = Branch.objects.all()
+    # year = CollegeYear.objects.all()
+    # #
+    # # for each_year in year:
+    # #     for each_branch in branch:
+    # #         YearBranch.objects.create(branch=each_branch, year=each_year)
+    # year_branch = YearBranch.objects.filter(branch=branch, year=year)
     #
-    # for each_year in year:
-    #     for each_branch in branch:
-    #         YearBranch.objects.create(branch=each_branch, year=each_year)
-    year_branch = YearBranch.objects.filter(branch=branch, year=year)
-
-    for each in year_branch:
-        CollegeExtraDetail.objects.create(year_branch=each, division='A', shift=Shift.objects.get(shift=1))
-        CollegeExtraDetail.objects.create(year_branch=each, division='B', shift=Shift.objects.get(shift=1))
-        CollegeExtraDetail.objects.create(year_branch=each, division='C', shift=Shift.objects.get(shift=2))
+    # for each in year_branch:
+    #     CollegeExtraDetail.objects.create(year_branch=each, division='A', shift=Shift.objects.get(shift=1))
+    #     CollegeExtraDetail.objects.create(year_branch=each, division='B', shift=Shift.objects.get(shift=1))
+    #     CollegeExtraDetail.objects.create(year_branch=each, division='C', shift=Shift.objects.get(shift=2))
 
 
 

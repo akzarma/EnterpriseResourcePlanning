@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
-from General.models import StudentDetail, CollegeExtraDetail
+from General.models import StudentDetail, Division
 from Registration.models import Faculty, Student, Branch
 from Timetable.models import Timetable
 from UserModel.models import User
@@ -64,7 +64,7 @@ def login_android(request):
                     }
 
                     # return HttpResponse(str(faculty_response))
-                    all_divisions = CollegeExtraDetail.objects.filter().all()
+                    all_divisions = division.objects.filter().all()
 
                     attendance_list = {}
 

@@ -7,7 +7,7 @@ import xlsxwriter
 from celery import shared_task
 from firebase_admin import credentials, db
 
-from General.models import CollegeYear, BranchSubject, CollegeExtraDetail, Batch
+from General.models import CollegeYear, BranchSubject, Division, Batch
 from Registration.models import Faculty, Branch
 from Sync.function import write_to_firebase
 from Timetable.models import Time, Timetable, Room
@@ -53,7 +53,7 @@ def save_timetable_celery(post):
 
             # branch = Branch.objects.get(branch='Computer')
             year = CollegeYear.objects.get(year=year)
-            college_detail = CollegeExtraDetail.objects.filter(branch=branch, year=year)
+            college_detail = division.objects.filter(branch=branch, year=year)
             branch_subject = BranchSubject.objects.get(year_branch=college_detail[0],
                                                        subject__short_form=subject_short_name)
             # room = Room.objects.get(room_number=room_number, branch=branch_subject.branch,lab=i)
@@ -61,8 +61,8 @@ def save_timetable_celery(post):
             faculty = Faculty.objects.get(
                 initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
 
-            division = CollegeExtraDetail.objects.get(division=division, branch=branch_subject.branch,
-                                                      year=branch_subject.year)
+            division = division.objects.get(division=division, branch=branch_subject.branch,
+                                            year=branch_subject.year)
 
             if len(token) < 5:  # theory
                 timetable = Timetable.objects.filter(time=time, day=day, division=division,

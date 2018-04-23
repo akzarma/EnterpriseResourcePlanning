@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from Attendance.models import StudentAttendance
 from Dashboard.models import SpecificNotification
-from General.models import Batch, StudentDetail, CollegeExtraDetail, CollegeYear, FacultySubject
+from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject
 from General.views import notify_users
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student, Branch, Faculty
@@ -308,7 +308,7 @@ def get_excel(request):
 def excel_timetable(request):
     timetable_json = {}
 
-    college_extra_detail = CollegeExtraDetail.objects.all()
+    college_extra_detail = division.objects.all()
 
     for each in college_extra_detail:
         branch = each.branch.branch
@@ -340,7 +340,7 @@ def download_excel_timetable(request):
 
         full_timetable = Timetable.objects.all()
 
-        college_extra_detail = CollegeExtraDetail.objects.all()
+        college_extra_detail = division.objects.all()
 
         if branch != 'all':
             branch_obj = Branch.objects.get(branch=branch)
@@ -582,7 +582,7 @@ def download_excel_room_schedule(request):
         if branch != 'all':
             branch_obj = Branch.objects.get(branch=branch)
 
-            college_extra_detail = CollegeExtraDetail.objects.filter(branch=branch_obj)
+            college_extra_detail = Division.objects.filter(branch=branch_obj)
 
             full_timetable = full_timetable.filter(division__in=college_extra_detail)
             if room != 'all':
@@ -618,7 +618,7 @@ def get_timetable(request):
 def excel_attendance(request):
     timetable_json = {}
 
-    college_extra_detail = CollegeExtraDetail.objects.all()
+    college_extra_detail = division.objects.all()
 
     for each in college_extra_detail:
         branch = each.branch.branch
