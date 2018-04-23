@@ -707,7 +707,7 @@ def get_notifications(request):
     user = request.user
     if not user.is_anonymous:
         if request.is_ajax():
-            date = datetime.date.today().strftime('%d-%m-%Y')
+            date = datetime.date.today().strftime('%Y-%m-%d')
             notification_objs = SpecificNotification.objects.filter(user=user)
 
             heading = [each.heading for each in notification_objs]

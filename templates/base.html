@@ -181,6 +181,21 @@
             border-radius: 50%;
         }
 
+        /*Notification Overlay*/
+        #notification_overlay {
+            position: fixed; /* Sit on top of the page content */
+            display: none; /* Hidden by default */
+            width: 100%; /* Full width (cover the whole page) */
+            height: 100%; /* Full height (cover the whole page) */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+            z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+            cursor: pointer; /* Add a pointer on hover */
+        }
+
     </style>
     {% block style %}
 
@@ -212,14 +227,11 @@
                             aria-expanded="false">
                         <span class="glyphicon glyphicon-bell"></span>
                     </button>
-                    <span class="badge badge-notify dropdown-toggle" id="nos-notification" data-toggle="dropdown"
+                    <span class="badge badge-notify dropdown-toggle" id="notification_count" data-toggle="dropdown"
                           role="button"
                           aria-haspopup="true"
-                          aria-expanded="false">3</span>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Action</a></li>
-                        <li><a href="#">Another action</a></li>
-                    </ul>
+                          aria-expanded="false"></span>
+                    <ul class="dropdown-menu" id="notification_dropdown"></ul>
                 </li>
                 <li class="dropdown">
                     {% block navbar-right %}
@@ -297,6 +309,8 @@
         {% autoescape off %}{{ success }} {% endautoescape %}
     </div>
 {% endif %}
+<div id="notification_overlay"></div>
+
 {% block body %}
 {% endblock body %}
 
@@ -306,25 +320,40 @@
 {% endblock html %}
 
 <script>
-
+    var current_date;
     $(document).ready(function () {
-
         //Gets notification
         $.ajax({
 
             url: '{% url 'dashboard:get_notifications' %}',
             type: 'POST',
             data: {
-                'csrfmiddlewaretoken': '{{ csrf_token }}',
-                'selected_timetable': selected_ajax,
-                'available': true
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
             success: function (data) {
 
                 let notifications_json = JSON.parse(data);
                 console.log(notifications_json);
-                {#alert(notifications_json);#}
-                {#$(element).find('#overlay').css("display", "block");#}
+                current_date = new Date(notifications_json['today']);
+
+                document.getElementById('notification_count').innerHTML = notifications_json['number'];
+
+                var notification_list = document.getElementById('notification_dropdown');
+
+                for (var i = 0; i < notifications_json['notification'].length; i++) {
+                    let li = document.createElement('li');
+                    let a = document.createElement('a');
+                    let heading = document.createElement('h4');
+                    heading.innerHTML = notifications_json['heading'][i];
+                    a.appendChild(heading);
+                    let para = document.createElement('p');
+                    para.innerHTML = notifications_json['notification'][i];
+                    a.appendChild(para);
+                    a.setAttribute("value", i);
+                    a.setAttribute("onclick", "showExpandedNotification('" + i + "')");
+                    li.appendChild(a);
+                    notification_list.appendChild(li);
+                }
 
             }
 
@@ -333,6 +362,11 @@
         {% block on_ready %}
         {% endblock on_ready %}
     });
+</script>
+<script>
+    function showExpandedNotification(notification_index) {
+
+    }
 </script>
 
 </html>
