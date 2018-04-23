@@ -64,7 +64,7 @@ def login_android(request):
                     }
 
                     # return HttpResponse(str(faculty_response))
-                    all_divisions = division.objects.filter().all()
+                    all_divisions = Division.objects.filter().all()
 
                     attendance_list = {}
 

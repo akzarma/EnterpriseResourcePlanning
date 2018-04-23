@@ -309,7 +309,7 @@ def get_excel(request):
 def excel_timetable(request):
     timetable_json = {}
 
-    college_extra_detail = division.objects.all()
+    college_extra_detail = Division.objects.all()
 
     for each in college_extra_detail:
         branch = each.branch.branch
@@ -341,7 +341,7 @@ def download_excel_timetable(request):
 
         full_timetable = Timetable.objects.all()
 
-        college_extra_detail = division.objects.all()
+        college_extra_detail = Division.objects.all()
 
         if branch != 'all':
             branch_obj = Branch.objects.get(branch=branch)
@@ -619,7 +619,7 @@ def get_timetable(request):
 def excel_attendance(request):
     timetable_json = {}
 
-    college_extra_detail = division.objects.all()
+    college_extra_detail = Division.objects.all()
 
     for each in college_extra_detail:
         branch = each.branch.branch
@@ -692,7 +692,7 @@ def toggle_availability(request):
     free_faculty = [Faculty.objects.get(pk=each) for each in free_faculty]
     print(free_faculty)
 
-    message = 'There is a free lecture available right now for ' + division.year.year + ' ' + division.division + ' on ' \
+    message = 'There is a free lecture available right now for ' + division.year_branch.year.year + ' ' + division.division + ' on ' \
               + str(selected_timetable.date) + ' ' + time.__str__()
 
     notification_type = 'specific'
