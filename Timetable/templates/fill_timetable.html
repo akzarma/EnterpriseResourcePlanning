@@ -839,9 +839,9 @@
                     {#                alert(uncheckedSubject.innerHTML);#}
                     var index = blocked[uncheckedSubject.innerHTML].indexOf(fullName);
                     if (index > -1) {
-                        console.log("found");
+                        {#console.log("found");#}
                         blocked[uncheckedSubject.innerHTML].splice(index, 1);
-                        console.log(blocked);
+                        {#console.log(blocked);#}
                     }
                     else {
                         console.log("Should never go here");

@@ -40,7 +40,7 @@
 
         var branch_room_json = {{ branch_room_json|safe }};
         {#alert(branch_room_json);#}
-        console.log(branch_room_json);
+        {#console.log(branch_room_json);#}
 
         function loadRoom() {
 
@@ -78,7 +78,7 @@
             loading.style.display = 'block';
 
             for (let i = 0; i < 5000; i++) {
-                console.log(i);
+                {#console.log(i);#}
             }
             let room = document.getElementById('room_select');
             let branch = document.getElementById('branch_select');
@@ -102,7 +102,7 @@
                     }
                     else {
                         data = JSON.parse(data);
-                        console.log(data);
+                        {#console.log(data);#}
                         for (let each_file in data) {
                             {#alert(data);#}
                             sleep(300);

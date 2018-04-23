@@ -731,6 +731,7 @@ def get_notifications(request):
                     data[each] = json.dumps(struct[0])
 
             print(data)
+            print('data')
             return HttpResponse(json.dumps(data))
 
         else:
