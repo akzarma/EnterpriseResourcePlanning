@@ -73,10 +73,10 @@ def login_android(request):
                         all_student = [each.student for each in
                                        StudentDetail.objects.filter(batch__division=each_division).distinct()]
 
-                        year = each_division.year.year
+                        year = each_division.year_branch.year.year
 
                         division = each_division.division
-                        branch = each_division.branch.branch
+                        branch = each_division.year_branch.branch.branch
 
                         if year in attendance_list:
 
@@ -130,7 +130,7 @@ def login_android(request):
 
                     student_response = {
                         'user_type': 'Student',
-                        'year': student_detail.batch.division.year.year,
+                        'year': student_detail.batch.division.year_branch.year.year,
                         'branch': branch,
                         'division': student_detail.batch.division.division,
                         'batch': student_detail.batch.batch_name,

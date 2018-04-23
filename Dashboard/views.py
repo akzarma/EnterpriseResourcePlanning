@@ -26,7 +26,6 @@ from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
 from UserModel.models import User
 
-
 # def student(request):
 #     user = request.user
 #     # If user exists in session (i.e. logged in)
@@ -41,6 +40,7 @@ from UserModel.models import User
 #         })
 #     else:
 #         return HttpResponseRedirect('/login/')
+# from UserModel.models import RoleMaster, RoleManager
 
 
 def logout_user(request):
@@ -345,11 +345,11 @@ def download_excel_timetable(request):
 
         if branch != 'all':
             branch_obj = Branch.objects.get(branch=branch)
-            college_extra_detail = college_extra_detail.filter(branch=branch_obj)
+            college_extra_detail = college_extra_detail.filter(year_branch__branch=branch_obj)
 
         if year != 'all':
             year_obj = CollegeYear.objects.get(year=year)
-            college_extra_detail = college_extra_detail.filter(year=year_obj)
+            college_extra_detail = college_extra_detail.filter(year_branch__year=year_obj)
 
         if division != 'all':
             college_extra_detail = college_extra_detail.filter(division=division)
@@ -372,9 +372,9 @@ def generate_excel_from_query_set(full_timetable, file_name, is_room=False, room
     answer = OrderedDict()
 
     for each in sorted(full_timetable,
-                       key=lambda x: (days.index(x.day), x.division.year.number, x.time.starting_time)):
-        year = each.branch_subject.year.year
-        branch = each.branch_subject.branch.branch
+                       key=lambda x: (days.index(x.day), x.division.year_branch.year.number, x.time.starting_time)):
+        year = each.branch_subject.year_branch.year.year
+        branch = each.branch_subject.year_branch.branch.branch
 
         division = each.division.division
 
@@ -583,7 +583,7 @@ def download_excel_room_schedule(request):
         if branch != 'all':
             branch_obj = Branch.objects.get(branch=branch)
 
-            college_extra_detail = Division.objects.filter(branch=branch_obj)
+            college_extra_detail = Division.objects.filter(year_branch__branch=branch_obj)
 
             full_timetable = full_timetable.filter(division__in=college_extra_detail)
             if room != 'all':
@@ -622,8 +622,8 @@ def excel_attendance(request):
     college_extra_detail = Division.objects.all()
 
     for each in college_extra_detail:
-        branch = each.branch.branch
-        year = each.year.year
+        branch = each.year_branch.branch.branch
+        year = each.year_branch.year.year
         division = each.division
 
         if branch in timetable_json:
@@ -723,7 +723,7 @@ def get_notifications(request):
             #     'today': date,
             #
             # }
-            data={}
+            data = {}
             for each in range(len(notification_objs)):
                 if not each in data:
                     data[each] = serializers.serialize('json', [notification_objs[each],], fields=('heading','date','notification','has_read','action','priority'))
@@ -760,3 +760,24 @@ def show_all_notifications(request):
             return render(request,'all_notifications.html')
         return HttpResponse("Go Somewhere Else")
     return HttpResponse("go to login")
+
+def set_roles(request):
+    stud_obj = Student.objects.all()
+    faculty_obj = Faculty.objects.all()
+
+    stud_role = RoleMaster.objects.get(role='student')
+    faculty_role = RoleMaster.objects.get(role='faculty')
+
+    for each in stud_obj:
+        RoleManager.objects.create(user=each.user, role=stud_role, start_date=datetime.date.today())
+
+    for each in faculty_obj:
+        RoleManager.objects.create(user=each.user, role=faculty_role, start_date=datetime.date.today())
+
+    # for each in stud_obj:
+
+
+#
+# def set_roles(request):
+#     return None
+
