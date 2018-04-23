@@ -356,22 +356,24 @@
 
                 let num_of_notifications = 0;
                 for (each in notifications_json) {
-                    num_of_notifications++;
+                    if (each !== 'today') {
+                        num_of_notifications++;
 
-                    let li = document.createElement('li');
-                    let a = document.createElement('a');
-                    let temp_json = JSON.parse(notifications_json[each]);
+                        let li = document.createElement('li');
+                        let a = document.createElement('a');
+                        let temp_json = JSON.parse(notifications_json[each]);
 
-                    let heading = document.createElement('h4');
-                    heading.innerHTML = temp_json.fields.heading;
-                    a.appendChild(heading);
-                    let para = document.createElement('p');
-                    para.innerHTML = temp_json.fields.notification.substr(0,100) + '...';
-                    a.appendChild(para);
-                    a.setAttribute("value", each);
-                    a.setAttribute("onclick", "showExpandedNotification('" + each + "')");
-                    li.appendChild(a);
-                    notification_list.appendChild(li);
+                        let heading = document.createElement('h4');
+                        heading.innerHTML = temp_json.fields.heading;
+                        a.appendChild(heading);
+                        let para = document.createElement('p');
+                        para.innerHTML = temp_json.fields.notification.substr(0, 100) + '...';
+                        a.appendChild(para);
+                        a.setAttribute("value", each);
+                        a.setAttribute("onclick", "showExpandedNotification('" + each + "')");
+                        li.appendChild(a);
+                        notification_list.appendChild(li);
+                    }
 
                 }
                 let li = document.createElement('li');

@@ -532,7 +532,7 @@
     $('#dateButton').click(function () {
     $('#txtDate').show().focus().hide();
     });
-    {#</script>#}
+    {#    </script>#}
 {% endblock on_ready %}
 
 {% block html %}
@@ -571,9 +571,12 @@
             let found = false;
             var selected_date =
                 '{{ selected_date }}';
+            console.log(selected_date);
             var splitted_date = selected_date.split('-');
-            selected_date = new Date(splitted_date[2], splitted_date[1], splitted_date[0]);
-            for (let i = 0; i < arr.length && selected_date > current_date; i++) {
+            console.log(splitted_date);
+            selected_date = new Date(splitted_date[2], splitted_date[1] - 1, splitted_date[0]);
+            console.log(selected_date);
+            for (let i = 0; i < arr.length && selected_date >= current_date; i++) {
                 console.log(arr[i]);
                 if (arr[i] === "my-context-menu") {
                     found = true;

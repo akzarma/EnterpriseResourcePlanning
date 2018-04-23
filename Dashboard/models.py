@@ -6,7 +6,7 @@ from UserModel.models import User
 
 class SpecificNotification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(null=True)
     notification = models.CharField(max_length=5000)
     heading = models.CharField(max_length=100)
     action = models.CharField(max_length=500,default='')

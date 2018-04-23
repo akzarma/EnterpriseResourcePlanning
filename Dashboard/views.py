@@ -26,6 +26,7 @@ from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
 from UserModel.models import User
 
+
 # def student(request):
 #     user = request.user
 #     # If user exists in session (i.e. logged in)
@@ -723,10 +724,11 @@ def get_notifications(request):
             #     'today': date,
             #
             # }
-            data = {}
+            data = {'today': date}
             for each in range(len(notification_objs)):
                 if not each in data:
-                    data[each] = serializers.serialize('json', [notification_objs[each],], fields=('heading','date','notification','has_read','action','priority'))
+                    data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
+                    'heading', 'date', 'notification', 'has_read', 'action', 'priority'))
                     struct = json.loads(data[each])
                     data[each] = json.dumps(struct[0])
 
@@ -754,12 +756,13 @@ def show_all_notifications(request):
             for each in range(len(notification_objs)):
                 if not each in data:
                     data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                    'heading', 'notification', 'has_read', 'action', 'priority'))
+                        'heading', 'notification', 'has_read', 'action', 'priority'))
                     struct = json.loads(data[each])
                     data[each] = json.dumps(struct[0])
-            return render(request,'all_notifications.html')
+            return render(request, 'all_notifications.html')
         return HttpResponse("Go Somewhere Else")
     return HttpResponse("go to login")
+
 
 def set_roles(request):
     stud_obj = Student.objects.all()
@@ -776,8 +779,6 @@ def set_roles(request):
 
     # for each in stud_obj:
 
-
 #
 # def set_roles(request):
 #     return None
-
