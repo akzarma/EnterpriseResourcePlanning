@@ -473,8 +473,9 @@ def android_fill_attendance(request):
                 subject_obj = Subject.objects.get(short_form=attendance_json['subject'])
                 division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
                                                               division=attendance_json['division'])
-                college_detail = Division.objects.filter(branch=branch_obj, year=year_obj)
-                branch_subject = BranchSubject.objects.get(year_branch= college_detail[0], subject=subject_obj)
+                # college_detail = Division.objects.filter(branch=branch_obj, year=year_obj)
+                branch_subject = BranchSubject.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj
+                                                           , subject=subject_obj)
 
                 date = datetime.datetime.strptime(attendance_json['date'], '%Y,%m,%d').date()
 
@@ -544,8 +545,9 @@ def android_instance(request):
         subject_obj = Subject.objects.get(short_form=timetable_json['subject'])
         division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
                                                       division=timetable_json['division'])
-        college_detail = Division.objects.filter(branch=branch_obj, year=year_obj)
-        branch_subject = BranchSubject.objects.get(year_branch=college_detail[0], subject=subject_obj)
+        # college_detail = Division.objects.filter(branch=branch_obj, year=year_obj)
+        branch_subject = BranchSubject.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
+                                                   subject=subject_obj)
 
         date = datetime.datetime.strptime(timetable_json['date'], '%Y,%m,%d').date()
 

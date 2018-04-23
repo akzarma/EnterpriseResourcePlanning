@@ -345,11 +345,11 @@ def download_excel_timetable(request):
 
         if branch != 'all':
             branch_obj = Branch.objects.get(branch=branch)
-            college_extra_detail = college_extra_detail.filter(branch=branch_obj)
+            college_extra_detail = college_extra_detail.filter(year_branch__branch=branch_obj)
 
         if year != 'all':
             year_obj = CollegeYear.objects.get(year=year)
-            college_extra_detail = college_extra_detail.filter(year=year_obj)
+            college_extra_detail = college_extra_detail.filter(year_branch__year=year_obj)
 
         if division != 'all':
             college_extra_detail = college_extra_detail.filter(division=division)
@@ -583,7 +583,7 @@ def download_excel_room_schedule(request):
         if branch != 'all':
             branch_obj = Branch.objects.get(branch=branch)
 
-            college_extra_detail = Division.objects.filter(branch=branch_obj)
+            college_extra_detail = Division.objects.filter(year_branch__branch=branch_obj)
 
             full_timetable = full_timetable.filter(division__in=college_extra_detail)
             if room != 'all':
