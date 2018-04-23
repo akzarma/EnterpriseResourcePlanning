@@ -322,8 +322,8 @@
             success: function (data) {
 
                 let notifications_json = JSON.parse(data);
-
-                alert(data);
+                console.log(notifications_json);
+                {#alert(notifications_json);#}
                 {#$(element).find('#overlay').css("display", "block");#}
 
             }
