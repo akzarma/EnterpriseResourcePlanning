@@ -5,6 +5,7 @@ from itertools import chain
 import xlsxwriter
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
@@ -657,7 +658,8 @@ def toggle_availability(request):
         if selected_timetable.is_substituted is False:
             selected_timetable.not_available = False
         else:
-            return HttpResponse('Sorry, ' + selected_timetable.substitute.faculty.initials + ' has already taken your lecture!')
+            return HttpResponse(
+                'Sorry, ' + selected_timetable.substitute.faculty.initials + ' has already taken your lecture!')
     else:
         selected_timetable.not_available = True
 
@@ -708,25 +710,34 @@ def get_notifications(request):
     if not user.is_anonymous:
         if request.is_ajax():
             date = datetime.date.today().strftime('%d-%m-%Y')
-            notification_objs = SpecificNotification.objects.filter(user=user)
+            notification_objs = SpecificNotification.objects.filter(user=user,is_active=True)
 
-            heading = [each.heading for each in notification_objs]
-            notification = [each.notification for each in notification_objs]
-            number = len(notification)
+            # heading = [each.heading for each in notification_objs]
+            # notification = [each.notification for each in notification_objs]
 
-            data = {
-                'notification': notification,
-                'heading': heading,
-                'number': number,
-                'today':date
-            }
+            # data = serializers.serialize('json', notification_objs, fields=('heading','notification','has_read','action','priority'))
 
+            # data = {
+            #     'notification': notification,
+            #     'heading': heading,
+            #     'today': date,
+            #
+            # }
+            data={}
+            for each in range(len(notification_objs)):
+                if not each in data:
+                    data[each] = serializers.serialize('json', [notification_objs[each],], fields=('heading','notification','has_read','action','priority'))
+                    struct = json.loads(data[each])
+                    data[each] = json.dumps(struct[0])
+
+            print(data)
             return HttpResponse(json.dumps(data))
 
         else:
             return HttpResponse("Not ajax.Should be ajax")
     else:
         return redirect('/login/')
+
 
 @csrf_exempt
 def android_toggle_availability(request):
