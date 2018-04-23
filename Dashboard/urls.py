@@ -43,4 +43,13 @@ urlpatterns = [
     url(r'^get_timetable/$', views.get_timetable, name='get_timetable'),
 
 
+    url(r'^toggle_availability/$', views.toggle_availability, name='toggle_availability'),
+
+    url(r'^android/toggle_availability/$', views.android_toggle_availability, name='android_toggle_availability'),
+
+
+
+    url(r'^get_notifications/$', views.get_notifications, name='get_notifications'),
+
+
 ]

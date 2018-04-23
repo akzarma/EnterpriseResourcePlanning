@@ -5,14 +5,18 @@ from itertools import chain
 import xlsxwriter
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_date
+from django.views.decorators.csrf import csrf_exempt
 
 from Attendance.models import StudentAttendance
-from General.models import Batch, StudentDetail, CollegeExtraDetail, CollegeYear
+from Dashboard.models import SpecificNotification
+from General.models import Batch, StudentDetail, CollegeExtraDetail, CollegeYear, FacultySubject
+from General.views import notify_users
 from Registration.forms import StudentForm, FacultyForm
-from Registration.models import Student, Branch
+from Registration.models import Student, Branch, Faculty
 import datetime
 
 # Student dashboard
@@ -125,9 +129,28 @@ def show_dashboard(request):
 
             else:
                 if 'GO' in request.POST:
-                    selected_date = datetime.datetime.strptime(request.POST.get('selected_date'),'%d-%m-%Y').date()
+                    selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
                     timetable = sorted(
-                        DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
+                        DateTimetable.objects.filter(Q(date=selected_date),
+                                                     Q(original__faculty=faculty) | Q(substitute__faculty=faculty)),
+                        key=lambda x: (x.date, x.original.time.starting_time))
+
+                    return render(request, 'dashboard_faculty.html', {
+                        'timetable': timetable,
+                        'selected_date': selected_date.strftime('%d-%m-%Y'),
+                    })
+
+                elif request.POST.__contains__('previous') or request.POST.__contains__('next'):
+                    selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
+                    if request.POST.get('previous'):
+                        selected_date = selected_date + datetime.timedelta(-1)
+
+                    if request.POST.get('next'):
+                        selected_date = selected_date + datetime.timedelta(1)
+
+                    timetable = sorted(
+                        DateTimetable.objects.filter(Q(date=selected_date),
+                                                     Q(original__faculty=faculty) | Q(substitute__faculty=faculty)),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
                     return render(request, 'dashboard_faculty.html', {
@@ -138,7 +161,8 @@ def show_dashboard(request):
                 elif 'date_timetable' in request.POST:
                     selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
                     timetable = sorted(
-                        DateTimetable.objects.filter(date=selected_date, original__faculty=faculty),
+                        DateTimetable.objects.filter(Q(date=selected_date),
+                                                     Q(original__faculty=faculty) | Q(substitute__faculty=faculty)),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
                     selected_class_obj = DateTimetable.objects.get(pk=request.POST.get('date_timetable'))
@@ -590,6 +614,7 @@ def get_timetable(request):
 
     return HttpResponse(timetable)
 
+
 def excel_attendance(request):
     timetable_json = {}
 
@@ -621,3 +646,88 @@ def excel_attendance(request):
 def download_excel_attendance_subject(request):
     if request.is_ajax():
         return HttpResponse('Done')
+
+
+#####
+# Shibashis to_do_list.txt dekh(Ek bug hai). Last line
+####
+def toggle_availability(request):
+    selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
+    if selected_timetable.not_available is True:
+        if selected_timetable.is_substituted is False:
+            selected_timetable.not_available = False
+        else:
+            return HttpResponse('Sorry, ' + selected_timetable.substitute.faculty.initials + ' has already taken your lecture!')
+    else:
+        selected_timetable.not_available = True
+
+    selected_timetable.save()
+    timetable_obj = selected_timetable.original
+    # date = timetable_obj.date
+    time = timetable_obj.time
+
+    division = timetable_obj.division
+
+    all_faculty_that_div = list(FacultySubject.objects.filter(division=division,
+                                                              subject__is_practical=timetable_obj.is_practical).values_list(
+        'faculty', flat=True))
+
+    all_tt_obj_at_that_time = DateTimetable.objects.filter(date=selected_timetable.date, original__time=time)
+
+    all_faculty_at_that_time = []
+
+    for each_tt in all_tt_obj_at_that_time:
+        # Add substitute instead of original
+        if each_tt.is_substituted:
+            all_faculty_at_that_time.append(each_tt.substitute.faculty.user.username)
+        else:
+            if not each_tt.not_available:
+                all_faculty_at_that_time.append((each_tt.original.faculty.user.username))
+
+    free_faculty = (
+            set(all_faculty_that_div) - (set(list(all_faculty_at_that_time) + [timetable_obj.faculty.user.username])))
+    # free_faculty
+    free_faculty = [Faculty.objects.get(pk=each) for each in free_faculty]
+    print(free_faculty)
+
+    message = 'There is a free lecture available right now for ' + division.year.year + ' ' + division.division + ' on ' \
+              + str(selected_timetable.date) + ' ' + time.__str__()
+
+    notification_type = 'specific'
+
+    heading = 'Empty Lecture Slot'
+
+    users_obj = [each_faculty.user for each_faculty in free_faculty]
+    notify_users(notification_type, message, heading, users_obj)
+
+    return HttpResponse('success')
+
+
+def get_notifications(request):
+    user = request.user
+    if not user.is_anonymous:
+        if request.is_ajax():
+            date = datetime.date.today().strftime('%d-%m-%Y')
+            notification_objs = SpecificNotification.objects.filter(user=user)
+
+            heading = [each.heading for each in notification_objs]
+            notification = [each.notification for each in notification_objs]
+            number = len(notification)
+
+            data = {
+                'notification': notification,
+                'heading': heading,
+                'number': number,
+                'today':date
+            }
+
+            return HttpResponse(json.dumps(data))
+
+        else:
+            return HttpResponse("Not ajax.Should be ajax")
+    else:
+        return redirect('/login/')
+
+@csrf_exempt
+def android_toggle_availability(request):
+    return HttpResponse("Yeah!")

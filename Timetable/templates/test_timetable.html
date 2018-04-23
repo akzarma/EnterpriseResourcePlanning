@@ -1266,9 +1266,7 @@
 
 
     {#    Bind document on ready to function#}
-    <script>
-        $(document).ready(on_document_loading());
-    </script>
+
 
     <script>
         function toggle_practical_cbx(subject) {
@@ -1296,3 +1294,9 @@
 
 
 {% endblock html %}
+{% block on_ready %}
+
+{#    <script>#}
+        on_document_loading();
+    {#</script>#}
+{% endblock on_ready %}

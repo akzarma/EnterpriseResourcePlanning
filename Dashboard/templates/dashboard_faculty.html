@@ -13,6 +13,33 @@
             margin-right: 10%;
         }
 
+        .custom-menu {
+            display: none;
+            z-index: 1000;
+            position: absolute;
+            overflow: hidden;
+            border: 1px solid #CCC;
+            white-space: nowrap;
+            font-family: sans-serif;
+            background: #FFF;
+            color: #333;
+            border-radius: 5px;
+            padding: 0;
+        }
+
+        /* Each of the items in the list */
+        .custom-menu li {
+            padding: 8px 12px;
+            cursor: pointer;
+            list-style-type: none;
+            transition: all .3s ease;
+            user-select: none;
+        }
+
+        .custom-menu li:hover {
+            background-color: #DEF;
+        }
+
         #datepicker {
             width: 180px;
             margin: 0 20px 20px 20px;
@@ -60,6 +87,7 @@
         .wrapper {
             display: flex;
             align-items: stretch;
+            overflow-x: hidden;
         }
 
         #sidebar {
@@ -220,7 +248,7 @@
                 cursor: pointer;
                 padding-top: 20%;
                 text-align: center;
-
+                margin-left: 0px !important;
             }
 
             .squaredOne label:after {
@@ -248,6 +276,14 @@
             }
 
             /* end .squaredOne */
+
+            /*Overlay*/
+            .overlay {
+                display: none; /* Hidden by default */
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+            }
         {% endblock extra_style %}
 
     </style>
@@ -341,16 +377,30 @@
                             <div class="row" id="timetable">
                                 {% if timetable %}
                                     {% for each in timetable %}
-                                        {% if each.is_substituted is True %}
-                                            <button name="date_timetable    " class="card btn btn-info"
-                                                    style="width: 100%; font-weight: bold; margin-bottom: 5px;"
-                                                    value="{{ each.pk }}">
-                                                <div class="card-header"
-                                                     style="border-bottom: 2px solid white;">{{ each.substitute.time }}</div>
-                                                <div class="row">
-                                                    <div class="col-md-4">{{ each.substitute.branch_subject.subject.short_form }}</div>
-                                                    <div class="col-md-4">{{ each.substitute.room.room_number }}</div>
-                                                    <div class="col-md-4">
+                                        <button name="date_timetable" class="card btn btn-info my-context-menu"
+                                                style="width: 100%; font-weight: bold; margin-bottom: 5px;"
+                                                value="{{ each.pk }}"
+                                                onclick="checkTimetable(this);">
+                                            {% if each.not_available == True %}
+                                                <div id="{{ each.pk }}" style="display: block !important;"
+                                                     name="{{ each.pk }}" class="overlay my-context-menu">I'm not
+                                                    available
+                                                </div>
+                                            {% else %}
+                                                <div id="{{ each.pk }}" name="{{ each.pk }}"
+                                                     class="overlay my-context-menu">I'm not available
+                                                </div>
+                                            {% endif %}
+                                            {% if each.is_substituted is True %}
+                                                <div class="card-header my-context-menu"
+                                                     style="border-bottom: 2px solid white;"
+                                                     name="{{ each.pk }}">{{ each.substitute.time }}</div>
+                                                <div class="row my-context-menu">
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.substitute.branch_subject.subject.short_form }}</div>
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.substitute.room.room_number }}</div>
+                                                    <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
                                                         {{ each.substitute.division.branch }}<br/>
                                                         {{ each.substitute.division.year }}
                                                         {{ each.substitute.division.division }}
@@ -359,17 +409,16 @@
                                                         {% endif %}
                                                     </div>
                                                 </div>
-                                            </button>
-                                        {% else %}
-                                            <button type="submit" name="date_timetable" class="card btn btn-info"
-                                                    style="width: 100%; font-weight: bold; margin-bottom: 5px;"
-                                                    value="{{ each.pk }}">
-                                                <div class="card-header"
-                                                     style="border-bottom: 2px solid white;">{{ each.original.time }}</div>
-                                                <div class="row">
-                                                    <div class="col-md-4">{{ each.original.branch_subject.subject.short_form }}</div>
-                                                    <div class="col-md-4">{{ each.original.room.room_number }}</div>
-                                                    <div class="col-md-4">
+                                            {% else %}
+                                                <div class="card-header my-context-menu"
+                                                     style="border-bottom: 2px solid white;"
+                                                     name="{{ each.pk }}">{{ each.original.time }}</div>
+                                                <div class="row my-context-menu" name="{{ each.pk }}">
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.original.branch_subject.subject.short_form }}</div>
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.original.room.room_number }}</div>
+                                                    <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
                                                         {{ each.original.division.branch }}<br/>
                                                         {{ each.original.division.year }}
                                                         {{ each.original.division.division }}
@@ -378,9 +427,16 @@
                                                         {% endif %}
                                                     </div>
                                                 </div>
-                                            </button>
-                                        {% endif %}
+
+                                            {% endif %}
+                                        </button>
                                     {% endfor %}
+                                    <button name="previous" value="previous" class="btn left carousel-control"
+                                            style="border: 0 !important;"><span
+                                            class="glyphicon glyphicon-chevron-left"></span></button>
+                                    <button name="next" value="next" type="submit" class="btn right carousel-control"
+                                            style="border: 0 !important;"><span
+                                            class="glyphicon glyphicon-chevron-right"></span></button>
                                 {% else %}
                                     <p style="text-align: center;">Sorry! No lectures on {{ selected_date }}</p>
                                 {% endif %}
@@ -404,37 +460,47 @@
                             <form action="{% url 'attendance:save' %}" method="post">
                                 {% csrf_token %}
                                 <input class="hidden" name="selected_timetable" value="{{ selected_timetable.pk }}">
-                                <div class="row">
-                                    {% for i in all_students_roll %}
-                                        <div class="col-lg-1" id="test">
-                                            <section>
-                                                <!-- .squaredOne -->
-                                                <div class="squaredOne">
-                                                    {% if not att %}
-                                                        <input class="cb" type="checkbox" value="{{ i }}"
-                                                               id="squaredOne{{ forloop.counter }}"
-                                                               name="present"/>
-                                                    {% else %}
-                                                        {% if i in present_roll %}
-                                                            <input class="cb" type="checkbox" value="{{ i }}"
-                                                                   id="squaredOne{{ forloop.counter }}"
-                                                                   name="present" checked/>
-                                                        {% else %}
+                                <div class="container">
+                                    <div class="row">
+                                        {% for i in all_students_roll %}
+                                            {% if forloop.counter0|divisibleby:9 %}
+                                                </div>
+                                                <div class="row">
+                                            {% endif %}
+                                            <div class="col-lg-1" id="test"
+                                                 style="padding-right: 0;padding-left: 0;width: 5%">
+                                                <section style="width: 50px">
+                                                    <!-- .squaredOne -->
+                                                    <div class="squaredOne">
+                                                        {% if not att %}
                                                             <input class="cb" type="checkbox" value="{{ i }}"
                                                                    id="squaredOne{{ forloop.counter }}"
                                                                    name="present"/>
+                                                        {% else %}
+                                                            {% if i in present_roll %}
+                                                                <input class="cb" type="checkbox" value="{{ i }}"
+                                                                       id="squaredOne{{ forloop.counter }}"
+                                                                       name="present" checked/>
+                                                            {% else %}
+                                                                <input class="cb" type="checkbox" value="{{ i }}"
+                                                                       id="squaredOne{{ forloop.counter }}"
+                                                                       name="present"/>
+                                                            {% endif %}
                                                         {% endif %}
-                                                    {% endif %}
-                                                    <label for="squaredOne{{ forloop.counter }}">{{ i }}</label>
-                                                </div>
-                                                <!-- end .squaredOne -->
-                                            </section>
+                                                        <label for="squaredOne{{ forloop.counter }}">{{ i }}</label>
+                                                    </div>
+                                                    <!-- end .squaredOne -->
+                                                </section>
+                                            </div>
+                                            {#                                        {% if forloop.counter0|divisibleby:12 %}#}
+                                            {#                                            </div>#}
+                                            {#                                        {% endif %}#}
+                                        {% endfor %}
                                         </div>
-                                    {% endfor %}
-                                </div>
-                                <div class="row">
-                                    <input class="btn btn-primary" type="submit" name="save_attendance" value="Save">
-                                </div>
+                                    <div class="row">
+                                        <input class="btn btn-primary" type="submit" name="save_attendance"
+                                               value="Save">
+                                    </div>
                             </form>
                         </div>
                     {% endif %}
@@ -442,26 +508,37 @@
             {% endblock %}
         </div>
     </div>
+
+    {#For context menu#}
+    <ul class='custom-menu'>
+        <li data-action="availability" id="availability"></li>
+    </ul>
+
 {% endblock body %}
+
+{% block on_ready %}
+{#    <script>#}
+        {#$(document).ready(function () {#}
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+
+        $('#txtDate').datepicker({
+            dateFormat: 'dd-mm-yy',
+            maxDate: 0
+        });
+
+        $('#dateButton').click(function () {
+            $('#txtDate').show().focus().hide();
+        });
+    {#</script>#}
+{% endblock on_ready %}
+
 {% block html %}
 
     <script type="text/javascript">
-        $(document).ready(function () {
-            $('#sidebarCollapse').on('click', function () {
-                $('#sidebar').toggleClass('active');
-            });
-
-            $('#txtDate').datepicker({
-                dateFormat: 'dd-mm-yy',
-                maxDate: 0
-            });
-
-            $('#dateButton').click(function () {
-                $('#txtDate').show().focus().hide();
-            });
 
 
-        });
         $(function () {
             $("#datepicker").datepicker({
                 autoclose: true,
@@ -471,6 +548,9 @@
 
     </script>
     <script>
+
+        var selected_ajax = "";
+
         function change_timetable() {
             var form = document.getElementById('date_form');
             var input = document.createElement('input');
@@ -480,23 +560,193 @@
             form.submit();
         }
 
-        (function () {
+        {#(function () {#}
+        {##}
+        {#    document.addEventListener("contextmenu", function (e) {#}
+        {#        console.log('preventing default');#}
+        {#        e.preventDefault();#}
+        {#        console.log(e.path.findIndex(function (param) {#}
+        {#            return param.className === 'card btn btn-info'#}
+        {#        }));#}
+        {#        let index = e.path.findIndex(function (param) {#}
+        {#            return param.className === 'card btn btn-info'#}
+        {#        });#}
+        {#        console.log('inside function');#}
+        {#        var text = '';#}
+        {#        if (index) {#}
+        {#            console.log('inside index');#}
+        {#            let element = $("button[name='date_timetable'][value='" + e.path[index].value + "']");#}
+        {##}
+        {#            $(element).contextMenu({#}
+        {#                selector: 'div',#}
+        {##}
+        {#                build: function ($triggerElement, e) {#}
+        {#                    if (element.find('#overlay').css("display") === "none") {#}
+        {#                        text = 'I am available';#}
+        {#                    }#}
+        {#                    else {#}
+        {#                        text = 'Not';#}
+        {#                    }#}
+        {#                    return {#}
+        {#                        callback: function (key, options) {#}
+        {##}
+        {#                                var m = "clicked: " + key + " on " + $(this).text;#}
+        {#                            window.console && console.log(m) || alert(e.path[index]);#}
+        {#                            console.log(e.path[index]);#}
+        {##}
+        {#                            $.ajax({#}
+        {#                                url: '{% url 'dashboard:toggle_availability' %}',#}
+        {#                                type: 'POST',#}
+        {#                                data: {#}
+        {#                                    'csrfmiddlewaretoken': '{{ csrf_token }}',#}
+        {#                                    'selected_timetable': e.path[index].value,#}
+        {#                                    'available': true#}
+        {#                                },#}
+        {#                                success: function (data) {#}
+        {#                                    alert(data);#}
+        {##}
+        {#                                    $(element).find('#overlay').css("display", "block");#}
+        {##}
+        {#                                }#}
+        {##}
+        {#                            });#}
+        {##}
+        {#                        },#}
+        {#                        items: {#}
+        {#                            menuItem: {name: text, icon: "info"}#}
+        {#                        }#}
+        {#                    };#}
+        {#                }#}
+        {#            });#}
+        {##}
+        {#        }#}
+        {#    })#}
 
-            document.addEventListener("contextmenu", function (e) {
-                e.preventDefault();
-                console.log(e);
-                console.log(e.path.findIndex(function (param) {
-                    return param.className === 'card btn btn-info'
-                }));
-                let index = e.path.findIndex(function (param) {
-                    return param.className === 'card btn btn-info'
+
+
+        // Trigger action when the contexmenu is about to be shown
+        $(document).bind("contextmenu", function (event) {
+            console.log(event);
+            console.log(event.target.classList);
+            {#let index = -1;#}
+            let arr = event.target.classList;
+            let found = false;
+            for (let i = 0; i < arr.length; i++) {
+                console.log(arr[i]);
+                if (arr[i] === "my-context-menu") {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found === true) {
+
+
+                // Avoid the real one
+                event.preventDefault();
+
+                let target = event.target;
+
+                if (target.tagName === "BUTTON") {
+                    selected_ajax = target.value;
+
+                }
+                else {
+                    selected_ajax = target.attributes.name.nodeValue;
+                    alert(target.attributes.name.nodeValue);
+                }
+
+                alert($('#' + selected_ajax).css("display"));
+
+                if ($('#' + selected_ajax).css("display") === 'none') {
+                    document.getElementById("availability").innerHTML = "I'm not available";
+                } else {
+                    document.getElementById("availability").innerHTML = "I'm available";
+                }
+
+                // Show contextmenu
+                $(".custom-menu").finish().toggle(100).// In the right position (the mouse)
+                css({
+                    top: event.pageY + "px",
+                    left: event.pageX + "px"
                 });
-                alert(e.path[index].value);
-                {#if(e.path[1].)#}
+            }
+        });
+
+
+        // If the document is clicked somewhere
+        $(document).bind("mousedown", function (e) {
+
+            // If the clicked element is not the menu
+            if (!$(e.target).parents(".custom-menu").length > 0) {
+
+                // Hide it
+                $(".custom-menu").hide(100);
+            }
+        });
+
+
+        // If the menu element is clicked
+        $(".custom-menu li").click(function () {
+
+            // This is the triggered action name
+            switch ($(this).attr("data-action")) {
+
+                // A case for each action. Your actions here
+                case "availability":
+                    not_available();
+                    break;
+                {#case "second":#}
+                {#    alert("second");#}
+                {#    break;#}
+                {#case "third":#}
+                {#    alert("third");#}
+                {#    break;#}
+            }
+
+            // Hide it AFTER the action was triggered
+            $(".custom-menu").hide(100);
+        });
+
+
+        function not_available() {
+            alert(selected_ajax);
+            $.ajax({
+
+                url: '{% url 'dashboard:toggle_availability' %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'selected_timetable': selected_ajax
+                },
+                success: function (data) {
+                    alert(data);
+
+                    var overlay = $('#' + selected_ajax);
+
+                    if (overlay.css("display") === "none") {
+                        overlay.css("display", "block");
+                    } else {
+                        overlay.css("display", "none");
+                    }
+
+                }
 
             });
+        }
 
-        })();
+        function checkTimetable(obj) {
+            var pk = obj.value;
 
+            var overlay = $('#' + pk);
+            if (overlay.css("display") === "none") {
+               $("#timetable_form").submit;
+            } else {
+                alert('You can\'t mark attendance for this lecture');
+                event.preventDefault();
+            }
+
+
+        }
     </script>
 {% endblock html %}

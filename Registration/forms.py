@@ -733,7 +733,8 @@ class StudentForm(forms.ModelForm):
         cleaned_data = super().clean()
         gr_number = cleaned_data['gr_number']
         if not gr_number in gr_roll_dict:
-            raise forms.ValidationError('Your GR Number is not available in our database.\nContact us at viitdevs@gmail.com')
+            raise forms.ValidationError(
+                'Your GR Number is not available in our database.\nContact us at viitdevs@gmail.com')
 
         return gr_number
 

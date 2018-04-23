@@ -91,7 +91,6 @@ class StudentDetail(models.Model):
     # batch = models.CharField(max_length=10)
     roll_number = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
-    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, default=1)
 
     def __str__(self):
         return str(self.batch.division) + " " + str(self.student.first_name) + " " + str(self.roll_number)
