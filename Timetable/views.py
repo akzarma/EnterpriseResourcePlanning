@@ -684,7 +684,7 @@ def android_timetable_json(request):
 
                 division = each.original.division.division
 
-                date = str(each.date.strftime('%d-%m-%y'))
+                date = str(each.date.strftime('%d-%m-%Y'))
 
                 time = each.original.time.format_for_json()
 
