@@ -11,7 +11,7 @@ from django.shortcuts import render
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
-from General.models import CollegeYear, CollegeExtraDetail, StudentDetail, BranchSubject, Batch
+from General.models import CollegeYear, StudentDetail, BranchSubject, Batch, Division
 from Registration.forms import gr_roll_dict
 from Registration.models import Student, Subject, Branch
 from General.models import FacultySubject, StudentDetail
@@ -471,9 +471,10 @@ def android_fill_attendance(request):
                 faculty = Faculty.objects.get(faculty_code=attendance_json['faculty_code'])
                 year_obj = CollegeYear.objects.get(year=attendance_json['year'])
                 subject_obj = Subject.objects.get(short_form=attendance_json['subject'])
-                division_obj = CollegeExtraDetail.objects.get(branch=branch_obj, year=year_obj,
+                division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
                                                               division=attendance_json['division'])
-                branch_subject = BranchSubject.objects.get(branch=branch_obj, subject=subject_obj, year=year_obj)
+                college_detail = Division.objects.filter(branch=branch_obj, year=year_obj)
+                branch_subject = BranchSubject.objects.get(year_branch= college_detail[0], subject=subject_obj)
 
                 date = datetime.datetime.strptime(attendance_json['date'], '%Y,%m,%d').date()
 
@@ -541,9 +542,10 @@ def android_instance(request):
         faculty = Faculty.objects.get(faculty_code=timetable_json['faculty_code'])
         year_obj = CollegeYear.objects.get(year=timetable_json['year'])
         subject_obj = Subject.objects.get(short_form=timetable_json['subject'])
-        division_obj = CollegeExtraDetail.objects.get(branch=branch_obj, year=year_obj,
+        division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
                                                       division=timetable_json['division'])
-        branch_subject = BranchSubject.objects.get(branch=branch_obj, subject=subject_obj, year=year_obj)
+        college_detail = Division.objects.filter(branch=branch_obj, year=year_obj)
+        branch_subject = BranchSubject.objects.get(year_branch=college_detail[0], subject=subject_obj)
 
         date = datetime.datetime.strptime(timetable_json['date'], '%Y,%m,%d').date()
 

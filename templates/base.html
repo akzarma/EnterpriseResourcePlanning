@@ -331,8 +331,9 @@
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
             success: function (data) {
-
-                let notifications_json = JSON.parse(data);
+                console.log(data);
+                var notifications_json = JSON.parse(data);
+                {#console.log(notifications_json.length);#}
                 console.log(notifications_json);
                 current_date = new Date(notifications_json['today']);
 
@@ -355,9 +356,32 @@
                     notification_list.appendChild(li);
                 }
 
-            }
+                let notification_num_obj = document.getElementById('number_notification');
 
-        });
+                let num_of_notifications = 0;
+                let notification_list_obj = document.getElementById("notification_dropdown");
+                for (each in notifications_json) {
+                    num_of_notifications++;
+                    let new_link = document.createElement('a');
+                    new_link.setAttribute("href", "#");
+                    let temp_json = JSON.parse(notifications_json[each]);
+                    {#console.log(temp_json);#}
+                    new_link.innerHTML = temp_json.fields.heading;
+                    let new_notification = document.createElement("li");
+                    new_notification.appendChild(new_link);
+                    notification_list_obj.appendChild(new_notification);
+
+                }
+
+                notification_num_obj.innerHTML = num_of_notifications;
+
+                {#for (let i = 0; i < num_of_notifications; i++) {#}
+                {#    #}
+                {#}#}
+
+                }
+
+            });
 
         {% block on_ready %}
         {% endblock on_ready %}

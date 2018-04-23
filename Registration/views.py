@@ -7,7 +7,7 @@ from django.shortcuts import render, HttpResponse
 
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
-from General.models import CollegeExtraDetail, Shift, StudentDetail, CollegeYear, BranchSubject, Semester, \
+from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSubject, Semester, \
     FacultySubject, Batch
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject
@@ -17,7 +17,7 @@ from Configuration.stateConf import states
 
 
 def view_subjects(request):
-    subjects = BranchSubject.objects.filter(branch=Branch.objects.get(branch='Computer'))
+    subjects = BranchSubject.objects.filter(year_branch__branch=Branch.objects.get(branch='Computer'))
     return render(request, 'view_subjects.html', {'subjects': subjects})
 
 
@@ -27,7 +27,7 @@ def register_faculty_subject(request):
         if form.is_valid():
             faculty = Faculty.objects.get(pk=form.cleaned_data.get('faculty'))
             subject = Subject.objects.get(pk=form.cleaned_data.get('subject'))
-            division = CollegeExtraDetail.objects.get(pk=form.cleaned_data.get('division'))
+            division = Division.objects.get(pk=form.cleaned_data.get('division'))
 
             if FacultySubject.objects.filter(faculty=faculty,
                                              subject=subject,
@@ -52,8 +52,7 @@ def register_student(request):
         if form.is_valid():
             student = form.save(commit=False)
             student.key = generate_activation_key()
-            new_user = User.objects.create_user(username=student.gr_number, email=form.cleaned_data.get('email'),
-                                                role='Student')
+            new_user = User.objects.create_user(username=student.gr_number, email=form.cleaned_data.get('email'), role='Student')
             new_user.save()
             division = form.cleaned_data.get('division')
             shift = form.cleaned_data.get('shift')
@@ -69,10 +68,10 @@ def register_student(request):
             roll_number = gr_roll_dict[student.gr_number]
             branch_obj = Branch.objects.get(branch=branch)
             year_obj = CollegeYear.objects.get(year=year)
-            division_obj = CollegeExtraDetail.objects.get(branch=branch_obj, year=year_obj, division=division,
-                                                          shift__shift=shift)
+            division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
+                                                division=division, shift__shift=shift)
             batch_obj = Batch.objects.get(division=division_obj, batch_name=batch)
-            StudentDetail.objects.create(student=student, batch=batch_obj, roll_number=roll_number)
+            StudentDetail.objects.create(student=student,batch=batch_obj, roll_number=roll_number)
 
             # college_year_obj = CollegeYear.objects.get(year=year)
             # shift_obj = Shift.objects.get(shift=shift)
@@ -197,16 +196,16 @@ def test(request):
 
 def get_division(request):
     branch = request.POST.get('branch')
-    division_list = CollegeExtraDetail.objects.filter(branch=Branch.objects.get(branch=branch)).values_list('division',
-                                                                                                            flat=True)
+    division_list = Division.objects.filter(branch=Branch.objects.get(branch=branch)).values_list('division',
+                                                                                                  flat=True)
     return HttpResponse(division_list)
 
 
 def get_shift(request):
     branch = request.POST.get('branch')
     shift = request.POST.get('shift')
-    division_list = CollegeExtraDetail.objects.filter(shift=Shift.objects.get(shift=shift),
-                                                      branch=Branch.objects.get(branch=branch)).values_list('division',
+    division_list = Division.objects.filter(shift=Shift.objects.get(shift=shift),
+                                            branch=Branch.objects.get(branch=branch)).values_list('division',
                                                                                                             flat=True)
     return HttpResponse(division_list)
 
@@ -339,6 +338,7 @@ def verification_process(request, key, username):
                 return render(request, 'login.html', {'error': 'Something is wrong.'})
     else:
         return render(request, 'login.html', {'error': 'Something is wrong.'})
+
 
 # def load_student_detail():
 #     all_students = Student.objects.all()

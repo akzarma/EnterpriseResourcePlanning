@@ -19,22 +19,28 @@ class Shift(models.Model):
         return str(self.shift)
 
 
-# Will be known as division
-class CollegeExtraDetail(models.Model):
+class YearBranch(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.branch.branch + ' ' + str(self.year)
+
+
+# Will be known as division
+class Division(models.Model):
+    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     division = models.CharField(max_length=1)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.branch.branch + ' ' + str(self.year) + ' ' + self.division
+        return str(self.year_branch) + ' ' + self.division
 
 
 class Semester(models.Model):
     semester = models.PositiveIntegerField()
-
-    # start_date = models.DateField()
-    # end_date = models.DateField()
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
     # lectures_start_date = models.DateTimeField()
     # lectures_end_date = models.DateTimeField()
 
@@ -49,16 +55,17 @@ class Semester(models.Model):
 
 
 class Batch(models.Model):
-    division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
+    division = models.ForeignKey(Division, on_delete=models.CASCADE)
     batch_name = models.CharField(max_length=10)
 
     def __str__(self):
-        return self.division.year.year + " " + self.division.division + " " + self.batch_name
+        return self.division.year_branch.year.year + ' ' + self.division.division + " " + self.batch_name
 
 
 class BranchSubject(models.Model):
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
-    year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
+    # branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    # year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
+    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True)  # Should not be null=True
@@ -66,13 +73,13 @@ class BranchSubject(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.branch.branch + self.subject.name
+        return str(self.year_branch) + " " + self.subject.name
 
 
 class FacultySubject(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    division = models.ForeignKey(CollegeExtraDetail, on_delete=models.CASCADE)
+    division = models.ForeignKey(Division, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.faculty.user.first_name + self.subject.name + self.division.division + " " + self.faculty.initials
@@ -84,8 +91,6 @@ class StudentDetail(models.Model):
     # batch = models.CharField(max_length=10)
     roll_number = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
-
-    # semester = models.ForeignKey(Semester, on_delete=models.CASCADE, default=1)  # Should not be default to 1
 
     def __str__(self):
         return str(self.batch.division) + " " + str(self.student.first_name) + " " + str(self.roll_number)

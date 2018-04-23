@@ -401,8 +401,8 @@
                                                     <div class="col-md-4 my-context-menu"
                                                          name="{{ each.pk }}">{{ each.substitute.room.room_number }}</div>
                                                     <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
-                                                        {{ each.substitute.division.branch }}<br/>
-                                                        {{ each.substitute.division.year }}
+                                                        {{ each.substitute.division.year_branch.branch }}<br/>
+                                                        {{ each.substitute.division.year_branch.year }}
                                                         {{ each.substitute.division.division }}
                                                         {% if each.substitute.is_practical %}
                                                             {{ each.substitute.batch.batch_name }}
@@ -419,8 +419,8 @@
                                                     <div class="col-md-4 my-context-menu"
                                                          name="{{ each.pk }}">{{ each.original.room.room_number }}</div>
                                                     <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
-                                                        {{ each.original.division.branch }}<br/>
-                                                        {{ each.original.division.year }}
+                                                        {{ each.original.division.year_branch.branch }}<br/>
+                                                        {{ each.original.division.year_branch.year }}
                                                         {{ each.original.division.division }}
                                                         {% if each.original.is_practical %}
                                                             {{ each.original.batch.batch_name }}
@@ -562,8 +562,8 @@
 
         // Trigger action when the contexmenu is about to be shown
         $(document).bind("contextmenu", function (event) {
-            console.log(event);
-            console.log(event.target.classList);
+            {#console.log(event);#}
+            {#console.log(event.target.classList);#}
             {#let index = -1;#}
             let arr = event.target.classList;
             let found = false;
@@ -593,8 +593,11 @@
                 }
                 else {
                     selected_ajax = target.attributes.name.nodeValue;
-                    alert(target.attributes.name.nodeValue);
+                    {#alert(target.attributes.name.nodeValue);#}
                 }
+
+                {#alert($('#' + selected_ajax).css("display"));#}
+                {#alert(selected_ajax);#}
 
                 if ($('#' + selected_ajax).css("display") === 'none') {
                     document.getElementById("availability").innerHTML = "I'm not available";
@@ -648,7 +651,7 @@
 
 
         function not_available() {
-            alert(selected_ajax);
+            {#alert(selected_ajax);#}
             $.ajax({
 
                 url: '{% url 'dashboard:toggle_availability' %}',
