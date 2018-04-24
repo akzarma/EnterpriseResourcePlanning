@@ -1,0 +1,22 @@
+{% extends "./dashboard_student.html" %}
+{% block title %}Student Subject Registration {% endblock %}
+
+{% block content %}
+    <div class="panel panel-default">
+
+                    <!-- Default panel contents -->
+{#                    <div class="panel-heading">Heading</div>#}
+
+                    <!-- Table -->
+                    <table class="table">
+                        <th>Sr. No</th>
+                        <th>Subject</th>
+                        <input name="ref" value="view_tournament" hidden>
+                        {% for tournament in all_tournaments %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ tournament.starting_date }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+{% endblock content %}

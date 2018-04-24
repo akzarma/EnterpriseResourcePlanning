@@ -9,7 +9,7 @@ from django.shortcuts import render, HttpResponse
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSubject, Semester, \
-    FacultySubject, Batch, YearBranch
+    FacultySubject, Batch, YearBranch, StudentSubject
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User, RoleManager, RoleMaster
@@ -374,3 +374,15 @@ def verification_process(request, key, username):
 #     return HttpResponse(StudentDetail.objects.all())
 #
 # load_student_detail()
+
+
+def student_subject(request):
+    if request.method == 'POST':
+        a=1
+    elif request.method == 'GET':
+        user = request.user
+        if user.is_student:
+            return HttpResponse('Student')
+        if user.is_faculty:
+            return HttpResponse('Faculty')
+        return render(request, 'register_student_subject.html')
