@@ -15,7 +15,7 @@ from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import StudentDetail, Division
 from Registration.models import Faculty, Student, Branch
 from Timetable.models import Timetable
-from UserModel.models import User
+from UserModel.models import User, RoleManager
 import json
 
 
@@ -55,7 +55,9 @@ def login_android(request):
 
                 user = User.objects.get(username=username)
                 # print(user.role)
-                if user.role == 'Faculty':
+                is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+                is_student = RoleManager.objects.filter(user=user, role__role='student')
+                if is_faculty:
                     faculty = user.faculty
                     faculty_response = {
                         'user_type': 'Faculty',
@@ -123,7 +125,7 @@ def login_android(request):
                     faculty_response['attendance_list'] = attendance_list
                     print(HttpResponse(json.dumps(faculty_response)))
                     return HttpResponse(json.dumps(faculty_response))
-                elif user.role == 'Student':
+                elif is_student:
                     student = user.student
                     student_detail = StudentDetail.objects.get(student=student)
                     branch = student.branch

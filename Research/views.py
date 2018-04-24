@@ -4,12 +4,15 @@ from django.shortcuts import render
 # Create your views here.
 from Research.forms import PublicationForm
 from Research.models import Paper
+from UserModel.models import RoleManager
 
 
 def enter_paper(request):
     user = request.user
     if not user.is_anonymous:
-        if user.role == 'Faculty':
+        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+        # is_student = RoleManager.objects.filter(user=user, role__role='student')
+        if is_faculty:
             if request.method == "POST":
                 form = PublicationForm(request.POST, request.FILES)
                 # form.fields['faculty'] = user.faculty
@@ -35,7 +38,9 @@ def enter_paper(request):
 def view_paper(request):
     user = request.user
     if not user.is_anonymous:
-        if user.role == 'Faculty':
+        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+        is_student = RoleManager.objects.filter(user=user, role__role='student')
+        if is_faculty:
             if request.method == "POST":
                 paper = request.POST.get('paper_selected')
                 paper_obj = Paper.objects.get(pk=paper)

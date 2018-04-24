@@ -24,7 +24,7 @@ import datetime
 from Research.models import Paper
 from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
-from UserModel.models import User
+from UserModel.models import User, RoleMaster, RoleManager
 
 
 # def student(request):
@@ -41,7 +41,6 @@ from UserModel.models import User
 #         })
 #     else:
 #         return HttpResponseRedirect('/login/')
-# from UserModel.models import RoleMaster, RoleManager
 
 
 def logout_user(request):
@@ -54,8 +53,9 @@ def show_dashboard(request):
     # If user exists in session (i.e. logged in)
     if not user.is_anonymous:
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-        if user.role == 'Student':
+        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+        is_student = RoleManager.objects.filter(user=user, role__role='student')
+        if is_student:
             student = user.student
             attendance = {}
             attended = 0
@@ -117,7 +117,7 @@ def show_dashboard(request):
                     'current_date': current_date.strftime('%Y-%m-%d'),
                 })
 
-        elif user.role == 'Faculty':
+        elif is_faculty:
             faculty = user.faculty
 
             if request.method == "GET":
@@ -222,7 +222,9 @@ def view_profile(request):
     user = request.user
     if not user.is_anonymous:
         if request.method == 'POST':
-            if user.role == 'Student':
+            is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+            is_student = RoleManager.objects.filter(user=user, role__role='student')
+            if is_student:
                 form = StudentUpdateForm(request.POST, request.FILES, instance=user.student)
                 if form.is_valid():
                     student_obj = form.save(commit=False)
@@ -234,7 +236,7 @@ def view_profile(request):
                         'form': form,
                     })
 
-            elif user.role == 'Faculty':
+            elif is_faculty:
                 form = FacultyUpdateForm(request.POST, request.FILES, instance=user.faculty)
                 if form.is_valid():
                     faculty_obj = form.save(commit=False)
@@ -247,14 +249,14 @@ def view_profile(request):
                     })
 
         else:
-            if user.role == 'Faculty':
+            if is_faculty:
                 obj = user.faculty
                 form = FacultyUpdateForm(instance=obj)
                 return render(request, 'profile_faculty.html', {
                     'form': form,
                 })
 
-            elif user.role == 'Student':
+            elif is_student:
                 obj = user.student
                 form = StudentUpdateForm(instance=obj)
                 return render(request, 'profile_student.html', {
@@ -710,8 +712,8 @@ def get_notifications(request):
     user = request.user
     if not user.is_anonymous:
         if request.is_ajax():
-            date = datetime.date.today().strftime('%Y-%m-%d')
-            notification_objs = SpecificNotification.objects.filter(user=user)
+            date = datetime.date.today().strftime('%d-%m-%Y')
+            notification_objs = SpecificNotification.objects.filter(user=user,is_active=True)
 
             # heading = [each.heading for each in notification_objs]
             # notification = [each.notification for each in notification_objs]
@@ -724,11 +726,10 @@ def get_notifications(request):
             #     'today': date,
             #
             # }
-            data = {'today': date}
+            data={}
             for each in range(len(notification_objs)):
                 if not each in data:
-                    data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                    'heading', 'date', 'notification', 'has_read', 'action', 'priority'))
+                    data[each] = serializers.serialize('json', [notification_objs[each],], fields=('heading','notification','has_read','action','priority'))
                     struct = json.loads(data[each])
                     data[each] = json.dumps(struct[0])
 
@@ -747,38 +748,21 @@ def android_toggle_availability(request):
     return HttpResponse("Yeah!")
 
 
-def show_all_notifications(request):
-    user = request.user
-    if not user.is_anonymous:
-        if user.role == "Faculty":
-            notification_objs = SpecificNotification.objects.filter(user=user)
-            data = {}
-            for each in range(len(notification_objs)):
-                if not each in data:
-                    data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                        'heading', 'notification', 'has_read', 'action', 'priority'))
-                    struct = json.loads(data[each])
-                    data[each] = json.dumps(struct[0])
-            return render(request, 'all_notifications.html')
-        return HttpResponse("Go Somewhere Else")
-    return HttpResponse("go to login")
-
-
-def set_roles(request):
-    stud_obj = Student.objects.all()
-    faculty_obj = Faculty.objects.all()
-
-    stud_role = RoleMaster.objects.get(role='student')
-    faculty_role = RoleMaster.objects.get(role='faculty')
-
-    for each in stud_obj:
-        RoleManager.objects.create(user=each.user, role=stud_role, start_date=datetime.date.today())
-
-    for each in faculty_obj:
-        RoleManager.objects.create(user=each.user, role=faculty_role, start_date=datetime.date.today())
+#
+# def set_roles(request):
+#     stud_obj = Student.objects.all()
+#     faculty_obj = Faculty.objects.all()
+#
+#     stud_role = RoleMaster.objects.get(role='student')
+#     faculty_role = RoleMaster.objects.get(role='faculty')
+#
+#     for each in stud_obj:
+#         RoleManager.objects.create(user=each.user,role=stud_role,start_date=datetime.date.today())
+#
+#     for each in faculty_obj:
+#         RoleManager.objects.create(user=each.user,role=faculty_role,start_date=datetime.date.today())
 
     # for each in stud_obj:
-
 #
 # def set_roles(request):
 #     return None
