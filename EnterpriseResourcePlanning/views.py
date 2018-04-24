@@ -1,5 +1,7 @@
-from django.shortcuts import render
+
+from Login.views import login_user
 
 
 def home(request):
-    return render(request, 'login.html')
+    return login_user(request)
+

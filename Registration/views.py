@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import datetime
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
@@ -11,7 +12,7 @@ from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSu
     FacultySubject, Batch, YearBranch
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject
-from UserModel.models import User
+from UserModel.models import User, RoleManager, RoleMaster
 from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict
 from Configuration.stateConf import states
 
@@ -52,7 +53,10 @@ def register_student(request):
         if form.is_valid():
             student = form.save(commit=False)
             student.key = generate_activation_key()
-            new_user = User.objects.create_user(username=student.gr_number, email=form.cleaned_data.get('email'), role='Student')
+            new_user = User.objects.create_user(username=student.gr_number,
+                                                first_name=form.cleaned_data.get('first_name'),
+                                                last_name=form.cleaned_data.get('last_name'),
+                                                email=form.cleaned_data.get('email'))
             new_user.save()
             division = form.cleaned_data.get('division')
             shift = form.cleaned_data.get('shift')
@@ -140,7 +144,9 @@ def success_student(request):
             user_id = request.session.get('user_id')
             student = Student.objects.get(pk=user_id)
             user = User.objects.get(username=student.gr_number)
-            user.role = 'Student'
+            role = RoleMaster.objects.get(role='student')
+            RoleManager.objects.create(user=user, role=role, start_date=datetime.date.today())
+            # user.role = 'Student'
             user.set_password(password)
             user.save()
             request.session.flush()
@@ -171,7 +177,9 @@ def success_faculty(request):
             user_id = request.session.get('user_id')
             faculty = Faculty.objects.get(pk=user_id)
             user = User.objects.get(username=faculty.faculty_code)
-            user.role = 'Faculty'
+            role = RoleMaster.objects.get(role='faculty')
+            RoleManager.objects.create(user=user, role=role, start_date=datetime.date.today())
+            # user.role = 'Faculty'
             user.set_password(password)
             user.save()
             request.session.flush()

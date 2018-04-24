@@ -19,6 +19,7 @@ from Registration.models import Student, Subject, Faculty
 from General.models import FacultySubject
 from Registration.models import Student, Subject
 from Timetable.models import Timetable, DateTimetable, Time, Room
+from UserModel.models import RoleManager
 from .models import StudentAttendance, TotalAttendance
 
 
@@ -121,8 +122,10 @@ def save(request):
     user = request.user
 
     if not user.is_anonymous:
-        if user.role == 'Faculty':
-            if request.method == 'POST':
+        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+        # is_student = RoleManager.objects.filter(user=user, role__role='student')
+        if is_faculty:
+            if is_faculty:
                 faculty = user.faculty
                 if 'save_attendance' in request.POST:
                     selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
@@ -194,7 +197,9 @@ def save(request):
 def select_cat(request):
     user = request.user
     if not user.is_anonymous:
-        if user.role == 'Faculty':
+        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+        # is_student = RoleManager.objects.filter(user=user, role__role='student')
+        if is_faculty:
             if request.method == 'POST':
                 faculty = user.faculty
                 if 'GO' in request.POST:

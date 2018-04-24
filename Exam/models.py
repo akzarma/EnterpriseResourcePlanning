@@ -8,7 +8,7 @@ class ExamMaster(models.Model):
     exam_name = models.CharField(max_length=300)
     # Below 2 fields would be filled ate the time of active/inactive
     start_date = models.DateField()
-    end_date = models.DateField(null=True)
+    end_date = models.DateField()
     is_active = models.BooleanField(default=True)
 
 
