@@ -691,7 +691,7 @@ def toggle_availability(request):
             set(all_faculty_that_div) - (set(list(all_faculty_at_that_time) + [timetable_obj.faculty.user.username])))
     # free_faculty
     free_faculty = [Faculty.objects.get(pk=each) for each in free_faculty]
-    print(free_faculty)
+    print('fREE',free_faculty)
 
     message = 'There is a free lecture available right now for ' + division.year_branch.year.year + ' ' + division.division + ' on ' \
               + str(selected_timetable.date) + ' ' + time.__str__()
@@ -732,8 +732,6 @@ def get_notifications(request):
                     struct = json.loads(data[each])
                     data[each] = json.dumps(struct[0])
 
-            print(data)
-            print('data')
             return HttpResponse(json.dumps(data))
 
         else:
@@ -747,38 +745,30 @@ def android_toggle_availability(request):
     return HttpResponse("Yeah!")
 
 
-def show_all_notifications(request):
+def show_all_notifications(request, page=1):
     user = request.user
     if not user.is_anonymous:
         if user.role == "Faculty":
-            notification_objs = SpecificNotification.objects.filter(user=user)
-            data = {}
+            notification_objs = SpecificNotification.objects.filter(user=user).order_by('date')[(int(page)-1)*50:50]
+            pages = SpecificNotification.objects.count()
+            pages = pages//50
+            pages += 1 if pages % 50 is not 0 else 0
+            if pages == 0:
+                pages = 2
+
+            data = { }
             for each in range(len(notification_objs)):
                 if not each in data:
                     data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                        'heading', 'notification', 'has_read', 'action', 'priority'))
+                        'heading', 'date', 'notification', 'has_read', 'action', 'priority'))
                     struct = json.loads(data[each])
                     data[each] = json.dumps(struct[0])
-            return render(request, 'all_notifications.html')
+
+            return render(request, 'all_notifications.html',{
+                'notifications': notification_objs,
+                'pages': range(1,pages+1),
+                'current_page': int(page),
+                'data':json.dumps(data)
+            })
         return HttpResponse("Go Somewhere Else")
     return HttpResponse("go to login")
-
-
-def set_roles(request):
-    stud_obj = Student.objects.all()
-    faculty_obj = Faculty.objects.all()
-
-    stud_role = RoleMaster.objects.get(role='student')
-    faculty_role = RoleMaster.objects.get(role='faculty')
-
-    for each in stud_obj:
-        RoleManager.objects.create(user=each.user, role=stud_role, start_date=datetime.date.today())
-
-    for each in faculty_obj:
-        RoleManager.objects.create(user=each.user, role=faculty_role, start_date=datetime.date.today())
-
-    # for each in stud_obj:
-
-#
-# def set_roles(request):
-#     return None

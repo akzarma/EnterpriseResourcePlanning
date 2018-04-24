@@ -1,13 +1,57 @@
 {% extends 'dashboard_faculty.html' %}
+{% load humanize %}
 {% block title %}
     All Notifications | ERP
 {% endblock title %}
 
 
 {% block content %}
-
+    <legend>All Notifications</legend>
     <div class="row">
-        <legend>All Notifications</legend>
+        <div class="table-responsive">
+            <table class="table white">
+                {% for each in notifications %}
+                    {% if each.has_read is False %}
+                        <tr class="info" value="{{ forloop.counter }}">
+                            <td>{{ each.date|naturalday }}</td>
+                            <td>
+                                {{ each.heading }}<br/>
+                                {{ each.notification }}
+                            </td>
+                        </tr>{% else %}
+                        <tr value="{{ each }}">
+                            <td>{{ each.date|naturalday }}</td>
+                            <td>
+                                <div class="row">{{ each.heading }}</div>
+                                <div class="row">{{ each.notification }}</div>
+                            </td>
+                        </tr>
+                    {% endif %}
+
+                {% endfor %}
+            </table>
+        </div>
     </div>
+    <div class="row centered">
+        <form action="{% url 'dashboard:show_all_notifications' %}" method="get">
+            {% for page in pages %}
+                {% if page == current_page %}
+                    <i>
+
+                    <a href="{% url 'dashboard:show_all_notifications' page %}"
+                       style="text-decoration: #0057e7 !important;">{{ page }}</a></i>&nbsp;
+                    &nbsp;
+
+                {% else %}
+                    <a href="{% url 'dashboard:show_all_notifications' page %}">{{ page }}</a>&nbsp;&nbsp;
+
+                {% endif %}
+            {% endfor %}
+        </form>
+    </div>
+    <script>
+        var parsed_json = JSON.parse({{ notifications| safe }});
+        console.log(parsed_json)
+    </script>
 
 {% endblock content %}
