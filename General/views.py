@@ -6,6 +6,7 @@ from Dashboard.models import SpecificNotification
 from General.models import Division, CollegeYear, Shift, BranchSubject, YearBranch
 from Registration.models import Branch
 
+
 def notify_users(notification_type, message, heading, user, action="Nothing for now"):
     if notification_type == 'specific':
         notification_objs = []
@@ -34,9 +35,6 @@ def general(request):
     #     CollegeExtraDetail.objects.create(year_branch=each, division='A', shift=Shift.objects.get(shift=1))
     #     CollegeExtraDetail.objects.create(year_branch=each, division='B', shift=Shift.objects.get(shift=1))
     #     CollegeExtraDetail.objects.create(year_branch=each, division='C', shift=Shift.objects.get(shift=2))
-
-
-
 
     # college_detail = CollegeExtraDetail.objects.get(branch=Branch.objects.get(branch="Computer"),
     #                                                 year=CollegeYear.objects.get(year="TE"),

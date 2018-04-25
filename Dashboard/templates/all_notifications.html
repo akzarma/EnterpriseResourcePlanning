@@ -4,6 +4,34 @@
     All Notifications | ERP
 {% endblock title %}
 
+{% block extra_style %}
+    /*Notification Overlay*/
+    #notification_overlay {
+    position: fixed; /* Sit on top of the page content */
+    display: none; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: pointer; /* Add a pointer on hover */
+    }
+
+    #notification_overlay_text {
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    font-size: 50px;
+    color: white;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    }
+{% endblock extra_style %}
+
 
 {% block content %}
     <legend>All Notifications</legend>
@@ -12,14 +40,14 @@
             <table class="table white">
                 {% for each in notifications %}
                     {% if each.has_read is False %}
-                        <tr class="info" value="{{ forloop.counter }}">
+                        <tr class="info" value="{{ each.pk }}" onclick="expandNotification('{{ each.pk }}')">
                             <td>{{ each.date|naturalday }}</td>
                             <td>
                                 {{ each.heading }}<br/>
                                 {{ each.notification }}
                             </td>
                         </tr>{% else %}
-                        <tr value="{{ each }}">
+                        <tr value="{{ each.pk }}" onclick="expandNotification('{{ each.pk }}')">
                             <td>{{ each.date|naturalday }}</td>
                             <td>
                                 <div class="row">{{ each.heading }}</div>
@@ -36,10 +64,9 @@
         <form action="{% url 'dashboard:show_all_notifications' %}" method="get">
             {% for page in pages %}
                 {% if page == current_page %}
-                    <i>
+                    <u style="color: #0379C4">
 
-                    <a href="{% url 'dashboard:show_all_notifications' page %}"
-                       style="text-decoration: #0057e7 !important;">{{ page }}</a></i>&nbsp;
+                        <a href="{% url 'dashboard:show_all_notifications' page %}">{{ page }}</a></u>&nbsp;
                     &nbsp;
 
                 {% else %}
@@ -49,9 +76,68 @@
             {% endfor %}
         </form>
     </div>
+    <div id="notification_overlay" onclick="overlay_off()">
+        <div id="notification_overlay_text"></div>
+    </div>
     <script>
-        var parsed_json = JSON.parse({{ notifications| safe }});
-        console.log(parsed_json)
+        function expandNotification(pk) {
+            $.ajax({
+                url: '{% url 'dashboard:view_notification' %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'pk': pk,
+                },
+                success: function (data) {
+                    var notifications_json = JSON.parse(data);
+                    console.log(notifications_json);
+
+                    let text = document.getElementById('notification_overlay_text');
+                    while (text.firstChild) {
+                        text.removeChild(text.firstChild);
+                    }
+
+                    let heading = document.createElement('h2');
+                    heading.innerHTML = notifications_json["fields"]["heading"];
+                    text.appendChild(heading);
+
+                    let para = document.createElement('h4');
+                    para.innerHTML = notifications_json["fields"]["notification"];
+                    text.appendChild(para);
+
+                    if (notifications_json["fields"]["heading"] === "Empty Lecture Slot") {
+                        let button = document.createElement('button');
+                        button.innerHTML = "YES";
+                        button.setAttribute("class", "btn btn-success");
+                        button.style.marginRight = "5%";
+                        button.setAttribute("onclick", overlay_off());
+                        text.appendChild(button);
+
+                        button = document.createElement('button');
+                        button.innerHTML = "NO";
+                        button.setAttribute("class", "btn btn-danger");
+                        button.setAttribute("onclick", overlay_off());
+                        text.appendChild(button);
+                    } else {
+
+                        let button = document.createElement('button');
+                        button.innerHTML = "OK";
+                        button.setAttribute("class", "btn btn-info");
+                        button.setAttribute("onclick", overlay_off());
+                        text.appendChild(button);
+                    }
+
+                    document.getElementById("notification_overlay").style.display = "block";
+
+
+                }
+            });
+        }
+
+        function overlay_off() {
+            document.getElementById("notification_overlay").style.display = "none";
+
+        }
     </script>
 
 {% endblock content %}

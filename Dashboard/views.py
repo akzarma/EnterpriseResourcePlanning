@@ -3,6 +3,7 @@ from collections import OrderedDict
 from itertools import chain
 
 import xlsxwriter
+from django import urls
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
@@ -703,7 +704,8 @@ def toggle_availability(request):
     heading = 'Empty Lecture Slot'
 
     users_obj = [each_faculty.user for each_faculty in free_faculty]
-    notify_users(notification_type, message, heading, users_obj)
+    action = urls.reverse('dashboard:set_substitute', args=[selected_timetable.pk])
+    notify_users(notification_type, message, heading, users_obj, action)
 
     return HttpResponse('success')
 
@@ -712,7 +714,7 @@ def get_notifications(request):
     user = request.user
     if not user.is_anonymous:
         if request.is_ajax():
-            date = datetime.date.today().strftime('%d-%m-%Y')
+            date = datetime.date.today().strftime('%Y-%m-%d')
             notification_objs = SpecificNotification.objects.filter(user=user,is_active=True)
 
             # heading = [each.heading for each in notification_objs]
@@ -750,27 +752,31 @@ def android_toggle_availability(request):
 def show_all_notifications(request, page=1):
     user = request.user
     if not user.is_anonymous:
-        if user.role == "Faculty":
+        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+        if is_faculty:
             notification_objs = SpecificNotification.objects.filter(user=user).order_by('date')[(int(page)-1)*50:50]
             pages = SpecificNotification.objects.count()
             pages = pages//50
             pages += 1 if pages % 50 is not 0 else 0
             if pages == 0:
-                pages = 2
-
-            data = { }
-            for each in range(len(notification_objs)):
-                if not each in data:
-                    data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                        'heading', 'date', 'notification', 'has_read', 'action', 'priority'))
-                    struct = json.loads(data[each])
-                    data[each] = json.dumps(struct[0])
+                pages = 1
 
             return render(request, 'all_notifications.html',{
                 'notifications': notification_objs,
                 'pages': range(1,pages+1),
                 'current_page': int(page),
-                'data':json.dumps(data)
             })
-        return HttpResponse("Go Somewhere Else")
-    return HttpResponse("go to login")
+        return HttpResponseRedirect('/login/')
+    return HttpResponseRedirect("/login/")
+
+
+def view_notification(request):
+    notification = SpecificNotification.objects.get(pk=int(request.POST.get('pk')))
+    data = serializers.serialize('json',[notification,])
+    struct = json.loads(data)
+    data = json.dumps(struct[0])
+    return HttpResponse(data)
+
+
+def set_substitute(request):
+    return None
