@@ -181,31 +181,49 @@
             border-radius: 50%;
         }
 
-        /*Notification Overlay*/
-        #notification_overlay {
-            position: fixed; /* Sit on top of the page content */
-            display: none; /* Hidden by default */
-            width: 100%; /* Full width (cover the whole page) */
-            height: 100%; /* Full height (cover the whole page) */
-            top: 0;
+        /* The Overlay (background) */
+        .overlay {
+            /* Height & width depends on how you want to reveal the overlay (see JS below) */
+            display: none;
+            height: 100%;
+            width: 100%;
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
             left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
-            z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
-            cursor: pointer; /* Add a pointer on hover */
+            top: 0;
+            background-color: rgb(0, 0, 0); /* Black fallback color */
+            background-color: rgba(0, 0, 0, 0.9); /* Black w/opacity */
+            overflow-x: hidden; /* Disable horizontal scroll */
+            transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
         }
 
-        #notification_overlay_text {
-            position: absolute;
-            text-align: center;
-            top: 50%;
-            left: 50%;
-            font-size: 50px;
-            color: white;
-            transform: translate(-50%, -50%);
-            -ms-transform: translate(-50%, -50%);
+        /* Position the content inside the overlay */
+        .overlay-content {
+            position: relative;
+            top: 25%; /* 25% from the top */
+            width: 100%; /* 100% width */
+            text-align: center; /* Centered text/links */
+            margin-top: 30px; /* 30px top margin to avoid conflict with the close button on smaller screens */
         }
+
+        /* The navigation links inside the overlay */
+        .overlay a {
+            padding: 8px;
+            text-decoration: none;
+            font-size: 36px;
+            color: #FFFFFF;
+            display: block; /* Display block instead of inline */
+            transition: 0.3s; /* Transition effects on hover (color) */
+        }
+
+        /* Position the close button (top right corner) */
+        .overlay .closebtn {
+            position: absolute;
+            top: 20px;
+            right: 45px;
+            font-size: 60px;
+        }
+
 
     </style>
     {% block style %}
@@ -242,10 +260,7 @@
                           role="button"
                           aria-haspopup="true"
                           aria-expanded="false"></span>
-                    <ul class="dropdown-menu" id="notification_dropdown">
-                        {#                        <li><a href="#">Action</a></li>#}
-                        {#                        <li><a href="#">Another action</a></li>#}
-                    </ul>
+                    <ul class="dropdown-menu" id="notification_dropdown"></ul>
                 </li>
                 <li class="dropdown">
                     {% block navbar-right %}
@@ -294,12 +309,6 @@
                         {% else %}
                             <a href="{% url 'login:login' %}" class="dropdown-toggle" role="button">Sign In</a>
                         {% endif %}
-
-                        {#                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"#}
-                        {#                       aria-expanded="false">Welcome Username <span class="caret"></span></a>#}
-                        {#                    <ul class="dropdown-menu">#}
-                        {#                        <li><a href="#">Logout</a></li>#}
-                        {#                    </ul>#}
                     {% endblock navbar-right %}
                 </li>
 
@@ -323,8 +332,17 @@
         {% autoescape off %}{{ success }} {% endautoescape %}
     </div>
 {% endif %}
-<div id="notification_overlay" onclick="overlay_off()">
-    <div id="notification_overlay_text"></div>
+
+
+<!-- The overlay -->
+<div id="notification_overlay" class="overlay">
+
+    <!-- Button to close the overlay navigation -->
+    <a href="javascript:void(0)" class="closebtn" onclick="overlay_off()">&times;</a>
+
+    <!-- Overlay content -->
+    <div class="overlay-content" id="notification_overlay_text"></div>
+
 </div>
 
 {% block body %}
@@ -396,8 +414,7 @@
         {% block on_ready %}
         {% endblock on_ready %}
     });
-</script>
-<script>
+
     function showExpandedNotification(index) {
         let text = document.getElementById('notification_overlay_text');
         while (text.firstChild) {

@@ -8,14 +8,14 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
 from Attendance.models import StudentAttendance
 from Dashboard.models import SpecificNotification
-from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject
+from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject
 from General.views import notify_users
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student, Branch, Faculty
@@ -694,7 +694,7 @@ def toggle_availability(request):
             set(all_faculty_that_div) - (set(list(all_faculty_at_that_time) + [timetable_obj.faculty.user.username])))
     # free_faculty
     free_faculty = [Faculty.objects.get(pk=each) for each in free_faculty]
-    print('fREE',free_faculty)
+    print('fREE', free_faculty)
 
     message = 'There is a free lecture available right now for ' + division.year_branch.year.year + ' ' + division.division + ' on ' \
               + str(selected_timetable.date) + ' ' + time.__str__()
@@ -705,7 +705,8 @@ def toggle_availability(request):
 
     users_obj = [each_faculty.user for each_faculty in free_faculty]
     action = urls.reverse('dashboard:set_substitute', args=[selected_timetable.pk])
-    notify_users(notification_type, message, heading, users_obj, action)
+    type = "Decision"
+    notify_users(notification_type, message, heading, users_obj, type, action)
 
     return HttpResponse('success')
 
@@ -715,24 +716,13 @@ def get_notifications(request):
     if not user.is_anonymous:
         if request.is_ajax():
             date = datetime.date.today().strftime('%Y-%m-%d')
-            notification_objs = SpecificNotification.objects.filter(user=user,is_active=True)
+            notification_objs = SpecificNotification.objects.filter(user=user, is_active=True)
 
-            # heading = [each.heading for each in notification_objs]
-            # notification = [each.notification for each in notification_objs]
-
-            # data = serializers.serialize('json', notification_objs, fields=('heading','notification','has_read','action','priority'))
-
-            # data = {
-            #     'notification': notification,
-            #     'heading': heading,
-            #     'today': date,
-            #
-            # }
             data = {'today': date}
             for each in range(len(notification_objs)):
                 if not each in data:
                     data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                    'heading', 'date', 'notification', 'has_read', 'action', 'priority'))
+                        'heading', 'date', 'notification', 'has_read', 'action', 'priority'))
                     struct = json.loads(data[each])
                     data[each] = json.dumps(struct[0])
 
@@ -754,16 +744,16 @@ def show_all_notifications(request, page=1):
     if not user.is_anonymous:
         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
         if is_faculty:
-            notification_objs = SpecificNotification.objects.filter(user=user).order_by('date')[(int(page)-1)*50:50]
+            notification_objs = SpecificNotification.objects.filter(user=user).order_by('date')[(int(page) - 1) * 50:50]
             pages = SpecificNotification.objects.count()
-            pages = pages//50
+            pages = pages // 50
             pages += 1 if pages % 50 is not 0 else 0
             if pages == 0:
                 pages = 1
 
-            return render(request, 'all_notifications.html',{
+            return render(request, 'all_notifications.html', {
                 'notifications': notification_objs,
-                'pages': range(1,pages+1),
+                'pages': range(1, pages + 1),
                 'current_page': int(page),
             })
         return HttpResponseRedirect('/login/')
@@ -772,11 +762,68 @@ def show_all_notifications(request, page=1):
 
 def view_notification(request):
     notification = SpecificNotification.objects.get(pk=int(request.POST.get('pk')))
-    data = serializers.serialize('json',[notification,])
+    data = serializers.serialize('json', [notification, ])
     struct = json.loads(data)
     data = json.dumps(struct[0])
     return HttpResponse(data)
 
 
-def set_substitute(request):
+def set_substitute(request, key):
+    user = request.user
+    if not user.is_anonymous:
+        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+        if is_faculty:
+            if request.method == "POST":
+                selected_timetable = DateTimetable.objects.get(pk=int(key))
+                selected_timetable.is_substituted = True
+                subject = BranchSubject.objects.get(year_branch=selected_timetable.original.branch_subject.year_branch,
+                                                    subject__short_form=request.POST.get('subject'))
+                selected_timetable.substitute = selected_timetable.original
+                selected_timetable.substitute.faculty = user.faculty
+                selected_timetable.substitute.branch_subject = subject
+                selected_timetable.save()
+
+                return HttpResponse("success")
+
     return None
+
+
+def get_subjects(request):
+    user = request.user
+    if not user.is_anonymous:
+        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+        if is_faculty:
+            if request.method == "POST":
+                selected_timetable = DateTimetable.objects.get(pk=int(request.POST.get('id')))
+
+                original_timetable = selected_timetable.original
+
+                subjects = FacultySubject.objects.filter(faculty=user.faculty, division=original_timetable.division,
+                                                         subject__is_practical=original_timetable.is_practical).values_list(
+                    'subject__short_form', flat=True)
+
+            return HttpResponse(json.dumps(list(subjects)))
+        return HttpResponse('Not Priviledged Enough to use this function!')
+    return HttpResponseRedirect('/login/')
+
+
+@csrf_exempt
+def android_get_notifications(request):
+    user = User.objects.get(username=request.POST.get('username'))
+    notification_objs = SpecificNotification.objects.filter(user=user, is_active=True)
+
+    data = {}
+    for each in range(len(notification_objs)):
+        if not each in data:
+            data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
+                'heading', 'date', 'notification', 'has_read', 'action', 'priority'))
+            data[each] = json.loads(data[each])[0]
+            # data[each] = json.dumps(struct[0])
+
+    return JsonResponse(data)
+
+
+@csrf_exempt
+def get_date(request):
+    date = datetime.datetime.now().__str__()
+    return HttpResponse(date)

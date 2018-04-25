@@ -42,18 +42,20 @@ urlpatterns = [
 
     url(r'^get_timetable/$', views.get_timetable, name='get_timetable'),
 
-
     url(r'^toggle_availability/$', views.toggle_availability, name='toggle_availability'),
+
+    url(r'^get_subjects/$', views.get_subjects, name='get_subjects'),
 
     url(r'^set_substitute/(?P<key>[0-9]+)$', views.set_substitute, name='set_substitute'),
 
-    url(r'^set_substitute/(?P<key>[0-9]+)/(?P<value>[0 1])$', views.set_substitute, name='set_substitute'),
-
     url(r'^android/toggle_availability/$', views.android_toggle_availability, name='android_toggle_availability'),
 
+    url(r'^android/get_date$', views.get_date, name='get_date'),
 
 
     url(r'^get_notifications/$', views.get_notifications, name='get_notifications'),
+
+    url(r'^android/get_notifications/$', views.android_get_notifications, name='android_get_notifications'),
 
     url(r'^show_all_notifications/$', views.show_all_notifications, name='show_all_notifications'),
 

@@ -277,8 +277,8 @@
 
             /* end .squaredOne */
 
-            /*Overlay*/
-            .overlay {
+            /*Not Available Div*/
+            .not-available {
                 display: none; /* Hidden by default */
                 width: 100%;
                 height: 100%;
@@ -383,12 +383,12 @@
                                                 onclick="checkTimetable(this);">
                                             {% if each.not_available == True %}
                                                 <div id="{{ each.pk }}" style="display: block !important;"
-                                                     name="{{ each.pk }}" class="overlay my-context-menu">I'm not
+                                                     name="{{ each.pk }}" class="not-available my-context-menu">I'm not
                                                     available
                                                 </div>
                                             {% else %}
                                                 <div id="{{ each.pk }}" name="{{ each.pk }}"
-                                                     class="overlay my-context-menu">I'm not available
+                                                     class="not-available my-context-menu">I'm not available
                                                 </div>
                                             {% endif %}
                                             {% if each.is_substituted is True %}
@@ -524,8 +524,7 @@
         });
 
         $('#txtDate').datepicker({
-            dateFormat: 'dd-mm-yy',
-            maxDate: 0
+            dateFormat: 'dd-mm-yy'
         });
 
         $('#dateButton').click(function () {
@@ -559,68 +558,6 @@
             form.appendChild(input);
             form.submit();
         }
-
-        {#(function () {#}
-        {##}
-        {#    document.addEventListener("contextmenu", function (e) {#}
-        {#        console.log('preventing default');#}
-        {#        e.preventDefault();#}
-        {#        console.log(e.path.findIndex(function (param) {#}
-        {#            return param.className === 'card btn btn-info'#}
-        {#        }));#}
-        {#        let index = e.path.findIndex(function (param) {#}
-        {#            return param.className === 'card btn btn-info'#}
-        {#        });#}
-        {#        console.log('inside function');#}
-        {#        var text = '';#}
-        {#        if (index) {#}
-        {#            console.log('inside index');#}
-        {#            let element = $("button[name='date_timetable'][value='" + e.path[index].value + "']");#}
-        {##}
-        {#            $(element).contextMenu({#}
-        {#                selector: 'div',#}
-        {##}
-        {#                build: function ($triggerElement, e) {#}
-        {#                    if (element.find('#overlay').css("display") === "none") {#}
-        {#                        text = 'I am available';#}
-        {#                    }#}
-        {#                    else {#}
-        {#                        text = 'Not';#}
-        {#                    }#}
-        {#                    return {#}
-        {#                        callback: function (key, options) {#}
-        {##}
-        {#                                var m = "clicked: " + key + " on " + $(this).text;#}
-        {#                            window.console && console.log(m) || alert(e.path[index]);#}
-        {#                            console.log(e.path[index]);#}
-        {##}
-        {#                            $.ajax({#}
-        {#                                url: '{% url 'dashboard:toggle_availability' %}',#}
-        {#                                type: 'POST',#}
-        {#                                data: {#}
-        {#                                    'csrfmiddlewaretoken': '{{ csrf_token }}',#}
-        {#                                    'selected_timetable': e.path[index].value,#}
-        {#                                    'available': true#}
-        {#                                },#}
-        {#                                success: function (data) {#}
-        {#                                    alert(data);#}
-        {##}
-        {#                                    $(element).find('#overlay').css("display", "block");#}
-        {##}
-        {#                                }#}
-        {##}
-        {#                            });#}
-        {##}
-        {#                        },#}
-        {#                        items: {#}
-        {#                            menuItem: {name: text, icon: "info"}#}
-        {#                        }#}
-        {#                    };#}
-        {#                }#}
-        {#            });#}
-        {##}
-        {#        }#}
-        {#    })#}
 
 
 
