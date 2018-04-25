@@ -47,12 +47,15 @@ urlpatterns = [
 
     url(r'^android/toggle_availability/$', views.android_toggle_availability, name='android_toggle_availability'),
 
+
+
     url(r'^get_notifications/$', views.get_notifications, name='get_notifications'),
 
-    url(r'^set_roles_temp/$', views.set_roles, name='set_roles'),
-
+    # url(r'^set_roles_temp/$', views.set_roles, name='set_roles'),
 
     url(r'^show_all_notifications/$', views.show_all_notifications, name='show_all_notifications'),
+
+    url(r'^show_all_notifications/(?P<page>[0-9]+)$', views.show_all_notifications, name='show_all_notifications'),
 
 
 ]

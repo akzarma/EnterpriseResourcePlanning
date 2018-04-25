@@ -26,7 +26,7 @@ SECRET_KEY = 'som=3zqd7=u7krx49fi%=$7gzzqs544=b#e2#+gh^$0w7*s(a*'
 DEBUG = True
 
 # Custom User Model
-AUTH_USER_MODEL = 'UserModel.User'
+# AUTH_USER_MODEL = 'UserModel.User'
 
 ALLOWED_HOSTS = ['*', '192.168.0.111', '192.168.43.155', '127.0.0.1', '172.20.10.3',
                  'akzarma.pythonanywhere.com', '10.42.0.1', '10.1.136.17', '192.168.0.15', '192.168.0.7',
@@ -48,18 +48,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'UserModel.apps.UsermodelConfig',
     'Registration.apps.RegistrationConfig',
     'Dashboard.apps.DashboardConfig',
     'General.apps.GeneralConfig',
     'Login.apps.LoginConfig',
     'Timetable.apps.TimetableConfig',
     'Update.apps.UpdateConfig',
-    'UserModel.apps.UsermodelConfig',
     'Requests.apps.RequestsConfig',
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
     'Report.apps.ReportConfig',
-    'Exam.apps.ExamConfig',
     'django.contrib.humanize',
     'widget_tweaks',
 
@@ -76,7 +75,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'EnterpriseResourcePlanning.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
