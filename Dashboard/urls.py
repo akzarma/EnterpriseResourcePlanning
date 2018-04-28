@@ -67,6 +67,8 @@ urlpatterns = [
 
     url(r'^view_notification/$', views.view_notification, name='view_notification'),
 
+    url(r'^read_all_notification/$', views.read_all_notification, name='read_all_notification'),
+
 
 
 ]

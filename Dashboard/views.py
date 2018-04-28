@@ -892,3 +892,12 @@ def android_get_subjects(request):
         'subject__short_form', flat=True)
 
     return HttpResponse(json.dumps(list(subjects)))
+
+
+def read_all_notification(request):
+    pk = json.loads(request.POST.get('pk'))
+    for each in pk:
+        notification = SpecificNotification.objects.get(pk=int(each))
+        notification.has_read = True
+        notification.save()
+    return HttpResponse("Done")
