@@ -46,9 +46,13 @@ urlpatterns = [
 
     url(r'^get_subjects/$', views.get_subjects, name='get_subjects'),
 
+    url(r'^android/get_subjects/$', views.android_get_subjects, name='android_get_subjects'),
+
     url(r'^set_substitute/(?P<key>[0-9]+)$', views.set_substitute, name='set_substitute'),
 
-    url(r'^android/toggle_availability/$', views.android_toggle_availability, name='android_toggle_availability'),
+    url(r'^android/set_substitute/$', views.android_set_substitute, name='andriod_set_substitute'),
+
+    url(r'^android/toggle_availability$', views.android_toggle_availability, name='android_toggle_availability'),
 
     url(r'^android/get_date$', views.get_date, name='get_date'),
 

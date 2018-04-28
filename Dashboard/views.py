@@ -1,4 +1,4 @@
-import json
+import json, copy
 from collections import OrderedDict
 from itertools import chain
 
@@ -653,61 +653,65 @@ def download_excel_attendance_subject(request):
         return HttpResponse('Done')
 
 
-#####
-# Shibashis to_do_list.txt dekh(Ek bug hai). Last line
-####
 def toggle_availability(request):
     selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
+    send_notification = False
     if selected_timetable.not_available is True:
         if selected_timetable.is_substituted is False:
             selected_timetable.not_available = False
         else:
-            return HttpResponse(
-                'Sorry, ' + selected_timetable.substitute.faculty.initials + ' has already taken your lecture!')
+            if request.user.faculty == selected_timetable.substitute.faculty:
+                selected_timetable.is_substituted = False
+                send_notification = True
+            else:
+                return HttpResponse(
+                    'Sorry, ' + selected_timetable.substitute.faculty.initials + ' has already taken your lecture!')
     else:
         selected_timetable.not_available = True
+        send_notification = True
 
-    selected_timetable.save()
-    timetable_obj = selected_timetable.original
-    # date = timetable_obj.date
-    time = timetable_obj.time
+    if send_notification:
+        selected_timetable.save()
+        timetable_obj = selected_timetable.original
+        # date = timetable_obj.date
+        time = timetable_obj.time
 
-    division = timetable_obj.division
+        division = timetable_obj.division
 
-    all_faculty_that_div = list(FacultySubject.objects.filter(division=division,
-                                                              subject__is_practical=timetable_obj.is_practical).values_list(
-        'faculty', flat=True))
+        all_faculty_that_div = list(FacultySubject.objects.filter(division=division,
+                                                                  subject__is_practical=timetable_obj.is_practical).values_list(
+            'faculty', flat=True))
 
-    all_tt_obj_at_that_time = DateTimetable.objects.filter(date=selected_timetable.date, original__time=time)
+        all_tt_obj_at_that_time = DateTimetable.objects.filter(date=selected_timetable.date, original__time=time)
 
-    all_faculty_at_that_time = []
+        all_faculty_at_that_time = []
 
-    for each_tt in all_tt_obj_at_that_time:
-        # Add substitute instead of original
-        if each_tt.is_substituted:
-            all_faculty_at_that_time.append(each_tt.substitute.faculty.user.username)
-        else:
-            if not each_tt.not_available:
-                all_faculty_at_that_time.append((each_tt.original.faculty.user.username))
+        for each_tt in all_tt_obj_at_that_time:
+            # Add substitute instead of original
+            if each_tt.is_substituted:
+                all_faculty_at_that_time.append(each_tt.substitute.faculty.user.username)
+            else:
+                if not each_tt.not_available:
+                    all_faculty_at_that_time.append((each_tt.original.faculty.user.username))
 
-    free_faculty = (
-            set(all_faculty_that_div) - (set(list(all_faculty_at_that_time) + [timetable_obj.faculty.user.username])))
-    # free_faculty
-    free_faculty = [Faculty.objects.get(pk=each) for each in free_faculty]
-    print('fREE', free_faculty)
+        free_faculty = (
+                set(all_faculty_that_div) - (
+            set(list(all_faculty_at_that_time) + [timetable_obj.faculty.user.username])))
+        # free_faculty
+        free_faculty = [Faculty.objects.get(pk=each) for each in free_faculty]
+        print('fREE', free_faculty)
 
-    message = 'There is a free lecture available right now for ' + division.year_branch.year.year + ' ' + division.division + ' on ' \
-              + str(selected_timetable.date) + ' ' + time.__str__()
+        message = 'There is a free lecture available right now for ' + division.year_branch.year.year + ' ' + division.division + ' on ' \
+                  + str(selected_timetable.date) + ' ' + time.__str__()
 
-    notification_type = 'specific'
+        notification_type = 'specific'
 
-    heading = 'Empty Lecture Slot'
+        heading = 'Empty Lecture Slot'
 
-    users_obj = [each_faculty.user for each_faculty in free_faculty]
-    action = urls.reverse('dashboard:set_substitute', args=[selected_timetable.pk])
-    type = "Decision"
-    notify_users(notification_type, message, heading, users_obj, type, action)
-
+        users_obj = [each_faculty.user for each_faculty in free_faculty]
+        action = urls.reverse('dashboard:set_substitute', args=[selected_timetable.pk])
+        type = "Decision"
+        notify_users(notification_type, message, heading, users_obj, type, action)
     return HttpResponse('success')
 
 
@@ -716,13 +720,13 @@ def get_notifications(request):
     if not user.is_anonymous:
         if request.is_ajax():
             date = datetime.date.today().strftime('%Y-%m-%d')
-            notification_objs = SpecificNotification.objects.filter(user=user, is_active=True)
+            notification_objs = SpecificNotification.objects.filter(user=user, is_active=True, has_read=False)
 
             data = {'today': date}
             for each in range(len(notification_objs)):
                 if not each in data:
                     data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                        'heading', 'date', 'notification', 'has_read', 'action', 'priority'))
+                        'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
                     struct = json.loads(data[each])
                     data[each] = json.dumps(struct[0])
 
@@ -744,7 +748,9 @@ def show_all_notifications(request, page=1):
     if not user.is_anonymous:
         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
         if is_faculty:
-            notification_objs = SpecificNotification.objects.filter(user=user).order_by('date')[(int(page) - 1) * 50:50]
+            notification_objs = sorted(SpecificNotification.objects.filter(user=user), key=lambda x: x.datetime,
+                                       reverse=True)[
+                                (int(page) - 1) * 50:50]
             pages = SpecificNotification.objects.count()
             pages = pages // 50
             pages += 1 if pages % 50 is not 0 else 0
@@ -762,6 +768,8 @@ def show_all_notifications(request, page=1):
 
 def view_notification(request):
     notification = SpecificNotification.objects.get(pk=int(request.POST.get('pk')))
+    notification.has_read = True
+    notification.save()
     data = serializers.serialize('json', [notification, ])
     struct = json.loads(data)
     data = json.dumps(struct[0])
@@ -775,17 +783,31 @@ def set_substitute(request, key):
         if is_faculty:
             if request.method == "POST":
                 selected_timetable = DateTimetable.objects.get(pk=int(key))
-                selected_timetable.is_substituted = True
-                subject = BranchSubject.objects.get(year_branch=selected_timetable.original.branch_subject.year_branch,
-                                                    subject__short_form=request.POST.get('subject'))
-                selected_timetable.substitute = selected_timetable.original
-                selected_timetable.substitute.faculty = user.faculty
-                selected_timetable.substitute.branch_subject = subject
-                selected_timetable.save()
+                if selected_timetable.not_available is True:
+                    if selected_timetable.is_substituted is True:
+                        return HttpResponse("Sorry, this lecture has already been taken by someone else.")
 
-                return HttpResponse("success")
+                    selected_timetable.is_substituted = True
+                    subject = BranchSubject.objects.get(
+                        year_branch=selected_timetable.original.branch_subject.year_branch,
+                        subject__short_form=request.POST.get('subject'))
 
-    return None
+                    substitute_tt = Timetable.objects.create(room=selected_timetable.original.room,
+                                                             time=selected_timetable.original.time,
+                                                             day=selected_timetable.original.day,
+                                                             division=selected_timetable.original.division,
+                                                             branch_subject=subject, faculty=user.faculty,
+                                                             is_practical=selected_timetable.original.is_practical,
+                                                             batch=selected_timetable.original.batch)
+
+                    selected_timetable.substitute = substitute_tt
+                    selected_timetable.save()
+                    return HttpResponse("success")
+
+                else:
+                    return HttpResponse("Sorry, this lecture is not available to be taken! ")
+            return HttpResponse("You don't have enough priviledges to use this function")
+    return
 
 
 def get_subjects(request):
@@ -816,10 +838,11 @@ def android_get_notifications(request):
     for each in range(len(notification_objs)):
         if not each in data:
             data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                'heading', 'date', 'notification', 'has_read', 'action', 'priority'))
+                'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
             data[each] = json.loads(data[each])[0]
             # data[each] = json.dumps(struct[0])
-
+    answer = {}
+    answer['timeline'] = data
     return JsonResponse(data)
 
 
@@ -827,3 +850,45 @@ def android_get_notifications(request):
 def get_date(request):
     date = datetime.datetime.now().__str__()
     return HttpResponse(date)
+
+
+@csrf_exempt
+def android_set_substitute(request):
+    user = User.objects.get(username=request.POST.get('username'))
+    selected_timetable = DateTimetable.objects.get(pk=int(request.POST.get('pk')))
+    if selected_timetable.not_available is True:
+        if selected_timetable.is_substituted is True:
+            return HttpResponse("Sorry, this lecture has already been taken by someone else.")
+
+        selected_timetable.is_substituted = True
+        subject = BranchSubject.objects.get(
+            year_branch=selected_timetable.original.branch_subject.year_branch,
+            subject__short_form=request.POST.get('choice'))
+
+        substitute_tt = Timetable.objects.create(room=selected_timetable.original.room,
+                                                 time=selected_timetable.original.time,
+                                                 day=selected_timetable.original.day,
+                                                 division=selected_timetable.original.division,
+                                                 branch_subject=subject, faculty=user.faculty,
+                                                 is_practical=selected_timetable.original.is_practical,
+                                                 batch=selected_timetable.original.batch)
+
+        selected_timetable.substitute = substitute_tt
+        selected_timetable.save()
+        return HttpResponse("success")
+
+    else:
+        return HttpResponse("Sorry, this lecture is not available to be taken! ")
+
+
+@csrf_exempt
+def android_get_subjects(request):
+    user = User.objects.get(username=request.POST.get('username'))
+    selected_timetable = DateTimetable.objects.get(pk=int(request.POST.get('pk')))
+    original_timetable = selected_timetable.original
+
+    subjects = FacultySubject.objects.filter(faculty=user.faculty, division=original_timetable.division,
+                                             subject__is_practical=original_timetable.is_practical).values_list(
+        'subject__short_form', flat=True)
+
+    return HttpResponse(json.dumps(list(subjects)))

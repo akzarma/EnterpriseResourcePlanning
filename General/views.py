@@ -13,7 +13,7 @@ def notify_users(notification_type, message, heading, user, type, action="Nothin
         notification_objs = []
         for each_user in user:
             notification_objs.append(
-                SpecificNotification(user=each_user, action=action, notification=message, heading=heading, date=datetime.date.today(), type=type))
+                SpecificNotification(user=each_user, action=action, notification=message, heading=heading, datetime=datetime.datetime.now(), type=type))
 
         SpecificNotification.objects.bulk_create(notification_objs)
     elif notification_type == "general":

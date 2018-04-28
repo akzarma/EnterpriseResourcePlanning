@@ -736,7 +736,7 @@ def android_timetable_json(request):
                         'year': year,
                         'batch': batch,
                         'not_available': each.not_available,
-                        'is_substituted': each.is_substituted,
+                        'is_substituted': str(each.is_substituted),
                         'substitute': substitute
                     }
                 else:
@@ -748,7 +748,7 @@ def android_timetable_json(request):
                         'subject': subject,
                         'year': year,
                         'not_available': each.not_available,
-                        'is_substituted': each.is_substituted,
+                        'is_substituted': str(each.is_substituted),
                         'substitute': substitute
                     }
             print(JsonResponse(faculty_json))
