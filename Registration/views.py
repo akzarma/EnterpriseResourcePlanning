@@ -378,11 +378,18 @@ def verification_process(request, key, username):
 
 def student_subject(request):
     if request.method == 'POST':
-        a=1
+        # if request.POST.get('confirm_student_subject'):
+        pass
     elif request.method == 'GET':
         user = request.user
-        if user.is_student:
-            return HttpResponse('Student')
-        if user.is_faculty:
+        is_student = RoleManager.objects.filter(user=user, role__role='student')
+        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+        if is_student:
+            student = Student.objects.get(user=user)
+            student_detail = StudentDetail.objects.get(student=student)
+            subjects = BranchSubject.objects.filter(year_branch=student_detail.batch.division.year_branch)
+            # subjects = StudentSubject.objects.filter(student=student)
+            return render(request, 'register_student_subject.html', context={'subjects': subjects})
+        if is_faculty:
             return HttpResponse('Faculty')
         return render(request, 'register_student_subject.html')

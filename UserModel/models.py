@@ -1,17 +1,17 @@
-from django.contrib.auth.models import UserManager, AbstractUser
+from django.contrib.auth.models import UserManager, AbstractUser, User
 from django.db import models
 
 
 # Create your models here.
 
-class User(AbstractUser):
-    def is_student(self):
-        res = RoleManager.objects.filter(user=self, role__role='student')
-        return True if res else False
-
-    def is_faculty(self):
-        res = RoleManager.objects.filter(user=self, role__role='faculty')
-        return True if res else False
+# class User(AbstractUser):
+#     def is_student(self):
+#         res = RoleManager.objects.filter(user=self, role__role='student')
+#         return True if res else False
+#
+#     def is_faculty(self):
+#         res = RoleManager.objects.filter(user=self, role__role='faculty')
+#         return True if res else False
 
 
 class RoleMaster(models.Model):
