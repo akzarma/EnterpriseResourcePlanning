@@ -4,23 +4,30 @@
     All Notifications | ERP
 {% endblock title %}
 
+{% block extra_style %}
+
+
+{% endblock extra_style %}
+
 
 {% block content %}
     <legend>All Notifications</legend>
     <div class="row">
+        <button class="btn" onclick="readNotification();">Mark all as read</button>
         <div class="table-responsive">
-            <table class="table white">
+            <table class="table white" id="notification_table">
                 {% for each in notifications %}
                     {% if each.has_read is False %}
-                        <tr class="info" value="{{ forloop.counter }}">
-                            <td>{{ each.date|naturalday }}</td>
+                        <tr class="info" id="{{ each.pk }}"
+                            onclick="this.classList.remove('info'); this.classList.add('active'); expandNotification('{{ each.pk }}')">
+                            <td>{{ each.datetime |naturaltime }}</td>
                             <td>
                                 {{ each.heading }}<br/>
                                 {{ each.notification }}
                             </td>
                         </tr>{% else %}
-                        <tr value="{{ each }}">
-                            <td>{{ each.date|naturalday }}</td>
+                        <tr class="active" id="{{ each.pk }}" onclick="expandNotification('{{ each.pk }}')">
+                            <td>{{ each.datetime |naturaltime }}</td>
                             <td>
                                 <div class="row">{{ each.heading }}</div>
                                 <div class="row">{{ each.notification }}</div>
@@ -36,10 +43,9 @@
         <form action="{% url 'dashboard:show_all_notifications' %}" method="get">
             {% for page in pages %}
                 {% if page == current_page %}
-                    <i>
+                    <u style="color: #0379C4">
 
-                    <a href="{% url 'dashboard:show_all_notifications' page %}"
-                       style="text-decoration: #0057e7 !important;">{{ page }}</a></i>&nbsp;
+                        <a href="{% url 'dashboard:show_all_notifications' page %}">{{ page }}</a></u>&nbsp;
                     &nbsp;
 
                 {% else %}
@@ -49,9 +55,154 @@
             {% endfor %}
         </form>
     </div>
+
+
     <script>
-        var parsed_json = JSON.parse({{ notifications| safe }});
-        console.log(parsed_json)
+
+        var json_notifications;
+
+        function expandNotification(pk) {
+            $.ajax({
+                url: '{% url 'dashboard:view_notification' %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'pk': pk,
+                },
+                success: function (data) {
+                    json_notifications = JSON.parse(data);
+                    console.log(json_notifications);
+
+                    let text = document.getElementById('notification_overlay_text');
+                    while (text.firstChild) {
+                        text.removeChild(text.firstChild);
+                    }
+
+                    let heading = document.createElement('h2');
+                    heading.innerHTML = json_notifications["fields"]["heading"];
+                    text.appendChild(heading);
+
+                    let para = document.createElement('h4');
+                    para.innerHTML = json_notifications["fields"]["notification"];
+                    text.appendChild(para);
+
+                    var split_action = json_notifications['fields']['action'].split('/');
+                    var id = split_action[split_action.length - 1];
+
+                    if (json_notifications["fields"]["type"] === "Decision") {
+                        let button = document.createElement('button');
+                        button.innerHTML = "YES";
+                        button.setAttribute("class", "btn btn-success");
+                        button.style.marginRight = "5%";
+                        {#button.setAttribute("onclick", "setSubstitute('" + json_notifications['fields']['action'] + "')");#}
+                        button.setAttribute("onclick", "getSubjects(" + id + ")");
+                        text.appendChild(button);
+
+                        button = document.createElement('button');
+                        button.innerHTML = "NO";
+                        button.setAttribute("class", "btn btn-danger");
+                        button.setAttribute("onclick", "overlay_off()");
+                        text.appendChild(button);
+                    } else {
+
+                        let button = document.createElement('button');
+                        button.innerHTML = "OK";
+                        button.setAttribute("class", "btn btn-info");
+                        button.setAttribute("onclick", "overlay_off()");
+                        text.appendChild(button);
+                    }
+
+                    document.getElementById("notification_overlay").style.display = "block";
+
+
+                }
+            });
+        }
+
+        function overlay_off() {
+            document.getElementById("notification_overlay").style.display = "none";
+
+        }
+
+
+        function getSubjects(id) {
+            $.ajax({
+                url: '{% url 'dashboard:get_subjects' %}',
+                type: "POST",
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'id': id,
+                },
+                success: function (data) {
+                    var subjects = JSON.parse(data);
+                    let text = document.getElementById('notification_overlay_text');
+
+
+                    var para = document.createElement('h4');
+                    para.innerHTML = "Which subject you're going to teach?&nbsp;";
+                    var select = document.createElement('select');
+                    select.id = "subject";
+                    for (let sub in subjects) {
+                        var option = document.createElement('option');
+                        option.text = subjects[sub];
+                        option.value = subjects[sub];
+                        select.appendChild(option);
+                    }
+                    para.appendChild(select);
+                    text.appendChild(para);
+
+                    let button = document.createElement('button');
+                    button.innerHTML = "Submit";
+                    button.setAttribute("class", "btn btn-info");
+                    button.setAttribute("onclick", "setSubstitute('" + json_notifications['fields']['action'] + "')");
+                    text.appendChild(button);
+
+
+                },
+                error: function () {
+                    alert("Error getting subjects :( Try again!")
+                }
+            })
+        }
+
+        function setSubstitute(url) {
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'subject': document.getElementById('subject').value
+                },
+                success: function (data) {
+                    alert(data);
+                    overlay_off();
+                }
+            });
+        }
+
+        function readNotification() {
+            var pk_list = [];
+            $('#notification_table tr[class="info"]').each(function () {
+                pk_list.push(this.id);
+                this.classList.remove('info');
+                this.classList.add('active');
+            });
+            console.log(pk_list);
+            console.log(pk_list.length);
+            if (pk_list.length > 0) {
+                $.ajax({
+                    url: '{% url 'dashboard:read_all_notification' %}',
+                    type: "POST",
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'pk': JSON.stringify(pk_list)
+                    },
+                    success: function () {
+                        alert("Done");
+                    }
+                });
+            }
+        }
     </script>
 
 {% endblock content %}
