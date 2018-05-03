@@ -28,6 +28,8 @@ Shibashis:
 
 
 Exam:
+    BUGS:
+        Invalid username pe error
     Student:
         Register subjects
         View All Exams
