@@ -30,6 +30,8 @@ Shibashis:
 Exam:
     BUGS:
         Invalid username pe error
+        Excel Timetable Error
+        Excel room schedule download not working(Firefox)
     Student:
         Register subjects
         View All Exams
@@ -45,3 +47,5 @@ Exam:
                 Edit dates
                 Schedule students and faculty
                 Set Dates for subject registration
+
+
