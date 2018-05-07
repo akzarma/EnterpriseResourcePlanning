@@ -26,10 +26,12 @@ Shibashis:
     Semester mai aur do fields add karna hai. start and end for semester and start and end for timetable(lectures)
 
 
+Akshay:
+    Student Subject registration (Has basic view and html in Registration app) : Same as ERP ()
+
 
 Exam:
-    BUGS:
-        Invalid username pe error
+
     Student:
         Register subjects
         View All Exams
@@ -45,3 +47,7 @@ Exam:
                 Edit dates
                 Schedule students and faculty
                 Set Dates for subject registration
+
+
+BUGS:
+        Invalid username pe error
