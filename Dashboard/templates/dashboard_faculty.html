@@ -301,7 +301,7 @@
             <ul class="list-unstyled components">
                 <p id="head">Dashboard</p>
                 <li class="active">
-                    <a href="/dashboard/">Dashboard</a>
+                    <a href="{% url 'dashboard:dashboard' %}">Dashboard</a>
                 </li>
                 <li>
                     <a href="{% url 'attendance:select_cat' %}">Fill or Check Attendance</a>
@@ -317,6 +317,17 @@
                         {#                        <li><a href="{% url 'attendance:excel_student' %}">Student</a></li>#}
                         {#                        <li><a href="{% url 'dashboard:excel_faculty' %}">Fcaulty</a></li>#}
                     </ul>
+
+                </li>
+                <li>
+                    <a href="#set_dates" data-toggle="collapse" aria-expanded="false">Set Dates</a>
+                    <ul class="collapse list-unstyled" id="set_dates">
+                        <li><a href="{% url 'registration:set_schedule_date' %}">Subject Registration</a>
+                        </li>
+                        {#                        <li><a href="{% url 'attendance:excel_student' %}">Student</a></li>#}
+                        {#                        <li><a href="{% url 'dashboard:excel_faculty' %}">Fcaulty</a></li>#}
+                    </ul>
+
                 </li>
                 {##}
                 {#                <li>#}
@@ -331,6 +342,8 @@
                     <ul class="collapse list-unstyled" id="registermenu">
                         <li><a href="{% url 'registration:register_subject' %}">Subject</a></li>
                         <li><a href="{% url 'registration:register_faculty_subject' %}">Bind faculty with subject</a>
+                        <li><a href="{% url 'exam:exam_register' %}">Add new exam</a>
+                        <li><a href="{% url 'exam:exam_detail' %}">Set exam</a>
                         </li>
                     </ul>
                 </li>
@@ -568,8 +581,15 @@
             {#let index = -1;#}
             let arr = event.target.classList;
             let found = false;
-            for (let i = 0; i < arr.length; i++) {
-                {#console.log(arr[i]);#}
+            var selected_date =
+                '{{ selected_date }}';
+            console.log(selected_date);
+            var splitted_date = selected_date.split('-');
+            console.log(splitted_date);
+            selected_date = new Date(splitted_date[2], splitted_date[1] - 1, splitted_date[0]);
+            console.log(selected_date);
+            for (let i = 0; i < arr.length && selected_date >= current_date; i++) {
+                console.log(arr[i]);
                 if (arr[i] === "my-context-menu") {
                     found = true;
                     break;
@@ -583,7 +603,7 @@
                 event.preventDefault();
 
                 let target = event.target;
-                {#alert(target.tagName);#}
+
                 if (target.tagName === "BUTTON") {
                     selected_ajax = target.value;
 
@@ -677,8 +697,19 @@
             var pk = obj.value;
 
             var overlay = $('#' + pk);
+
+            var selected_date =
+                '{{ selected_date }}';
+            var splitted_date = selected_date.split('-');
+            selected_date = new Date(splitted_date[2], splitted_date[1], splitted_date[0]);
+
             if (overlay.css("display") === "none") {
-               $("#timetable_form").submit;
+                if (selected_date > current_date) {
+                    alert("You can't mark attendance for future lectures");
+                    event.preventDefault();
+                } else {
+                    $("#timetable_form").submit;
+                }
             } else {
                 alert('You can\'t mark attendance for this lecture');
                 event.preventDefault();

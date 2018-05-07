@@ -174,11 +174,12 @@
             <ul class="list-unstyled components">
                 <p id="head">Dashboard</p>
                 <li class="active">
-                    <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Home</a>
-                    <ul class="collapse list-unstyled" id="homeSubmenu">
-                        <li><a href="#">Option 1</a></li>
-                        <li><a href="#">Option 2</a></li>
-                        <li><a href="#">Option 3</a></li>
+                    <a href="#" data-toggle="collapse" aria-expanded="false">Home</a>
+
+                <li>
+                    <a href="#registration" data-toggle="collapse" aria-expanded="false">Registration</a>
+                    <ul class="collapse list-unstyled" id="registration">
+                        <li><a href="{% url 'registration:student_subject_registration' %}">Subject Registration</a></li>
                     </ul>
                 </li>
                 <li>

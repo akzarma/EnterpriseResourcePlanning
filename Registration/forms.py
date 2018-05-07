@@ -2,7 +2,7 @@ from django import forms
 
 from Configuration.countryConf import countries
 from Configuration.stateConf import states
-from General.models import CollegeYear, Shift, Semester, FacultySubject, Batch, Division
+from General.models import CollegeYear, Shift, Semester, FacultySubject, Batch, Division, Schedule, Schedulable
 from .models import Faculty, Subject, Student, Branch
 
 semester_list = Semester.objects.all()
@@ -751,7 +751,7 @@ class FacultyForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FacultyForm, self).__init__(*args, **kwargs)
         for field in self.fields:
-            if field not in ['DOB', 'teaching_form']:
+            if field not in ['DOB', 'teaching_from']:
                 self.fields[field].widget.attrs.update({'class': 'form-control', })
 
     class Meta:
@@ -785,3 +785,25 @@ class SubjectForm(forms.ModelForm):
     class Meta:
         model = Subject
         fields = '__all__'
+
+
+class DateScheduleForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(DateScheduleForm, self).__init__(*args, **kwargs)
+        self.fields['event'].queryset = Schedulable.objects.filter(is_active=True)
+
+        for field in self.fields:
+            if field not in ['start_date', 'end_date']:
+                self.fields[field].widget.attrs.update({'class': 'form-control', })
+
+    class Meta:
+        widgets = {
+            'start_date': forms.DateInput(attrs={'class': 'datepicker form-control'}),
+            'end_date': forms.DateInput(attrs={'class': 'datepicker form-control'}),
+        }
+        model = Schedule
+        fields = '__all__'
+        exclude = ['is_active']
+
+

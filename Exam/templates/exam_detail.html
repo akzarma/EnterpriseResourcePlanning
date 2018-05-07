@@ -1,0 +1,91 @@
+{% extends 'dashboard_faculty.html' %}
+{% block title %}
+    Exam-Regsiter | ERP
+{% endblock title %}
+
+
+{% block content %}
+
+    <form method="POST" action="{% url 'exam:exam_detail' %}">
+        {% csrf_token %}
+
+        {% for each in form %}
+            {{ each.errors }}
+            {{ each.label }}
+            {{ each }}
+        {% endfor %}
+        <input type="submit">
+        <div id="div_subject"></div>
+    </form>
+
+
+    <script>
+
+
+        $(".datepicker").datepicker({
+            dateFormat: 'yy-mm-dd'
+        });
+
+        function call_ajax() {
+            // code
+            let year_obj = document.getElementById('id_year');
+            let semester_obj = document.getElementById('id_semester');
+            if (year_obj.value !== "" && semester_obj.value !== "") {
+                $.ajax({
+                    type: "POST",
+                    url: '{% url 'exam:get_subjects' %}',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'year': year_obj.value,
+                        'semester': semester_obj.value
+                    },
+                    success: function (data) {
+                        {#loading.style.display = "none";#}
+                        {#main_content.style.opacity = 1;#}
+                        {#if (room.value !== 'all') {#}
+                        {#    let file_path = '/' + data + '.xlsx';#}
+                        {#    let a = document.createElement('a');#}
+                        {#    a.href = file_path;#}
+                        {#    a.click();#}
+
+                        {#alert(data);#}
+                        let div = document.getElementById('div_subject');
+                        $("#div_subject").empty();
+                        let subjects = JSON.parse(data);
+                        for (each in subjects) {
+                            let checkbox = document.createElement('input');
+                            checkbox.type = "checkbox";
+                            checkbox.name = "subject";
+                            checkbox.value = subjects[each];
+                            {#checkbox.id = "id";#}
+
+                            let label = document.createElement('label');
+                            label.htmlFor = "id";
+                            label.appendChild(document.createTextNode(subjects[each]));
+
+
+                            div.appendChild(checkbox);
+                            div.appendChild(label);
+                        }
+
+                        {#console.log(abcd);#}
+
+                    }
+
+                });
+            }
+        }
+
+        $('#id_year').on('change', function () {
+            call_ajax();
+        });
+        $('#id_semester').on('change', function () {
+            call_ajax();
+        });
+
+
+    </script>
+
+{% endblock content %}
+
+

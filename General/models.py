@@ -22,6 +22,7 @@ class Shift(models.Model):
 class YearBranch(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.branch.branch + ' ' + str(self.year)
@@ -41,6 +42,8 @@ class Semester(models.Model):
     semester = models.PositiveIntegerField()
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
+    is_active = models.BooleanField(default=True)
+
     # lectures_start_date = models.DateTimeField()
     # lectures_end_date = models.DateTimeField()
 
@@ -99,4 +102,22 @@ class StudentDetail(models.Model):
 class StudentSubject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+
+
+# Abhi ye  do class rakhe hai for storing schedules of subject registration
+class Schedulable(models.Model):
+    name = models.CharField(max_length=500)
+    created_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Schedule(models.Model):
+    start_date = models.DateField()
+    end_date = models.DateField()
+    event = models.ForeignKey(Schedulable, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)

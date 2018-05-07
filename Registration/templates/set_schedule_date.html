@@ -1,0 +1,23 @@
+{% extends 'dashboard_faculty.html' %}
+{% block title %}
+    Subject-Registration| ERP
+{% endblock title %}
+
+
+{% block content %}
+
+    <form method="POST" action="{% url 'registration:student_subject_registration' %}">
+        {% csrf_token %}
+
+        {% for each in form %}
+            {{ each.errors }}
+            {{ each.label }}
+            {{ each }}
+        {% endfor %}
+        <input type="submit">
+    </form>
+
+    <script>
+        $('.datepicker').datepicker();
+    </script>
+{% endblock content %}

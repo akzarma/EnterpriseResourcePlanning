@@ -17,3 +17,4 @@ class SpecificNotification(models.Model):
 
     def __str__(self):
         return self.heading + self.user.faculty.initials
+

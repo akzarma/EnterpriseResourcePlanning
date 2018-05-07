@@ -37,6 +37,11 @@ urlpatterns = [
 
     url(r'change_password/$', views.change_password, name='change_password'),
 
+
+    url(r'set_schedule_date/$', views.set_schedule_date, name='set_schedule_date'),
+
+    url(r'student_subject_registration/$', views.student_subject_registration, name='student_subject_registration'),
+
     url(r'^verification/email/(?P<key>[\w]+)/(?P<username>[\w]+)', views.verification_process,
         name="verification_process"),
 
