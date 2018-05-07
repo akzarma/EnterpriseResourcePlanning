@@ -13,19 +13,21 @@
 {% block content %}
     <legend>All Notifications</legend>
     <div class="row">
+        <button class="btn" onclick="readNotification();">Mark all as read</button>
         <div class="table-responsive">
-            <table class="table white">
+            <table class="table white" id="notification_table">
                 {% for each in notifications %}
                     {% if each.has_read is False %}
-                        <tr class="info" value="{{ each.pk }}" onclick="expandNotification('{{ each.pk }}')">
-                            <td>{{ each.date|naturalday }}</td>
+                        <tr class="info" id="{{ each.pk }}"
+                            onclick="this.classList.remove('info'); this.classList.add('active'); expandNotification('{{ each.pk }}')">
+                            <td>{{ each.datetime |naturaltime }}</td>
                             <td>
                                 {{ each.heading }}<br/>
                                 {{ each.notification }}
                             </td>
                         </tr>{% else %}
-                        <tr value="{{ each.pk }}" onclick="expandNotification('{{ each.pk }}')">
-                            <td>{{ each.date|naturalday }}</td>
+                        <tr class="active" id="{{ each.pk }}" onclick="expandNotification('{{ each.pk }}')">
+                            <td>{{ each.datetime |naturaltime }}</td>
                             <td>
                                 <div class="row">{{ each.heading }}</div>
                                 <div class="row">{{ each.notification }}</div>
@@ -164,19 +166,42 @@
         }
 
         function setSubstitute(url) {
-            alert(url);
             $.ajax({
                 url: url,
                 type: "POST",
                 data: {
                     'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    'subjects': document.getElementById('subject').value,
+                    'subject': document.getElementById('subject').value
                 },
                 success: function (data) {
                     alert(data);
                     overlay_off();
                 }
             });
+        }
+
+        function readNotification() {
+            var pk_list = [];
+            $('#notification_table tr[class="info"]').each(function () {
+                pk_list.push(this.id);
+                this.classList.remove('info');
+                this.classList.add('active');
+            });
+            console.log(pk_list);
+            console.log(pk_list.length);
+            if (pk_list.length > 0) {
+                $.ajax({
+                    url: '{% url 'dashboard:read_all_notification' %}',
+                    type: "POST",
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'pk': JSON.stringify(pk_list)
+                    },
+                    success: function () {
+                        alert("Done");
+                    }
+                });
+            }
         }
     </script>
 

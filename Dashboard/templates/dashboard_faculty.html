@@ -395,10 +395,21 @@
                                                 value="{{ each.pk }}"
                                                 onclick="checkTimetable(this);">
                                             {% if each.not_available == True %}
-                                                <div id="{{ each.pk }}" style="display: block !important;"
-                                                     name="{{ each.pk }}" class="not-available my-context-menu">I'm not
-                                                    available
-                                                </div>
+                                                {% if user.faculty == each.substitute.faculty %}
+                                                    <div style="display: block;"
+                                                         class="not-available my-context-menu">You've taken lecture
+                                                        for {{ each.original.faculty.initials }}
+                                                    </div>
+                                                {% else %}
+                                                    <div id="{{ each.pk }}" style="display: block !important;"
+                                                         name="{{ each.pk }}" class="not-available my-context-menu">I'm
+                                                        not
+                                                        available
+                                                        {% if each.is_substituted is True %} <br/> Lecture taken by
+                                                            {{ each.substitute.faculty.initials }}
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
                                             {% else %}
                                                 <div id="{{ each.pk }}" name="{{ each.pk }}"
                                                      class="not-available my-context-menu">I'm not available
@@ -530,19 +541,19 @@
 {% endblock body %}
 
 {% block on_ready %}
-{#    <script>#}
-        {#$(document).ready(function () {#}
-        $('#sidebarCollapse').on('click', function () {
-            $('#sidebar').toggleClass('active');
-        });
+    {#    <script>#}
+    {#$(document).ready(function () {#}
+    $('#sidebarCollapse').on('click', function () {
+    $('#sidebar').toggleClass('active');
+    });
 
-        $('#txtDate').datepicker({
-            dateFormat: 'dd-mm-yy'
-        });
+    $('#txtDate').datepicker({
+    dateFormat: 'dd-mm-yy'
+    });
 
-        $('#dateButton').click(function () {
-            $('#txtDate').show().focus().hide();
-        });
+    $('#dateButton').click(function () {
+    $('#txtDate').show().focus().hide();
+    });
     {#</script>#}
 {% endblock on_ready %}
 
@@ -571,7 +582,6 @@
             form.appendChild(input);
             form.submit();
         }
-
 
 
         // Trigger action when the contexmenu is about to be shown
@@ -711,7 +721,11 @@
                     $("#timetable_form").submit;
                 }
             } else {
-                alert('You can\'t mark attendance for this lecture');
+                if (selected_date > current_date) {
+                    alert("You can't mark attendance for future lectures");
+                } else {
+                    alert('You can\'t mark attendance for this lecture');
+                }
                 event.preventDefault();
             }
 
