@@ -456,11 +456,13 @@
                                         </button>
                                     {% endfor %}
                                     <button name="previous" value="previous" class="btn left carousel-control"
-                                            style="border: 0 !important;"><span
-                                            class="glyphicon glyphicon-chevron-left"></span></button>
+                                            style="border: 0 !important;height: 20%;margin:32% 0 0 -10%;">
+                                        <span class="glyphicon glyphicon-chevron-left"></span>
+                                    </button>
                                     <button name="next" value="next" type="submit" class="btn right carousel-control"
-                                            style="border: 0 !important;"><span
-                                            class="glyphicon glyphicon-chevron-right"></span></button>
+                                            style="border: 0 !important;height: 20%;margin:32% -10% 0 0%;">
+                                        <span class="glyphicon glyphicon-chevron-right"></span>
+                                    </button>
                                 {% else %}
                                     <p style="text-align: center;">Sorry! No lectures on {{ selected_date }}</p>
                                 {% endif %}
@@ -548,9 +550,12 @@
     });
 
     $('#txtDate').datepicker({
-    dateFormat: 'dd-mm-yy'
-    });
+    format: 'dd-mm-yyyy',
 
+    })  ;
+{#    $('#txtDate').datepicker("setDate", new Date(2008,9,03) );#}
+
+    {#    alert("here");#}
     $('#dateButton').click(function () {
     $('#txtDate').show().focus().hide();
     });
@@ -712,7 +717,8 @@
                 '{{ selected_date }}';
             var splitted_date = selected_date.split('-');
             selected_date = new Date(splitted_date[2], splitted_date[1], splitted_date[0]);
-
+            console.log(selected_date);
+            alert(selected_date);
             if (overlay.css("display") === "none") {
                 if (selected_date > current_date) {
                     alert("You can't mark attendance for future lectures");
@@ -732,4 +738,8 @@
 
         }
     </script>
+    <script>
+
+    </script>
+
 {% endblock html %}

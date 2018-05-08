@@ -32,6 +32,7 @@ Akshay:
 
 Exam:
 
+
     Student:
         Register subjects
         View All Exams
@@ -48,6 +49,9 @@ Exam:
                 Schedule students and faculty
                 Set Dates for subject registration
 
-
 BUGS:
+        Invalid username pe error
+        Excel Timetable Error
+        Excel room schedule download not working(Firefox)
+
         Invalid username pe error
