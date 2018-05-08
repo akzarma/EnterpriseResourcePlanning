@@ -10,7 +10,7 @@ class SpecificNotification(models.Model):
     notification = models.CharField(max_length=5000)
     heading = models.CharField(max_length=100)
     action = models.CharField(max_length=500,default='')
-    type = models.CharField(max_length=200)
+    type = models.CharField(max_length=200, null=True)
     is_active = models.BooleanField(default=True)
     priority = models.IntegerField(default=1)
     has_read = models.BooleanField(default=False)
