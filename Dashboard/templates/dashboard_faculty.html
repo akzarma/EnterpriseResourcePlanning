@@ -716,7 +716,7 @@
             var selected_date =
                 '{{ selected_date }}';
             var splitted_date = selected_date.split('-');
-            selected_date = new Date(splitted_date[2], splitted_date[1], splitted_date[0]);
+            selected_date = new Date(splitted_date[2], splitted_date[1]-1, splitted_date[0]);
             console.log(selected_date);
             alert(selected_date);
             if (overlay.css("display") === "none") {
