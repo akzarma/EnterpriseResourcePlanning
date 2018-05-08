@@ -37,7 +37,7 @@ Exam:
         Register subjects
         View All Exams
         view Schedule
-        Register Subjects
+
     Faculty:
                 View exams and their own schedule
 

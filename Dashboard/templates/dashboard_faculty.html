@@ -329,6 +329,10 @@
                     </ul>
 
                 </li>
+                <li>
+                    <a href="{% url 'BackupRestore:backup' %}">Backup</a>
+
+                </li>
                 {##}
                 {#                <li>#}
                 {#                    <a href="{% url 'update:update' %}">Update</a>#}
@@ -553,7 +557,7 @@
     format: 'dd-mm-yyyy',
 
     })  ;
-{#    $('#txtDate').datepicker("setDate", new Date(2008,9,03) );#}
+    {#    $('#txtDate').datepicker("setDate", new Date(2008,9,03) );#}
 
     {#    alert("here");#}
     $('#dateButton').click(function () {

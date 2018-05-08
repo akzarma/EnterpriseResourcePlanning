@@ -1,10 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'dashboard_faculty.html' %}
+{% block title %}
+    Backup-Restore | ERP
+{% endblock title %}
+
+
+{% block content %}
+    Backup current version:-
+    <form method="post" action="{% url 'BackupRestore:backup' %}">
+        {% csrf_token %}
+        <input type="submit" value="Backup" name="Backup">
+    </form>
+    Currently Backups by date
+    {% for each_backup in all_backup %}
+        <div class="row">
+            <form method="post" action="{% url 'BackupRestore:restore' %}">
+                {% csrf_token %}
+                {{ each_backup.date }} {{ each_backup.version }} <input type="hidden" name="version"
+                                                                        value="{{ each_backup.version }}"><input
+                    type="submit" name="Restore" value="Restore">
+            </form>
+        </div>
+    {% endfor %}
+
+
+{% endblock content %}
+
+
