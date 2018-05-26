@@ -1,11 +1,23 @@
 {% extends "dashboard_faculty.html" %}
+{% block extra_style %}
+    label{
+    margin-left: 0;
+    }
+    .form-control{
+    margin-bottom:20px;
+    }
+{% endblock extra_style %}
 {% block content %}
-    <form method="POST" action="{% url 'registration:register_faculty_subject' %}">
-        {% csrf_token %}
-
-        {% for each in form %}
-            {{ each }}
-        {% endfor %}
-        <input type="submit">
-    </form>
+    <div class="row col-md-3">
+        <form method="POST" action="{% url 'registration:register_faculty_subject' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                {% for each in form %}
+                    <label>{{ each.label }}</label>
+                    {{ each }}
+                {% endfor %}
+            </div>
+            <input type="submit" class="btn btn-primary">
+        </form>
+    </div>
 {% endblock content %}

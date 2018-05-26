@@ -5,7 +5,19 @@
 {% endblock title %}
 
 {% block extra_style %}
+    <style>
+        .notification_overlay_text h2 {
+            color: white !important;
+        }
 
+        .table-responsive {
+            overflow: hidden;
+        }
+
+        .white-text {
+            color: white !important;
+        }
+    </style>
 
 {% endblock extra_style %}
 
@@ -19,14 +31,16 @@
                 {% for each in notifications %}
                     {% if each.has_read is False %}
                         <tr class="info" id="{{ each.pk }}"
-                            onclick="this.classList.remove('info'); this.classList.add('active'); expandNotification('{{ each.pk }}')">
+                            onclick="this.classList.remove('info'); this.classList.add('active'); expandNotification('{{ each.pk }}')"
+                            data-target="#myModal" data-toggle="modal">
                             <td>{{ each.datetime |naturaltime }}</td>
                             <td>
                                 {{ each.heading }}<br/>
                                 {{ each.notification }}
                             </td>
                         </tr>{% else %}
-                        <tr class="active" id="{{ each.pk }}" onclick="expandNotification('{{ each.pk }}')">
+                        <tr class="active" id="{{ each.pk }}" onclick="expandNotification('{{ each.pk }}')"
+                            data-target="#myModal" data-toggle="modal">
                             <td>{{ each.datetime |naturaltime }}</td>
                             <td>
                                 <div class="row">{{ each.heading }}</div>
@@ -73,18 +87,27 @@
                     json_notifications = JSON.parse(data);
                     console.log(json_notifications);
 
-                    let text = document.getElementById('notification_overlay_text');
+                    let modalTitle = document.getElementById("modal-title");
+                    let modalBodyText = document.getElementById("modal-body-text");
+
+                    modalTitle.innerHTML = json_notifications["fields"]["heading"];
+                    modalBodyText.innerText = json_notifications["fields"]["notification"];
+
+
+                    let text = document.getElementById('modal-footer');
                     while (text.firstChild) {
                         text.removeChild(text.firstChild);
                     }
 
-                    let heading = document.createElement('h2');
+                    /*let heading = document.createElement('h2');
+                    heading.setAttribute("class", "white-text");
                     heading.innerHTML = json_notifications["fields"]["heading"];
-                    text.appendChild(heading);
+                    text.appendChild(heading);*/
 
-                    let para = document.createElement('h4');
+                    /*let para = document.createElement('h4');
+                    para.setAttribute("class", "white-text");
                     para.innerHTML = json_notifications["fields"]["notification"];
-                    text.appendChild(para);
+                    text.appendChild(para);*/
 
                     var split_action = json_notifications['fields']['action'].split('/');
                     var id = split_action[split_action.length - 1];
@@ -102,24 +125,9 @@
                         button.setAttribute("class", "btn btn-danger");
                         button.setAttribute("onclick", "overlay_off()");
                         text.appendChild(button);
+                    }
 
-                        {#swal({#}
-                        {#    title: "Are you sure?",#}
-                        {#    text: "Once deleted, you will not be able to recover this imaginary file!",#}
-                        {#    icon: "warning",#}
-                        {#    buttons: true,#}
-                        {#    dangerMode: true,#}
-                        {#})#}
-                        {#    .then((willAccept) => {#}
-                        {#    if(willAccept) {#}
-                        {#        setSubstitute(json_notifications['fields']['action']);#}
-                        {#        getSubjects(id);#}
-                        {#    }#}
-                        {#}#}
-                    {#)#}
-
-
-                    } else {
+                    else {
 
                         let button = document.createElement('button');
                         button.innerHTML = "OK";
@@ -128,16 +136,14 @@
                         text.appendChild(button);
                     }
 
-                    document.getElementById("notification_overlay").style.display = "block";
-
-
+                    {#document.getElementById("notification_overlay").style.display = "block";#}
                 }
+
             });
         }
 
         function overlay_off() {
             document.getElementById("notification_overlay").style.display = "none";
-
         }
 
 
@@ -151,9 +157,11 @@
                 },
                 success: function (data) {
                     var subjects = JSON.parse(data);
-                    let text = document.getElementById('notification_overlay_text');
+                    let text = document.getElementById('modal-footer');
 
-
+                    while (text.firstChild) {
+                        text.removeChild(text.firstChild);
+                    }
                     var para = document.createElement('h4');
                     para.innerHTML = "Which subject you're going to teach?&nbsp;";
                     var select = document.createElement('select');
@@ -220,5 +228,4 @@
             }
         }
     </script>
-
 {% endblock content %}

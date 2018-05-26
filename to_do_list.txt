@@ -59,7 +59,7 @@ Exam:
 
 Notification:
     Faculty
-        Exam notifiations
+        Exam notifications
         Lecture taken by other teacher
 
     Student

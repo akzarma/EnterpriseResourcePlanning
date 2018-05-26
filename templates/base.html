@@ -192,6 +192,14 @@
             width: 350px;
             font-size: 0.8em;
         }
+
+        .form-control {
+            border-radius: 0px;
+        }
+
+        .btn-primary {
+            border-radius: 0px;
+        }
     </style>
     {% block style %}
 
@@ -319,6 +327,27 @@
 
 </div>
 
+
+<!--Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <p id="modal-body-text">Some text in the modal.</p>
+            </div>
+            <div class="modal-footer" id="modal-footer">
+            </div>
+        </div>
+
+    </div>
+</div>
+<!---->
 {% block body %}
 {% endblock body %}
 

@@ -3,26 +3,61 @@
     Backup-Restore | ERP
 {% endblock title %}
 
+{% block extra_style %}
+
+
+{% endblock extra_style %}
+
 
 {% block content %}
-    Backup current version:-
     <form method="post" action="{% url 'BackupRestore:backup' %}">
+        <br>
         {% csrf_token %}
-        <input type="submit" value="Backup" name="Backup">
+        <button type="submit" value="Backup" class="btn btn-primary">
+            Back up <span class="glyphicon glyphicon-cloud" aria-hidden="true" style="top: 3px;"></span>
+        </button>
+        <br>
     </form>
+    <br>
     Currently Backups by date
-    {% for each_backup in all_backup %}
-        <div class="row">
-            <form method="post" action="{% url 'BackupRestore:restore' %}">
-                {% csrf_token %}
-                {{ each_backup.date }} {{ each_backup.version }} <input type="hidden" name="version"
-                                                                        value="{{ each_backup.version }}"><input
-                    type="submit" name="Restore" value="Restore">
-            </form>
-        </div>
-    {% endfor %}
+{#    {% for each_backup in all_backup %}#}
+    {#        <div class="row">#}
+    {#            <form method="post" action="{% url 'BackupRestore:restore' %}">#}
+    {#                {% csrf_token %}#}
+    {#                {{ each_backup.date }} {{ each_backup.version }}#}
+    {#                <input type="hidden" name="version" value="{{ each_backup.version }}">#}
+    {#                <button class="btn btn-success" type="submit" name="Restore" value="Restore">Restore#}
+    {#                    <span class="glyphicon glyphicon-refresh" aria-hidden="true" style="top: 3px;"></span>#}
+    {#                </button>#}
+    {#            </form>#}
+    {#        </div>#}
+    {#    {% endfor %}#}
 
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Version</th>
+            <th>Restore</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for each_backup in all_backup %}
+            <tr>
+                <form method="post" action="{% url 'BackupRestore:restore' %}">
+                    {% csrf_token %}
+                    <td>{{ each_backup.date }}</td>
+                    <td>{{ each_backup.version }}</td>
+                    <input type="hidden" name="version" value="{{ each_backup.version }}">
+                    <td>
+                        <button class="btn btn-success" type="submit" name="Restore" value="Restore">Restore
+                            <span class="glyphicon glyphicon-refresh" aria-hidden="true" style="top: 3px;"></span>
+                        </button>
+                    </td>
+                </form>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock content %}
-
-
