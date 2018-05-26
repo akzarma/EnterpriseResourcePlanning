@@ -99,6 +99,7 @@ class FacultySubject(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     division = models.ForeignKey(Division, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.faculty.user.first_name + self.subject.name + self.division.division + " " + self.faculty.initials

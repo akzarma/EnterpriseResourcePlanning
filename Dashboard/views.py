@@ -14,7 +14,8 @@ from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
 from Attendance.models import StudentAttendance
-from Dashboard.models import SpecificNotification
+from Dashboard.models import SpecificNotification, GeneralStudentNotification, GeneralFacultyNotification
+from EnterpriseResourcePlanning.settings import NOTIFICATION_LONG_LIMIT, NOTIFICATION_SMALL_LIMIT
 from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject
 from General.views import notify_users
 from Registration.forms import StudentForm, FacultyForm
@@ -655,24 +656,29 @@ def download_excel_attendance_subject(request):
 
 def toggle_availability(request):
     selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
+    timetable_obj = selected_timetable.original
     send_notification = False
+    student_message = 'Lecture on ' + selected_timetable.date.__str__() + ', ' + timetable_obj.time.__str__()
+
     if selected_timetable.not_available is True:
         if selected_timetable.is_substituted is False:
             selected_timetable.not_available = False
+            student_message += ' has been taken by ' + timetable_obj.faculty.initials + '.'
         else:
             if request.user.faculty == selected_timetable.substitute.faculty:
                 selected_timetable.is_substituted = False
                 send_notification = True
+                student_message += 'has been cancelled.'
             else:
                 return HttpResponse(
                     'Sorry, ' + selected_timetable.substitute.faculty.initials + ' has already taken your lecture!')
     else:
         selected_timetable.not_available = True
         send_notification = True
+        student_message += ' has been cancelled'
 
     if send_notification:
         selected_timetable.save()
-        timetable_obj = selected_timetable.original
         # date = timetable_obj.date
         time = timetable_obj.time
 
@@ -711,9 +717,14 @@ def toggle_availability(request):
         users_obj = [each_faculty.user for each_faculty in free_faculty]
         action = urls.reverse('dashboard:set_substitute', args=[selected_timetable.pk])
         type = "Decision"
-        notify_users(notification_type, message, heading, users_obj, type, action)
+        # For specific faculty
+        notify_users(notification_type=notification_type, message=message, heading=heading, users_obj=users_obj,
+                     type=type, action=action)
 
-
+        # For generic students
+        # division
+        notify_users(notification_type='general', user_type='Student', message=student_message,
+                     heading='Change in a lecture schedule', users_obj=[], division=[division], )
 
     return HttpResponse('success')
 
@@ -723,12 +734,55 @@ def get_notifications(request):
     if not user.is_anonymous:
         if request.is_ajax():
             date = datetime.date.today().strftime('%Y-%m-%d')
-            notification_objs = SpecificNotification.objects.filter(user=user, is_active=True, has_read=False)
+            notification_objs = SpecificNotification.objects.filter(user=user, is_active=True, has_read=False)[
+                                :NOTIFICATION_SMALL_LIMIT]
 
             data = {'today': date}
-            for each in range(len(notification_objs)):
+            num_specific_notification = len(notification_objs)
+            # for each in range(num_specific_notification):
+            #     if not each in data:
+            #         data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
+            #             'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
+            #         struct = json.loads(data[each])
+            #         data[each] = json.dumps(struct[0])
+
+            is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+            is_student = RoleManager.objects.filter(user=user, role__role='student')
+
+            if is_student:
+                student_obj = user.student
+                student_detail_obj = StudentDetail.objects.get(student=student_obj, is_active=True)
+                division_obj = student_detail_obj.batch.division
+                general_notification_obj = GeneralStudentNotification.objects.filter(division=division_obj,
+                                                                                     is_active=True)[
+                                           :NOTIFICATION_SMALL_LIMIT]
+                num_general_notification = len(general_notification_obj)
+
+                # for each in range(num_specific_notification,num_general_notification):
+                #     if not each in data:
+                #         data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
+                #             'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
+                #         struct = json.loads(data[each])
+                #         data[each] = json.dumps(struct[0])
+
+            elif is_faculty:
+                faculty_obj = user.faculty
+                faculty_sub_obj = list(FacultySubject.objects.filter(faculty=faculty_obj, is_active=True))
+                branch_obj = list(
+                    BranchSubject.objects.filter(subject_id__in=[each.subject_id for each in faculty_sub_obj],
+                                                 is_active=True))
+                branch_obj = list(set([each.year_branch.branch for each in branch_obj]))
+                general_notification_obj = GeneralFacultyNotification.objects.filter(branch__in=branch_obj,
+                                                                                     is_active=True)[
+                                           :NOTIFICATION_SMALL_LIMIT]
+
+                num_general_notification = len(general_notification_obj)
+            all_notifications = list(notification_objs) + list(general_notification_obj)
+            final_notifications = sorted(all_notifications, key=lambda x: x.datetime)[:5]
+
+            for each in range(len(final_notifications)):
                 if not each in data:
-                    data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
+                    data[each] = serializers.serialize('json', [final_notifications[each], ], fields=(
                         'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
                     struct = json.loads(data[each])
                     data[each] = json.dumps(struct[0])
