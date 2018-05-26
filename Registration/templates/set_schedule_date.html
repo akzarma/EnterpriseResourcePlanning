@@ -6,7 +6,7 @@
 
 {% block content %}
 
-    <form method="POST" action="{% url 'registration:student_subject_registration' %}">
+    <form method="POST" action="{% url 'registration:student_subject' %}">
         {% csrf_token %}
         <div class="row col-md-3">
             {% for each in form %}

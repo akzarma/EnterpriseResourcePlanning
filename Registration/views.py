@@ -379,15 +379,15 @@ def set_schedule_date(request):
                 })
 
 
-def student_subject_registration(request):
-    user = request.user
-    if not user.is_anonymous:
-        if has_role(user, 'student'):
-            student = user.student
-            batch = student.batch
-            division = batch.division
-            # year_branch
-            return render(request, 'student_subject_registration.html')
+# def student_subject_registration(request):
+#     user = request.user
+#     if not user.is_anonymous:
+#         if has_role(user, 'student'):
+#             student = user.student
+#             batch = student.batch
+#             division = batch.division
+#             # year_branch
+#             return render(request, 'student_subject_registration.html')
 
 
 # def load_student_detail():
