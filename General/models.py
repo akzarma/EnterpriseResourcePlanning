@@ -7,7 +7,7 @@ from Registration.models import Subject, Faculty, Branch, Student
 class CollegeYear(models.Model):
     year = models.CharField(max_length=20)
     number = models.IntegerField(default=0)
-    no_of_sem = models.IntegerField()
+    # no_of_sem = models.IntegerField(default=0)
 
     def __str__(self):
         return self.year
@@ -54,6 +54,7 @@ class Semester(models.Model):
     #         return True
     #     else:
     #         return False
+
 
 # class StudentSemester(models.Model):
 #     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -140,9 +141,8 @@ class Schedule(models.Model):
     event = models.ForeignKey(Schedulable, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
+
 class ElectiveGroup(models.Model):
     year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     number_of_electives = models.IntegerField()
-
-

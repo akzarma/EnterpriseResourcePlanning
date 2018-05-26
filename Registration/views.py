@@ -10,6 +10,7 @@ from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSubject, Semester, \
     FacultySubject, Batch, YearBranch, ElectiveGroup, StudentSubject, YearSemester
+from General.views import notify_users
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User, RoleManager, RoleMaster
@@ -368,7 +369,11 @@ def set_schedule_date(request):
         else:
             form = DateScheduleForm(request.POST)
             if form.is_valid():
-                form.save()
+                obj  =form.save()
+                # below code is only for subject registration of student
+                notification_type = 'general'
+                # message = 'Subject Registration has been Scheduled from ' + obj.
+                notify_users()
                 return render(request, 'set_schedule_date.html', {
                     'success': 'Successfully saved',
                     'form': form
