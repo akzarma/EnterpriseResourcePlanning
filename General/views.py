@@ -2,21 +2,47 @@ import datetime
 from django.http import HttpResponse
 from django.shortcuts import render
 # Create your views here.
-from Dashboard.models import SpecificNotification
+from Dashboard.models import SpecificNotification, GeneralStudentNotification, GeneralFacultyNotification
 
 from General.models import Division, CollegeYear, Shift, BranchSubject, YearBranch
 from Registration.models import Branch
 
 
-def notify_users(notification_type, message, heading, user, type, action="Nothing for now"):
+def notify_users(notification_type, message, heading, users_obj, type='View', user_type='Student', action="Nothing for now",
+                 division=None, for_batch=False, batch=None, branch=None):
+    current_time = datetime.datetime.now()
     if notification_type == 'specific':
         notification_objs = []
-        for each_user in user:
+        for each_user in users_obj:
             notification_objs.append(
-                SpecificNotification(user=each_user, action=action, notification=message, heading=heading, datetime=datetime.datetime.now(), type=type))
+                SpecificNotification(user=each_user, action=action, notification=message, heading=heading,
+                                     datetime=current_time, type=type))
 
         SpecificNotification.objects.bulk_create(notification_objs)
     elif notification_type == "general":
+        notification_objs = []
+        if user_type == 'Student':
+
+            if for_batch:
+                # if for_batch:
+                for each_batch in batch:
+                    notification_objs.append(
+                        GeneralStudentNotification(action=action, heading=heading,
+                                                   datetime=current_time, notification=message, type=type,
+                                                   for_batch=for_batch, batch=each_batch))
+            else:
+                for each_division in division:
+                    notification_objs.append(
+                        GeneralStudentNotification(division=each_division, action=action, heading=heading,
+                                                   datetime=current_time, notification=message, type=type,
+                                                   for_batch=for_batch))
+            GeneralStudentNotification.objects.bulk_create(notification_objs)
+        elif user_type == 'Faculty':
+            for each_branch in branch:
+                notification_objs.append(GeneralFacultyNotification(action=action, heading=heading,
+                                                                    datetime=current_time, notification=message,
+                                                                    type=type, branch=each_branch))
+            GeneralFacultyNotification.objects.bulk_create(notification_objs)
         print("General Notification")
 
     else:

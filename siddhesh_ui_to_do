@@ -5,5 +5,7 @@ Siddhesh
  Done       Notification decrease size of info that is shown
             Notification selected using sway accept/decline option
         Excel Room Schedule UI
+        Navbar elements hover
+        Calendar on click on homepage should show date of the current timetable selected
         Timetable UI when select happens change the picker
-        "To Do list app django"
+        "To Do list app django"2
