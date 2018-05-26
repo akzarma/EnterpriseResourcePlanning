@@ -35,6 +35,7 @@
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.6.4/jquery.contextMenu.min.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.6.4/jquery.ui.position.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 
     <style>
@@ -186,6 +187,7 @@
             white-space: pre-line;
 
         }
+
         .notify-item {
             width: 350px;
             font-size: 0.8em;
@@ -360,7 +362,7 @@
                         heading.innerHTML = temp_json.fields.heading;
                         a.appendChild(heading);
                         let para = document.createElement('p');
-                        a.className = "notify-item"
+                        a.className = "notify-item";
                         para.innerHTML = temp_json.fields.notification.substr(0, 100) + '...';
                         a.appendChild(para);
                         a.setAttribute("value", each);
@@ -389,23 +391,9 @@
     });
 
     function showExpandedNotification(index) {
-        let text = document.getElementById('notification_overlay_text');
-        while (text.firstChild) {
-            text.removeChild(text.firstChild);
-        }
-
         let temp_json = JSON.parse(notifications_json[index]);
 
-        let heading = document.createElement('h2');
-        heading.innerHTML = temp_json.fields.heading;
-        text.appendChild(heading);
 
-        let para = document.createElement('h4');
-        para.innerHTML = temp_json.fields.notification;
-        text.appendChild(para);
-
-
-        document.getElementById("notification_overlay").style.display = "block";
     }
 
     function overlay_off() {
