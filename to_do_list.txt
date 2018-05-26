@@ -31,11 +31,11 @@ Shibashis:
 
 
 Akshay:
-    Change excel location to Media directory
+    Change excel location to Media directory  # ye to nhi hoga teko bhi pta hai.
     Student Subject registration (Has basic view and html in Registration app) : Same as ERP ()
     Set Dates for subject registration
     Student Excel
-    How to get current semester/year of the student
+    Done    How to get current semester/year of the student (I got it)
 
 
 Siddhesh:

@@ -155,3 +155,4 @@ SESSION_COOKIE_AGE = minutes * 60
 BROKER_URL = 'amqp://guest:**@localhost:5672//'
 
 APPEND_SLASH=True
+

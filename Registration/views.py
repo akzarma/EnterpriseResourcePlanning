@@ -9,7 +9,7 @@ from django.shortcuts import render, HttpResponse
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSubject, Semester, \
-    FacultySubject, Batch, YearBranch, StudentSubject
+    FacultySubject, Batch, YearBranch, StudentSubject, YearSemester
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User, RoleManager, RoleMaster
@@ -433,3 +433,29 @@ def student_subject(request):
         if is_faculty:
             return HttpResponse('Faculty')
         return render(request, 'register_student_subject.html')
+
+
+
+
+def register_year(request):
+    if request.method == 'GET':
+        return render(request, 'register_year.html')
+    elif request.method == 'POST':
+        year = request.POST.get('year')
+
+        no_of_sem = request.POST.get('no_of_sem')
+        # for i in range(int(no_of_sem)):
+        #     Semester.objects.create(semester=i+1)
+        year_number = request.POST.get('year_number')
+        year_obj = CollegeYear.objects.create(year=year, no_of_sem= no_of_sem, number=year_number)
+        for i in range(int(no_of_sem)):
+            try:
+                sem_obj = Semester.objects.get(semester=i+1, is_active=True)
+                # print(i+1, 'try')
+            except:
+                sem_obj = Semester.objects.create(semester=i+1)
+                # print(i+1, 'except')
+
+            YearSemester.objects.create(semester=sem_obj, year=year_obj)
+        return render(request, 'register_year.html', context={'success': 'Year '+year+' Saved!'})
+    return HttpResponse('Something is wrong!')
