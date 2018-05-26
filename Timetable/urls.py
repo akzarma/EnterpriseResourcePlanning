@@ -1,5 +1,6 @@
 from django.conf.urls import url
 
+# from Timetable import tasks
 from . import views
 
 app_name = 'Timetable'
@@ -14,5 +15,7 @@ urlpatterns = [
     url(r'^android_timetable_json/$', views.android_timetable_json, name='android_timetable_json'),
 
     # url(r'get_excel/$', views.get_excel, name='get_excel'),
+
+    url(r'^bg_task/$', views.bg_task, name='bg_task')
 
 ]

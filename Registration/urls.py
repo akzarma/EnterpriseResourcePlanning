@@ -15,7 +15,7 @@ urlpatterns = [
     url(r'^subject/$', views.register_subject, name='register_subject'),
 
     # /register/year - Register Year Details
-    url(r'^year/$', views.register_year, name='register_year'),
+    url(r'^year_detail/$', views.register_year_detail, name='register_year_detail'),
 
     # /register/studentsuccess/ - Register Student
     url(r'^student/success/$', views.success_student, name='success_student'),
@@ -43,10 +43,13 @@ urlpatterns = [
 
     url(r'change_password/$', views.change_password, name='change_password'),
 
+    url(r'student_subject/$', views.student_subject, name='student_subject'),
+
 
     url(r'set_schedule_date/$', views.set_schedule_date, name='set_schedule_date'),
 
     url(r'student_subject_registration/$', views.student_subject_registration, name='student_subject_registration'),
+    url(r'year/$', views.register_year, name='register_year'),
 
     url(r'^verification/email/(?P<key>[\w]+)/(?P<username>[\w]+)', views.verification_process,
         name="verification_process"),

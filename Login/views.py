@@ -24,8 +24,9 @@ def login_user(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(username=username, password=password)
-        if user.username == 'admin':
-            return HttpResponseRedirect('/admin/')
+        if hasattr(user, 'username'):
+            if user.username == 'admin':
+                return HttpResponseRedirect('/admin/')
         if user is not None:
             login(request, user)
             return HttpResponseRedirect('/dashboard/')
