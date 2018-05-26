@@ -775,6 +775,10 @@ class SubjectForm(forms.ModelForm):
         choices=[(i, i) for i in semester_list]
     )
 
+    type = forms.ChoiceField(
+        choices=[('Regular','Regular'),('Elective','Elective')]
+    )
+
     is_practical = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):

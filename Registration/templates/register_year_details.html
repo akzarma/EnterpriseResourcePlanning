@@ -1,0 +1,55 @@
+{% extends "dashboard_faculty.html" %}
+{% block content %}
+    <legend>Enter Year and Semester Details</legend>
+    <form action="{% url 'registration:register_year' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Branch</label>
+            <select name="branch">
+                {% for branch in branches %}
+                    <option value="{{ branch }}">{{ branch }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Year</label>
+            <select name="year">
+                {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Semester</label>
+            <input type="number" name="semester">
+        </div>
+        <div class="form-group">
+            <label>Number of electives</label>
+            <input type="number" name="elective_number">
+        </div>
+{#        <div class="form-group">#}
+{#            <label>Number of Semesters in this year</label>#}
+{#            <input type="number" name="no_of_semester">#}
+{#        </div>#}
+        <div class="form-group">
+            <label>Semester start date</label>
+            <input type="date" class="datepicker" name="semester_start_date">
+        </div>
+        <div class="form-group">
+            <label>Semester end date</label>
+            <input type="date" class="datepicker" name="semester_end_date">
+        </div>
+        <div class="form-group">
+            <label>Lecture start date</label>
+            <input type="date" class="datepicker" name="lecture_start_date">
+        </div>
+        <div class="form-group">
+            <label>Lecture end date</label>
+            <input type="date" class="datepicker" name="lecture_end_date">
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Submit">
+        </div>
+
+    </form>
+{% endblock content %}

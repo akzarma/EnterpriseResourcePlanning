@@ -1,0 +1,21 @@
+{% extends "dashboard_faculty.html" %}
+{% block content %}
+    <form method="POST" action="{% url 'registration:register_year' %}">
+        {% csrf_token %}
+
+        <div class="form-element">
+            <label>Year</label>
+            <input name="year" type="text">
+            <label>Year Number</label>
+            <input name="year_number" type="text">
+        </div>
+        <div class="form-element">
+            <label>Number of semsters</label>
+            <input name="no_of_sem" type="text">
+        </div>
+
+        <input type="submit">
+
+
+    </form>
+{% endblock content %}

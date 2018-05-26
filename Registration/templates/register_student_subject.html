@@ -1,0 +1,29 @@
+{% extends "./dashboard_student.html" %}
+{% block title %}Student Subject Registration {% endblock %}
+
+{% block content %}
+    <div class="panel panel-default">
+
+        <!-- Default panel contents -->
+        {#                    <div class="panel-heading">Heading</div>#}
+
+        <!-- Table -->
+        <table class="table">
+            <th>Sr. No</th>
+            <th>Subject</th>
+            <input name="ref" value="view_tournament" hidden>
+            {% for subject in subjects %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ subject }}</td>
+                </tr>
+            {% endfor %}
+
+        </table>
+
+    </div>
+    <form method="post" action="{% url 'registration:student_subject' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="button" class="btn btn-primary" value="Confirm" name="confirm_student_subject">
+    </form>
+{% endblock content %}

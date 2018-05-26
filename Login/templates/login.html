@@ -57,6 +57,12 @@
             background-color: #0379C4;
             background-image: linear-gradient(-180deg, #0399ee 0%, #0379C4 90%);
         }
+
+        @media only screen and (max-width: 767px) {
+            .login-form {
+                width: 100%;
+            }
+        }
     </style>
 {% endblock style %}
 {% block body %}
@@ -64,6 +70,7 @@
 
     <div class="logo">
         <a class="navbar-brand" href="/"><i class="glyphicon glyphicon-flash"></i></a>
+
         <p class="form-heading">Sign in to ERP</p>
     </div>
     <form method="post" action="{% url 'login:login' %}" enctype="multipart/form-data">

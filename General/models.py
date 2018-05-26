@@ -7,6 +7,7 @@ from Registration.models import Subject, Faculty, Branch, Student
 class CollegeYear(models.Model):
     year = models.CharField(max_length=20)
     number = models.IntegerField(default=0)
+    no_of_sem = models.IntegerField()
 
     def __str__(self):
         return self.year
@@ -40,8 +41,6 @@ class Division(models.Model):
 
 class Semester(models.Model):
     semester = models.PositiveIntegerField()
-    start_date = models.DateField(null=True)
-    end_date = models.DateField(null=True)
     is_active = models.BooleanField(default=True)
 
     # lectures_start_date = models.DateTimeField()
@@ -55,6 +54,21 @@ class Semester(models.Model):
     #         return True
     #     else:
     #         return False
+
+# class StudentSemester(models.Model):
+#     student = models.ForeignKey(Student, on_delete=models.CASCADE)
+#     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+#     is_active = models.BooleanField(default=True)
+
+class YearSemester(models.Model):
+    year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return str(self.year) + ' ' + str(self.semester) + " " + str(self.is_active)
 
 
 class Batch(models.Model):
@@ -70,6 +84,8 @@ class BranchSubject(models.Model):
     # year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
     year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+    type = models.CharField(max_length=20, null=True)
+    group = models.CharField(max_length=20, null=True, blank=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True)  # Should not be null=True
     end_date = models.DateField(null=True, blank=True)
@@ -94,6 +110,7 @@ class StudentDetail(models.Model):
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
     # batch = models.CharField(max_length=10)
     roll_number = models.PositiveIntegerField()
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -122,3 +139,10 @@ class Schedule(models.Model):
     end_date = models.DateField()
     event = models.ForeignKey(Schedulable, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+
+class ElectiveGroup(models.Model):
+    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+    number_of_electives = models.IntegerField()
+
+
