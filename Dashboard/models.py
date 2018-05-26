@@ -33,7 +33,7 @@ class GeneralStudentNotification(models.Model):
     action = models.CharField(max_length=500, default='')
     type = models.CharField(max_length=200, null=True)
     priority = models.IntegerField(default=1)
-    division = models.ForeignKey(Division, on_delete=models.CASCADE)
+    division = models.ForeignKey(Division, on_delete=models.CASCADE,null=True)
     batch = models.ForeignKey(Batch, null=True, on_delete=models.CASCADE)
     for_batch = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
