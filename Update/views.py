@@ -4,6 +4,7 @@ from django.shortcuts import render
 from UserModel.models import User, RoleManager
 from .forms import StudentUpdateForm, FacultyUpdateForm
 from Registration.models import Student
+from Exam.models import ExamMaster
 
 
 def update(request):
@@ -73,5 +74,12 @@ def update_role(request):
 
 
 def update_exam_status(request):
-    dataset = Entry.objects.all()
-    return render(request, 'update_exam_status.html')
+    dataSet = ExamMaster.objects.all()
+    if request.method == "GET":
+        return render(request, 'update_exam_status.html', {'dataset': dataSet, })
+    elif request.method == "POST":
+        id = request.POST.get('id')
+        exam = ExamMaster.objects.get(pk=id)
+        exam.is_active = not exam.is_active
+        exam.save()
+        return render(request, 'update_exam_status.html', {'dataset': dataSet, })

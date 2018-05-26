@@ -2,6 +2,58 @@
 {% block title %}
     Home
 {% endblock title %}
+{% block extra_style %}
+    .true{
+    width:55%;
+    padding: 5px;
+    border: 0 none;
+    font-weight: bold;
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+    color: #ffffff;
+    outline: 0 none;
+    }
+    .false{
+    width:55%;
+    padding: 5px;
+    border: 0 none;
+    font-weight: bold;
+    background: #d9534f;
+    border-color: #d43f3a;
+    color: #ffffff;
+    outline: 0 none;
+    }
+{% endblock extra_style %}
 {% block content %}
-    a
+
+
+    <!--Table-->
+    <table class="table table-responsive">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Exam Name</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Active</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for data in dataset %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ data.exam_name }}</td>
+                <td>{{ data.start_date }}</td>
+                <td>{{ data.end_date }}</td>
+                <td>
+                    <form action="{% url 'update:update_exam_status' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" value="{{ data.id }}" name="id"
+                                class="{{ data.is_active|lower }}">{{ data.is_active }}</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock content %}
