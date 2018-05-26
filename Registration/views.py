@@ -369,11 +369,17 @@ def set_schedule_date(request):
         else:
             form = DateScheduleForm(request.POST)
             if form.is_valid():
-                obj  =form.save()
+                obj = form.save()
                 # below code is only for subject registration of student
                 notification_type = 'general'
-                # message = 'Subject Registration has been Scheduled from ' + obj.
-                notify_users()
+                message = 'Subject Registration has been Scheduled from ' + obj.start_date.__str__() + ' to ' + obj.end_date.__str__()
+                heading = 'Subject Registration'
+                type = 'forward'
+                user_type = 'Student'
+                action = 'register/student_subject/'
+                division = Division.objects.filter(is_active=True)
+                notify_users(notification_type=notification_type, message=message, type=type, user_type=user_type,
+                             action=action, division=division, heading=heading)
                 return render(request, 'set_schedule_date.html', {
                     'success': 'Successfully saved',
                     'form': form

@@ -7,6 +7,7 @@ from Registration.models import Subject, Faculty, Branch, Student
 class CollegeYear(models.Model):
     year = models.CharField(max_length=20)
     number = models.IntegerField(default=0)
+
     # no_of_sem = models.IntegerField(default=0)
 
     def __str__(self):
@@ -34,6 +35,7 @@ class Division(models.Model):
     year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     division = models.CharField(max_length=1)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.year_branch) + ' ' + self.division
