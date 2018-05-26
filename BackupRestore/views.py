@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 import datetime
@@ -6,7 +8,7 @@ from shutil import copy
 
 # Create your views here.
 from BackupRestore.models import Backup
-from EnterpriseResourcePlanning.settings import PROJECT_ROOT, BASE_DIR
+from EnterpriseResourcePlanning.settings import PROJECT_ROOT, BASE_DIR, DATABASES
 from Registration.views import has_role
 
 
@@ -53,11 +55,18 @@ def restore(request):
             version = request.POST.get('version')
             obj = Backup.objects.get(version=version)
             all_new_version = Backup.objects.filter(version__gt=obj.version)
-
+            cpy = deepcopy(all_new_version)
             filename = version + '.sqlite3'
             path = '/BackupRestore/db/'
             src = BASE_DIR + path + filename
             dst = BASE_DIR + '/db.sqlite3'
+            DATABASES['temp'] = {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': src,
+            }
+            for each in all_new_version:
+                each.save(using='temp')
+            DATABASES.pop('temp')
             copy(src=src, dst=dst)
-
+            # Backup.objects.bulk_create(cpy,)
             return redirect('/backup/backup/')
