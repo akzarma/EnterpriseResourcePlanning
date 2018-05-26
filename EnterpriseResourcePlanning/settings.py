@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'Timetable.apps.TimetableConfig',
     'Update.apps.UpdateConfig',
     'Requests.apps.RequestsConfig',
-
+    'BackupRestore.apps.BackuprestoreConfig',
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
     'Report.apps.ReportConfig',
@@ -150,3 +150,5 @@ minutes = 30
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = minutes * 60
+
+APPEND_SLASH=True

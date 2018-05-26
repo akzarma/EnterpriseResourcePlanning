@@ -316,8 +316,8 @@ def excel_timetable(request):
     college_extra_detail = Division.objects.all()
 
     for each in college_extra_detail:
-        branch = each.branch.branch
-        year = each.year.year
+        branch = each.year_branch.branch.branch
+        year = each.year_branch.year.year
         division = each.division
 
         if branch in timetable_json:
