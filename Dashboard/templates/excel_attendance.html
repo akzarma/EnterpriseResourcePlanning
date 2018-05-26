@@ -6,14 +6,14 @@
 
 {% block content %}
 
-    <div class="row">
+    <div class="row col-md-3">
         <b>
             <div class="text-left">Subject-Wise Attendance</div>
             <br>
         </b>
         <form action="{% url 'dashboard:download_excel_attendance_subject' %}" method="get">
-            <div class="col-md-3">
-                <label>Select Branch</label>
+            <div class="form-group">
+                <label for="branch_select">Select Branch</label>
                 <select class="form-control" id="branch_select" onload="loadYear()" onchange="loadYear()"
                         name="branch">
                     {% for i in timetable.keys %}
@@ -21,21 +21,19 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
-                <label>Select Year</label>
+            <div class="form-group">
+                <label for="year_select">Select Year</label>
                 <select class="form-control" id="year_select" onload="loadDivision()" onchange="loadDivision()"
                         name="year">
 
                 </select>
             </div>
-            <div class="col-md-3">
-                <label>Select Division</label>
+            <div class="form-group">
+                <label for="division_select">Select Division</label>
                 <select class="form-control" id="division_select" name="division">
-
                 </select>
             </div>
-
-            <input type="submit">
+            <input type="submit" class="btn btn-primary">
 
         </form>
     </div>

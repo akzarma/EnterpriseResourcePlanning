@@ -3,7 +3,7 @@ Siddhesh
  Done       Login user icon
  Done       Time table select Button size
  Done       Notification decrease size of info that is shown
-            Notification selected using sway accept/decline option
-        Excel Room Schedule UI
+ Done           Notification selected using sway accept/decline option
+ Done       Excel Room Schedule UI
         Timetable UI when select happens change the picker
         "To Do list app django"

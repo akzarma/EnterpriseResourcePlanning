@@ -2,22 +2,29 @@
 {% block title %}
     Exam-Regsiter | ERP
 {% endblock title %}
+{% block extra_style %}
+    label{
+    margin-left:0;
+    }
 
-
+{% endblock extra_style %}
 {% block content %}
+    <div class="row col-md-3">
 
-    <form method="POST" action="{% url 'exam:exam_detail' %}">
-        {% csrf_token %}
+        <form method="POST" action="{% url 'exam:exam_detail' %}">
+            {% csrf_token %}
 
-        {% for each in form %}
-            {{ each.errors }}
-            {{ each.label }}
-            {{ each }}
-        {% endfor %}
-        <input type="submit">
-        <div id="div_subject"></div>
-    </form>
+            <div class="form-group">
+                {% for each in form %}
+                    {{ each.errors }}
+                    <label>{{ each.label }}</label>
+                    {{ each }}
+                {% endfor %}</div>
+            <input type="submit" class="btn btn-primary">
+            <div id="div_subject"></div>
+        </form>
 
+    </div>
 
     <script>
 
