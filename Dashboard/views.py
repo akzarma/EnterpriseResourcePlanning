@@ -316,8 +316,8 @@ def excel_timetable(request):
     college_extra_detail = Division.objects.all()
 
     for each in college_extra_detail:
-        branch = each.branch.branch
-        year = each.year.year
+        branch = each.year_branch.branch.branch
+        year = each.year_branch.year.year
         division = each.division
 
         if branch in timetable_json:
@@ -699,7 +699,7 @@ def toggle_availability(request):
             set(list(all_faculty_at_that_time) + [timetable_obj.faculty.user.username])))
         # free_faculty
         free_faculty = [Faculty.objects.get(pk=each) for each in free_faculty]
-        print('fREE', free_faculty)
+        print('Free', free_faculty)
 
         message = 'There is a free lecture available right now for ' + division.year_branch.year.year + ' ' + division.division + ' on ' \
                   + str(selected_timetable.date) + ' ' + time.__str__()

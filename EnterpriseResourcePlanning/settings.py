@@ -50,12 +50,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'UserModel.apps.UsermodelConfig',
     'Registration.apps.RegistrationConfig',
+    'Exam.apps.ExamConfig',
     'Dashboard.apps.DashboardConfig',
     'General.apps.GeneralConfig',
     'Login.apps.LoginConfig',
     'Timetable.apps.TimetableConfig',
     'Update.apps.UpdateConfig',
     'Requests.apps.RequestsConfig',
+    'BackupRestore.apps.BackuprestoreConfig',
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
     'Report.apps.ReportConfig',
@@ -151,3 +153,5 @@ SESSION_COOKIE_AGE = minutes * 60
 
 
 BROKER_URL = 'amqp://guest:**@localhost:5672//'
+
+APPEND_SLASH=True

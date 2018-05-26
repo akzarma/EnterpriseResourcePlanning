@@ -1,4 +1,4 @@
-RabbitMQtch]
+RabbitMQtch
 Indexing
 TensorFlow
 Ad-sense

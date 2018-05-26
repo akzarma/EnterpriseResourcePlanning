@@ -1,5 +1,5 @@
 {% extends './base.html' %}
-
+{#remove this#}
 {% block style %}
     <style>
         html, body {
@@ -115,7 +115,7 @@
         table, th, td {
         {#            border: 1px solid black;#} border-collapse: collapse;
             padding: 5px;
-            text-align: center;
+            text-align: left;
         }
 
         .block div {
@@ -301,7 +301,7 @@
         {% for yr in year %}
             {#                <option>{{ yr }}</option>#}
             <div class="container-fluid hidden" id="timetable_{{ yr }}">
-                <table style="width:100%;" id="time_tab_{{ yr }}">
+                <table id="time_tab_{{ yr }}">
                     <tr>
                         <th colspan="2" class="titlebar">Time</th>
                         {% for day in days %}
@@ -321,7 +321,7 @@
                                     {% for z in '1234567' %}
 
                                         {% if forloop.counter0 %}
-                                            <td class="block border-left" style="padding: 20px;">
+                                            <td class="border-left">
                                                 <input type="checkbox" class="cbx"
                                                        name="id_cbx_{{ time }}_{{ x }}_{{ z }}_{{ yr }}"
                                                        id="id_room_{{ time }}_{{ x }}_{{ z }}_{{ yr }}_cbx"
@@ -595,7 +595,7 @@
 
         var all_divisions = {{ division|safe }};
         var batches_json ={{ batches_json|safe }};
-        alert(batches_json);
+        {#remove this        alert(batches_json);#}
         var theory_room = {{ theory_room|safe }};
         var practical_room = {{ practical_room|safe }};
         var all_subjects = {{ all_subjects|safe }};

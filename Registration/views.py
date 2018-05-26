@@ -13,8 +13,15 @@ from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSu
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User, RoleManager, RoleMaster
-from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict
+from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict, DateScheduleForm
 from Configuration.stateConf import states
+
+
+def has_role(user, role):
+    if RoleManager.objects.filter(user=user, role=role, is_active=True).exists():
+        return True
+    else:
+        return False
 
 
 def view_subjects(request):
@@ -75,7 +82,7 @@ def register_student(request):
             division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
                                                 division=division, shift__shift=shift)
             batch_obj = Batch.objects.get(division=division_obj, batch_name=batch)
-            StudentDetail.objects.create(student=student,batch=batch_obj, roll_number=roll_number)
+            StudentDetail.objects.create(student=student, batch=batch_obj, roll_number=roll_number)
 
             # college_year_obj = CollegeYear.objects.get(year=year)
             # shift_obj = Shift.objects.get(shift=shift)
@@ -204,8 +211,9 @@ def test(request):
 
 def get_division(request):
     branch = request.POST.get('branch')
-    division_list = Division.objects.filter(year_branch__branch=Branch.objects.get(branch=branch)).values_list('division',
-                                                                                                  flat=True)
+    division_list = Division.objects.filter(year_branch__branch=Branch.objects.get(branch=branch)).values_list(
+        'division',
+        flat=True)
     return HttpResponse(division_list)
 
 
@@ -214,7 +222,7 @@ def get_shift(request):
     shift = request.POST.get('shift')
     division_list = Division.objects.filter(shift=Shift.objects.get(shift=shift),
                                             branch=Branch.objects.get(branch=branch)).values_list('division',
-                                                                                                            flat=True)
+                                                                                                  flat=True)
     return HttpResponse(division_list)
 
 
@@ -348,6 +356,38 @@ def verification_process(request, key, username):
     else:
         return render(request, 'login.html', {'error': 'Something is wrong.'})
 
+
+def set_schedule_date(request):
+    user = request.user
+    if not user.is_anonymous:
+        if request.method == 'GET':
+            form = DateScheduleForm()
+            return render(request, 'set_schedule_date.html', {
+                'form': form
+            })
+        else:
+            form = DateScheduleForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return render(request, 'set_schedule_date.html', {
+                    'success': 'Successfully saved',
+                    'form': form
+                })
+            else:
+                return render(request, 'set_schedule_date.html', {
+                    'form': form
+                })
+
+
+def student_subject_registration(request):
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'student'):
+            student = user.student
+            batch = student.batch
+            division = batch.division
+            # year_branch
+            return render(request, 'student_subject_registration.html')
 
 # def load_student_detail():
 #     all_students = Student.objects.all()

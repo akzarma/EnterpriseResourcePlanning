@@ -174,6 +174,9 @@ class Subject(models.Model):
     is_practical = models.BooleanField(default=False)
     # semester = models.IntegerField(default=1)
     credits = models.IntegerField(default=0)
+    is_elective = models.BooleanField(default=False)
+    elective_group = models.IntegerField(default=1)
+    course_pattern = models.IntegerField(default=2015)
 
     def __str__(self):
         return self.name
@@ -182,19 +185,21 @@ class Subject(models.Model):
 class Branch(models.Model):
     branch = models.CharField(max_length=50)
 
+    # is_active = models.BooleanField(default=True)
+
     def __str__(self):
         return str(self.branch)
 
+# Removing HOD table(Should be added in rolemanager)
+# class HOD(models.Model):
+#     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
+#     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+#     start_date = models.DateField(blank=True)
+#     end_date = models.DateField(null=True, blank=True)
+#     is_active = models.BooleanField(default=True)
 
-class HOD(models.Model):
-    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
-    start_date = models.DateField(blank=True)
-    end_date = models.DateField(null=True, blank=True)
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return str(self.faculty) + str(self.branch)
+# def __str__(self):
+# return str(self.faculty) + str(self.branch)
 
 # class StudentRollNumber(models.Model):
 #     student = models.ForeignKey(Student)

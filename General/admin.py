@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import StudentDetail, StudentSubject, BranchSubject, CollegeYear, Semester, Shift, \
-    FacultySubject, Batch, Division, YearBranch
+    FacultySubject, Batch, Division, YearBranch, Schedule, Schedulable
 
 # Register your models here.
 
@@ -14,4 +14,6 @@ admin.site.register(Division)
 admin.site.register(YearBranch)
 admin.site.register(Shift)
 admin.site.register(Batch)
+admin.site.register(Schedule)
+admin.site.register(Schedulable)
 # admin.site.register(SemesterPeriod)
