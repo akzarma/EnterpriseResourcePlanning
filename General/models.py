@@ -70,6 +70,8 @@ class BranchSubject(models.Model):
     # year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
     year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+    type = models.CharField(max_length=20)
+    group = models.CharField(max_length=20, null=True, blank=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True)  # Should not be null=True
     end_date = models.DateField(null=True, blank=True)
