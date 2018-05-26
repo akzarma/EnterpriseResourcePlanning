@@ -6,9 +6,8 @@ from Registration.models import Subject, Faculty, Branch, Student
 
 class CollegeYear(models.Model):
     year = models.CharField(max_length=20)
-    number = models.IntegerField(default=0)
-
-    # no_of_sem = models.IntegerField(default=0)
+    number = models.IntegerField(default=0, null=True)
+    no_of_semester = models.IntegerField(null=True)
 
     def __str__(self):
         return self.year
@@ -45,9 +44,6 @@ class Semester(models.Model):
     semester = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
 
-    # lectures_start_date = models.DateTimeField()
-    # lectures_end_date = models.DateTimeField()
-
     def __str__(self):
         return str(self.semester)
 
@@ -68,6 +64,8 @@ class YearSemester(models.Model):
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
+    lecture_start_date = models.DateField(null=True)
+    lecture_end_date = models.DateField(null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
