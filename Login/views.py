@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
-from General.models import StudentDetail, Division
+from General.models import StudentDetail, Division, FacultySubject
 from Registration.models import Faculty, Student, Branch
 from Timetable.models import Timetable
 from UserModel.models import User, RoleManager
@@ -65,8 +65,29 @@ def login_android(request):
                     faculty_response = {
                         'user_type': 'Faculty',
                         'initials': user.faculty.initials,
-                        'name': user.faculty.first_name + user.faculty.last_name
+                        'name': user.faculty.first_name + user.faculty.last_name,
                     }
+
+                    # Add subjects taught by faculty division-wise
+
+                    theory = FacultySubject.objects.filter(faculty=user.faculty, subject__is_practical=False)
+                    practical = FacultySubject.objects.filter(faculty=user.faculty, subject__is_practical=True)
+                    subject_json = {}
+                    theory_json = {}
+                    practical_json = {}
+                    for each in theory:
+                        theory_json[each.division.division] = []
+                    for each in theory:
+                        theory_json[each.division.division] += [each.subject.short_form]
+                    for each in practical:
+                        practical_json[each.division.division] = []
+                    for each in practical:
+                        practical_json[each.division.division] += [each.subject.short_form]
+
+                    subject_json['theory'] = theory_json
+                    subject_json['practical'] = practical_json
+                    faculty_response['subjects'] = subject_json
+                    print("Subject JSON", subject_json)
 
                     # return HttpResponse(str(faculty_response))
                     all_divisions = Division.objects.filter().all()

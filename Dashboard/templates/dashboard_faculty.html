@@ -277,8 +277,8 @@
 
             /* end .squaredOne */
 
-            /*Overlay*/
-            .overlay {
+            /*Not Available Div*/
+            .not-available {
                 display: none; /* Hidden by default */
                 width: 100%;
                 height: 100%;
@@ -382,13 +382,24 @@
                                                 value="{{ each.pk }}"
                                                 onclick="checkTimetable(this);">
                                             {% if each.not_available == True %}
-                                                <div id="{{ each.pk }}" style="display: block !important;"
-                                                     name="{{ each.pk }}" class="overlay my-context-menu">I'm not
-                                                    available
-                                                </div>
+                                                {% if user.faculty == each.substitute.faculty %}
+                                                    <div style="display: block;"
+                                                         class="not-available my-context-menu">You've taken lecture
+                                                        for {{ each.original.faculty.initials }}
+                                                    </div>
+                                                {% else %}
+                                                    <div id="{{ each.pk }}" style="display: block !important;"
+                                                         name="{{ each.pk }}" class="not-available my-context-menu">I'm
+                                                        not
+                                                        available
+                                                        {% if each.is_substituted is True %} <br/> Lecture taken by
+                                                            {{ each.substitute.faculty.initials }}
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
                                             {% else %}
                                                 <div id="{{ each.pk }}" name="{{ each.pk }}"
-                                                     class="overlay my-context-menu">I'm not available
+                                                     class="not-available my-context-menu">I'm not available
                                                 </div>
                                             {% endif %}
                                             {% if each.is_substituted is True %}
@@ -517,20 +528,19 @@
 {% endblock body %}
 
 {% block on_ready %}
-{#    <script>#}
-        {#$(document).ready(function () {#}
-        $('#sidebarCollapse').on('click', function () {
-            $('#sidebar').toggleClass('active');
-        });
+    {#    <script>#}
+    {#$(document).ready(function () {#}
+    $('#sidebarCollapse').on('click', function () {
+    $('#sidebar').toggleClass('active');
+    });
 
-        $('#txtDate').datepicker({
-            dateFormat: 'dd-mm-yy',
-            maxDate: 0
-        });
+    $('#txtDate').datepicker({
+    dateFormat: 'dd-mm-yy'
+    });
 
-        $('#dateButton').click(function () {
-            $('#txtDate').show().focus().hide();
-        });
+    $('#dateButton').click(function () {
+    $('#txtDate').show().focus().hide();
+    });
     {#</script>#}
 {% endblock on_ready %}
 
@@ -560,69 +570,6 @@
             form.submit();
         }
 
-        {#(function () {#}
-        {##}
-        {#    document.addEventListener("contextmenu", function (e) {#}
-        {#        console.log('preventing default');#}
-        {#        e.preventDefault();#}
-        {#        console.log(e.path.findIndex(function (param) {#}
-        {#            return param.className === 'card btn btn-info'#}
-        {#        }));#}
-        {#        let index = e.path.findIndex(function (param) {#}
-        {#            return param.className === 'card btn btn-info'#}
-        {#        });#}
-        {#        console.log('inside function');#}
-        {#        var text = '';#}
-        {#        if (index) {#}
-        {#            console.log('inside index');#}
-        {#            let element = $("button[name='date_timetable'][value='" + e.path[index].value + "']");#}
-        {##}
-        {#            $(element).contextMenu({#}
-        {#                selector: 'div',#}
-        {##}
-        {#                build: function ($triggerElement, e) {#}
-        {#                    if (element.find('#overlay').css("display") === "none") {#}
-        {#                        text = 'I am available';#}
-        {#                    }#}
-        {#                    else {#}
-        {#                        text = 'Not';#}
-        {#                    }#}
-        {#                    return {#}
-        {#                        callback: function (key, options) {#}
-        {##}
-        {#                                var m = "clicked: " + key + " on " + $(this).text;#}
-        {#                            window.console && console.log(m) || alert(e.path[index]);#}
-        {#                            console.log(e.path[index]);#}
-        {##}
-        {#                            $.ajax({#}
-        {#                                url: '{% url 'dashboard:toggle_availability' %}',#}
-        {#                                type: 'POST',#}
-        {#                                data: {#}
-        {#                                    'csrfmiddlewaretoken': '{{ csrf_token }}',#}
-        {#                                    'selected_timetable': e.path[index].value,#}
-        {#                                    'available': true#}
-        {#                                },#}
-        {#                                success: function (data) {#}
-        {#                                    alert(data);#}
-        {##}
-        {#                                    $(element).find('#overlay').css("display", "block");#}
-        {##}
-        {#                                }#}
-        {##}
-        {#                            });#}
-        {##}
-        {#                        },#}
-        {#                        items: {#}
-        {#                            menuItem: {name: text, icon: "info"}#}
-        {#                        }#}
-        {#                    };#}
-        {#                }#}
-        {#            });#}
-        {##}
-        {#        }#}
-        {#    })#}
-
-
 
         // Trigger action when the contexmenu is about to be shown
         $(document).bind("contextmenu", function (event) {
@@ -631,8 +578,15 @@
             {#let index = -1;#}
             let arr = event.target.classList;
             let found = false;
-            for (let i = 0; i < arr.length; i++) {
-                {#console.log(arr[i]);#}
+            var selected_date =
+                '{{ selected_date }}';
+            console.log(selected_date);
+            var splitted_date = selected_date.split('-');
+            console.log(splitted_date);
+            selected_date = new Date(splitted_date[2], splitted_date[1] - 1, splitted_date[0]);
+            console.log(selected_date);
+            for (let i = 0; i < arr.length && selected_date >= current_date; i++) {
+                console.log(arr[i]);
                 if (arr[i] === "my-context-menu") {
                     found = true;
                     break;
@@ -646,7 +600,7 @@
                 event.preventDefault();
 
                 let target = event.target;
-                {#alert(target.tagName);#}
+
                 if (target.tagName === "BUTTON") {
                     selected_ajax = target.value;
 
@@ -740,10 +694,25 @@
             var pk = obj.value;
 
             var overlay = $('#' + pk);
+
+            var selected_date =
+                '{{ selected_date }}';
+            var splitted_date = selected_date.split('-');
+            selected_date = new Date(splitted_date[2], splitted_date[1], splitted_date[0]);
+
             if (overlay.css("display") === "none") {
-               $("#timetable_form").submit;
+                if (selected_date > current_date) {
+                    alert("You can't mark attendance for future lectures");
+                    event.preventDefault();
+                } else {
+                    $("#timetable_form").submit;
+                }
             } else {
-                alert('You can\'t mark attendance for this lecture');
+                if (selected_date > current_date) {
+                    alert("You can't mark attendance for future lectures");
+                } else {
+                    alert('You can\'t mark attendance for this lecture');
+                }
                 event.preventDefault();
             }
 
