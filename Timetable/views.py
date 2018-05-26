@@ -5,6 +5,8 @@ import datetime
 from ipaddress import collapse_addresses
 
 import firebase_admin
+from celery import current_app
+from celery.task import task
 from django.db.models import Q
 from django.http.response import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
@@ -190,7 +192,7 @@ def fill_date_timetable(new_date_timetable):
     DateTimetable.objects.bulk_create(creation_list)
     # return HttpResponse('DOne')
 
-
+@task
 def save_timetable(request):
     if request.method == "POST":
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -756,3 +758,8 @@ def android_timetable_json(request):
 
     else:
         return HttpResponse('Error')
+
+
+def bg_task(request):
+    celery_app.send_task("Timetable.tasks.bg_task", [])
+    return HttpResponse('running in bg')

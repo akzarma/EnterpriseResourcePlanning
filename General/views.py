@@ -4,7 +4,7 @@ from django.shortcuts import render
 # Create your views here.
 from Dashboard.models import SpecificNotification
 
-from General.models import Division, CollegeYear, Shift, BranchSubject, YearBranch
+from General.models import Division, CollegeYear, Shift, BranchSubject, YearBranch, StudentDetail, Semester
 from Registration.models import Branch
 
 
@@ -46,4 +46,15 @@ def general(request):
     # for each in all_branch_subjects:
     #     each.college_detail = college_detail
     #     each.save()
+
+
+
+
+
+    # for each in StudentDetail.objects.all():
+    #     sem = Semester.objects.get(semester=2)
+    #     each.semester = sem
+    #     each.save()
     return HttpResponse("DONE")
+
+
