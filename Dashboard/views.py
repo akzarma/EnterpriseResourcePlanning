@@ -713,8 +713,6 @@ def toggle_availability(request):
         type = "Decision"
         notify_users(notification_type, message, heading, users_obj, type, action)
 
-
-
     return HttpResponse('success')
 
 
@@ -760,7 +758,12 @@ def show_all_notifications(request, page=1):
             if pages == 0:
                 pages = 1
 
-            return render(request, 'all_notifications.html', {
+            # return render(request, 'all_notifications.html', {
+            #     'notifications': notification_objs,
+            #     'pages': range(1, pages + 1),
+            #     'current_page': int(page),
+            # })
+            return render(request, 'all_categories_notification.html', {
                 'notifications': notification_objs,
                 'pages': range(1, pages + 1),
                 'current_page': int(page),

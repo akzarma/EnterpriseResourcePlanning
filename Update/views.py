@@ -70,3 +70,8 @@ def update_role(request):
     if request.method == 'GET':
         return render(request, 'update_role.html', context={'facultys'})
     return None
+
+
+def update_exam_status(request):
+    dataset = Entry.objects.all()
+    return render(request, 'update_exam_status.html')
