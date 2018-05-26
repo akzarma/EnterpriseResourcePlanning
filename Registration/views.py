@@ -255,6 +255,14 @@ def register_subject(request):
 
         else:
             subject_form = SubjectForm()
+            branches = Branch.objects.all()
+            years = CollegeYear.objects.all()
+            data = {}
+            for branch in branches:
+                data[branch.branch] = {}
+
+            for branch in branches:
+                data[branch.branch] = list(ElectiveGroup.objects.filter())
         return render(request, 'test_register_subject.html',
                       {'form': subject_form})
     return HttpResponseRedirect('/login')
