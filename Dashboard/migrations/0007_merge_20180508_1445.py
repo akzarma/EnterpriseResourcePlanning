@@ -8,12 +8,9 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Dashboard', '0007_merge_20180508_1445'),
+        ('Dashboard', '0006_auto_20180426_0439'),
+        ('Dashboard', '0006_auto_20180426_0357'),
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='specificnotification',
-            name='date',
-        ),
     ]
