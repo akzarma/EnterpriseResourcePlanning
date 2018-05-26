@@ -24,10 +24,16 @@ Store & Inventory Management System
 Shibashis:
     Agar substitute ne i am not available kiya toh?
     Semester mai aur do fields add karna hai. start and end for semester and start and end for timetable(lectures)
+    Elective subjects in subject registration
+    Elective subjects in database
+    Timetable for elective.
+    Lecture start date,end date in timetable.(HIGH PRIORITY)
 
 
 Akshay:
+    Change excel location to Media directory
     Student Subject registration (Has basic view and html in Registration app) : Same as ERP ()
+    Set Dates for subject registration
     Student Excel
     How to get current semester/year of the student
 
@@ -37,6 +43,13 @@ Siddhesh:
     Logo on tab
 
 
+Rahul:
+    Done    Register exam(Exam Master)
+    Done    Bind exam with subjects and branch and year
+            Edit dates of exam
+            While setting exam, set co-ordinator faculty for each subject
+            Edit dates of exam
+
 
 Exam:
     Student:
@@ -45,17 +58,17 @@ Exam:
         View Schedule
 
     Faculty:
-                View exams and their own schedule
+            View exams and their own schedule
 
 
     Coordinator:
-        Done    Register exam(Exam Master)
-        Done    Bind exam with subjects and branch and year
-                While setting exam, set co-ordinator faculty for each subject
-                Edit dates
-                Schedule students and faculty
-                Set Dates for subject registration
 
+
+
+                Schedule students and faculty
+
+
+Rahul:
 
 Notification:
     Faculty
