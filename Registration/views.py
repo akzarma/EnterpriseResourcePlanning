@@ -9,7 +9,7 @@ from django.shortcuts import render, HttpResponse
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSubject, Semester, \
-    FacultySubject, Batch, YearBranch
+    FacultySubject, Batch, YearBranch, ElectiveGroup
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User, RoleManager, RoleMaster
@@ -414,3 +414,31 @@ def student_subject_registration(request):
 #     return HttpResponse(StudentDetail.objects.all())
 #
 # load_student_detail()
+
+
+def register_year(request):
+    user = request.user
+    if not user.is_anonymous:
+        if request.method == 'GET':
+            branches = Branch.objects.all()
+            years = CollegeYear.objects.all()
+            return render(request, 'register_year_details.html', {
+                'branches' : branches,
+                'years' : years
+            })
+        else:
+            branches = Branch.objects.all()
+            years = CollegeYear.objects.all()
+            branch = request.POST.get('branch')
+            year = request.POST.get('year')
+            # no_of_semester = request.POST.get('no_of_semester')
+            branch_obj = Branch.objects.get(branch=branch)
+            year_obj = CollegeYear.objects.get(year=year)
+            year_branch_obj = YearBranch.objects.create(branch=branch_obj, year=year_obj, is_active=True)
+            ElectiveGroup.objects.create(year_branch=year_branch_obj, number_of_electives=int(request.POST.get('elective_number')))
+            return render(request, 'register_year_details.html', {
+                'branches' : branches,
+                'years': years,
+                'success' : 'Successfully registered details'
+            })
+    return HttpResponseRedirect('/login')

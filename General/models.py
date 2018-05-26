@@ -7,6 +7,7 @@ from Registration.models import Subject, Faculty, Branch, Student
 class CollegeYear(models.Model):
     year = models.CharField(max_length=20)
     number = models.IntegerField(default=0)
+    no_of_semester = models.IntegerField()
 
     def __str__(self):
         return self.year
@@ -43,9 +44,8 @@ class Semester(models.Model):
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     is_active = models.BooleanField(default=True)
-
-    # lectures_start_date = models.DateTimeField()
-    # lectures_end_date = models.DateTimeField()
+    lectures_start_date = models.DateTimeField(null=True)
+    lectures_end_date = models.DateTimeField(null=True)
 
     def __str__(self):
         return str(self.semester)
@@ -70,7 +70,7 @@ class BranchSubject(models.Model):
     # year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
     year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
-    type = models.CharField(max_length=20)
+    type = models.CharField(max_length=20, null=True)
     group = models.CharField(max_length=20, null=True, blank=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True)  # Should not be null=True
@@ -123,3 +123,8 @@ class Schedule(models.Model):
     end_date = models.DateField()
     event = models.ForeignKey(Schedulable, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+
+class ElectiveGroup(models.Model):
+    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+    number_of_electives = models.IntegerField()
