@@ -1,0 +1,22 @@
+{% extends 'dashboard_faculty.html' %}
+{% block title %}
+    Exam-Regsiter | ERP
+{% endblock title %}
+
+
+{% block content %}
+
+    <form method="POST" action="{% url 'exam:exam_register' %}">
+        {% csrf_token %}
+        <label for="exam_name" >Name:</label>
+        <input type="text" name="exam_name" id="exam_name" class="form-group">
+        <input type="submit">
+        <div id="div_subject"></div>
+    </form>
+
+
+
+
+{% endblock content %}
+
+

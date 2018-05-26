@@ -10,7 +10,7 @@ Fee Management System
 Examination Management System
 Mess & Hostel Management System
 Transport Management System
-Time Table (Student & Teachers)
+Time Table (Student & Teachers)jhkh,h,kjk,kk,kj,jkj
 Attendance Management system (Student & Employee)
 Alumni System
 Library Management System
@@ -28,15 +28,21 @@ Shibashis:
 
 Akshay:
     Student Subject registration (Has basic view and html in Registration app) : Same as ERP ()
+    Student Excel
+    How to get current semester/year of the student
+
+
+Siddhesh:
+    Notification swal/modal
+    Logo on tab
+
 
 
 Exam:
-
-
     Student:
         Register subjects
         View All Exams
-        view Schedule
+        View Schedule
 
     Faculty:
                 View exams and their own schedule
@@ -45,13 +51,25 @@ Exam:
     Coordinator:
         Done    Register exam(Exam Master)
         Done    Bind exam with subjects and branch and year
+                While setting exam, set co-ordinator faculty for each subject
                 Edit dates
                 Schedule students and faculty
                 Set Dates for subject registration
+
+
+Notification:
+    Faculty
+        Exam notifiations
+        Lecture taken by other teacher
+
+    Student
+
+        Notification about cancelled lectures
+        Notification about changed faculty
+        Exam notifications
+
 
 BUGS:
         Invalid username pe error
         Excel Timetable Error
         Excel room schedule download not working(Firefox)
-
-        Invalid username pe error
