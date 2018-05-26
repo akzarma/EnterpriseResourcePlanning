@@ -46,6 +46,14 @@
                 {{ form.is_practical.with_errors }}
             </div>
 
+
+        <input type="submit">
+
+
+    </form>
+    <form action={% url 'registration:view_subjects' %}>
+        <input type="submit" value="View Registered Subjects"/>
+    </form>
             <input type="submit" class="btn btn-primary">
         </form>
         <br>
