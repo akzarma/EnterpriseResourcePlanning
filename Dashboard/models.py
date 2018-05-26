@@ -9,7 +9,7 @@ class SpecificNotification(models.Model):
     datetime = models.DateTimeField()
     notification = models.CharField(max_length=5000)
     heading = models.CharField(max_length=100)
-    action = models.CharField(max_length=500,default='')
+    action = models.CharField(max_length=500, default='')
     type = models.CharField(max_length=200, null=True)
     is_active = models.BooleanField(default=True)
     priority = models.IntegerField(default=1)
@@ -17,4 +17,3 @@ class SpecificNotification(models.Model):
 
     def __str__(self):
         return self.heading + self.user.faculty.initials
-

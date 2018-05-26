@@ -3,7 +3,9 @@
     Excel-Room Schedule | ERP
 {% endblock title %}
 
+{% block extra_style %}
 
+{% endblock extra_style %}
 {% block content %}
     <div class="showbox" id="loading_div" style="display: none;">
         <div class="loader">
@@ -13,10 +15,10 @@
             </svg>
         </div>
     </div>
-    <div class="row" id="main_content">
+    <div class="row col-md-3" id="main_content">
         {#        <form action="{% url 'dashboard:download_excel_room_schedule' %}" method="get">#}
-        <div class="col-md-3">
-            <label>Select Branch</label>
+        <div class="form-group">
+            <label for="branch_select">Select Branch</label>
             <select class="form-control" id="branch_select" onload="loadRoom()" onchange="loadRoom()" name="branch">
                 {#                <option value="all">All</option>#}
                 {% for i in branch_room_json.keys %}
@@ -24,15 +26,15 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
-            <label>Select Room</label>
+        <div class="form-group">
+            <label for="room_select">Select Room</label>
             <select class="form-control" id="room_select" name="room">
                 <option value="all">All</option>
 
             </select>
         </div>
-
-        <input type="submit" onclick="download_file()">
+        <br>
+        <input type="submit" onclick="download_file()" class="btn btn-primary">
 
         {#        </form>#}
     </div>

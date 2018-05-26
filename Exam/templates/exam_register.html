@@ -3,18 +3,25 @@
     Exam-Regsiter | ERP
 {% endblock title %}
 
-
+{% block extra_style %}
+    label{
+    margin-left: 0;
+    }
+    .form-control{
+    margin-bottom:20px;
+    }
+{% endblock extra_style %}
 {% block content %}
+    <div class="row col-md-3">
+        <form method="POST" action="{% url 'exam:exam_register' %}">
+            {% csrf_token %}
+            <label for="exam_name">Name:</label>
+            <input type="text" name="exam_name" id="exam_name" class="form-control">
+            <input type="submit" class="btn btn-primary form-row">
+            <div id="div_subject"></div>
+        </form>
 
-    <form method="POST" action="{% url 'exam:exam_register' %}">
-        {% csrf_token %}
-        <label for="exam_name" >Name:</label>
-        <input type="text" name="exam_name" id="exam_name" class="form-group">
-        <input type="submit">
-        <div id="div_subject"></div>
-    </form>
-
-
+    </div>
 
 
 {% endblock content %}

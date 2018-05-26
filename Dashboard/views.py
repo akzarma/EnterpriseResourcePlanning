@@ -712,6 +712,9 @@ def toggle_availability(request):
         action = urls.reverse('dashboard:set_substitute', args=[selected_timetable.pk])
         type = "Decision"
         notify_users(notification_type, message, heading, users_obj, type, action)
+
+
+
     return HttpResponse('success')
 
 
