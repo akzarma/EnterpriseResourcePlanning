@@ -776,7 +776,8 @@ class SubjectForm(forms.ModelForm):
     )
 
     type = forms.ChoiceField(
-        choices=[('Regular','Regular'),('Elective','Elective')]
+        choices=[('Regular','Regular'),('Elective','Elective')],
+        attrs={'onchange': 'showElectiveGroup()'}
     )
 
     is_practical = forms.BooleanField(required=False)

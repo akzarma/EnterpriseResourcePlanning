@@ -229,32 +229,35 @@ def get_shift(request):
 
 
 def register_subject(request):
-    if request.method == 'POST':
+    user = request.user
+    if not user.is_anonymous:
+        if request.method == 'POST':
 
-        subject_form = SubjectForm(request.POST)
+            subject_form = SubjectForm(request.POST)
 
-        if subject_form.is_valid():
-            subject_obj = subject_form.save()
-            branch_object = Branch.objects.get(branch=subject_form.cleaned_data.get('branch'))
-            year_obj = CollegeYear.objects.get(year=subject_form.cleaned_data.get('year'))
-            semester_obj = Semester.objects.get(semester=subject_form.cleaned_data.get('semester'))
-            # subject_obj = Subject.objects.get(code=subject_form.cleaned_data.get('code'))
-            year_branch_obj = YearBranch.objects.get(branch=branch_object, year=year_obj)
-            branch_subject = BranchSubject(year_branch=year_branch_obj,
-                                           semester=semester_obj, subject=subject_obj)
-            branch_subject.save()
+            if subject_form.is_valid():
+                subject_obj = subject_form.save()
+                branch_object = Branch.objects.get(branch=subject_form.cleaned_data.get('branch'))
+                year_obj = CollegeYear.objects.get(year=subject_form.cleaned_data.get('year'))
+                semester_obj = Semester.objects.get(semester=subject_form.cleaned_data.get('semester'))
+                # subject_obj = Subject.objects.get(code=subject_form.cleaned_data.get('code'))
+                year_branch_obj = YearBranch.objects.get(branch=branch_object, year=year_obj)
+                branch_subject = BranchSubject(year_branch=year_branch_obj,
+                                               semester=semester_obj, subject=subject_obj)
+                branch_subject.save()
 
-            return render(request, 'test_register_subject.html',
-                          {'success': subject_obj.short_form + ' is Successfully registered',
-                           'form': SubjectForm()})
+                return render(request, 'test_register_subject.html',
+                              {'success': subject_obj.short_form + ' is Successfully registered',
+                               'form': SubjectForm()})
+
+            else:
+                return HttpResponse('error : ' + str(subject_form.errors))
 
         else:
-            return HttpResponse('error : ' + str(subject_form.errors))
-
-    else:
-        subject_form = SubjectForm()
-    return render(request, 'test_register_subject.html',
-                  {'form': subject_form})
+            subject_form = SubjectForm()
+        return render(request, 'test_register_subject.html',
+                      {'form': subject_form})
+    return HttpResponseRedirect('/login')
 
 
 def change_password(request):
@@ -370,7 +373,7 @@ def set_schedule_date(request):
         else:
             form = DateScheduleForm(request.POST)
             if form.is_valid():
-                obj  =form.save()
+                obj = form.save()
                 # below code is only for subject registration of student
                 notification_type = 'general'
                 # message = 'Subject Registration has been Scheduled from ' + obj.
@@ -498,7 +501,6 @@ def register_year_detail(request):
             year_obj = CollegeYear.objects.get(year=year)
             semester_obj = Semester.objects.get(semester=semester)
             year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
-
 
             semester_start_date = parse_date(request.POST.get('semester_start_date'))
             semester_end_date = parse_date(request.POST.get('semester_end_date'))
