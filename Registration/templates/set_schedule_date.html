@@ -6,7 +6,7 @@
 
 {% block content %}
 
-    <form method="POST" action="{% url 'registration:student_subject_registration' %}">
+    <form method="POST" action="{% url 'registration:set_schedule_date' %}">
         {% csrf_token %}
         <div class="row col-md-3">
             {% for each in form %}
