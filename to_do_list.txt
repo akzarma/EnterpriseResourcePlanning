@@ -24,11 +24,11 @@ Store & Inventory Management System
 Shibashis:
    Done     Agar substitute ne i am not available kiya toh?
    Done     Semester mai aur do fields add karna hai. start and end for semester and start and end for timetable(lectures)
-    Elective subjects in subject registration
-    Elective subjects in database
+   Done     Elective subjects in subject registration
+   Done     Elective subjects in database
     Timetable for elective.
    Done     Lecture start date,end date in timetable.(HIGH PRIORITY)
-    Timetable semester
+   Timetable semester
 
 
 Akshay:
