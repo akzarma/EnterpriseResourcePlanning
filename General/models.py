@@ -60,7 +60,7 @@ class Semester(models.Model):
 #     is_active = models.BooleanField(default=True)
 
 class YearSemester(models.Model):
-    year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
+    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
