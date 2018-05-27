@@ -5,7 +5,6 @@ from Configuration.stateConf import states
 from General.models import CollegeYear, Shift, Semester, FacultySubject, Batch, Division, Schedule, Schedulable
 from .models import Faculty, Subject, Student, Branch
 
-
 branch_list = Branch.objects.all()
 
 subject_list = Subject.objects.all()
@@ -764,15 +763,17 @@ class FacultyForm(forms.ModelForm):
 
 class SubjectForm(forms.ModelForm):
     branch = forms.ChoiceField(
-        choices=[(i,i) for i in branch_list])
+        choices=[(i, i) for i in branch_list])
     year = forms.ChoiceField(
         choices=[('FE', 'FE'), ('SE', 'SE'), ('TE', 'TE'), ('BE', 'BE'), ]
     )
 
-    semester = forms.ChoiceField()
+    semester = forms.ChoiceField(
+        choices=[(i.semester, i.semester) for i in Semester.objects.all()]
+    )
 
     type = forms.ChoiceField(
-        choices=[('Regular','Regular'),('Elective','Elective')],
+        choices=[('Regular', 'Regular'), ('Elective', 'Elective')],
     )
 
     is_practical = forms.BooleanField(required=False)
@@ -807,5 +808,3 @@ class DateScheduleForm(forms.ModelForm):
         model = Schedule
         fields = '__all__'
         exclude = ['is_active']
-
-

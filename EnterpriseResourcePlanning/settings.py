@@ -14,6 +14,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
@@ -159,3 +160,10 @@ NOTIFICATION_LONG_LIMIT = 5
 BROKER_URL = 'amqp://guest:**@localhost:5672//'
 
 # APPEND_SLASH=True
+
+
+# Tables to restore
+# RESTORE = []
+
+
+RESTORE_BATCH_SIZE = 500

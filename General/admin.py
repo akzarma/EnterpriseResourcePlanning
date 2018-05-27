@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import StudentDetail, StudentSubject, BranchSubject, CollegeYear, Semester, Shift, \
-    FacultySubject, Batch, Division, YearBranch, Schedule, Schedulable, YearSemester, ElectiveGroup
+    FacultySubject, Batch, Division, YearBranch, Schedule, Schedulable, ElectiveGroup, YearSemester
 
 # Register your models here.
 

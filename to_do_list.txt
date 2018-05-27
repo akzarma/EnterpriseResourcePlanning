@@ -37,6 +37,7 @@ Akshay:
     Set Dates for subject registration
     Student Excel
     Done    How to get current semester/year of the student (I got it)
+    Done    SemesterYear registeration
 
 
 Siddhesh:
@@ -50,7 +51,7 @@ Rahul:
             Edit dates of exam
             While setting exam, set co-ordinator faculty for each subject
             Edit dates of exam
-            Backup and restore bugs
+    Done    Backup and restore bugs
 
 
 Exam:
