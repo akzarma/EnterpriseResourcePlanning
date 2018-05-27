@@ -5,7 +5,6 @@ from Configuration.stateConf import states
 from General.models import CollegeYear, Shift, Semester, FacultySubject, Batch, Division, Schedule, Schedulable
 from .models import Faculty, Subject, Student, Branch
 
-semester_list = Semester.objects.all()
 
 branch_list = Branch.objects.all()
 
@@ -765,18 +764,15 @@ class FacultyForm(forms.ModelForm):
 
 class SubjectForm(forms.ModelForm):
     branch = forms.ChoiceField(
-        choices=[('Computer', 'Computer'), ('IT', 'IT'), ('EnTC', 'EnTC'), ('Mechanical', 'Mechanical'),
-                 ('Civil', 'Civil')])
+        choices=[(i,i) for i in branch_list])
     year = forms.ChoiceField(
         choices=[('FE', 'FE'), ('SE', 'SE'), ('TE', 'TE'), ('BE', 'BE'), ]
     )
 
-    semester = forms.ChoiceField(
-        choices=[(i, i) for i in semester_list]
-    )
+    semester = forms.ChoiceField()
 
     type = forms.ChoiceField(
-        choices=[('Regular','Regular'),('Elective','Elective')]
+        choices=[('Regular','Regular'),('Elective','Elective')],
     )
 
     is_practical = forms.BooleanField(required=False)
@@ -784,6 +780,8 @@ class SubjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SubjectForm, self).__init__(*args, **kwargs)
         for field in self.fields:
+            if field in ['type']:
+                self.fields[field].widget.attrs.update({'onchange': 'showElectiveGroup()'})
             self.fields[field].widget.attrs.update({'class': 'form-control'})
 
     class Meta:

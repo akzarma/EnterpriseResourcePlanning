@@ -41,19 +41,22 @@
                 {{ form.year.with_errors }}
             </div>
             <div class="form-group">
+                {{ form.type.label_tag }}
+                {{ form.type }}
+                {{ form.type.with_errors }}
+            </div>
+            <div class="form-group" id="elective_group" style="display: none;">
+                {{ form.elective_group.label_tag }}
+                {{ form.elective_group }}
+                {{ form.elective_group.with_errors }}
+            </div>
+            <div class="form-group">
                 {{ form.is_practical.label_tag }}
                 {{ form.is_practical }}
                 {{ form.is_practical.with_errors }}
             </div>
 
 
-        <input type="submit">
-
-
-    </form>
-    <form action={% url 'registration:view_subjects' %}>
-        <input type="submit" value="View Registered Subjects"/>
-    </form>
             <input type="submit" class="btn btn-primary">
         </form>
         <br>
@@ -62,4 +65,15 @@
         </form>
 
     </div>
+    <script>
+        function showElectiveGroup(){
+            let type = document.getElementById('id_type');
+            alert(type.value);
+            if(type.value === 'Elective') {
+                document.getElementById('elective_group').style.display = 'block';
+            } else {
+                document.getElementById('elective_group').style.display = 'none';
+            }
+        }
+    </script>
 {% endblock content %}

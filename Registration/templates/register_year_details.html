@@ -1,7 +1,7 @@
 {% extends "dashboard_faculty.html" %}
 {% block content %}
     <legend>Enter Year and Semester Details</legend>
-    <form action="{% url 'registration:register_year' %}" method="post">
+    <form action="{% url 'registration:register_year_detail' %}" method="post">
         {% csrf_token %}
         <div class="form-group">
             <label>Branch</label>
@@ -13,7 +13,8 @@
         </div>
         <div class="form-group">
             <label>Year</label>
-            <select name="year">
+            <select name="year" onchange="fillSemester()" id="year">
+                <option></option>
                 {% for year in years %}
                     <option value="{{ year }}">{{ year }}</option>
                 {% endfor %}
@@ -21,16 +22,12 @@
         </div>
         <div class="form-group">
             <label>Semester</label>
-            <input type="number" name="semester">
+            <select id="semester_div" name="semester"></select>
         </div>
         <div class="form-group">
             <label>Number of electives</label>
             <input type="number" name="elective_number">
         </div>
-{#        <div class="form-group">#}
-{#            <label>Number of Semesters in this year</label>#}
-{#            <input type="number" name="no_of_semester">#}
-{#        </div>#}
         <div class="form-group">
             <label>Semester start date</label>
             <input type="date" class="datepicker" name="semester_start_date">
@@ -52,4 +49,23 @@
         </div>
 
     </form>
+    <script>
+        function fillSemester() {
+            let year = document.getElementById('year');
+            let year_semester_json = {{ year_semester | safe }};
+            let semesters = year_semester_json[year.value];
+            console.log(semesters);
+            var semester_div = document.getElementById('semester_div');
+            while (semester_div.firstChild) {
+                semester_div.removeChild(semester_div.firstChild);
+            }
+            for (var sem in semesters) {
+                var opt = document.createElement('option');
+                opt.value = semesters[sem];
+                opt.text = semesters[sem];
+                semester_div.appendChild(opt);
+            }
+
+        }
+    </script>
 {% endblock content %}

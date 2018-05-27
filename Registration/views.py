@@ -5,6 +5,7 @@ import datetime
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse
+from django.utils.dateparse import parse_date
 
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
@@ -228,32 +229,43 @@ def get_shift(request):
 
 
 def register_subject(request):
-    if request.method == 'POST':
+    user = request.user
+    if not user.is_anonymous:
+        if request.method == 'POST':
 
-        subject_form = SubjectForm(request.POST)
+            subject_form = SubjectForm(request.POST)
 
-        if subject_form.is_valid():
-            subject_obj = subject_form.save()
-            branch_object = Branch.objects.get(branch=subject_form.cleaned_data.get('branch'))
-            year_obj = CollegeYear.objects.get(year=subject_form.cleaned_data.get('year'))
-            semester_obj = Semester.objects.get(semester=subject_form.cleaned_data.get('semester'))
-            # subject_obj = Subject.objects.get(code=subject_form.cleaned_data.get('code'))
-            year_branch_obj = YearBranch.objects.get(branch=branch_object, year=year_obj)
-            branch_subject = BranchSubject(year_branch=year_branch_obj,
-                                           semester=semester_obj, subject=subject_obj)
-            branch_subject.save()
+            if subject_form.is_valid():
+                subject_obj = subject_form.save()
+                branch_object = Branch.objects.get(branch=subject_form.cleaned_data.get('branch'))
+                year_obj = CollegeYear.objects.get(year=subject_form.cleaned_data.get('year'))
+                semester_obj = Semester.objects.get(semester=subject_form.cleaned_data.get('semester'))
+                # subject_obj = Subject.objects.get(code=subject_form.cleaned_data.get('code'))
+                year_branch_obj = YearBranch.objects.get(branch=branch_object, year=year_obj)
+                branch_subject = BranchSubject(year_branch=year_branch_obj,
+                                               semester=semester_obj, subject=subject_obj)
+                branch_subject.save()
 
-            return render(request, 'test_register_subject.html',
-                          {'success': subject_obj.short_form + ' is Successfully registered',
-                           'form': SubjectForm()})
+                return render(request, 'test_register_subject.html',
+                              {'success': subject_obj.short_form + ' is Successfully registered',
+                               'form': SubjectForm()})
+
+            else:
+                return HttpResponse('error : ' + str(subject_form.errors))
 
         else:
-            return HttpResponse('error : ' + str(subject_form.errors))
+            subject_form = SubjectForm()
+            branches = Branch.objects.all()
+            years = CollegeYear.objects.all()
+            data = {}
+            for branch in branches:
+                data[branch.branch] = {}
 
-    else:
-        subject_form = SubjectForm()
-    return render(request, 'test_register_subject.html',
-                  {'form': subject_form})
+            for branch in branches:
+                data[branch.branch] = list(ElectiveGroup.objects.filter())
+        return render(request, 'test_register_subject.html',
+                      {'form': subject_form})
+    return HttpResponseRedirect('/login')
 
 
 def change_password(request):
@@ -448,54 +460,94 @@ def student_subject(request):
 
 
 def register_year(request):
-    if request.method == 'GET':
-        return render(request, 'register_year.html')
-    elif request.method == 'POST':
-        year = request.POST.get('year')
+    user = request.user
+    if not user.is_anonymous:
+        if request.method == 'GET':
+            return render(request, 'register_year.html')
+        elif request.method == 'POST':
+            year = request.POST.get('year')
 
-        no_of_sem = request.POST.get('no_of_sem')
-        # for i in range(int(no_of_sem)):
-        #     Semester.objects.create(semester=i+1)
-        year_number = request.POST.get('year_number')
-        year_obj = CollegeYear.objects.create(year=year, no_of_sem=no_of_sem, number=year_number)
-        for i in range(int(no_of_sem)):
-            try:
-                sem_obj = Semester.objects.get(semester=i + 1, is_active=True)
-                # print(i+1, 'try')
-            except:
-                sem_obj = Semester.objects.create(semester=i + 1)
-                # print(i+1, 'except')
+            no_of_sem = request.POST.get('no_of_sem')
+            # for i in range(int(no_of_sem)):
+            #     Semester.objects.create(semester=i+1)
+            year_number = request.POST.get('year_number')
+            year_obj = CollegeYear.objects.create(year=year, no_of_sem=no_of_sem, number=year_number)
+            for i in range(int(no_of_sem)):
+                try:
+                    sem_obj = Semester.objects.get(semester=i + 1, is_active=True)
+                    # print(i+1, 'try')
+                except:
+                    sem_obj = Semester.objects.create(semester=i + 1)
+                    # print(i+1, 'except')
 
-            YearSemester.objects.create(semester=sem_obj, year=year_obj)
-        return render(request, 'register_year.html', context={'success': 'Year ' + year + ' Saved!'})
-    return HttpResponse('Something is wrong!')
+                YearSemester.objects.create(semester=sem_obj, year=year_obj)
+            return render(request, 'register_year.html', context={'success': 'Year ' + year + ' Saved!'})
+        return HttpResponse('Something is wrong!')
+    return HttpResponseRedirect('/login')
 
 
 def register_year_detail(request):
     user = request.user
     if not user.is_anonymous:
+        branches = Branch.objects.all()
+        years = CollegeYear.objects.all()
+        year_semester_json = {}
+        for yr in years:
+            year_semester_json[yr.year] = []
+        for yr in years:
+            year_semester_obj = YearSemester.objects.filter(year=yr, is_active=True)
+            for sem in year_semester_obj:
+                year_semester_json[yr.year] += [sem.semester.semester]
+
         if request.method == 'GET':
-            branches = Branch.objects.all()
-            years = CollegeYear.objects.all()
-            year_semester_json = {}
-            return render(request, 'register_year_details.html', {
-                'branches': branches,
-                'years': years
-            })
-        else:
-            branches = Branch.objects.all()
-            years = CollegeYear.objects.all()
-            branch = request.POST.get('branch')
-            year = request.POST.get('year')
-            # no_of_semester = request.POST.get('no_of_semester')
-            branch_obj = Branch.objects.get(branch=branch)
-            year_obj = CollegeYear.objects.get(year=year)
-            year_branch_obj = YearBranch.objects.create(branch=branch_obj, year=year_obj, is_active=True)
-            ElectiveGroup.objects.create(year_branch=year_branch_obj,
-                                         number_of_electives=int(request.POST.get('elective_number')))
             return render(request, 'register_year_details.html', {
                 'branches': branches,
                 'years': years,
+                'year_semester': year_semester_json
+            })
+
+        else:
+            branch = request.POST.get('branch')
+            year = request.POST.get('year')
+            semester = request.POST.get('semester')
+            # no_of_semester = request.POST.get('no_of_semester')
+            branch_obj = Branch.objects.get(branch=branch)
+            year_obj = CollegeYear.objects.get(year=year)
+            semester_obj = Semester.objects.get(semester=semester)
+            year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
+
+            semester_start_date = parse_date(request.POST.get('semester_start_date'))
+            semester_end_date = parse_date(request.POST.get('semester_end_date'))
+
+            if semester_end_date < semester_start_date:
+                return render(request, 'register_year_details.html', {
+                    'branches': branches,
+                    'years': years,
+                    'year_semester': year_semester_json,
+                    'error': 'Semester end date cannot be less than semester start date'
+                })
+
+            lecture_start_date = parse_date(request.POST.get('lecture_start_date'))
+            lecture_end_date = parse_date(request.POST.get('lecture_end_date'))
+
+            if lecture_end_date < lecture_start_date:
+                return render(request, 'register_year_details.html', {
+                    'branches': branches,
+                    'years': years,
+                    'year_semester': year_semester_json,
+                    'error': 'lecture end date cannot be less than lecture start date'
+                })
+
+            ElectiveGroup.objects.create(year_branch=year_branch_obj, semester=semester_obj,
+                                         number_of_electives=int(request.POST.get('elective_number')))
+            YearSemester.objects.create(year=year_obj, semester=semester_obj, start_date=semester_start_date,
+                                        end_date=semester_end_date, lecture_start_date=lecture_start_date,
+                                        lecture_end_date=lecture_end_date)
+
+            return render(request, 'register_year_details.html', {
+                'branches': branches,
+                'years': years,
+                'year_semester': year_semester_json,
                 'success': 'Successfully registered details'
             })
     return HttpResponseRedirect('/login')
