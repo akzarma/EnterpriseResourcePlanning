@@ -9,15 +9,14 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Registration', '0028_auto_20180426_0036'),
-        ('Attendance', '0001_initial'),
+        ('Exam', '0001_initial'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='facultyattendance',
-            name='faculty',
-            field=models.OneToOneField(default=0, on_delete=django.db.models.deletion.CASCADE, to='Registration.Faculty'),
+            model_name='examdetail',
+            name='exam',
+            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='Exam.ExamMaster'),
             preserve_default=False,
         ),
     ]

@@ -8,7 +8,8 @@ from General.models import Division, CollegeYear, Shift, BranchSubject, YearBran
 from Registration.models import Branch
 
 
-def notify_users(notification_type, message, heading, users_obj, type='View', user_type='Student', action="Nothing for now",
+def notify_users(notification_type, message, heading, users_obj=None, type='View', user_type='Student',
+                 action="Nothing for now",
                  division=None, for_batch=False, batch=None, branch=None):
     current_time = datetime.datetime.now()
     if notification_type == 'specific':
@@ -73,14 +74,8 @@ def general(request):
     #     each.college_detail = college_detail
     #     each.save()
 
-
-
-
-
     # for each in StudentDetail.objects.all():
     #     sem = Semester.objects.get(semester=2)
     #     each.semester = sem
     #     each.save()
     return HttpResponse("DONE")
-
-

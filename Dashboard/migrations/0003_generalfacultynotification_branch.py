@@ -10,14 +10,14 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('Registration', '0028_auto_20180426_0036'),
-        ('Attendance', '0001_initial'),
+        ('Dashboard', '0002_generalfacultynotification_generalstudentnotification'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='facultyattendance',
-            name='faculty',
-            field=models.OneToOneField(default=0, on_delete=django.db.models.deletion.CASCADE, to='Registration.Faculty'),
+            model_name='generalfacultynotification',
+            name='branch',
+            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.CASCADE, to='Registration.Branch'),
             preserve_default=False,
         ),
     ]

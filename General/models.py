@@ -6,8 +6,8 @@ from Registration.models import Subject, Faculty, Branch, Student
 
 class CollegeYear(models.Model):
     year = models.CharField(max_length=20)
-    number = models.IntegerField(default=0)
-    no_of_sem = models.IntegerField()
+    number = models.IntegerField(default=0, null=True)
+    no_of_semester = models.IntegerField(null=True)
 
     def __str__(self):
         return self.year
@@ -34,6 +34,7 @@ class Division(models.Model):
     year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     division = models.CharField(max_length=1)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.year_branch) + ' ' + self.division
@@ -43,9 +44,6 @@ class Semester(models.Model):
     semester = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
 
-    # lectures_start_date = models.DateTimeField()
-    # lectures_end_date = models.DateTimeField()
-
     def __str__(self):
         return str(self.semester)
 
@@ -54,6 +52,7 @@ class Semester(models.Model):
     #         return True
     #     else:
     #         return False
+
 
 # class StudentSemester(models.Model):
 #     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -65,6 +64,8 @@ class YearSemester(models.Model):
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
+    lecture_start_date = models.DateField(null=True)
+    lecture_end_date = models.DateField(null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -140,9 +141,8 @@ class Schedule(models.Model):
     event = models.ForeignKey(Schedulable, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
+
 class ElectiveGroup(models.Model):
     year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     number_of_electives = models.IntegerField()
-
-

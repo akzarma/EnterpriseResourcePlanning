@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'Registration.apps.RegistrationConfig',
     'Exam.apps.ExamConfig',
     'Dashboard.apps.DashboardConfig',
-    'General.apps.GeneralConfig',
     'Login.apps.LoginConfig',
     'Timetable.apps.TimetableConfig',
     'Update.apps.UpdateConfig',
@@ -61,6 +60,7 @@ INSTALLED_APPS = [
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
     'Report.apps.ReportConfig',
+    'General.apps.GeneralConfig',
     'django.contrib.humanize',
     'widget_tweaks',
 
@@ -156,8 +156,6 @@ APPEND_SLASH = True
 NOTIFICATION_SMALL_LIMIT = 5
 NOTIFICATION_LONG_LIMIT = 5
 
-
 BROKER_URL = 'amqp://guest:**@localhost:5672//'
 
-APPEND_SLASH=True
-
+# APPEND_SLASH=True
