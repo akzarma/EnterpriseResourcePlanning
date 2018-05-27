@@ -108,9 +108,9 @@ class FacultySubject(models.Model):
 
 class StudentDetail(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE, null=True)
     # batch = models.CharField(max_length=10)
-    roll_number = models.PositiveIntegerField()
+    roll_number = models.PositiveIntegerField(null=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 

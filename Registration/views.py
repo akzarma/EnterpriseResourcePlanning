@@ -454,17 +454,68 @@ def set_schedule_date(request):
 
 def student_subject(request):
     if request.method == 'POST':
-        # if request.POST.get('confirm_student_subject'):
-        pass
+        user = request.user
+        is_student = RoleManager.objects.filter(user=user, role__role='student')
+        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+        if is_student:
+            student = Student.objects.get(user=user)
+            student_detail = StudentDetail.objects.get(student=student, is_active=True)
+            subjects = BranchSubject.objects.filter(year_branch=student_detail.batch.division.year_branch,
+                                                    is_active=True)
+            no_of_semester = student_detail.batch.division.year_branch.year.no_of_semester
+            student_curr_sem_obj = student_detail.semester
+            student_curr_year_obj = student_detail.batch.division.year_branch.year
+            next_sem = (student_curr_sem_obj.semester % no_of_semester) + 1
+            try:
+                next_sem_obj = Semester.objects.get(semester=next_sem, is_active=True)
+            except:
+                return render(request, 'register_student_subject.html',
+                              context={'error': 'Semester object getting error!'})
+            if student_curr_sem_obj.semester == no_of_semester:
+                try:
+                    next_year_obj = CollegeYear.objects.get(number=(student_curr_year_obj.number + 1))
+
+                except Exception as e:
+                    return render(request, 'register_student_subject.html', context={'error': 'You are in final year.'})
+                try:
+                    student_new_detail = StudentDetail.objects.create(student=student_detail.student,
+                                                                      semester=next_sem_obj)
+                    next_batch_obj = Batch.objects.get_or_create(batch_name=student_detail.batch.batch_name,
+                                                                 division=Division.objects.get_or_create(
+                                                                     division=student_detail.batch.division.division,
+                                                                     shift=student_detail.batch.division.shift,
+                                                                     year_branch=YearBranch.objects.get(
+                                                                         year=next_year_obj,
+                                                                         branch=student_detail.batch.division.year_branch.branch))[0])[0]
+                    student_new_detail.batch = next_batch_obj
+                    student_new_detail.save()
+
+                except Exception as e:
+                    print(e)
+                    return render(request, 'register_student_subject.html', context={'error': 'Next batch creation failed!'})
+            else:
+                student_new_detail = StudentDetail.objects.create(student=student_detail.student,
+                                                                  semester=next_sem_obj)
+                next_batch_obj = Batch.objects.get_or_create(batch_name=student_detail.batch.batch_name,
+                                                             division=student_detail.batch.division)[0]
+                student_new_detail.batch = next_batch_obj
+                student_new_detail.save()
+            student_detail.is_active = False
+            student_detail.save()
+            # subjects = StudentSubject.objects.filter(student=student)
+            return render(request, 'register_student_subject.html', context={'subjects': subjects,
+                                                                             'success': 'Subjects registered successfully'})
+        if is_faculty:
+            return HttpResponse('Faculty')
     elif request.method == 'GET':
         user = request.user
         is_student = RoleManager.objects.filter(user=user, role__role='student')
         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
         if is_student:
             student = Student.objects.get(user=user)
-            student_detail = StudentDetail.objects.get(student=student)
-            subjects = BranchSubject.objects.filter(year_branch=student_detail.batch.division.year_branch)
-            # subjects = StudentSubject.objects.filter(student=student)
+            student_detail = StudentDetail.objects.get(student=student, is_active=True)
+            subjects = BranchSubject.objects.filter(year_branch=student_detail.batch.division.year_branch,
+                                                    is_active=True)
             return render(request, 'register_student_subject.html', context={'subjects': subjects})
         if is_faculty:
             return HttpResponse('Faculty')
@@ -483,7 +534,7 @@ def register_year(request):
             # for i in range(int(no_of_sem)):
             #     Semester.objects.create(semester=i+1)
             year_number = request.POST.get('year_number')
-            year_obj = CollegeYear.objects.create(year=year, no_of_sem=no_of_sem, number=year_number)
+            year_obj = CollegeYear.objects.create(year=year, no_of_semester=no_of_sem, number=year_number)
             for i in range(int(no_of_sem)):
                 try:
                     sem_obj = Semester.objects.get(semester=i + 1, is_active=True)
