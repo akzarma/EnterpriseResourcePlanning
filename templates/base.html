@@ -200,6 +200,15 @@
         .btn-primary {
             border-radius: 0px;
         }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #c5c5c5;
+        }
+
+        .dropdown-divider {
+
+        }
     </style>
     {% block style %}
 
@@ -404,6 +413,9 @@
                         a.setAttribute("onclick", "showExpandedNotification('" + each + "')");
                         li.appendChild(a);
                         notification_list.appendChild(li);
+                        let div = document.createElement('div');
+                        div.setAttribute('class', 'dropdown-divider');
+                        notification_list.appendChild(div);
                     }
 
                 }
