@@ -7,7 +7,7 @@
 {% block content %}
 
     <div class="row col-md-3">
-        <form action="{% url 'dashboard:download_excel_timetable' %}" method="get">
+        <form action="{% url 'report:download_excel_room_schedule' %}" method="get">
             <div class="form-group">
                 <label for="branch_select">Select Branch</label>
                 <select class="form-control" id="branch_select" onload="loadYear()" onchange="loadYear()" name="branch">
