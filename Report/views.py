@@ -1,4 +1,5 @@
 import json, copy
+import os
 from collections import OrderedDict
 from itertools import chain
 
@@ -32,7 +33,10 @@ from UserModel.models import User, RoleMaster, RoleManager
 def student_details(request):
     if request.method == 'POST':
         all_students = Student.objects.all()
-        workbook = xlsxwriter.Workbook('Students.xlsx')
+        directory = './media/documents/StudentDetails/'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        workbook = xlsxwriter.Workbook(directory + 'Students.xlsx')
         worksheet = workbook.add_worksheet()
 
         dark_gray = workbook.add_format()
@@ -104,7 +108,10 @@ def student_details(request):
 def get_excel(request):
     all_students = Student.objects.all()
 
-    workbook = xlsxwriter.Workbook('Students.xlsx')
+    directory = './media/documents/Students/'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    workbook = xlsxwriter.Workbook(directory+'StudentsEveryField.xlsx')
     worksheet = workbook.add_worksheet()
 
     all_fields = Student._meta._get_fields(reverse=False, include_parents=False)
@@ -249,7 +256,10 @@ def generate_excel_from_query_set(full_timetable, file_name, is_room=False, room
     answer = OrderedDict(sorted(answer.items(), key=lambda x: days.index(x[0])))
 
     # Create a workbook and add a worksheet.
-    workbook = xlsxwriter.Workbook(file_name + '.xlsx')
+    directory = './media/documents/TimeTable/'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    workbook = xlsxwriter.Workbook(directory + file_name + '.xlsx')
     worksheet = workbook.add_worksheet()
 
     col = 1
@@ -474,3 +484,59 @@ def excel_timetable(request):
     return render(request, 'excel_timetable.html', {
         'timetable': timetable_json
     })
+
+
+def faculty_details(request):
+    if request.method == 'POST':
+        all_faculties = Faculty.objects.all()
+        directory = './media/documents/FacultyDetails/'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        workbook = xlsxwriter.Workbook(directory + 'Faculty_'+datetime.date.today().__str__()+'.xlsx')
+        worksheet = workbook.add_worksheet()
+
+        dark_gray = workbook.add_format()
+        dark_gray.set_bg_color('#b2aeae')
+        dark_gray.set_border(1)
+
+        light_gray = workbook.add_format()
+        light_gray.set_border(1)
+        light_gray.set_bg_color('#f1eacf')
+        fields = request.POST.getlist('fields')
+        col = 1
+        row = 1
+        i = 0
+
+        for each_field in fields:
+            worksheet.write(row, col + i, each_field)
+            i += 1
+
+        col = 1
+        row = 3
+        i_row = 0
+        i_col = 0
+
+        for each_faculty in all_faculties:
+            i_col = 0
+            for each_field in fields:
+                try:
+                    if each_field == 'email':
+                        worksheet.write(row + i_row, col + i_col, each_faculty.user.email,
+                                        light_gray if i_row % 2 == 0 else dark_gray)
+                    else:
+                        worksheet.write(row + i_row, col + i_col, getattr(each_faculty, each_field),
+                                        light_gray if i_row % 2 == 0 else dark_gray)
+                except:
+                    pass
+                i_col += 1
+
+            i_row += 1
+        workbook.close()
+
+        return render(request, 'faculty_details.html', {'fields': StudentForm,
+                                                        'success': 'Done'})
+
+    elif request.method == 'GET':
+        return render(request, 'faculty_details.html', {
+            'fields': FacultyForm,
+        })
