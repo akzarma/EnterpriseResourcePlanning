@@ -310,9 +310,11 @@
                 <li>
                     <a href="#excelSubmenu" data-toggle="collapse" aria-expanded="false">Excel</a>
                     <ul class="collapse list-unstyled" id="excelSubmenu">
-                        <li><a href="{% url 'dashboard:excel_timetable' %}">TimeTable</a></li>
-                        <li><a href="{% url 'dashboard:excel_room_schedule' %}">Room Schedule</a></li>
-                        <li><a href="{% url 'dashboard:excel_attendance' %}">Attendance</a></li>
+                        <li><a href="{% url 'report:excel_timetable' %}">TimeTable</a></li>
+                        <li><a href="{% url 'report:excel_room_schedule' %}">Room Schedule</a></li>
+                        <li><a href="{% url 'report:excel_attendance' %}">Attendance</a></li>
+                        <li><a href="{% url 'report:student_details' %}">Student Data</a></li>
+                        <li><a href="{% url 'report:faculty_details' %}">Faculty Data</a></li>
 
                         {#                        <li><a href="{% url 'attendance:excel_student' %}">Student</a></li>#}
                         {#                        <li><a href="{% url 'dashboard:excel_faculty' %}">Fcaulty</a></li>#}
@@ -345,6 +347,8 @@
                     <a href="#registermenu" data-toggle="collapse" aria-expanded="false">Register</a>
                     <ul class="collapse list-unstyled" id="registermenu">
                         <li><a href="{% url 'registration:register_subject' %}">Subject</a></li>
+                        <li><a href="{% url 'registration:register_year' %}">New Year</a></li>
+                        <li><a href="{% url 'registration:register_year_detail' %}">Set Semester Details</a></li>
                         <li><a href="{% url 'registration:register_faculty_subject' %}">Bind faculty with subject</a>
                         <li><a href="{% url 'exam:exam_register' %}">Add new exam</a>
                         <li><a href="{% url 'exam:exam_detail' %}">Set exam</a>

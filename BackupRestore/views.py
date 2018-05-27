@@ -29,10 +29,11 @@ from General.models import BranchSubject, Batch, StudentDetail, StudentSubject, 
 from Registration.models import Branch, Student, Subject
 from Timetable.models import Timetable, DateTimetable, Room, Time
 
-RESTORE = {Timetable, FacultyAttendance, StudentAttendance, TotalAttendance, GeneralFacultyNotification,
-           GeneralStudentNotification, SpecificNotification, ExamDetail, ExamMaster, ExamSubject, Mark, MarksType,
-           Batch, BranchSubject, CollegeYear, Division, FacultySubject, Schedulable, Schedule, Semester, Shift,
-           StudentDetail, StudentSubject, YearBranch, Branch, Student, Subject, DateTimetable, Room, Time}
+RESTORE = [Subject, Student, Faculty, Branch, CollegeYear, Shift, YearBranch, Division, Semester, YearSemester, Batch,
+           ElectiveGroup, BranchSubject, FacultySubject, StudentDetail, StudentSubject, Schedulable, Schedule,
+           TotalAttendance, Room, Time, Timetable, DateTimetable, FacultyAttendance,
+           GeneralFacultyNotification, GeneralStudentNotification, SpecificNotification, ExamMaster, ExamDetail,
+           ExamSubject, Mark, MarksType, StudentAttendance]
 
 
 def backup(request):
@@ -106,7 +107,15 @@ def restore(request):
 
 def batch_migrate():
     for each_table in RESTORE:
+        # len1 = each_table.objects.using('default').all().count()
+
         each_table.objects.using('default').all().delete()
-        back_objs = each_table.objects.using('temp').all()
+
+        # len2 = len(each_table.objects.using('default').all())
+
+        # print(len1, len2)
+    for each_table in RESTORE:
+        back_objs = list(each_table.objects.using('temp').all())
+        # print('len=', len(back_objs))
         # print(each_table)
         each_table.objects.using('default').bulk_create(back_objs, batch_size=RESTORE_BATCH_SIZE)

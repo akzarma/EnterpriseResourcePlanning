@@ -5,16 +5,16 @@
 
 
 {% block content %}
-    <form action="{% url 'report:student_details' %}" method="POST">
+    <form action="{% url 'report:faculty_details' %}" method="POST">
         {% csrf_token %}
         <div class="row">
             {% for field in fields %}
                 <label><input type="checkbox" name="fields" value="{{ field.name }}">
                     {{ field.label }}</label>
             {% endfor %}
-            <label><input type="checkbox" name="fields" value="roll_number">
-                Roll Number</label>
+
         </div>
     <input type="submit" class="btn btn-primary">
     </form>
+
 {% endblock content %}

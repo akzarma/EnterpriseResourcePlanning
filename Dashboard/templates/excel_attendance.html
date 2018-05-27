@@ -11,7 +11,7 @@
             <div class="text-left">Subject-Wise Attendance</div>
             <br>
         </b>
-        <form action="{% url 'dashboard:download_excel_attendance_subject' %}" method="get">
+        <form action="{% url 'report:download_excel_attendance_subject' %}" method="get">
             <div class="form-group">
                 <label for="branch_select">Select Branch</label>
                 <select class="form-control" id="branch_select" onload="loadYear()" onchange="loadYear()"

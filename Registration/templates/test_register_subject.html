@@ -87,7 +87,7 @@
             if (type.value === 'Elective') {
                 let number_of_electives = parseInt(elective_data[branch][year][semester]);
                 for(let i=0;i<number_of_electives;i++) {
-                    var label = document.createTextNode(String.fromCharCode(97 + i));
+                    var label = document.createTextNode(String.fromCharCode(65 + i));
                     var input = document.createElement('input');
                     input.setAttribute('type','radio');
                     input.setAttribute('name','elective_group');

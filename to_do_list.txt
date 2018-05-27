@@ -22,22 +22,24 @@ Store & Inventory Management System
 ---------------------------------------------
 
 Shibashis:
-    Agar substitute ne i am not available kiya toh?
-    Semester mai aur do fields add karna hai. start and end for semester and start and end for timetable(lectures)
-    Elective subjects in subject registration
-    Elective subjects in database
+   Done     Agar substitute ne i am not available kiya toh?
+   Done     Semester mai aur do fields add karna hai. start and end for semester and start and end for timetable(lectures)
+   Done     Elective subjects in subject registration
+   Done     Elective subjects in database
     Timetable for elective.
-    Lecture start date,end date in timetable.(HIGH PRIORITY)
-    Timetable semester
+   Done     Lecture start date,end date in timetable.(HIGH PRIORITY)
+   Timetable semester
 
 
 Akshay:
-    Change excel location to Media directory  # ye to nhi hoga teko bhi pta hai.
-    Student Subject registration (Has basic view and html in Registration app) : Same as ERP ()
-    Set Dates for subject registration
-    Student Excel
+            Create excel faculty detail
+    Done    Change excel location to Media directory  # ye to nhi hoga teko bhi pta hai.
+    Done    Student Subject registration (Has basic view and html in Registration app) : Same as ERP ()
+            Set Dates for subject registration
+    Done    Student Excel
     Done    How to get current semester/year of the student (I got it)
     Done    SemesterYear registeration
+    Done    Excel code to Report
 
 
 Siddhesh:
