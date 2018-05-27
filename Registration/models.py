@@ -173,10 +173,10 @@ class Subject(models.Model):
     short_form = models.CharField(max_length=10)
     is_practical = models.BooleanField(default=False)
     # semester = models.IntegerField(default=1)
-    credits = models.IntegerField(default=0)
+    credits = models.IntegerField(default=0, blank=True)
     is_elective = models.BooleanField(default=False)
     elective_group = models.IntegerField(default=1)
-    course_pattern = models.IntegerField(default=2015)
+    course_pattern = models.IntegerField(default=2015,blank=True)
 
     def __str__(self):
         return self.name
