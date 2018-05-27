@@ -36,7 +36,8 @@ def student_details(request):
         directory = './media/documents/StudentDetails/'
         if not os.path.exists(directory):
             os.makedirs(directory)
-        workbook = xlsxwriter.Workbook(directory + 'Students.xlsx')
+        workbook = xlsxwriter.Workbook(directory + 'Students_'+datetime.date.today().__str__()
+                                       +'_'+datetime.datetime.today().time().__str__()+'.xlsx')
         worksheet = workbook.add_worksheet()
 
         dark_gray = workbook.add_format()
@@ -492,7 +493,8 @@ def faculty_details(request):
         directory = './media/documents/FacultyDetails/'
         if not os.path.exists(directory):
             os.makedirs(directory)
-        workbook = xlsxwriter.Workbook(directory + 'Faculty_'+datetime.date.today().__str__()+'.xlsx')
+        workbook = xlsxwriter.Workbook(directory + 'Faculty_'+datetime.date.today().__str__()
+                                       +'_'+datetime.datetime.today().time().__str__()+'.xlsx')
         worksheet = workbook.add_worksheet()
 
         dark_gray = workbook.add_format()
@@ -533,7 +535,7 @@ def faculty_details(request):
             i_row += 1
         workbook.close()
 
-        return render(request, 'faculty_details.html', {'fields': StudentForm,
+        return render(request, 'faculty_details.html', {'fields': FacultyForm,
                                                         'success': 'Done'})
 
     elif request.method == 'GET':
