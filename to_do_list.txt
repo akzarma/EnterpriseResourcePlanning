@@ -32,7 +32,7 @@ Shibashis:
 
 
 Akshay:
-            Create excel faculty detail
+    Done    Create excel faculty detail
     Done    Change excel location to Media directory  # ye to nhi hoga teko bhi pta hai.
     Done    Student Subject registration (Has basic view and html in Registration app) : Same as ERP ()
             Set Dates for subject registration
