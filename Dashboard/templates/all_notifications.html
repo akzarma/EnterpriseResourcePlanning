@@ -85,6 +85,7 @@
                 },
                 success: function (data) {
                     json_notifications = JSON.parse(data);
+                    temp_json = json_notifications;
                     console.log(json_notifications);
 
                     let modalTitle = document.getElementById("modal-title");
@@ -98,16 +99,6 @@
                     while (text.firstChild) {
                         text.removeChild(text.firstChild);
                     }
-
-                    /*let heading = document.createElement('h2');
-                    heading.setAttribute("class", "white-text");
-                    heading.innerHTML = json_notifications["fields"]["heading"];
-                    text.appendChild(heading);*/
-
-                    /*let para = document.createElement('h4');
-                    para.setAttribute("class", "white-text");
-                    para.innerHTML = json_notifications["fields"]["notification"];
-                    text.appendChild(para);*/
 
                     var split_action = json_notifications['fields']['action'].split('/');
                     var id = split_action[split_action.length - 1];
@@ -147,63 +138,6 @@
         }
 
 
-        function getSubjects(id) {
-            $.ajax({
-                url: '{% url 'dashboard:get_subjects' %}',
-                type: "POST",
-                data: {
-                    'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    'id': id,
-                },
-                success: function (data) {
-                    var subjects = JSON.parse(data);
-                    let text = document.getElementById('modal-footer');
-
-                    while (text.firstChild) {
-                        text.removeChild(text.firstChild);
-                    }
-                    var para = document.createElement('h4');
-                    para.innerHTML = "Which subject you're going to teach?&nbsp;";
-                    var select = document.createElement('select');
-                    select.id = "subject";
-                    for (let sub in subjects) {
-                        var option = document.createElement('option');
-                        option.text = subjects[sub];
-                        option.value = subjects[sub];
-                        select.appendChild(option);
-                    }
-                    para.appendChild(select);
-                    text.appendChild(para);
-
-                    let button = document.createElement('button');
-                    button.innerHTML = "Submit";
-                    button.setAttribute("class", "btn btn-info");
-                    button.setAttribute("onclick", "setSubstitute('" + json_notifications['fields']['action'] + "')");
-                    text.appendChild(button);
-
-
-                },
-                error: function () {
-                    alert("Error getting subjects :( Try again!")
-                }
-            })
-        }
-
-        function setSubstitute(url) {
-            $.ajax({
-                url: url,
-                type: "POST",
-                data: {
-                    'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    'subject': document.getElementById('subject').value
-                },
-                success: function (data) {
-                    alert(data);
-                    overlay_off();
-                }
-            });
-        }
-
         function readNotification() {
             var pk_list = [];
             $('#notification_table tr[class="info"]').each(function () {
@@ -222,7 +156,6 @@
                         'pk': JSON.stringify(pk_list)
                     },
                     success: function () {
-                        alert("Done");
                     }
                 });
             }
