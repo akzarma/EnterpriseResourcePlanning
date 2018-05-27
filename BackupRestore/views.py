@@ -106,7 +106,13 @@ def restore(request):
 
 def batch_migrate():
     for each_table in RESTORE:
+        len1 = len(each_table.objects.using('default').all())
+
         each_table.objects.using('default').all().delete()
-        back_objs = each_table.objects.using('temp').all()
+        back_objs = list(each_table.objects.using('temp').all())
+        print('len=', len(back_objs))
         print(each_table)
         each_table.objects.using('default').bulk_create(back_objs, batch_size=RESTORE_BATCH_SIZE)
+        len2 = len(each_table.objects.using('default').all())
+
+        print(len1, len2)

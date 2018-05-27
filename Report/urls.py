@@ -7,6 +7,8 @@ app_name = 'report'
 urlpatterns = [
     url(r'^student', views.student_details, name='student_details'),
 
+    url(r'^faculty', views.faculty_details, name='faculty_details'),
+
     url(r'^get_excel/$', views.get_excel, name='get_excel'),
 
     url(r'^get_timetable/$', views.get_timetable, name='get_timetable'),

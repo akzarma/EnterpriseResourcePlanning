@@ -5,7 +5,7 @@
 
 
 {% block content %}
-    <form action="{% url 'report:student_details' %}" method="POST">
+    <form action="{% url 'report:faculty_details' %}" method="POST">
         {% csrf_token %}
         <div class="row">
             {% for field in fields %}
@@ -17,4 +17,5 @@
         </div>
     <input type="submit" class="btn btn-primary">
     </form>
+
 {% endblock content %}
