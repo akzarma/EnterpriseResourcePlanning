@@ -60,7 +60,7 @@ class Semester(models.Model):
 #     is_active = models.BooleanField(default=True)
 
 class YearSemester(models.Model):
-    year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
+    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
@@ -69,8 +69,6 @@ class YearSemester(models.Model):
     is_active = models.BooleanField(default=True)
     number_of_electives = models.IntegerField(default=0)
 
-    def __str__(self):
-        return str(self.year) + ' ' + str(self.semester) + " " + str(self.is_active)
 
 
 class Batch(models.Model):

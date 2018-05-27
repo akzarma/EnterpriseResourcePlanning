@@ -242,12 +242,14 @@ def register_subject(request):
                 semester_obj = Semester.objects.get(semester=subject_form.cleaned_data.get('semester'))
                 type = subject_form.cleaned_data.get('type')
                 group = subject_form.cleaned_data.get('elective_group')
-                group_obj = ElectiveGroup.objects.get(year_branch__branch=branch_object, year_branch__year=year_obj, year_branch__is_active=True, semester=semester_obj)
+                group_obj = ElectiveGroup.objects.get(year_branch__branch=branch_object, year_branch__year=year_obj,
+                                                      year_branch__is_active=True, semester=semester_obj,
+                                                      group=chr(65 + group))
                 # subject_obj = Subject.objects.get(code=subject_form.cleaned_data.get('code'))
                 year_branch_obj = YearBranch.objects.get(branch=branch_object, year=year_obj)
-                branch_subject = BranchSubject(year_branch=year_branch_obj,
-                                               semester=semester_obj, subject=subject_obj, type=type)
-                branch_subject.save()
+                BranchSubject.objects.create(year_branch=year_branch_obj,
+                                               semester=semester_obj, subject=subject_obj, type=type, group=group_obj,
+                                               is_active=True)
 
                 return render(request, 'test_register_subject.html',
                               {'success': subject_obj.short_form + ' is Successfully registered',
@@ -281,7 +283,7 @@ def register_subject(request):
 
         print(elective_json)
 
-        return render(request, 'test_register_subject.html',{
+        return render(request, 'test_register_subject.html', {
             'form': subject_form,
             'data': json.dumps(elective_json)
         })
@@ -494,13 +496,15 @@ def student_subject(request):
                                                                      shift=student_detail.batch.division.shift,
                                                                      year_branch=YearBranch.objects.get(
                                                                          year=next_year_obj,
-                                                                         branch=student_detail.batch.division.year_branch.branch))[0])[0]
+                                                                         branch=student_detail.batch.division.year_branch.branch))[
+                                                                     0])[0]
                     student_new_detail.batch = next_batch_obj
                     student_new_detail.save()
 
                 except Exception as e:
                     print(e)
-                    return render(request, 'register_student_subject.html', context={'error': 'Next batch creation failed!'})
+                    return render(request, 'register_student_subject.html',
+                                  context={'error': 'Next batch creation failed!'})
             else:
                 student_new_detail = StudentDetail.objects.create(student=student_detail.student,
                                                                   semester=next_sem_obj)
@@ -563,12 +567,19 @@ def register_year_detail(request):
         branches = Branch.objects.all()
         years = CollegeYear.objects.all()
         year_semester_json = {}
-        for yr in years:
-            year_semester_json[yr.year] = []
-        for yr in years:
-            year_semester_obj = YearSemester.objects.filter(year=yr, is_active=True)
-            for sem in year_semester_obj:
-                year_semester_json[yr.year] += [sem.semester.semester]
+        for obj in YearSemester.objects.all():
+            branch = obj.year_branch.branch.branch
+            year = obj.year_branch.year.year
+            semester = obj.semester.semester
+            if branch in year_semester_json:
+                if year in year_semester_json[branch]:
+                    {}
+                else:
+                    year_semester_json[branch][year] = []
+            else:
+                year_semester_json[branch] = {}
+                year_semester_json[branch][year] = []
+            year_semester_json[branch][year] += [semester]
 
         if request.method == 'GET':
             return render(request, 'register_year_details.html', {
@@ -611,7 +622,7 @@ def register_year_detail(request):
 
             for i in range(int(request.POST.get('elective_number'))):
                 ElectiveGroup.objects.create(year_branch=year_branch_obj, semester=semester_obj,
-                                         group=chr(i+65))
+                                             group=chr(i + 65))
 
             year_sem_obj = YearSemester.objects.get(year=year_obj, semester=semester_obj, is_active=True)
             year_sem_obj.start_date = semester_start_date
