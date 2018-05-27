@@ -24,6 +24,6 @@
     </div>
     <form method="post" action="{% url 'registration:student_subject' %}" enctype="multipart/form-data">
         {% csrf_token %}
-        <input type="button" class="btn btn-primary" value="Confirm" name="confirm_student_subject">
+        <input type="submit" class="btn btn-primary" value="Confirm" name="confirm_student_subject">
     </form>
 {% endblock content %}
