@@ -6,10 +6,15 @@
     label{
     margin-left:0;
     }
-
+    .subject-name{
+    font-size:1.3em;
+    }
+    .subject-checkbox{
+    margin-right:10px!important;
+    }
 {% endblock extra_style %}
 {% block content %}
-    <div class="row col-md-3">
+    <div class="row col-md-6">
 
         <form method="POST" action="{% url 'exam:exam_detail' %}">
             {% csrf_token %}
@@ -20,8 +25,11 @@
                     <label>{{ each.label }}</label>
                     {{ each }}
                 {% endfor %}</div>
-            <input type="submit" class="btn btn-primary">
-            <div id="div_subject"></div>
+            <div id="div_subject" class=""></div>
+            <br>
+            <div class="col-lg-12">
+                <input type="submit" class="btn btn-primary">
+            </div>
         </form>
 
     </div>
@@ -59,20 +67,24 @@
                         let div = document.getElementById('div_subject');
                         $("#div_subject").empty();
                         let subjects = JSON.parse(data);
+
                         for (each in subjects) {
+                            let div_inside = document.createElement('div');
+                            div_inside.className = "col-lg-6";
                             let checkbox = document.createElement('input');
                             checkbox.type = "checkbox";
                             checkbox.name = "subject";
                             checkbox.value = subjects[each];
-                            {#checkbox.id = "id";#}
+                            checkbox.id = "id" + each;
+                            checkbox.className = "subject-checkbox";
 
                             let label = document.createElement('label');
-                            label.htmlFor = "id";
+                            label.htmlFor = "id" + each;
+                            label.className = "subject-name";
                             label.appendChild(document.createTextNode(subjects[each]));
-
-
-                            div.appendChild(checkbox);
-                            div.appendChild(label);
+                            div_inside.appendChild(checkbox);
+                            div_inside.appendChild(label);
+                            div.appendChild(div_inside);
                         }
 
                         {#console.log(abcd);#}
