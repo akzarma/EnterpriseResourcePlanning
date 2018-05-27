@@ -26,10 +26,7 @@ urlpatterns = [
     url(r'^view_subjects/$', views.view_subjects, name='view_subjects'),
 
     url(r'^register_faculty_subject/$', views.register_faculty_subject, name='register_faculty_subject'),
-    #     # /register/subjectsuccess/ - Register Subject
-    url(r'^subject/success/$', views.register_subject, name='register_success'),
 
-    # url(r'^success/$', views.success, name='register_success'),
     # /states/
     url(r'^states/India$', views.get_states, name='get_states'),
 
@@ -45,10 +42,10 @@ urlpatterns = [
 
     url(r'student_subject/$', views.student_subject, name='student_subject'),
 
-
     url(r'set_schedule_date/$', views.set_schedule_date, name='set_schedule_date'),
 
-    url(r'student_subject_registration/$', views.student_subject_registration, name='student_subject_registration'),
+    # url(r'student_subject_registration/$', views.student_subject_registration, name='student_subject_registration'),
+
     url(r'year/$', views.register_year, name='register_year'),
 
     url(r'^verification/email/(?P<key>[\w]+)/(?P<username>[\w]+)', views.verification_process,
