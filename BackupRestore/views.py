@@ -29,10 +29,7 @@ from General.models import BranchSubject, Batch, StudentDetail, StudentSubject, 
 from Registration.models import Branch, Student, Subject
 from Timetable.models import Timetable, DateTimetable, Room, Time
 
-RESTORE = {Timetable, FacultyAttendance, StudentAttendance, TotalAttendance, GeneralFacultyNotification,
-           GeneralStudentNotification, SpecificNotification, ExamDetail, ExamMaster, ExamSubject, Mark, MarksType,
-           Batch, BranchSubject, CollegeYear, Division, FacultySubject, Schedulable, Schedule, Semester, Shift,
-           StudentDetail, StudentSubject, YearBranch, Branch, Student, Subject, DateTimetable, Room, Time}
+RESTORE = {DateTimetable}
 
 
 def backup(request):
