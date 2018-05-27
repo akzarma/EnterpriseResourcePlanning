@@ -166,4 +166,4 @@ BROKER_URL = 'amqp://guest:**@localhost:5672//'
 # RESTORE = []
 
 
-RESTORE_BATCH_SIZE = 1000
+RESTORE_BATCH_SIZE = 500

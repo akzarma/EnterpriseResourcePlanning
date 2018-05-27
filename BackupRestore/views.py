@@ -108,5 +108,5 @@ def batch_migrate():
     for each_table in RESTORE:
         each_table.objects.using('default').all().delete()
         back_objs = each_table.objects.using('temp').all()
-
+        # print(each_table)
         each_table.objects.using('default').bulk_create(back_objs, batch_size=RESTORE_BATCH_SIZE)
