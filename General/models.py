@@ -26,7 +26,7 @@ class YearBranch(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.branch.branch + ' ' + str(self.year)
+        return self.branch.branch + ' ' + str(self.year.year)
 
 
 # Will be known as division
@@ -98,7 +98,7 @@ class BranchSubject(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.year_branch) + " " + self.subject.name
+        return str(self.year_branch.year) + " " + self.subject.name
 
 
 class FacultySubject(models.Model):
