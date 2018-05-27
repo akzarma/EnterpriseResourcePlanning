@@ -253,16 +253,28 @@ def register_subject(request):
             else:
                 return HttpResponse('error : ' + str(subject_form.errors))
 
-        else:
+        elif request.method == 'GET':
             subject_form = SubjectForm()
-            branches = Branch.objects.all()
-            years = CollegeYear.objects.all()
-            data = {}
-            for branch in branches:
-                data[branch.branch] = {}
+            all_elective = ElectiveGroup.objects.all()
+            elective_json = {}
+            for each_elective in all_elective:
+                branch = each_elective.year_branch.branch
+                year = each_elective.year_branch.year
+                semester = each_elective.semester
+                if branch in elective_json:
+                    if year in elective_json[branch]:
+                        if semester in elective_json[branch][year]:
+                            {}
+                        else:
+                            elective_json[branch][year][semester] = {}
+                    else:
+                        elective_json[branch][year] = {}
+                        elective_json[branch][year][semester] = {}
+                else:
+                    elective_json[branch] = {}
+                    elective_json[branch][year] = {}
+                    elective_json[branch][year][semester] = {}
 
-            for branch in branches:
-                data[branch.branch] = list(ElectiveGroup.objects.filter())
         return render(request, 'test_register_subject.html',
                       {'form': subject_form})
     return HttpResponseRedirect('/login')
