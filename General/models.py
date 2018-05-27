@@ -69,8 +69,6 @@ class YearSemester(models.Model):
     is_active = models.BooleanField(default=True)
     number_of_electives = models.IntegerField(default=0)
 
-    def __str__(self):
-        return str(self.year) + ' ' + str(self.semester) + " " + str(self.is_active)
 
 
 class Batch(models.Model):
