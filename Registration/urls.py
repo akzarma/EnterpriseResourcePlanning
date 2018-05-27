@@ -26,10 +26,7 @@ urlpatterns = [
     url(r'^view_subjects/$', views.view_subjects, name='view_subjects'),
 
     url(r'^register_faculty_subject/$', views.register_faculty_subject, name='register_faculty_subject'),
-    #     # /register/subjectsuccess/ - Register Subject
-    url(r'^subject/success/$', views.register_subject, name='register_success'),
 
-    # url(r'^success/$', views.success, name='register_success'),
     # /states/
     url(r'^states/India$', views.get_states, name='get_states'),
 

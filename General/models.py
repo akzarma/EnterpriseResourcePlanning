@@ -62,11 +62,12 @@ class Semester(models.Model):
 class YearSemester(models.Model):
     year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
-    start_date = models.DateField(null=True)
-    end_date = models.DateField(null=True)
-    lecture_start_date = models.DateField(null=True)
-    lecture_end_date = models.DateField(null=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    lecture_start_date = models.DateField(null=True, blank=True)
+    lecture_end_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    number_of_electives = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.year) + ' ' + str(self.semester) + " " + str(self.is_active)
@@ -80,13 +81,19 @@ class Batch(models.Model):
         return self.division.year_branch.year.year + ' ' + self.division.division + " " + self.batch_name
 
 
+class ElectiveGroup(models.Model):
+    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+    group = models.CharField(max_length=20, null=True)
+
+
 class BranchSubject(models.Model):
     # branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     # year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
     year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     type = models.CharField(max_length=20, null=True)
-    group = models.CharField(max_length=20, null=True, blank=True)
+    group = models.ForeignKey(ElectiveGroup, on_delete=models.CASCADE, null=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True)  # Should not be null=True
     end_date = models.DateField(null=True, blank=True)
@@ -140,9 +147,3 @@ class Schedule(models.Model):
     end_date = models.DateField()
     event = models.ForeignKey(Schedulable, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
-
-
-class ElectiveGroup(models.Model):
-    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE)
-    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
-    number_of_electives = models.IntegerField()

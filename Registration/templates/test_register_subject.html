@@ -1,14 +1,19 @@
 {% extends "dashboard_faculty.html" %}
 {% block content %}
     <div class="row col-md-3">
-
+        <legend>Enter Subject Details</legend>
         <form method="POST" id="subject_form" action="{% url 'registration:register_subject' %}">
             {% csrf_token %}
+            <div class="form-group">
+                {{ form.branch.label_tag }}
+                {{ form.branch }}
+                {{ form.branch.with_errors }}
+            </div>
 
             <div class="form-group">
-                {{ form.code.label_tag }}
-                {{ form.code }}
-                {{ form.code.with_errors }}
+                {{ form.year.label_tag }}
+                {{ form.year }}
+                {{ form.year.with_errors }}
             </div>
 
             <div class="form-group">
@@ -30,25 +35,29 @@
             </div>
 
             <div class="form-group">
-                {{ form.branch.label_tag }}
-                {{ form.branch }}
-                {{ form.branch.with_errors }}
+                {{ form.code.label_tag }}
+                {{ form.code }}
+                {{ form.code.with_errors }}
+            </div>
+            <div class="form-group">
+                {{ form.course_pattern.label_tag }}
+                {{ form.course_pattern }}
+                {{ form.course_pattern.with_errors }}
+            </div>
+            <div class="form-group">
+                {{ form.credits.label_tag }}
+                {{ form.credits }}
+                {{ form.credits.with_errors }}
             </div>
 
-            <div class="form-group">
-                {{ form.year.label_tag }}
-                {{ form.year }}
-                {{ form.year.with_errors }}
-            </div>
+
             <div class="form-group">
                 {{ form.type.label_tag }}
                 {{ form.type }}
                 {{ form.type.with_errors }}
             </div>
             <div class="form-group" id="elective_group" style="display: none;">
-                {{ form.elective_group.label_tag }}
-                {{ form.elective_group }}
-                {{ form.elective_group.with_errors }}
+                <label>Elective Group</label>
             </div>
             <div class="form-group">
                 {{ form.is_practical.label_tag }}
@@ -66,13 +75,32 @@
 
     </div>
     <script>
-        function showElectiveGroup(){
+        var elective_data = {{ data | safe }};
+        console.log(elective_data);
+
+        function showElectiveGroup() {
             let type = document.getElementById('id_type');
-            alert(type.value);
-            if(type.value === 'Elective') {
-                document.getElementById('elective_group').style.display = 'block';
+            let branch = document.getElementById('id_branch').value;
+            let year = document.getElementById('id_year').value;
+            let semester = document.getElementById('id_semester').value;
+            let elective_div = document.getElementById('elective_group');
+            if (type.value === 'Elective') {
+                let number_of_electives = parseInt(elective_data[branch][year][semester]);
+                for(let i=0;i<number_of_electives;i++) {
+                    var label = document.createTextNode(String.fromCharCode(97 + i));
+                    var input = document.createElement('input');
+                    input.setAttribute('type','radio');
+                    input.setAttribute('name','elective_group');
+                    input.setAttribute('value',i);
+                    elective_div.appendChild(input);
+                    elective_div.appendChild(label);
+                    elective_div.style.display = 'block';
+                }
             } else {
-                document.getElementById('elective_group').style.display = 'none';
+                for(let i=1;i<elective_div.childElementCount;i++) {
+                    elective_div.removeChild(elective_div.childNodes[i]);
+                }
+                elective_div.style.display = 'none';
             }
         }
     </script>
