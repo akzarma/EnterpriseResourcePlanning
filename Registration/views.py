@@ -563,12 +563,19 @@ def register_year_detail(request):
         branches = Branch.objects.all()
         years = CollegeYear.objects.all()
         year_semester_json = {}
-        for yr in years:
-            year_semester_json[yr.year] = []
-        for yr in years:
-            year_semester_obj = YearSemester.objects.filter(year=yr, is_active=True)
-            for sem in year_semester_obj:
-                year_semester_json[yr.year] += [sem.semester.semester]
+        for obj in YearSemester.objects.all():
+            branch = obj.year_branch.branch.branch
+            year = obj.year_branch.year.year
+            semester = obj.semester.semester
+            if branch in year_semester_json:
+                if year in year_semester_json[branch]:
+                    {}
+                else:
+                    year_semester_json[branch][year] = []
+            else:
+                year_semester_json[branch] = {}
+                year_semester_json[branch][year] = []
+            year_semester_json[branch][year] += [semester]
 
         if request.method == 'GET':
             return render(request, 'register_year_details.html', {
