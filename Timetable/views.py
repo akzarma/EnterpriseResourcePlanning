@@ -17,7 +17,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 
 from General.models import Division, BranchSubject, FacultySubject, CollegeYear, Batch, \
-    StudentDetail, Semester, YearBranch
+    StudentDetail, Semester, YearBranch, YearSemester
 from Registration.models import Branch, Subject, Faculty, Student
 from Registration.models import Branch, Subject
 from .models import Time, Room, Timetable, DateTimetable
@@ -181,14 +181,19 @@ def fill_date_timetable(new_date_timetable):
     creation_list = []
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     # Should always return 1 object
-    semester_obj = Semester.objects.get(start_date__lte=datetime.date.today(), end_date__gte=datetime.date.today())
-    start_date = semester_obj.start_date
-    end_date = semester_obj.end_date
-    date_range = (end_date - start_date).days + 1
-    for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
-        for each in new_date_timetable:
-            if days[date.weekday()] == each.day:
-                creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
+    branch_obj = Branch.objects.get(branch='Computer')
+    current_semester = Semester.objects.get(semester=1, is_active=True)
+    all_years = CollegeYear.objects.all()
+    for year in all_years:
+        year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year)
+        year_semester_obj = YearSemester.objects.get(year_branch=year_branch_obj, semester=current_semester, is_active=True)
+        start_date = year_semester_obj.lecture_start_date
+        end_date = year_semester_obj.lecture_end_date
+        date_range = (end_date - start_date).days + 1
+        for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
+            for each in new_date_timetable:
+                if days[date.weekday()] == each.day:
+                    creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
     DateTimetable.objects.bulk_create(creation_list)
     # return HttpResponse('DOne')
 

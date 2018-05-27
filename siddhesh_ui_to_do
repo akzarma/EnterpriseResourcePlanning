@@ -10,3 +10,4 @@ Siddhesh
         Parition for notifications on bell icon
         Timetable UI when select happens change the picker
         "To Do list app django"2
+        http://127.0.0.1:8000/dashboard/show_all_notifications/ All notifications of same width
