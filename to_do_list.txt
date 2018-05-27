@@ -51,7 +51,7 @@ Rahul:
             Edit dates of exam
             While setting exam, set co-ordinator faculty for each subject
             Edit dates of exam
-            Backup and restore bugs
+    Done    Backup and restore bugs
 
 
 Exam:
