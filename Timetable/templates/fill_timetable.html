@@ -499,8 +499,6 @@
                 {#                }#}
                 var facultySlots = data['timetable_assigned_blocked'];
                 {#                alert(data['timetable_assigned']);#}
-                {#                console.log('facultySlots');#}
-                {#                console.log(facultySlots);#}
                 blockSlots(facultySlots, allFaculty);
 
                 subjects_theory = data['subjects_theory'];
@@ -530,7 +528,6 @@
     function blockSlots(slots, allFaculty) {
         {#        alert(allFaculty);#}
         {#        alert(slots);#}
-        {#        console.log(slots);#}
         for (eachFaculty in allFaculty) {
             {#            alert('in for');#}
             {#            alert(eachFaculty);#}
@@ -811,8 +808,6 @@
                 });
 
             }
-                {#            console.log()#}
-                {#            }#}
             else {
                 var div_to_remove = document.getElementById(object.name);
 
@@ -839,13 +834,11 @@
                     {#                alert(uncheckedSubject.innerHTML);#}
                     var index = blocked[uncheckedSubject.innerHTML].indexOf(fullName);
                     if (index > -1) {
-                        {#console.log("found");#}
                         blocked[uncheckedSubject.innerHTML].splice(index, 1);
-                        {#console.log(blocked);#}
                     }
                     else {
                         console.log("Should never go here");
-                        console.log("Somethong wrongg with inserting code");
+                        console.log("Something wrong with inserting code");
                     }
                 }
                 object.nextElementSibling.innerHTML = "Select";

@@ -379,9 +379,7 @@
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
             success: function (data) {
-                console.log(data);
                 notifications_json = JSON.parse(data);
-                console.log(notifications_json);
                 current_date = new Date(notifications_json['today']);
 
                 var notification_list = document.getElementById('notification_dropdown');

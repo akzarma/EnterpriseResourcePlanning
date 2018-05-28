@@ -86,7 +86,6 @@
                 success: function (data) {
                     json_notifications = JSON.parse(data);
                     temp_json = json_notifications;
-                    console.log(json_notifications);
 
                     let modalTitle = document.getElementById("modal-title");
                     let modalBodyText = document.getElementById("modal-body-text");
@@ -145,8 +144,6 @@
                 this.classList.remove('info');
                 this.classList.add('active');
             });
-            console.log(pk_list);
-            console.log(pk_list.length);
             if (pk_list.length > 0) {
                 $.ajax({
                     url: '{% url 'dashboard:read_all_notification' %}',

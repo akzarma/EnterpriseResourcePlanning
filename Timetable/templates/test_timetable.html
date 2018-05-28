@@ -1,5 +1,8 @@
 {% extends './base.html' %}
 {#remove this#}
+{% block title %}
+    Timetable | ERP
+{% endblock title %}
 {% block style %}
     <style>
         html, body {
@@ -225,7 +228,6 @@
             color: #000;
         }
 
-
         .checked-cbx {
             width: 15px !important;
             height: 15px !important;
@@ -296,10 +298,17 @@
 {% endblock style %}
 
 {% block body %}
+    <form method="post" name="semester_form" id="semester_form" action="{% url 'Timetable:fill_timetable' %}">
+        {% csrf_token %}
+        <label for="id_semester">Semester: </label>
+        <select id="id_semester" name="current_semester" onchange="changeSemester()"
+                onfocus="set_previous_semester(this)">
+        </select>
+    </form>
     <form method="post" id="timetable_form" action="{% url 'Timetable:save_timetable' %}">
         {% csrf_token %}
         <label for="id_year">Year: </label>
-        <select id="id_year" onchange="set_subject()">
+        <select id="id_year" onchange="set_subject(); set_semester();">
             {% for yr in year %}
                 <option>{{ yr }}</option>
             {% endfor %}
@@ -309,6 +318,7 @@
 
         <select id="id_subject" onchange="change_selected_subject(this)">
         </select>
+
 
         <br>
         {% for yr in year %}
@@ -363,12 +373,22 @@
 {% endblock body %}
 
 {% block html %}
+    <script>
+        var previous_semester;
 
+        function set_previous_semester(obj) {
+            previous_semester = obj.value;
+            obj.blur();
+        }
+    </script>
 
 
     {#    Make Selected year timetable visible#}
     <script>
+
+
         var all_years = {{ year|safe }};
+        var year_semester_json = {{ semester_json|safe }};
 
         function make_timetable_visible() {
             for (i = 0; i < all_years.length; i++) {
@@ -377,6 +397,44 @@
             let year = document.getElementById("id_year").value;
             let timetable_object = document.getElementById('timetable_' + year);
             timetable_object.classList.remove("hidden");
+        }
+
+        function set_semester() {
+            let current_semester = {{ current_semester }};
+            let year = document.getElementById('id_year').value;
+            let semester_box = document.getElementById('id_semester');
+            while (semester_box.firstChild) {
+                semester_box.removeChild(semester_box.firstChild);
+            }
+
+            for (let i in year_semester_json[year]) {
+                let option = document.createElement('option');
+                option.value = year_semester_json[year][i];
+                option.text = year_semester_json[year][i];
+                semester_box.appendChild(option);
+            }
+            semester_box.value = current_semester;
+        }
+
+        function changeSemester() {
+            swal({
+                title: "Are you sure?",
+                text: "All the changes till this point will be lost . To save the changes, press submit.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+                .then((willDelete) => {
+                if(willDelete) {
+                    document.semester_form.submit();
+                } else {
+
+            $('#id_semester').val(previous_semester);
+        }
+        })
+            ;
+
+
         }
 
     </script>
@@ -414,7 +472,6 @@
 
             global_current_subject = current_subject;
 
-            {#console.log(block_list);#}
         }
     </script>
 
@@ -463,7 +520,6 @@
                                                     }
                                                 }
                                                 else {
-                                                    {#console.log("Is practical");#}
                                                     let current_batch = checkbox_object.id.split('_')[configuration['batch_index']];
                                                     let current_time = checkbox_object.id.split('_')[configuration['time_index']];
                                                     let current_day = checkbox_object.id.split('_')[configuration['day_index']];
@@ -491,7 +547,6 @@
                                                     else {
                                                         for (i in batch) {
                                                             let select_obj = document.getElementById(id + batch[i]);
-                                                            {#console.log(batch[i]);#}
                                                             let index = block_faculty_list[teachers[0]].indexOf(id + batch[i]);
                                                             block_faculty_list[teachers[0]].splice(index, 1);
 
@@ -507,7 +562,6 @@
 
                                                                         select_obj.add(option);
                                                                     }
-                                                                    {#console.log(id + batch[i]);#}
 
                                                                 }
                                                             }
@@ -566,8 +620,6 @@
             var selected_year = document.getElementById("id_year").value;
             var current_subjects_theory = subjects_json[selected_year]["theory"];
             var current_subjects_practical = subjects_json[selected_year]["practical"];
-            console.log(current_subjects_practical);
-            console.log(current_subjects_theory);
             //clears select options
             $('#id_subject').find('option').remove();
             //add theory subject
@@ -648,7 +700,6 @@
                 let id = checkbox_object.id;
                 let selected_subject = document.getElementById("id_subject").value;
                 {#alert('dict');#}
-                console.log(selected_subject);
                 let id_splilt_array = id.split('_');
                 let division = id_splilt_array[configuration['division_index']];
                 let time = id_splilt_array[configuration['time_index']];
@@ -768,7 +819,6 @@
                         checkbox_object.parentElement.classList.remove("practical-cbx-parent");
                     }
                     else {
-                        {#console.log('id_subject_' + time + '_' + division + '_' + day);#}
                         let local_selected_subject = document.getElementById('id_subject_' + time + '_' + division + '_' + day + "_" + year).value;
                         let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];
                         let index = subject_dictionary[local_selected_subject].indexOf(id);
@@ -1085,7 +1135,6 @@
 
         function set_previous_room(obj) {
             previous_room = obj.value;
-            {#console.log(previous_room);#}
             obj.blur();
         }
     </script>
@@ -1094,7 +1143,6 @@
 
         function set_previous_faculty(obj) {
             previous_faculty = obj.value;
-            {#console.log(previous_faculty);#}
             obj.blur();
         }
     </script>
@@ -1145,8 +1193,6 @@
                     let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + current_div + '_' + cbx[4] + '_' + current_year;
                     if (!(current_div === cbx[configuration['division_index']] && current_year === cbx[configuration['year_index']] && cbx.length <= 6)) {
                         if (complement === false) {
-                            {#console.log(current_room);#}
-                            {#console.log(counterrr);#}
                             counterrr += 1;
                             block_room_list[current_room].push(block_id);
                             if (document.getElementById(block_id)) {
@@ -1201,7 +1247,6 @@
             let year_obj = document.getElementById('id_year');
             let subject_obj = document.getElementById('id_subject');
             $.each(timetable_instance_theory, function (id, content) {
-                {#console.log(id, content);#}
 
                 let faculty = content['faculty'];
                 let room = content['room'];
@@ -1224,14 +1269,10 @@
                 cbx_obj.checked = true;
 
                 add_remove_from_dictionary(cbx_obj);
-                console.log(cbx_obj);
 
                 let room_id = 'id_room_' + time + '_' + division + '_' + day + '_' + year;
                 {#$('#' + room_id).val(room);#}
-
-                console.log(room_id);
                 let room_obj = document.getElementById(room_id);
-                console.log(room_obj);
                 previous_room = room_obj.value;
                 room_obj.value = room;
                 {#cbx_obj.checked = true;#}
@@ -1250,8 +1291,6 @@
                 {#alert(subject);#}
                 {#alert(year);#}
             });
-            {#console.log("here");#}
-            {#console.log(timetable_instance_practical);#}
             $.each(timetable_instance_practical, function (id, content) {
 
                 let faculty = content['faculty'];
@@ -1309,10 +1348,11 @@
             create_room_dictionary();
             create_subject_dictionary();
             create_faculty_block_dictionary();
-
             set_subject();
-
             fill_timetable();
+
+            set_semester();
+
         }
     </script>
 

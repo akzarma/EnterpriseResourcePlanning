@@ -55,7 +55,6 @@
             let year = document.getElementById('year');
             let year_semester_json = {{ year_semester | safe }};
             let semesters = year_semester_json[branch.value][year.value];
-            console.log(semesters);
             var semester_div = document.getElementById('semester_div');
             while (semester_div.firstChild) {
                 semester_div.removeChild(semester_div.firstChild);
