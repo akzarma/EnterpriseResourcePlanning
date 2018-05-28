@@ -456,6 +456,12 @@
             button.setAttribute("class", "btn btn-danger");
             button.setAttribute("onclick", "overlay_off()");
             text.appendChild(button);
+        }else if(temp_json["fields"]["type"] == "forward"){
+            let a = document.createElement('a');
+            a.innerHTML = "Go To Subject Registration";
+            a.setAttribute("class", "btn btn-success");
+            a.setAttribute("href", temp_json["fields"]["action"]);
+            text.appendChild(a);
         }
 
         else {
