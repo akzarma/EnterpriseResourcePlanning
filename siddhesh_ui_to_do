@@ -3,9 +3,8 @@ Siddhesh
  Done       Login user icon
  Done       Time table select Button size
  Done       Notification decrease size of info that is shown
-            Notification selected using sway accept/decline option
-        Excel Room Schedule UI
-        Navbar elements hover
+ Done       Excel Room Schedule UI
+ Done       Navbar elements hover
         Calendar on click on homepage should show date of the current timetable selected
         Parition for notifications on bell icon
         Timetable UI when select happens change the picker
