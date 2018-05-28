@@ -52,7 +52,8 @@ def fill_timetable(request):
     # subjects_obj = BranchSubject.objects.filter(year_branch=college_detail[0])
     subjects = []
     faculty = list(
-        FacultySubject.objects.filter(division__in=Division.objects.filter(year_branch__in=year_branch_obj)).values_list(
+        FacultySubject.objects.filter(
+            division__in=Division.objects.filter(year_branch__in=year_branch_obj)).values_list(
             'faculty__initials', flat=True).distinct())
     divisions_js = ""
     for i in divisions:
@@ -127,7 +128,8 @@ def fill_timetable(request):
         #     ]
 
     full_timetable_theory = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj, is_practical=False)
-    full_timetable_practical = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj, is_practical=True)
+    full_timetable_practical = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
+                                                        is_practical=True)
 
     timetable_instance = {}
     timetable_instance_practical = {}
@@ -135,7 +137,8 @@ def fill_timetable(request):
     for each_time_table in full_timetable_theory:
         timetable_instance[
             'id_room_' + each_time_table.time.__str__() + '_' + each_time_table.division.division + '_' + str(
-                days.index(each_time_table.day) + 2) + '_' + each_time_table.division.year_branch.year.year + '_cbx'] = {
+                days.index(
+                    each_time_table.day) + 2) + '_' + each_time_table.division.year_branch.year.year + '_cbx'] = {
             'faculty': each_time_table.faculty.initials,
             'room': each_time_table.room.room_number,
             'subject': each_time_table.branch_subject.subject.short_form,
@@ -152,7 +155,6 @@ def fill_timetable(request):
             'subject': each_time_table.branch_subject.subject.short_form,
             'is_practical': 'true'
         }
-
 
     print(batches_json)
 
@@ -183,10 +185,12 @@ def fill_date_timetable(new_date_timetable):
     # Should always return 1 object
     branch_obj = Branch.objects.get(branch='Computer')
     current_semester = Semester.objects.get(semester=1, is_active=True)
-    all_years = CollegeYear.objects.all()
+    all_years = set(CollegeYear.objects.all()) - set(CollegeYear.objects.filter(year='FE'))
     for year in all_years:
+        print(branch_obj, year)
         year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year)
-        year_semester_obj = YearSemester.objects.get(year_branch=year_branch_obj, semester=current_semester, is_active=True)
+        year_semester_obj = YearSemester.objects.get(year_branch=year_branch_obj, semester=current_semester,
+                                                     is_active=True)
         start_date = year_semester_obj.lecture_start_date
         end_date = year_semester_obj.lecture_end_date
         date_range = (end_date - start_date).days + 1
@@ -196,6 +200,7 @@ def fill_date_timetable(new_date_timetable):
                     creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
     DateTimetable.objects.bulk_create(creation_list)
     # return HttpResponse('DOne')
+
 
 @task
 def save_timetable(request):
@@ -248,7 +253,8 @@ def save_timetable(request):
                 if len(token) < 5:  # theory
                     timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                          is_practical=False)
-                    room = Room.objects.get(room_number=room_number, branch=branch_subject.year_branch.branch, lab=False)
+                    room = Room.objects.get(room_number=room_number, branch=branch_subject.year_branch.branch,
+                                            lab=False)
 
                     if timetable:
                         full_timetable.remove(timetable[0])
@@ -427,7 +433,8 @@ def get_excel(request):
 
     answer = OrderedDict()
 
-    for each in sorted(full_timetable, key=lambda x: (days.index(x.day), x.division.year_branch.year.number, x.time.starting_time)):
+    for each in sorted(full_timetable,
+                       key=lambda x: (days.index(x.day), x.division.year_branch.year.number, x.time.starting_time)):
         year = each.branch_subject.year_branch.year.year
         branch = each.branch_subject.year_branch.branch.branch
 
@@ -613,7 +620,8 @@ def android_timetable_json(request):
 
             college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
 
-            full_timetable = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj, division=college_extra_detail)
+            full_timetable = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
+                                                      division=college_extra_detail)
             # faculty_json = {}
             for each in full_timetable:
                 year = each.branch_subject.year_branch.year.year
@@ -733,7 +741,6 @@ def android_timetable_json(request):
                     substitute = each.substitute.faculty.initials
                 if is_practical:
                     batch = each.original.batch.batch_name
-
 
                     faculty_json[faculty][date][time] = {
                         'branch': branch,
