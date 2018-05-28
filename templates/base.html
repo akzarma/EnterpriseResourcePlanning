@@ -201,20 +201,17 @@
             border-radius: 0px;
         }
 
-        .dropdown-divider {
-            height: 1px;
-            background: #c5c5c5;
+        .navbar {
+            padding: 0;
         }
 
-        .dropdown-divider {
-
-        }
     </style>
     {% block style %}
 
     {% endblock style %}
 </head>
 <body>
+
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -413,9 +410,6 @@
                         a.setAttribute("onclick", "showExpandedNotification('" + each + "')");
                         li.appendChild(a);
                         notification_list.appendChild(li);
-                        let div = document.createElement('div');
-                        div.setAttribute('class', 'dropdown-divider');
-                        notification_list.appendChild(div);
                     }
 
                 }

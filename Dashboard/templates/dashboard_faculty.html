@@ -371,14 +371,13 @@
                 <div class="row">
                     <div class="col-md-4">
                         <legend>Timetable</legend>
-
                         {#                            <input type="hidden" name="selected_date"#}
                         {#                                   value="{{ selected_date }}">#}
                         <form action="{% url 'dashboard:dashboard' %}" method="post" onsubmit="event.preventDefault();"
                               id="date_form">
                             {% csrf_token %}
-                            <h4 style="text-align:center;text-transform: uppercase ">Lectures
-                                on {{ selected_date }}
+                            <h4 style="text-align:center; ">Lectures on
+                                <span id="current_datePickerDate">{{ selected_date }}</span>
                                 {#                                <div id="datepicker" class="input-group date" data-date-format="mm-dd-yyyy">#}
                                 {#                                    <input class="form-control" type="text" value="{{ selected_date.month }}-{{ selected_date.day }}-{{ selected_date.year }}"/>#}
                                 {#                                    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>#}
@@ -581,12 +580,11 @@
 
     <script type="text/javascript">
 
-
+        var current_datePickerDate = document.getElementById('current_datePickerDate');
         $(function () {
             $("#datepicker").datepicker({
                 autoclose: true,
-                todayHighlight: true
-            }).datepicker('update', new Date());
+            }).datepicker('setDate', '12-05-2000');
         });
 
     </script>
