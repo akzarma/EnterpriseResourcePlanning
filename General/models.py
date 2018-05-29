@@ -67,10 +67,31 @@ class YearSemester(models.Model):
     lecture_start_date = models.DateField(null=True, blank=True)
     lecture_end_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
-    number_of_electives_groups = models.IntegerField(default=0)
+    number_of_elective_groups = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.year_branch) + " " + str(self.semester)
+
+    def save(self, *args, **kwargs):
+        models.Model.save(self, *args, **kwargs)
+        branch_obj = Branch.objects.get(branch=self.year_branch.branch)
+        year_obj = CollegeYear.objects.get(year=self.year_branch.year)
+        # YearSemester.objects.get_or_create(semester=self.semester, year_branch=self.year_branch)
+
+        year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
+
+        for i in range(self.number_of_elective_groups):
+            ElectiveGroup.objects.create(year_branch=year_branch_obj, semester=self.semester,
+                                         group=chr(i + 65))
+        year_branch_obj = YearBranch.objects.get(year=year_obj, branch=branch_obj, is_active=True)
+        # year_sem_obj = YearSemester.objects.get(year_branch=year_branch_obj, semester=self.semester, is_active=True)
+        # year_sem_obj.start_date = self.start_date
+        # year_sem_obj.end_date = self.end_date
+        # year_sem_obj.lecture_start_date = self.lecture_start_date
+        # year_sem_obj.lecture_end_date = self.lecture_end_date
+        # year_sem_obj.number_of_electives_groups = self.number_of_elective_groups
+        # year_sem_obj.save()
+
 
 
 class Batch(models.Model):
@@ -147,6 +168,7 @@ class Schedulable(models.Model):
 
     def __str__(self):
         return self.name
+
     def event_active(self, name):
         if self.name == name:
             today = datetime.date.today()
@@ -154,6 +176,7 @@ class Schedulable(models.Model):
                 if self.end_date > today > self.created_date:
                     return True
         return False
+
 
 class Schedule(models.Model):
     start_date = models.DateField()

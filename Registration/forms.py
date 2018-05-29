@@ -765,7 +765,7 @@ class SubjectForm(forms.ModelForm):
     branch = forms.ChoiceField(
         choices=[(i.branch, i.branch) for i in branch_list])
     year = forms.ChoiceField(
-        choices=[(i.year,i.year) for i in year_list ]
+        choices=[(i.year, i.year) for i in year_list]
     )
 
     semester = forms.ChoiceField(
@@ -798,7 +798,7 @@ class DateScheduleForm(forms.ModelForm):
 
         for field in self.fields:
             if field not in ['start_date', 'end_date']:
-                self.fields[field].widget.attrs.update({'class': 'form-control' })
+                self.fields[field].widget.attrs.update({'class': 'form-control'})
                 # self.fields[field].widget.attrs.update({})
 
     class Meta:
