@@ -66,12 +66,6 @@ Exam:
             View exams and their own schedule
 
 
-    Coordinator:
-
-
-
-                Schedule students and faculty
-
 
 Rahul:
 
@@ -90,4 +84,3 @@ Notification:
 BUGS:
         Invalid username pe error
         Excel Timetable Error
-        Excel room schedule download not working(Firefox)
