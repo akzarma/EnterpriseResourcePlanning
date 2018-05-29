@@ -126,6 +126,7 @@ class StudentDetail(models.Model):
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     has_registered_subject = models.BooleanField(default=False)
+    last_subject_registration_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return str(self.batch.division) + " " + str(self.student.first_name) + " " + str(self.roll_number)
@@ -134,6 +135,7 @@ class StudentDetail(models.Model):
 class StudentSubject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    division = models.ForeignKey(Division, on_delete=models.CASCADE, default=1)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -149,16 +151,17 @@ class Schedulable(models.Model):
 
     def __str__(self):
         return self.name
-    def event_active(self, name):
-        if self.name == name:
-            today = datetime.date.today()
-            if self.end_date and self.created_date != None:
-                if self.end_date > today > self.created_date:
-                    return True
-        return False
+
 
 class Schedule(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     event = models.ForeignKey(Schedulable, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+
+    def event_active(self, name,date):
+        if self.event.name == name:
+            if self.end_date and self.start_date != None:
+                if self.end_date > date > self.start_date:
+                    return True
+        return False
