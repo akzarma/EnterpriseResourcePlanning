@@ -24,3 +24,4 @@ Requests/migrations/__pycache__/
 Research/__pycache__/
 Research/migrations/__pycache__/
 db.sqlite3
+*.uml
