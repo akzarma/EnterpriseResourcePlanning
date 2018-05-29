@@ -165,7 +165,7 @@ class ElectiveDivision(models.Model):
 class StudentSubject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    elective_division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE, null=True, default=None)
+    elective_division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE, null=True, default=None, blank=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

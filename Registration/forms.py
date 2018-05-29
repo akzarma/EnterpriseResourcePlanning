@@ -822,4 +822,8 @@ class YearBranchSemForm(forms.Form):
         choices=[(i.pk, i.semester) for i in Semester.objects.all()]
     )
 
-
+    def __init__(self, *args, **kwargs):
+        super(YearBranchSemForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            if field not in ['start_date', 'end_date']:
+                self.fields[field].widget.attrs.update({'class': 'form-control'})
