@@ -42,7 +42,7 @@ def backup(request):
         # if has_role(user,'faculty'):
         current_time = datetime.now()
         if request.method == 'GET':
-            all_backup = Backup.objects.filter(is_active=True).order_by('version')
+            all_backup = Backup.objects.filter(is_active=True).order_by('-id')[:10]
             return render(request, 'backup.html', {
                 'all_backup': all_backup
             })

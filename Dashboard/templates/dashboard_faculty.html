@@ -604,20 +604,14 @@
 
         // Trigger action when the contexmenu is about to be shown
         $(document).bind("contextmenu", function (event) {
-            {#console.log(event);#}
-            {#console.log(event.target.classList);#}
             {#let index = -1;#}
             let arr = event.target.classList;
             let found = false;
             var selected_date =
                 '{{ selected_date }}';
-            console.log(selected_date);
             var splitted_date = selected_date.split('-');
-            console.log(splitted_date);
             selected_date = new Date(splitted_date[2], splitted_date[1] - 1, splitted_date[0]);
-            console.log(selected_date);
             for (let i = 0; i < arr.length && selected_date >= current_date; i++) {
-                console.log(arr[i]);
                 if (arr[i] === "my-context-menu") {
                     found = true;
                     break;
@@ -730,7 +724,6 @@
                 '{{ selected_date }}';
             var splitted_date = selected_date.split('-');
             selected_date = new Date(splitted_date[2], splitted_date[1] - 1, splitted_date[0]);
-            console.log(selected_date);
             alert(selected_date);
             if (overlay.css("display") === "none") {
                 if (selected_date > current_date) {

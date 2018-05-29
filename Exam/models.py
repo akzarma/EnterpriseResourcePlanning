@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 from General.models import Division, Semester, StudentSubject, YearBranch
-from Registration.models import Subject
+from Registration.models import Subject, Faculty
 
 
 class ExamMaster(models.Model):
@@ -28,6 +28,7 @@ class ExamDetail(models.Model):
 class ExamSubject(models.Model):
     exam = models.ForeignKey(ExamDetail, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    coordinator = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
 

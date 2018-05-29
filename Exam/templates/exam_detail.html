@@ -67,27 +67,41 @@
                         let div = document.getElementById('div_subject');
                         $("#div_subject").empty();
                         let subjects = JSON.parse(data);
-
+                        console.log(subjects);
                         for (each in subjects) {
+                            {#console.log(each);#}
+                            {#alert(each);#}
+                            console.log(each);
                             let div_inside = document.createElement('div');
                             div_inside.className = "col-lg-6";
                             let checkbox = document.createElement('input');
                             checkbox.type = "checkbox";
                             checkbox.name = "subject";
-                            checkbox.value = subjects[each];
-                            checkbox.id = "id" + each;
+                            checkbox.value = each;
+                            checkbox.id = "id_" + each;
                             checkbox.className = "subject-checkbox";
 
                             let label = document.createElement('label');
-                            label.htmlFor = "id" + each;
+                            label.htmlFor = "id_" + each;
                             label.className = "subject-name";
-                            label.appendChild(document.createTextNode(subjects[each]));
+                            label.appendChild(document.createTextNode(each));
                             div_inside.appendChild(checkbox);
                             div_inside.appendChild(label);
                             div.appendChild(div_inside);
+
+                            let combo_box = document.createElement('select');
+                            combo_box.name = each + '_faculty';
+                            let opt;
+                            for (let each_faculty in subjects[each]) {
+
+                                opt = document.createElement('option');
+                                opt.value = subjects[each][each_faculty];
+                                opt.innerHTML = subjects[each][each_faculty];
+                                combo_box.appendChild(opt);
+                            }
+                            div_inside.appendChild(combo_box);
                         }
 
-                        {#console.log(abcd);#}
 
                     }
 
