@@ -1,0 +1,34 @@
+{% extends "./dashboard_student.html" %}
+{% block title %}Student Subject Registration {% endblock %}
+
+{% block content %}
+        {% csrf_token %}
+        <div class="panel panel-default">
+
+            <!-- Default panel contents -->
+            {#                    <div class="panel-heading">Heading</div>#}
+
+            <!-- Table -->
+            <table class="table">
+                <th>Sr. No</th>
+                <th>Subject</th>
+                {% for subject in subjects %}
+                    {% ifequal subject.type "Regular" %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ subject }}</td>
+                        </tr>
+                    {% endifequal %}
+                    {% ifequal subject.type "Elective" %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>Elective Group {{ subject.group.group }} - {{ subject }}</td>
+                        </tr>
+                    {% endifequal %}
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+{% endblock content %}

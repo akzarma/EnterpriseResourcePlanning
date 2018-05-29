@@ -87,25 +87,26 @@ def fill_timetable(request):
                 # college_detail = CollegeExtraDetail.objects.filter(year_branch__in=YearBranch.objects.filter(year=year_obj))
                 year_branch_objs = YearBranch.objects.filter(year=year_obj)
                 subjects = all_subjects.filter(year_branch__in=year_branch_objs)
-                subjects_theory = list(
-                    subjects.filter(subject__is_practical=False, subject__is_elective=False).values_list(
-                        'subject__short_form', flat=True))
-                subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
+                subjects_theory = list(subjects.filter(subject__is_practical=False, subject__is_elective=False).values_list(
                     'subject__short_form', flat=True))
-                subjects_elective = list(subjects.filter(subject__is_elective=True))
+                subjects_practical = list(subjects.filter(subject__is_practical=True, subject__is_elective=False).values_list(
+                    'subject__short_form', flat=True))
+                subjects_elective_theory = list(subjects.filter(subject__is_elective=True, subject__is_practical=False))
+                subjects_elective_practical = list(subjects.filter(subject__is_elective=True, subject__is_practical=True))
                 subjects_json[year] = {
                     'theory': subjects_theory,
                     'practical': subjects_practical,
-                    'elective': subjects_elective
+                    'elective_theory': subjects_elective_theory,
+                    'elective_practical': subjects_elective_practical
                 }
 
-            # Create dict of subject teacher binding
-            # eg
-            # TOC:{
-            #     A:[DMV,HVD]
-            #     B:[DV]
-            #     C:[]
-            # }
+    # Create dict of subject teacher binding
+    # eg
+    # TOC:{
+    #     A:[DMV,HVD]
+    #     B:[DV]
+    #     C:[]
+    # }
 
             subject_teacher_json = {}
 
@@ -117,8 +118,7 @@ def fill_timetable(request):
                                                                               division=division_object).values_list(
                         'faculty__initials', flat=True)
 
-                    subject_teacher_json[each_subject.subject.short_form][each_division] = list(
-                        faculty_subjects_division)
+                    subject_teacher_json[each_subject.subject.short_form][each_division] = list(faculty_subjects_division)
 
             all_subjects = list(all_subjects.values_list('subject__short_form', flat=True))
 
@@ -129,9 +129,9 @@ def fill_timetable(request):
             batches_json = {}
 
             year_branch_objs = YearBranch.objects.filter(branch=branch_obj)
-            college_extra_details_obj = Division.objects.filter(year_branch__in=year_branch_objs)
+            division_obj = Division.objects.filter(year_branch__in=year_branch_objs)
 
-            for yr in college_extra_details_obj:
+            for yr in division_obj:
 
                 if yr.year_branch.year.year in batches_json:
                     batches_json[yr.year_branch.year.year][yr.division] = list(
@@ -177,8 +177,7 @@ def fill_timetable(request):
             for each_time_table in full_timetable_practical:
                 timetable_instance_practical[
                     'id_room_' + each_time_table.time.__str__() + '_' + each_time_table.division.division + '_' + str(
-                        days.index(
-                            each_time_table.day) + 2) + '_' + each_time_table.division.year_branch.year.year + '_' +
+                        days.index(each_time_table.day) + 2) + '_' + each_time_table.division.year_branch.year.year + '_' +
                     each_time_table.batch.batch_name + '_cbx'] = {
                     'faculty': each_time_table.faculty.initials,
                     'room': each_time_table.room.room_number,
@@ -212,7 +211,6 @@ def fill_timetable(request):
             return render(request, 'test_timetable.html', context)
         return HttpResponseRedirect('/login/')
     return HttpResponseRedirect('/login/')
-
 
 def fill_date_timetable(new_date_timetable):
     creation_list = []

@@ -33,11 +33,11 @@ from UserModel.models import User, RoleMaster, RoleManager
 def student_details(request):
     if request.method == 'POST':
         all_students = Student.objects.all()
-        directory = './media/documents/StudentDetails/'
+        directory = './Media/documents/StudentDetails/'
         if not os.path.exists(directory):
             os.makedirs(directory)
-        workbook = xlsxwriter.Workbook(directory + 'Students_'+datetime.date.today().__str__()
-                                       +'_'+datetime.datetime.today().time().__str__()+'.xlsx')
+        workbook = xlsxwriter.Workbook(directory + 'Students_' + datetime.date.today().__str__()
+                                       + '_' + datetime.datetime.today().time().__str__() + '.xlsx')
         worksheet = workbook.add_worksheet()
 
         dark_gray = workbook.add_format()
@@ -109,10 +109,10 @@ def student_details(request):
 def get_excel(request):
     all_students = Student.objects.all()
 
-    directory = './media/documents/Students/'
+    directory = './Media/documents/Students/'
     if not os.path.exists(directory):
         os.makedirs(directory)
-    workbook = xlsxwriter.Workbook(directory+'StudentsEveryField.xlsx')
+    workbook = xlsxwriter.Workbook(directory + 'StudentsEveryField.xlsx')
     worksheet = workbook.add_worksheet()
 
     all_fields = Student._meta._get_fields(reverse=False, include_parents=False)
@@ -257,7 +257,7 @@ def generate_excel_from_query_set(full_timetable, file_name, is_room=False, room
     answer = OrderedDict(sorted(answer.items(), key=lambda x: days.index(x[0])))
 
     # Create a workbook and add a worksheet.
-    directory = './media/documents/TimeTable/'
+    directory = './Media/documents/TimeTable/'
     if not os.path.exists(directory):
         os.makedirs(directory)
     workbook = xlsxwriter.Workbook(directory + file_name + '.xlsx')
@@ -406,14 +406,14 @@ def download_excel_room_schedule(request):
             branch_obj = Branch.objects.get(branch=branch)
 
             college_extra_detail = Division.objects.filter(year_branch__branch=branch_obj)
-
+            prefix = 'Media/documents/TimeTable/'
             full_timetable = full_timetable.filter(division__in=college_extra_detail)
             if room != 'all':
                 room_obj = Room.objects.filter(branch=branch_obj, room_number=room)
                 full_timetable = full_timetable.filter(room__in=room_obj)
                 filename = 'room_schedule' + '_' + branch + '_' + room
                 generate_excel_from_query_set(full_timetable, filename, True, room, 'year')
-                return HttpResponse(filename)
+                return HttpResponse(prefix + filename)
             else:
                 all_rooms = set(branch_obj.room_set.all().values_list('room_number', flat=True))
                 data = []
@@ -422,7 +422,7 @@ def download_excel_room_schedule(request):
                     temp_timetable = full_timetable.filter(room__in=room_obj)
                     filename = 'room_schedule' + '_' + branch + '_' + each_room
                     generate_excel_from_query_set(temp_timetable, filename, True, each_room, 'year')
-                    data.append(filename)
+                    data.append(prefix + filename)
                 return HttpResponse(json.dumps(data))
     else:
         return HttpResponseBadRequest('Not ajax')
@@ -490,11 +490,11 @@ def excel_timetable(request):
 def faculty_details(request):
     if request.method == 'POST':
         all_faculties = Faculty.objects.all()
-        directory = './media/documents/FacultyDetails/'
+        directory = './Media/documents/FacultyDetails/'
         if not os.path.exists(directory):
             os.makedirs(directory)
-        workbook = xlsxwriter.Workbook(directory + 'Faculty_'+datetime.date.today().__str__()
-                                       +'_'+datetime.datetime.today().time().__str__()+'.xlsx')
+        workbook = xlsxwriter.Workbook(directory + 'Faculty_' + datetime.date.today().__str__()
+                                       + '_' + datetime.datetime.today().time().__str__() + '.xlsx')
         worksheet = workbook.add_worksheet()
 
         dark_gray = workbook.add_format()
