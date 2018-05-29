@@ -14,3 +14,8 @@ class Backup(models.Model):
 
     def __str__(self):
         return str(self.version) + ' ' + str(self.date)
+
+
+class CurrentDB(models.Model):
+    current_version = models.ForeignKey(Backup, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
