@@ -29,6 +29,10 @@ import xlsxwriter
 # Create your views here.
 
 def fill_timetable(request):
+    current_semester = 2
+    if request.method == "POST":
+        current_semester = int(request.POST.get('current_semester'))
+    semester_obj = Semester.objects.get(semester=current_semester, is_active=True)
     times = []
     years = []
     # branch = Branch.objects.all()
@@ -40,6 +44,14 @@ def fill_timetable(request):
 
     for i in CollegeYear.objects.all().order_by('year').values_list('year', flat=True).distinct():
         years.append(i)
+
+    year_semester_json = {}
+    for obj in YearSemester.objects.all():
+        year_sem = obj.year_branch.year.year
+        semester = obj.semester.semester
+        if year_sem not in year_semester_json:
+            year_semester_json[year_sem] = []
+        year_semester_json[year_sem] += [semester]
 
     divisions = Division.objects.filter(year_branch__in=year_branch_obj).order_by('division').values_list('division',
                                                                                                           flat=True).distinct()
@@ -58,12 +70,11 @@ def fill_timetable(request):
     divisions_js = ""
     for i in divisions:
         divisions_js += i
-
     # timetables = Timetable.objects.filter(is_practical=False)
     # timetable_prac = Timetable.objects.filter(is_practical=True)
     subjects_json = {}
     # college_detail = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj)
-    all_subjects = BranchSubject.objects.filter(year_branch__in=year_branch_obj)
+    all_subjects = BranchSubject.objects.filter(year_branch__in=year_branch_obj, semester=semester_obj)
 
     for year in years:
         year_obj = CollegeYear.objects.get(year=year)
@@ -127,8 +138,10 @@ def fill_timetable(request):
         #                                                                                                 flat=True)
         #     ]
 
-    full_timetable_theory = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj, is_practical=False)
+    full_timetable_theory = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
+                                                     branch_subject__semester=semester_obj, is_practical=False)
     full_timetable_practical = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
+                                                        branch_subject__semester=semester_obj,
                                                         is_practical=True)
 
     timetable_instance = {}
@@ -160,6 +173,7 @@ def fill_timetable(request):
 
     context = {
         'branch': branch,
+        'current_semester': current_semester,
         'times': times,
         'year': years,
         'days': days,
@@ -171,6 +185,7 @@ def fill_timetable(request):
         'faculty': faculty,
         'divisions_js': divisions_js,
         'subject_json': json.dumps(subjects_json),
+        'semester_json': year_semester_json,
         'all_subjects': all_subjects,
         'subject_teacher_json': json.dumps(subject_teacher_json),
         'timetable_instance_theory': timetable_instance,

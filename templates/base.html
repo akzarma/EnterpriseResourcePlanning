@@ -376,9 +376,7 @@
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
             success: function (data) {
-                console.log(data);
                 notifications_json = JSON.parse(data);
-                console.log(notifications_json);
                 current_date = new Date(notifications_json['today']);
 
                 var notification_list = document.getElementById('notification_dropdown');
@@ -462,6 +460,12 @@
             button.setAttribute("class", "btn btn-danger");
             button.setAttribute("onclick", "overlay_off()");
             text.appendChild(button);
+        }else if(temp_json["fields"]["type"] == "forward"){
+            let a = document.createElement('a');
+            a.innerHTML = "Go To Subject Registration";
+            a.setAttribute("class", "btn btn-success");
+            a.setAttribute("href", temp_json["fields"]["action"]);
+            text.appendChild(a);
         }
 
         else {
