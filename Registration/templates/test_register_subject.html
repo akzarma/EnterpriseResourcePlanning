@@ -86,6 +86,10 @@
             let elective_div = document.getElementById('elective_group');
             if (type.value === 'Elective') {
                 let number_of_electives = parseInt(elective_data[branch][year][semester]);
+                if(number_of_electives === 0) {
+                    alert("The" + semester + " of " + year + "of " + branch + " has no electives.");
+                    return;
+                }
                 for(let i=0;i<number_of_electives;i++) {
                     var label = document.createTextNode(String.fromCharCode(65 + i));
                     var input = document.createElement('input');

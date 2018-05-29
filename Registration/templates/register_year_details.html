@@ -7,7 +7,7 @@
             <label>Branch</label>
             <select name="branch" id="branch">
                 {% for branch in branches %}
-                    <option value="{{ branch }}">{{ branch }}</option>
+                    <option value="{{ branch.branch }}">{{ branch.branch }}</option>
                 {% endfor %}
             </select>
         </div>
