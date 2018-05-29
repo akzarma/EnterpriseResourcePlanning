@@ -67,8 +67,10 @@ class YearSemester(models.Model):
     lecture_start_date = models.DateField(null=True, blank=True)
     lecture_end_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
-    number_of_electives = models.IntegerField(default=0)
+    number_of_electives_groups = models.IntegerField(default=0)
 
+    def __str__(self):
+        return str(self.year_branch) + " " + str(self.semester)
 
 
 class Batch(models.Model):
@@ -84,6 +86,9 @@ class ElectiveGroup(models.Model):
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     group = models.CharField(max_length=20, null=True)
 
+    def __str__(self):
+        return str(self.year_branch) + " " + str(self.semester) + " " + str(self.group)
+
 
 class BranchSubject(models.Model):
     # branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
@@ -98,7 +103,7 @@ class BranchSubject(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.year_branch.year) + " " + self.subject.name
+        return str(self.year_branch) + " " + self.subject.name
 
 
 class FacultySubject(models.Model):
@@ -115,9 +120,10 @@ class StudentDetail(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE, null=True)
     # batch = models.CharField(max_length=10)
-    roll_number = models.PositiveIntegerField(null=True)
+    roll_number = models.PositiveIntegerField(null=True, blank=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+    has_registered_subject = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.batch.division) + " " + str(self.student.first_name) + " " + str(self.roll_number)
@@ -127,6 +133,9 @@ class StudentSubject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return str(self.student) + " " + str(self.subject)
 
 
 # Abhi ye  do class rakhe hai for storing schedules of subject registration
@@ -138,7 +147,13 @@ class Schedulable(models.Model):
 
     def __str__(self):
         return self.name
-
+    def event_active(self, name):
+        if self.name == name:
+            today = datetime.date.today()
+            if self.end_date and self.created_date != None:
+                if self.end_date > today > self.created_date:
+                    return True
+        return False
 
 class Schedule(models.Model):
     start_date = models.DateField()

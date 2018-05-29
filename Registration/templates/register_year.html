@@ -8,6 +8,12 @@
             <input name="year" type="text">
             <label>Year Number</label>
             <input name="year_number" type="text">
+            <label>Branch</label>
+            <select name="branch" id="branch">
+                {% for branch in branches %}
+                    <option value="{{ branch.branch }}">{{ branch.branch }}</option>
+                {% endfor %}
+            </select>
         </div>
         <div class="form-element">
             <label>Number of semsters in a year</label>
