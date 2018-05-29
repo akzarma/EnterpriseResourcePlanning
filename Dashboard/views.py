@@ -430,7 +430,8 @@ def show_all_notifications(request, page=1):
     user = request.user
     if not user.is_anonymous:
         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
-        if is_faculty:
+        is_student = RoleManager.objects.filter(user=user, role__role='student')
+        if is_faculty or is_student:
             notification_objs = sorted(SpecificNotification.objects.filter(user=user), key=lambda x: x.datetime,
                                        reverse=True)[
                                 (int(page) - 1) * 50:50]

@@ -1,0 +1,109 @@
+{% extends "./dashboard_faculty.html" %}
+{% block title %}Student Subject Division {% endblock %}
+
+{% block content %}
+    <div class="container">
+
+        <!-- Default panel contents -->
+        {#                    <div class="panel-heading">Heading</div>#}
+
+        <!-- Table -->
+        {% if select_year_branch_sem %}
+            <form action="{% url 'registration:student_subject_division' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-element">
+                    <span class="error">{{ form.year.errors }}</span>
+                    <label class="control-label">{{ form.year.label_tag }}</label>
+                    <div class="">{{ form.year }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.branch.errors }}</span>
+                    <label class="control-label">{{ form.branch.label_tag }}</label>
+                    <div class="">{{ form.branch }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.semester.errors }}</span>
+                    <label class="control-label">{{ form.semester.label_tag }}</label>
+                    <div class="">{{ form.semester }}</div>
+                </div>
+
+                <input class="btn btn-primary" type="submit" name="select_year_branch_sem_button" value="Submit">
+            </form>
+        {% endif %}
+
+        {% if select_subjects %}
+
+            <legend>{{ selected_year }} {{ selected_branch }} Sem {{ selected_semester }}</legend>
+            <table class="table">
+                <th>Sr. No</th>
+                <th>Subject</th>
+                <form action="{% url 'registration:student_subject_division' %}" method="POST">
+                    {% csrf_token %}
+                    {% for subject in subjects %}
+                        {% ifequal subject.type "Regular" %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <button class="btn btn-link" name="selected_subject_link"
+                                            value="{{ subject.pk }}">{{ subject }}</button>
+                                </td>
+                            </tr>
+                        {% endifequal %}
+                        {% ifequal subject.type "Elective" %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <button class="btn btn-link" name="selected_subject_link"
+                                            value="{{ subject.pk }}">Elective Group {{ subject.group.group }}
+                                        - {{ subject.subject.name }}</button>
+                                </td>
+                            </tr>
+                        {% endifequal %}
+                    {% endfor %}
+                </form>
+            </table>
+        {% endif %}
+
+        {% if select_student_division %}
+            <legend>{{ selected_year }} {{ selected_branch }} Sem {{ selected_semester }}
+                - {{ selected_subject_obj.subject.name }}</legend>
+            <table class="table">
+                <th>Sr. No</th>
+                <th>GR Number</th>
+                <th>Student</th>
+                <th>Elective Division</th>
+                <form action="{% url 'registration:student_subject_division' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="selected_subject" value="{{ selected_subject_obj.pk }}">
+                    {% for each in student_subjects %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ each.student.gr_number }}</td>
+                            <td>{{ each.student.first_name }} {{ each.student.last_name }}</td>
+                            <td>
+                                {% if each.subject.is_elective %}
+                                    <select name="selected_division_student">
+                                        {% for each_div in divisions %}
+                                            {% ifequal each.elective_division each_div %}
+                                                <option value="{{ each_div.id }}_student_{{ each.student.pk }}"
+                                                        selected="selected">{{ each_div.division }}</option>
+
+                                            {% else %}
+                                                <option value="{{ each_div.id }}_student_{{ each.student.pk }}">{{ each_div.division }}</option>
+
+                                            {% endifequal %}
+                                        {% endfor %}
+                                    </select>
+                                {% else %}
+                                    Not elective
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <input class="btn btn-primary" type="submit" name="select_division_student_button" value="Save">
+                </form>
+            </table>
+        {% endif %}
+    </div>
+
+{% endblock content %}

@@ -93,7 +93,6 @@ class YearSemester(models.Model):
         # year_sem_obj.save()
 
 
-
 class Batch(models.Model):
     division = models.ForeignKey(Division, on_delete=models.CASCADE)
     batch_name = models.CharField(max_length=10)
@@ -153,10 +152,20 @@ class StudentDetail(models.Model):
         return str(self.batch.division) + " " + str(self.student.first_name) + " " + str(self.roll_number)
 
 
+class ElectiveDivision(models.Model):
+    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
+    division = models.CharField(max_length=1)
+    shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return str(self.year_branch)+" "+str(self.division)
+
+
 class StudentSubject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    division = models.ForeignKey(Division, on_delete=models.CASCADE, default=1)
+    elective_division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE, null=True, default=None, blank=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -180,7 +189,7 @@ class Schedule(models.Model):
     event = models.ForeignKey(Schedulable, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
-    def event_active(self, name,date):
+    def event_active(self, name, date):
         if self.event.name == name:
             if self.end_date and self.start_date != None:
                 if self.end_date > date > self.start_date:

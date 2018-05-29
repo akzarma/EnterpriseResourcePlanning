@@ -42,6 +42,8 @@ urlpatterns = [
 
     url(r'student_subject/$', views.student_subject, name='student_subject'),
 
+    url(r'student_subject_division/$', views.student_subject_division, name='student_subject_division'),
+
     url(r'set_schedule_date/$', views.set_schedule_date, name='set_schedule_date'),
 
     # url(r'student_subject_registration/$', views.student_subject_registration, name='student_subject_registration'),

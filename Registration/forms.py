@@ -809,3 +809,21 @@ class DateScheduleForm(forms.ModelForm):
         model = Schedule
         fields = '__all__'
         exclude = ['is_active']
+
+
+class YearBranchSemForm(forms.Form):
+    branch = forms.ChoiceField(
+        choices=[(i.pk, i.branch) for i in branch_list])
+    year = forms.ChoiceField(
+        choices=[(i.pk, i.year) for i in year_list]
+    )
+
+    semester = forms.ChoiceField(
+        choices=[(i.pk, i.semester) for i in Semester.objects.all()]
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(YearBranchSemForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            if field not in ['start_date', 'end_date']:
+                self.fields[field].widget.attrs.update({'class': 'form-control'})

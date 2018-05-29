@@ -12,7 +12,6 @@
             <table class="table">
                 <th>Sr. No</th>
                 <th>Subject</th>
-                <input name="ref" value="view_tournament" hidden>
                 {% for subject in subjects %}
                     {% ifequal subject.type "Regular" %}
                         <tr>
