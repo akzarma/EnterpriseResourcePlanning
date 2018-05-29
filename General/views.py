@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render
 # Create your views here.
+from django.utils import timezone
+
 from Dashboard.models import SpecificNotification, GeneralStudentNotification, GeneralFacultyNotification
 
 from General.models import Division, CollegeYear, Shift, BranchSubject, YearBranch, StudentDetail, Semester
@@ -15,7 +17,7 @@ def notify_users(notification_type: str, message: str, heading: str, users_obj: 
                  user_type: str = 'Student',
                  action: str = "Nothing for now",
                  division: list = None, for_batch: bool = False, batch: list = None, branch: list = None):
-    current_time = datetime.datetime.now()
+    current_time = timezone.now()
     if notification_type == 'specific':
         notification_objs = []
         for each_user in users_obj:

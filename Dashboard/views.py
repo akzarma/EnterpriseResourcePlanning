@@ -10,6 +10,7 @@ from django.core import serializers
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
@@ -530,7 +531,7 @@ def android_get_notifications(request):
 
 @csrf_exempt
 def get_date(request):
-    date = datetime.datetime.now().__str__()
+    date = timezone.now().__str__()
     return HttpResponse(date)
 
 
