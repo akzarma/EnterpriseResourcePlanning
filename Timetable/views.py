@@ -83,13 +83,15 @@ def fill_timetable(request):
         subjects = all_subjects.filter(year_branch__in=year_branch_objs)
         subjects_theory = list(subjects.filter(subject__is_practical=False, subject__is_elective=False).values_list(
             'subject__short_form', flat=True))
-        subjects_practical = list(subjects.filter(subject__is_practical=True).values_list(
+        subjects_practical = list(subjects.filter(subject__is_practical=True, subject__is_elective=False).values_list(
             'subject__short_form', flat=True))
-        subjects_elective = list(subjects.filter(subject__is_elective=True))
+        subjects_elective_theory = list(subjects.filter(subject__is_elective=True, subject__is_practical=False))
+        subjects_elective_practical = list(subjects.filter(subject__is_elective=True, subject__is_practical=True))
         subjects_json[year] = {
             'theory': subjects_theory,
             'practical': subjects_practical,
-            'elective': subjects_elective
+            'elective_theory': subjects_elective_theory,
+            'elective_practical': subjects_elective_practical
         }
 
     # Create dict of subject teacher binding
@@ -121,9 +123,9 @@ def fill_timetable(request):
     batches_json = {}
 
     year_branch_objs = YearBranch.objects.filter(branch=branch_obj)
-    college_extra_details_obj = Division.objects.filter(year_branch__in=year_branch_objs)
+    division_obj = Division.objects.filter(year_branch__in=year_branch_objs)
 
-    for yr in college_extra_details_obj:
+    for yr in division_obj:
 
         if yr.year_branch.year.year in batches_json:
             batches_json[yr.year_branch.year.year][yr.division] = list(
