@@ -15,7 +15,8 @@ from General.views import notify_users
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject
 from UserModel.models import User, RoleManager, RoleMaster
-from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict, DateScheduleForm
+from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict, DateScheduleForm, \
+    YearBranchSemForm
 from Configuration.stateConf import states
 
 
@@ -765,3 +766,40 @@ def register_year_detail(request):
                 'success': 'Successfully registered details'
             })
     return HttpResponseRedirect('/login/')
+
+
+def student_subject_division(request):
+    if request.method == 'GET':
+
+        return render(request, 'student_subject_division.html',
+                      context={'form': YearBranchSemForm,
+                               'select_year_branch_sem': True})
+
+    elif request.method == 'POST' and request.POST.get('select_year_branch_sem_button'):
+        year_branch_sem_form = YearBranchSemForm(request.POST)
+        if year_branch_sem_form.is_valid():
+            year_obj = CollegeYear.objects.get(pk = year_branch_sem_form.cleaned_data.get('year'))
+            branch_obj = Branch.objects.get(pk = year_branch_sem_form.cleaned_data.get('branch'))
+            semester_obj = Semester.objects.get(pk= year_branch_sem_form.cleaned_data.get('semester'))
+            year_branch = YearBranch.objects.get(year= year_obj,
+                                                 branch= branch_obj,
+                                                 is_active=True)
+            subjects = BranchSubject.objects.filter(year_branch= year_branch,
+                                                    semester= semester_obj,
+                                                    is_active=True)
+            return render(request, 'student_subject_division.html',
+                          context={'selected_year': year_obj.year,
+                                   'selected_branch': branch_obj.branch,
+                                   'selected_semester': semester_obj.semester,
+                              'select_subjects': True,
+                               'subjects': subjects})
+
+    elif request.method == 'POST' and request.POST.get('selected_subject'):
+        selected_subject = request.POST.get('selected_subject')
+        selected_subject_obj = BranchSubject.objects.get(pk=selected_subject)
+        student_subjects = StudentSubject.objects.filter(subject=selected_subject_obj.subject,
+                                                 is_active=True)
+        return render(request, 'student_subject_division.html',
+                      context={'selected_subject': selected_subject_obj.subject.name,
+                          'select_student_division': True,
+                               'student_subjects': student_subjects})

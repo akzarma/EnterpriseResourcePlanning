@@ -809,3 +809,17 @@ class DateScheduleForm(forms.ModelForm):
         model = Schedule
         fields = '__all__'
         exclude = ['is_active']
+
+
+class YearBranchSemForm(forms.Form):
+    branch = forms.ChoiceField(
+        choices=[(i.pk, i.branch) for i in branch_list])
+    year = forms.ChoiceField(
+        choices=[(i.pk, i.year) for i in year_list]
+    )
+
+    semester = forms.ChoiceField(
+        choices=[(i.pk, i.semester) for i in Semester.objects.all()]
+    )
+
+
