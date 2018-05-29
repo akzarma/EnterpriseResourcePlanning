@@ -102,9 +102,10 @@
                     main_content.style.opacity = 1;
                     if (room.value !== 'all') {
                         let file_path = '/' + data + '.xlsx';
-                        let a = document.createElement('a');
-                        a.href = file_path;
-                        a.click();
+                        {#let a = document.createElement('a');#}
+                        {#a.href = file_path;#}
+                        {#a.click();#}
+                        window.location = file_path;
                     }
                     else {
                         data = JSON.parse(data);
