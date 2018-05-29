@@ -13,7 +13,7 @@
 
 
 {% block content %}
-
+            Current Version: {{ current_version }}
             <form method="post" action="{% url 'BackupRestore:backup' %}">
                 <br>
                 {% csrf_token %}

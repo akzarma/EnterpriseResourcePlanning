@@ -9,7 +9,7 @@ from django.contrib.auth import authenticate, login
 from shutil import copy
 
 # Create your views here.
-from BackupRestore.models import Backup
+from BackupRestore.models import Backup, CurrentDB
 from Dashboard.models import SpecificNotification
 from EnterpriseResourcePlanning.settings import PROJECT_ROOT, BASE_DIR, DATABASES, RESTORE_BATCH_SIZE
 from Registration.views import has_role
@@ -42,9 +42,14 @@ def backup(request):
         # if has_role(user,'faculty'):
         current_time = datetime.now()
         if request.method == 'GET':
+            current_version = 0
+            if CurrentDB.objects.filter(is_active=True).exists():
+                current_db_obj = CurrentDB.objects.get(is_active=True)
+                current_version = current_db_obj.current_version.version
             all_backup = Backup.objects.filter(is_active=True).order_by('-id')[:10]
             return render(request, 'backup.html', {
-                'all_backup': all_backup
+                'all_backup': all_backup,
+                'current_version':current_version
             })
         else:
             # print(PROJECT_ROOT)
@@ -67,7 +72,15 @@ def backup(request):
             new_filename = str(new_backup_obj.version) + '.sqlite3'
             dst = BASE_DIR + path + new_filename
             copy(src=src, dst=dst)
+            current_db_obj = CurrentDB.objects.filter(is_active=True)
+            if len(current_db_obj) > 1:
+                return HttpResponse('Should not be greater than 1')
+            if current_db_obj:
+                current_db_obj = current_db_obj[0]
+                current_db_obj.is_active = False
+                current_db_obj.save()
 
+            CurrentDB.objects.create(current_version=new_backup_obj)
             return redirect('/backup/backup/')
 
 
@@ -100,6 +113,12 @@ def restore(request):
             # for each_table in a:
             batch_migrate()
             DATABASES.pop('temp')
+            current_db_obj = CurrentDB.objects.get(is_active=True)
+            current_db_obj = current_db_obj
+            current_db_obj.is_active = False
+            current_db_obj.save()
+            CurrentDB.objects.create(current_version=obj)
+
             return redirect('/backup/backup/')
         else:
             return HttpResponse('Not Post')
