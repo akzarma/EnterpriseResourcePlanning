@@ -458,7 +458,7 @@
             button = document.createElement('button');
             button.innerHTML = "NO";
             button.setAttribute("class", "btn btn-danger");
-            button.setAttribute("onclick", "overlay_off()");
+            button.setAttribute("data-dismiss", "modal");
             text.appendChild(button);
         } else if (temp_json["fields"]["type"] == "forward") {
             let a = document.createElement('a');
