@@ -225,90 +225,87 @@
 
 
                         <br/>
-                        <form method="post" action="{% url 'dashboard:dashboard' %}" id="timetable_form">
-                            {% csrf_token %}
-                            <input type="hidden" name="selected_date" id="hidden_date" value="{{ selected_date }}">
-                            <div class="row" id="timetable">
-                                {% if timetable %}
-                                    {% for each in timetable %}
-                                        <button name="date_timetable" class="card btn btn-info my-context-menu"
-                                                style="width: 100%; font-weight: bold; margin-bottom: 5px;"
-                                                value="{{ each.pk }}"
-                                                onclick="checkTimetable(this);">
-                                            {% if each.not_available == True %}
-                                                {% if user.faculty == each.substitute.faculty %}
-                                                    <div style="display: block;"
-                                                         class="not-available my-context-menu">You've taken lecture
-                                                        for {{ each.original.faculty.initials }}
-                                                    </div>
-                                                {% else %}
-                                                    <div id="{{ each.pk }}" style="display: block !important;"
-                                                         name="{{ each.pk }}" class="not-available my-context-menu">I'm
-                                                        not
-                                                        available
-                                                        {% if each.is_substituted is True %} <br/> Lecture taken by
-                                                            {{ each.substitute.faculty.initials }}
-                                                        {% endif %}
-                                                    </div>
-                                                {% endif %}
-                                            {% else %}
-                                                <div id="{{ each.pk }}" name="{{ each.pk }}"
-                                                     class="not-available my-context-menu">I'm not available
-                                                </div>
-                                            {% endif %}
-                                            {% if each.is_substituted is True %}
-                                                <div class="card-header my-context-menu"
-                                                     style="border-bottom: 2px solid white;"
-                                                     name="{{ each.pk }}">{{ each.substitute.time }}</div>
-                                                <div class="row my-context-menu">
-                                                    <div class="col-md-4 my-context-menu"
-                                                         name="{{ each.pk }}">{{ each.substitute.branch_subject.subject.short_form }}</div>
-                                                    <div class="col-md-4 my-context-menu"
-                                                         name="{{ each.pk }}">{{ each.substitute.room.room_number }}</div>
-                                                    <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
-                                                        {{ each.substitute.division.year_branch.branch }}<br/>
-                                                        {{ each.substitute.division.year_branch.year }}
-                                                        {{ each.substitute.division.division }}
-                                                        {% if each.substitute.is_practical %}
-                                                            {{ each.substitute.batch.batch_name }}
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                            {% else %}
-                                                <div class="card-header my-context-menu"
-                                                     style="border-bottom: 2px solid white;"
-                                                     name="{{ each.pk }}">{{ each.original.time }}</div>
-                                                <div class="row my-context-menu" name="{{ each.pk }}">
-                                                    <div class="col-md-4 my-context-menu"
-                                                         name="{{ each.pk }}">{{ each.original.branch_subject.subject.short_form }}</div>
-                                                    <div class="col-md-4 my-context-menu"
-                                                         name="{{ each.pk }}">{{ each.original.room.room_number }}</div>
-                                                    <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
-                                                        {{ each.original.division.year_branch.branch }}<br/>
-                                                        {{ each.original.division.year_branch.year }}
-                                                        {{ each.original.division.division }}
-                                                        {% if each.original.is_practical %}
-                                                            {{ each.original.batch.batch_name }}
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
 
+                        <input type="hidden" name="selected_date" id="hidden_date" value="{{ selected_date }}">
+                        <div class="row" id="timetable">
+                            {% if timetable %}
+                                {% for each in timetable %}
+                                    <button name="date_timetable" class="card btn btn-info my-context-menu"
+                                            style="width: 100%; font-weight: bold; margin-bottom: 5px;"
+                                            value="{{ each.pk }}">
+                                        {% if each.not_available == True %}
+                                            {% if user.faculty == each.substitute.faculty %}
+                                                <div style="display: block;"
+                                                     class="not-available my-context-menu">You've taken lecture
+                                                    for {{ each.original.faculty.initials }}
+                                                </div>
+                                            {% else %}
+                                                <div id="{{ each.pk }}" style="display: block !important;"
+                                                     name="{{ each.pk }}" class="not-available my-context-menu">I'm
+                                                    not
+                                                    available
+                                                    {% if each.is_substituted is True %} <br/> Lecture taken by
+                                                        {{ each.substitute.faculty.initials }}
+                                                    {% endif %}
+                                                </div>
                                             {% endif %}
-                                        </button>
-                                    {% endfor %}
-                                    <button name="previous" value="previous" class="btn left carousel-control"
-                                            style="border: 0 !important;height: 20%;margin:32% 0 0 -10%;">
-                                        <span class="glyphicon glyphicon-chevron-left"></span>
+                                        {% else %}
+                                            <div id="{{ each.pk }}" name="{{ each.pk }}"
+                                                 class="not-available my-context-menu">I'm not available
+                                            </div>
+                                        {% endif %}
+                                        {% if each.is_substituted is True %}
+                                            <div class="card-header my-context-menu"
+                                                 style="border-bottom: 2px solid white;"
+                                                 name="{{ each.pk }}">{{ each.substitute.time }}</div>
+                                            <div class="row my-context-menu">
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.substitute.branch_subject.subject.short_form }}</div>
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.substitute.room.room_number }}</div>
+                                                <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                                                    {{ each.substitute.division.year_branch.branch }}<br/>
+                                                    {{ each.substitute.division.year_branch.year }}
+                                                    {{ each.substitute.division.division }}
+                                                    {% if each.substitute.is_practical %}
+                                                        {{ each.substitute.batch.batch_name }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="card-header my-context-menu"
+                                                 style="border-bottom: 2px solid white;"
+                                                 name="{{ each.pk }}">{{ each.original.time }}</div>
+                                            <div class="row my-context-menu" name="{{ each.pk }}">
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.original.branch_subject.subject.short_form }}</div>
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.original.room.room_number }}</div>
+                                                <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                                                    {{ each.original.division.year_branch.branch }}<br/>
+                                                    {{ each.original.division.year_branch.year }}
+                                                    {{ each.original.division.division }}
+                                                    {% if each.original.is_practical %}
+                                                        {{ each.original.batch.batch_name }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                        {% endif %}
                                     </button>
-                                    <button name="next" value="next" type="submit" class="btn right carousel-control"
-                                            style="border: 0 !important;height: 20%;margin:32% -10% 0 0%;">
-                                        <span class="glyphicon glyphicon-chevron-right"></span>
-                                    </button>
-                                {% else %}
-                                    <p style="text-align: center;">Sorry! No lectures on {{ selected_date }}</p>
-                                {% endif %}
-                            </div>
-                        </form>
+                                {% endfor %}
+                                <button name="previous" value="previous" class="btn left carousel-control"
+                                        style="border: 0 !important;height: 20%;margin:32% 0 0 -10%;">
+                                    <span class="glyphicon glyphicon-chevron-left"></span>
+                                </button>
+                                <button name="next" value="next" type="submit" class="btn right carousel-control"
+                                        style="border: 0 !important;height: 20%;margin:32% -10% 0 0%;">
+                                    <span class="glyphicon glyphicon-chevron-right"></span>
+                                </button>
+                            {% else %}
+                                <p style="text-align: center;">Sorry! No lectures on {{ selected_date }}</p>
+                            {% endif %}
+                        </div>
                     </div>
 
                     <div class="col-md-3">

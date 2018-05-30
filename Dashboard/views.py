@@ -56,9 +56,8 @@ def show_dashboard(request):
     user = request.user
     # If user exists in session (i.e. logged in)
     if not user.is_anonymous:
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-        is_faculty = has_role(user,'faculty')
-        is_student = has_role(user,'student')
+        is_faculty = has_role(user, 'faculty')
+        is_student = has_role(user, 'student')
         if is_student:
             student = user.student
             attendance = {}
@@ -80,46 +79,52 @@ def show_dashboard(request):
                 }
             total_percent = round(100 * attended / total, 2) if total is not 0 else 0
 
+            college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
             if request.method == "GET":
-                date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
-
-                college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
                 timetable = sorted(
-                    DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
+                    DateTimetable.objects.filter(date=datetime.date.today(), original__division=college_extra_detail),
                     key=lambda x: (x.date, x.original.time.starting_time))
 
                 return render(request, 'dashboard_student.html', {
                     'timetable': timetable,
-                    'date_range': date_range,
-                    'days': days,
                     'total_attendance': total_percent,
                     'attendance': attendance,
-                    'current_date': datetime.date.today().strftime('%Y-%m-%d'),
+                    'selected_date': datetime.date.today().strftime('%d-%m-%Y'),
                 })
             else:
-                current_date = parse_date(request.POST.get('current_date'))
-                # current_date = datetime.datetime.strptime(request.POST.get('current_date'), '%Y-%m-%d')
-                if request.POST.get('previous'):
-                    current_date = current_date + datetime.timedelta(-3)
+                if 'GO' in request.POST:
+                    selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
+                    timetable = sorted(
+                        DateTimetable.objects.filter(date=selected_date,
+                                                     original__division=college_extra_detail),
+                        key=lambda x: (x.date, x.original.time.starting_time))
 
-                if request.POST.get('next'):
-                    current_date = current_date + datetime.timedelta(3)
+                    return render(request, 'dashboard_faculty.html', {
+                        'timetable': timetable,
+                        'total_attendance': total_percent,
+                        'attendance': attendance,
+                        'selected_date': selected_date.strftime('%d-%m-%Y'),
+                    })
 
-                date_range = [current_date + datetime.timedelta(n) for n in [-1, 0, 1]]
+                elif request.POST.__contains__('previous') or request.POST.__contains__('next'):
+                    selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
+                    if request.POST.get('previous'):
+                        selected_date = selected_date + datetime.timedelta(-1)
 
-                college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
-                timetable = sorted(
-                    DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
-                    key=lambda x: (x.date, x.original.time.starting_time))
+                    if request.POST.get('next'):
+                        selected_date = selected_date + datetime.timedelta(1)
 
-                return render(request, 'dashboard_student.html', {
-                    'timetable': timetable,
-                    'date_range': date_range,
-                    'days': days,
-                    'total_attendance': total_percent,
-                    'attendance': attendance,
-                    'current_date': current_date.strftime('%Y-%m-%d'),
-                })
+                    timetable = sorted(
+                        DateTimetable.objects.filter(date=selected_date,
+                                                     original__division=college_extra_detail),
+                        key=lambda x: (x.date, x.original.time.starting_time))
+
+                    return render(request, 'dashboard_faculty.html', {
+                        'timetable': timetable,
+                        'total_attendance': total_percent,
+                        'attendance': attendance,
+                        'selected_date': selected_date.strftime('%d-%m-%Y'),
+                    })
 
         elif is_faculty:
             faculty = user.faculty
@@ -435,7 +440,7 @@ def show_all_notifications(request, page=1):
         if is_faculty or is_student:
             notification_objs = sorted(SpecificNotification.objects.filter(user=user), key=lambda x: x.datetime,
                                        reverse=True)[
-                                (int(page) - 1) * 50:(int(page) - 1) * 50+50]
+                                (int(page) - 1) * 50:(int(page) - 1) * 50 + 50]
             pages = SpecificNotification.objects.count()
             pages = pages // 50
             pages += 1 if pages % 50 is not 0 else 0
