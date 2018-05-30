@@ -727,58 +727,74 @@
                                 at_least_one_room = true;
                             }
                         });
+
                         if (at_least_one_room === true) {
-                            $.each(theory_room, function (i, element) {
-                                if (block_room_list[element].indexOf(room_object.id) === -1) {
+                            let at_least_one_teacher = false;
+                            $.each(teachers, function (i, element) {
+                                at_least_one_teacher = true;
+                            });
+                            if (at_least_one_teacher === true) {
+                                $.each(theory_room, function (i, element) {
+                                    if (block_room_list[element].indexOf(room_object.id) === -1) {
+                                        let option = document.createElement("option");
+                                        option.value = element;
+                                        option.text = element;
+                                        room_object.appendChild(option);
+                                    }
+                                });
+
+                                checkbox_object.classList.add("checked-cbx");
+                                subject_dictionary[selected_subject].push(id);
+
+                                let checkbox_parent_object = checkbox_object.parentElement;
+                                {#let subject_text = document.createTextNode(selected_subject);#}
+                                //add <input> Subject</input>
+                                let subject_object = document.createElement("input");
+                                subject_object.value = selected_subject;
+                                subject_object.id = "id_subject_" + time + "_" + division + "_" + day + "_" + year;
+                                subject_object.setAttribute('name', "id_subject_" + time + "_" + division + "_" + day + "_" + year);
+                                subject_object.classList.add("subject_input");
+                                subject_object.readOnly = true;
+
+                                checkbox_parent_object.appendChild(subject_object);
+                                //add <select> Teacher </select>
+                                let teacher_object = document.createElement("select");
+                                checkbox_parent_object.appendChild(teacher_object);
+                                teacher_object.id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year;
+
+
+                                teacher_object.setAttribute('name', "id_teacher_" + time + "_" + division + "_" + day + "_" + year);
+                                $.each(teachers, function (i, element) {
                                     let option = document.createElement("option");
                                     option.value = element;
                                     option.text = element;
-                                    room_object.appendChild(option);
-                                }
-                            });
+                                    teacher_object.appendChild(option);
+                                });
+                                checkbox_parent_object.classList.add("checked-cbx-parent");
 
-                            checkbox_object.classList.add("checked-cbx");
-                            subject_dictionary[selected_subject].push(id);
+                                block_checkbox(checkbox_object, teachers, selected_subject, time, year, day, division, false);
+                                room_object.setAttribute('onfocus', 'set_previous_room(this)');
+                                room_object.setAttribute('onchange', 'room_change_block(this,false)');
+                                checkbox_parent_object.appendChild(room_object);
 
-                            let checkbox_parent_object = checkbox_object.parentElement;
-                            {#let subject_text = document.createTextNode(selected_subject);#}
-                            //add <input> Subject</input>
-                            let subject_object = document.createElement("input");
-                            subject_object.value = selected_subject;
-                            subject_object.id = "id_subject_" + time + "_" + division + "_" + day + "_" + year;
-                            subject_object.setAttribute('name', "id_subject_" + time + "_" + division + "_" + day + "_" + year);
-                            subject_object.classList.add("subject_input");
-                            subject_object.readOnly = true;
-
-                            checkbox_parent_object.appendChild(subject_object);
-                            //add <select> Teacher </select>
-                            let teacher_object = document.createElement("select");
-                            checkbox_parent_object.appendChild(teacher_object);
-                            teacher_object.id = "id_teacher_" + time + "_" + division + "_" + day + "_" + year;
+                                room_object.setAttribute('name', "id_room_" + time + "_" + division + "_" + day + "_" + year);
 
 
-                            teacher_object.setAttribute('name', "id_teacher_" + time + "_" + division + "_" + day + "_" + year);
-                            $.each(teachers, function (i, element) {
-                                let option = document.createElement("option");
-                                option.value = element;
-                                option.text = element;
-                                teacher_object.appendChild(option);
-                            });
-                            checkbox_parent_object.classList.add("checked-cbx-parent");
-
-                            block_checkbox(checkbox_object, teachers, selected_subject, time, year, day, division, false);
-                            room_object.setAttribute('onfocus', 'set_previous_room(this)');
-                            room_object.setAttribute('onchange', 'room_change_block(this,false)');
-                            checkbox_parent_object.appendChild(room_object);
-
-                            room_object.setAttribute('name', "id_room_" + time + "_" + division + "_" + day + "_" + year);
-
-
-                            let current_room = room_object.value;
-                            block_room(room_object.id, current_room, false, false);
+                                let current_room = room_object.value;
+                                block_room(room_object.id, current_room, false, false);
+                            } else {
+                                swal({
+                                    text: "No faculty available for this lecture",
+                                    icon: "info"
+                                });
+                                checkbox_object.checked = false;
+                            }
                         }
                         else {
-                            alert("Sorry no room is available");
+                            swal({
+                                text: "Sorry no room is available",
+                                icon: "info"
+                            });
                             checkbox_object.checked = false;
                         }
                     }
