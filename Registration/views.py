@@ -21,7 +21,7 @@ from Configuration.stateConf import states
 
 
 def has_role(user: User, role: str):
-    role_obj = RoleMaster.objects.get(role=role,is_active=True)
+    role_obj = RoleMaster.objects.get(role=role, is_active=True)
     if RoleManager.objects.filter(user=user, role=role_obj, is_active=True).exists():
         return True
     else:
@@ -411,6 +411,9 @@ def set_schedule_date(request):
                 return render(request, 'set_schedule_date.html', {
                     'form': form
                 })
+
+    else:
+        return redirect('/login/')
 
 
 # def student_subject_registration(request):
