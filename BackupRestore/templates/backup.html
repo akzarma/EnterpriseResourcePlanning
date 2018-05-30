@@ -37,64 +37,82 @@
             {#        </div>#}
             {#    {% endfor %}#}
 
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Version</th>
-                    <th>Restore</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for each_backup in all_backup %}
-                    <tr>
-                        <form method="post" action="{% url 'BackupRestore:restore' %}" id="form_{{ forloop.counter }}">
-                            {% csrf_token %}
-                            <td>{{ each_backup.date }}</td>
-                            <td>{{ each_backup.version }}</td>
-                            <input type="hidden" name="version" value="{{ each_backup.version }}">
-                            <td>
-                                <button type="button" class="btn btn-success" name="Restore" value="Restore"
-                                        data-toggle="modal"
-                                        data-target="#myModalConfirm" onclick="passId('form_{{ forloop.counter }}')">
-                                    Restore
-                                    <span class="glyphicon glyphicon-refresh" aria-hidden="true"
-                                          style="top: 3px;"></span>
-                                </button>
-                            </td>
-                        </form>
-                    </tr>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Version</th>
+            <th>Restore</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for each_backup in all_backup %}
+            <tr>
+                <form method="post" action="{% url 'BackupRestore:restore' %}" id="form_{{ forloop.counter }}">
+                    {% csrf_token %}
+                    <td>{{ each_backup.date }}</td>
+                    <td>{{ each_backup.version }}</td>
+                    <input type="hidden" name="version" value="{{ each_backup.version }}">
+                    <td>
+                        <button type="button" class="btn btn-success" name="Restore" value="Restore"
+                                data-toggle="modal"
+                                data-target="#myModalConfirm" onclick="passId('form_{{ forloop.counter }}')">
+                            Restore
+                            <span class="glyphicon glyphicon-refresh" aria-hidden="true"
+                                  style="top: 3px;"></span>
+                        </button>
+                    </td>
+                </form>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="row" align="center">
+        <form action="{% url 'BackupRestore:backup' %}" method="GET">
+            <ul class="pagination">
+                <li><a href="#">&laquo;</a></li>
+                {% for page in pages %}
+                    {% if page == current_page %}
+                        <li class="active"><a href="{% url 'BackupRestore:backup' page %}">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'BackupRestore:backup' page %}">{{ page }}</a></li>
+                    {% endif %}
                 {% endfor %}
-                </tbody>
-            </table>
+                <li><a href="#">&raquo;</a></li>
+            </ul>
+        </form>
+    </div>
 
-            <div id="myModalConfirm" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">Do you want to perform bellow action.</h4>
-                        </div>
-                        <div class="modal-body">
-                            <p>Some text in the modal.</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-success" id="yes-button">Yes</button>
-                            <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
-                        </div>
-                    </div>
-
+    <div id="myModalConfirm" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Do you want to perform bellow action.</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to restore?<br> (Warning. Do not try if you are not sure.)
+                    <br>
+                    Note: This would create a backup of current database, just in case if you lost </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="yes-button">Yes</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
                 </div>
             </div>
-            <script>
-                function passId(id) {
-                    yesButton = document.getElementById("yes-button");
-                    yesButton.setAttribute('onclick', 'hello("' + id + '")');
-                }
 
-                function hello(id) {
-                    document.getElementById(id).submit();// Form submission
-                }
+        </div>
+    </div>
+    <script>
+        function passId(id) {
+            yesButton = document.getElementById("yes-button");
+            yesButton.setAttribute('onclick', 'hello("' + id + '")');
+        }
 
-            </script>
+        function hello(id) {
+            document.getElementById(id).submit();// Form submission
+        }
+
+    </script>
 {% endblock content %}

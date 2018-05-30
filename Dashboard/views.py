@@ -10,6 +10,7 @@ from django.core import serializers
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
@@ -23,6 +24,7 @@ from Registration.models import Student, Branch, Faculty
 import datetime
 
 # Student dashboard
+from Registration.views import has_role
 from Research.models import Paper
 from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
@@ -54,9 +56,8 @@ def show_dashboard(request):
     user = request.user
     # If user exists in session (i.e. logged in)
     if not user.is_anonymous:
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
-        is_student = RoleManager.objects.filter(user=user, role__role='student')
+        is_faculty = has_role(user, 'faculty')
+        is_student = has_role(user, 'student')
         if is_student:
             student = user.student
             attendance = {}
@@ -78,46 +79,52 @@ def show_dashboard(request):
                 }
             total_percent = round(100 * attended / total, 2) if total is not 0 else 0
 
+            college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
             if request.method == "GET":
-                date_range = [datetime.date.today() + datetime.timedelta(n) for n in [-1, 0, 1]]
-
-                college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
                 timetable = sorted(
-                    DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
+                    DateTimetable.objects.filter(date=datetime.date.today(), original__division=college_extra_detail),
                     key=lambda x: (x.date, x.original.time.starting_time))
 
                 return render(request, 'dashboard_student.html', {
                     'timetable': timetable,
-                    'date_range': date_range,
-                    'days': days,
                     'total_attendance': total_percent,
                     'attendance': attendance,
-                    'current_date': datetime.date.today().strftime('%Y-%m-%d'),
+                    'selected_date': datetime.date.today().strftime('%d-%m-%Y'),
                 })
             else:
-                current_date = parse_date(request.POST.get('current_date'))
-                # current_date = datetime.datetime.strptime(request.POST.get('current_date'), '%Y-%m-%d')
-                if request.POST.get('previous'):
-                    current_date = current_date + datetime.timedelta(-3)
+                if 'GO' in request.POST:
+                    selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
+                    timetable = sorted(
+                        DateTimetable.objects.filter(date=selected_date,
+                                                     original__division=college_extra_detail),
+                        key=lambda x: (x.date, x.original.time.starting_time))
 
-                if request.POST.get('next'):
-                    current_date = current_date + datetime.timedelta(3)
+                    return render(request, 'dashboard_faculty.html', {
+                        'timetable': timetable,
+                        'total_attendance': total_percent,
+                        'attendance': attendance,
+                        'selected_date': selected_date.strftime('%d-%m-%Y'),
+                    })
 
-                date_range = [current_date + datetime.timedelta(n) for n in [-1, 0, 1]]
+                elif request.POST.__contains__('previous') or request.POST.__contains__('next'):
+                    selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
+                    if request.POST.get('previous'):
+                        selected_date = selected_date + datetime.timedelta(-1)
 
-                college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
-                timetable = sorted(
-                    DateTimetable.objects.filter(date__in=date_range, original__division=college_extra_detail),
-                    key=lambda x: (x.date, x.original.time.starting_time))
+                    if request.POST.get('next'):
+                        selected_date = selected_date + datetime.timedelta(1)
 
-                return render(request, 'dashboard_student.html', {
-                    'timetable': timetable,
-                    'date_range': date_range,
-                    'days': days,
-                    'total_attendance': total_percent,
-                    'attendance': attendance,
-                    'current_date': current_date.strftime('%Y-%m-%d'),
-                })
+                    timetable = sorted(
+                        DateTimetable.objects.filter(date=selected_date,
+                                                     original__division=college_extra_detail),
+                        key=lambda x: (x.date, x.original.time.starting_time))
+
+                    return render(request, 'dashboard_faculty.html', {
+                        'timetable': timetable,
+                        'total_attendance': total_percent,
+                        'attendance': attendance,
+                        'selected_date': selected_date.strftime('%d-%m-%Y'),
+                    })
 
         elif is_faculty:
             faculty = user.faculty
@@ -363,16 +370,9 @@ def get_notifications(request):
                                 :NOTIFICATION_SMALL_LIMIT]
 
             data = {'today': date}
-            num_specific_notification = len(notification_objs)
-            # for each in range(num_specific_notification):
-            #     if not each in data:
-            #         data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-            #             'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
-            #         struct = json.loads(data[each])
-            #         data[each] = json.dumps(struct[0])
 
-            is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
-            is_student = RoleManager.objects.filter(user=user, role__role='student')
+            is_faculty = has_role(user, 'faculty')
+            is_student = has_role(user, 'student')
 
             if is_student:
                 student_obj = user.student
@@ -381,14 +381,6 @@ def get_notifications(request):
                 general_notification_obj = GeneralStudentNotification.objects.filter(division=division_obj,
                                                                                      is_active=True)[
                                            :NOTIFICATION_SMALL_LIMIT]
-                num_general_notification = len(general_notification_obj)
-
-                # for each in range(num_specific_notification,num_general_notification):
-                #     if not each in data:
-                #         data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                #             'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
-                #         struct = json.loads(data[each])
-                #         data[each] = json.dumps(struct[0])
 
             elif is_faculty:
                 faculty_obj = user.faculty
@@ -403,13 +395,19 @@ def get_notifications(request):
 
                 num_general_notification = len(general_notification_obj)
             all_notifications = list(notification_objs) + list(general_notification_obj)
-            final_notifications = sorted(all_notifications, key=lambda x: x.datetime)[:5]
+            final_notifications = sorted(all_notifications, key=lambda x: x.datetime)[:NOTIFICATION_SMALL_LIMIT]
 
             for each in range(len(final_notifications)):
                 if not each in data:
                     data[each] = serializers.serialize('json', [final_notifications[each], ], fields=(
                         'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
+                    # if final_notifications[each] in general_notification_obj:
+                    #     data[each]['is_general'] = 'true'
+                    # else:
+                    #     data[each]['is_general'] = 'false'
+
                     struct = json.loads(data[each])
+                    struct[0]['is_general'] = final_notifications[each] in general_notification_obj
                     data[each] = json.dumps(struct[0])
 
             return HttpResponse(json.dumps(data))
@@ -420,39 +418,73 @@ def get_notifications(request):
         return redirect('/login/')
 
 
-@csrf_exempt
-def android_toggle_availability(request):
-    return HttpResponse("Yeah!")
-
-
 def show_all_notifications(request, page=1):
     user = request.user
     if not user.is_anonymous:
         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
         is_student = RoleManager.objects.filter(user=user, role__role='student')
-        if is_faculty or is_student:
-            notification_objs = sorted(SpecificNotification.objects.filter(user=user), key=lambda x: x.datetime,
-                                       reverse=True)[
-                                (int(page) - 1) * 50:50]
-            pages = SpecificNotification.objects.count()
-            pages = pages // 50
-            pages += 1 if pages % 50 is not 0 else 0
-            if pages == 0:
-                pages = 1
+        notification_objs = sorted(SpecificNotification.objects.filter(user=user))[
+                            (int(page) - 1) * NOTIFICATION_LONG_LIMIT:(int(
+                                page) - 1) * NOTIFICATION_LONG_LIMIT + NOTIFICATION_LONG_LIMIT]
+        if is_student:
+            student_obj = user.student
+            student_detail_obj = StudentDetail.objects.get(student=student_obj, is_active=True)
+            division_obj = student_detail_obj.batch.division
+            general_notification_student = GeneralStudentNotification.objects.filter(division=division_obj,
+                                                                                 is_active=True)[
+                                       :NOTIFICATION_LONG_LIMIT]
+            all_notifications = list(notification_objs) + list(general_notification_student)
 
-            return render(request, 'all_notifications.html', {
-                'notifications': notification_objs,
-                'pages': range(1, pages + 1),
-                'current_page': int(page),
-            })
-        return HttpResponseRedirect('/login/')
-    return HttpResponseRedirect("/login/")
+        elif is_faculty:
+            faculty_obj = user.faculty
+            faculty_sub_obj = list(FacultySubject.objects.filter(faculty=faculty_obj, is_active=True))
+            branch_obj = list(
+                BranchSubject.objects.filter(subject_id__in=[each.subject_id for each in faculty_sub_obj],
+                                             is_active=True))
+            branch_obj = list(set([each.year_branch.branch for each in branch_obj]))
+            general_notification_faculty = GeneralFacultyNotification.objects.filter(branch__in=branch_obj,
+                                                                                 is_active=True)[
+                                       :NOTIFICATION_LONG_LIMIT]
+            all_notifications = list(notification_objs) + list(general_notification_faculty)
+
+        final_notifications = sorted(all_notifications, key=lambda x: x.datetime)[:NOTIFICATION_LONG_LIMIT]
+
+        notification_model = {}
+        for obj in final_notifications:
+            if obj in general_notification_student:
+                notification_model[obj.pk] = 'GeneralStudent'
+            elif obj in general_notification_faculty:
+                notification_model[obj.pk] = 'GeneralFaculty'
+            else:
+                notification_model[obj.pk] = 'SpecificNotification'
+
+        pages = len(final_notifications)
+        pages = pages // 50
+        pages += 1 if pages % 50 is not 0 else 0
+        if pages == 0:
+            pages = 1
+
+        return render(request, 'all_notifications.html', {
+            'notifications': final_notifications,
+            'pages': range(1, pages + 1),
+            'current_page': int(page),
+            'notification_model' : json.dumps(notification_model)
+        })
+    return redirect('/login/')
 
 
 def view_notification(request):
-    notification = SpecificNotification.objects.get(pk=int(request.POST.get('pk')))
-    notification.has_read = True
-    notification.save()
+    model = request.POST.get('model')
+    if model == 'GeneralStudent':
+        notification = GeneralStudentNotification.objects.get(pk=int(request.POST.get('pk')))
+
+    elif model == 'GeneralFaculty':
+        notification = GeneralFacultyNotification.objects.get(pk=int(request.POST.get('pk')))
+    else:
+        notification = SpecificNotification.objects.get(user=request.user, pk=int(request.POST.get('pk')))
+        notification.has_read = True
+        notification.save()
+
     data = serializers.serialize('json', [notification, ])
     struct = json.loads(data)
     data = json.dumps(struct[0])
@@ -531,7 +563,7 @@ def android_get_notifications(request):
 
 @csrf_exempt
 def get_date(request):
-    date = datetime.datetime.now().__str__()
+    date = timezone.now().__str__()
     return HttpResponse(date)
 
 
@@ -575,6 +607,11 @@ def android_get_subjects(request):
         'subject__short_form', flat=True)
 
     return HttpResponse(json.dumps(list(subjects)))
+
+
+@csrf_exempt
+def android_toggle_availability(request):
+    return HttpResponse("Yeah!")
 
 
 def read_all_notification(request):

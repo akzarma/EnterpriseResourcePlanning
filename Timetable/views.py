@@ -20,6 +20,7 @@ from General.models import Division, BranchSubject, FacultySubject, CollegeYear,
     StudentDetail, Semester, YearBranch, YearSemester
 from Registration.models import Branch, Subject, Faculty, Student
 from Registration.models import Branch, Subject
+from UserModel.models import RoleManager
 from .models import Time, Room, Timetable, DateTimetable
 from Sync.function import write_to_firebase
 
@@ -29,180 +30,192 @@ import xlsxwriter
 # Create your views here.
 
 def fill_timetable(request):
-    current_semester = 2
-    if request.method == "POST":
-        current_semester = int(request.POST.get('current_semester'))
-    semester_obj = Semester.objects.get(semester=current_semester, is_active=True)
-    times = []
-    years = []
-    # branch = Branch.objects.all()
-    branch_obj = Branch.objects.get(branch='Computer')
-    year_branch_obj = YearBranch.objects.filter(branch=branch_obj)
-    branch = branch_obj.branch
-    for i in Time.objects.all().order_by('starting_time'):
-        times.append(i.__str__())
+    user = request.user
+    if not user.is_anonymous:
+        is_faculty = RoleManager.objects.filter()
+        if is_faculty:
+            current_semester = 2
+            if request.method == "POST":
+                current_semester = int(request.POST.get('current_semester'))
+            semester_obj = Semester.objects.get(semester=current_semester, is_active=True)
+            times = []
+            years = []
+            # branch = Branch.objects.all()
+            branch_obj = Branch.objects.get(branch='Computer')
+            year_branch_obj = YearBranch.objects.filter(branch=branch_obj)
+            branch = branch_obj.branch
+            for i in Time.objects.all().order_by('starting_time'):
+                times.append(i.__str__())
 
-    for i in CollegeYear.objects.all().order_by('year').values_list('year', flat=True).distinct():
-        years.append(i)
+            for i in CollegeYear.objects.all().order_by('year').values_list('year', flat=True).distinct():
+                years.append(i)
 
-    year_semester_json = {}
-    for obj in YearSemester.objects.all():
-        year_sem = obj.year_branch.year.year
-        semester = obj.semester.semester
-        if year_sem not in year_semester_json:
-            year_semester_json[year_sem] = []
-        year_semester_json[year_sem] += [semester]
+            year_semester_json = {}
+            for obj in YearSemester.objects.all():
+                year_sem = obj.year_branch.year.year
+                semester = obj.semester.semester
+                if year_sem not in year_semester_json:
+                    year_semester_json[year_sem] = []
+                year_semester_json[year_sem] += [semester]
 
-    divisions = Division.objects.filter(year_branch__in=year_branch_obj).order_by('division').values_list('division',
-                                                                                                          flat=True).distinct()
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-    # form = TimetableForm()
-    # branch = Branch.objects.all().values_list('branch', flat=True)
-    theory_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=False)]
-    practical_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=True)]
-    # college_detail = Division.objects.filter(year_branch__in=year_branch_obj)
-    # subjects_obj = BranchSubject.objects.filter(year_branch=college_detail[0])
-    subjects = []
-    faculty = list(
-        FacultySubject.objects.filter(
-            division__in=Division.objects.filter(year_branch__in=year_branch_obj)).values_list(
-            'faculty__initials', flat=True).distinct())
-    divisions_js = ""
-    for i in divisions:
-        divisions_js += i
-    # timetables = Timetable.objects.filter(is_practical=False)
-    # timetable_prac = Timetable.objects.filter(is_practical=True)
-    subjects_json = {}
-    # college_detail = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj)
-    all_subjects = BranchSubject.objects.filter(year_branch__in=year_branch_obj, semester=semester_obj)
+            divisions = Division.objects.filter(year_branch__in=year_branch_obj).order_by('division').values_list(
+                'division',
+                flat=True).distinct()
+            days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            # form = TimetableForm()
+            # branch = Branch.objects.all().values_list('branch', flat=True)
+            theory_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=False)]
+            practical_room = [i.room_number for i in Room.objects.filter(branch=branch_obj, lab=True)]
+            # college_detail = Division.objects.filter(year_branch__in=year_branch_obj)
+            # subjects_obj = BranchSubject.objects.filter(year_branch=college_detail[0])
+            subjects = []
+            faculty = list(
+                FacultySubject.objects.filter(
+                    division__in=Division.objects.filter(year_branch__in=year_branch_obj)).values_list(
+                    'faculty__initials', flat=True).distinct())
+            divisions_js = ""
+            for i in divisions:
+                divisions_js += i
+            # timetables = Timetable.objects.filter(is_practical=False)
+            # timetable_prac = Timetable.objects.filter(is_practical=True)
+            subjects_json = {}
+            # college_detail = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj)
+            all_subjects = BranchSubject.objects.filter(year_branch__in=year_branch_obj, semester=semester_obj)
 
-    for year in years:
-        year_obj = CollegeYear.objects.get(year=year)
-        # college_detail = CollegeExtraDetail.objects.filter(year_branch__in=YearBranch.objects.filter(year=year_obj))
-        year_branch_objs = YearBranch.objects.filter(year=year_obj)
-        subjects = all_subjects.filter(year_branch__in=year_branch_objs)
-        subjects_theory = list(subjects.filter(subject__is_practical=False, subject__is_elective=False).values_list(
-            'subject__short_form', flat=True))
-        subjects_practical = list(subjects.filter(subject__is_practical=True, subject__is_elective=False).values_list(
-            'subject__short_form', flat=True))
-        subjects_elective_theory = list(subjects.filter(subject__is_elective=True, subject__is_practical=False))
-        subjects_elective_practical = list(subjects.filter(subject__is_elective=True, subject__is_practical=True))
-        subjects_json[year] = {
-            'theory': subjects_theory,
-            'practical': subjects_practical,
-            'elective_theory': subjects_elective_theory,
-            'elective_practical': subjects_elective_practical
-        }
+            for year in years:
+                year_obj = CollegeYear.objects.get(year=year)
+                # college_detail = CollegeExtraDetail.objects.filter(year_branch__in=YearBranch.objects.filter(year=year_obj))
+                year_branch_objs = YearBranch.objects.filter(year=year_obj)
+                subjects = all_subjects.filter(year_branch__in=year_branch_objs)
+                subjects_theory = list(
+                    subjects.filter(subject__is_practical=False, subject__is_elective=False).values_list(
+                        'subject__short_form', flat=True))
+                subjects_practical = list(
+                    subjects.filter(subject__is_practical=True, subject__is_elective=False).values_list(
+                        'subject__short_form', flat=True))
+                subjects_elective_theory = list(subjects.filter(subject__is_elective=True, subject__is_practical=False))
+                subjects_elective_practical = list(
+                    subjects.filter(subject__is_elective=True, subject__is_practical=True))
+                subjects_json[year] = {
+                    'theory': subjects_theory,
+                    'practical': subjects_practical,
+                    'elective_theory': subjects_elective_theory,
+                    'elective_practical': subjects_elective_practical
+                }
 
-    # Create dict of subject teacher binding
-    # eg
-    # TOC:{
-    #     A:[DMV,HVD]
-    #     B:[DV]
-    #     C:[]
-    # }
+            # Create dict of subject teacher binding
+            # eg
+            # TOC:{
+            #     A:[DMV,HVD]
+            #     B:[DV]
+            #     C:[]
+            # }
 
-    subject_teacher_json = {}
+            subject_teacher_json = {}
 
-    for each_subject in all_subjects:
-        subject_teacher_json[each_subject.subject.short_form] = {}
-        for each_division in divisions:
-            division_object = Division.objects.get(year_branch=each_subject.year_branch, division=each_division)
-            faculty_subjects_division = FacultySubject.objects.filter(subject=each_subject.subject,
-                                                                      division=division_object).values_list(
-                'faculty__initials', flat=True)
+            for each_subject in all_subjects:
+                subject_teacher_json[each_subject.subject.short_form] = {}
+                for each_division in divisions:
+                    division_object = Division.objects.get(year_branch=each_subject.year_branch, division=each_division)
+                    faculty_subjects_division = FacultySubject.objects.filter(subject=each_subject.subject,
+                                                                              division=division_object).values_list(
+                        'faculty__initials', flat=True)
 
-            subject_teacher_json[each_subject.subject.short_form][each_division] = list(faculty_subjects_division)
+                    subject_teacher_json[each_subject.subject.short_form][each_division] = list(
+                        faculty_subjects_division)
 
-    all_subjects = list(all_subjects.values_list('subject__short_form', flat=True))
+            all_subjects = list(all_subjects.values_list('subject__short_form', flat=True))
 
-    subject_year = {}
+            subject_year = {}
 
-    # for year in years:
+            # for year in years:
 
-    batches_json = {}
+            batches_json = {}
 
-    year_branch_objs = YearBranch.objects.filter(branch=branch_obj)
-    division_obj = Division.objects.filter(year_branch__in=year_branch_objs)
+            year_branch_objs = YearBranch.objects.filter(branch=branch_obj)
+            division_obj = Division.objects.filter(year_branch__in=year_branch_objs)
 
-    for yr in division_obj:
+            for yr in division_obj:
 
-        if yr.year_branch.year.year in batches_json:
-            batches_json[yr.year_branch.year.year][yr.division] = list(
-                Batch.objects.filter(division=yr).values_list('batch_name', flat=True))
-        else:
-            batches_json[yr.year_branch.year.year] = {}
-            batches_json[yr.year_branch.year.year][yr.division] = list(
-                Batch.objects.filter(division=yr).values_list('batch_name', flat=True))
-        # for div in divisions:
-        #     batches_json[yr][div] = [
-        #         Batch.objects.filter(division=CollegeExtraDetail.objects.get(branch=branch_obj, division=div,
-        #                                                                      year=CollegeYear.objects.get(
-        #                                                                          year=yr))).values_list('batch_name',
-        #                                                                                                 flat=True)
-        #     ]
+                if yr.year_branch.year.year in batches_json:
+                    batches_json[yr.year_branch.year.year][yr.division] = list(
+                        Batch.objects.filter(division=yr).values_list('batch_name', flat=True))
+                else:
+                    batches_json[yr.year_branch.year.year] = {}
+                    batches_json[yr.year_branch.year.year][yr.division] = list(
+                        Batch.objects.filter(division=yr).values_list('batch_name', flat=True))
+                # for div in divisions:
+                #     batches_json[yr][div] = [
+                #         Batch.objects.filter(division=CollegeExtraDetail.objects.get(branch=branch_obj, division=div,
+                #                                                                      year=CollegeYear.objects.get(
+                #                                                                          year=yr))).values_list('batch_name',
+                #                                                                                                 flat=True)
+                #     ]
 
-    full_timetable_theory = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
-                                                     branch_subject__semester=semester_obj, is_practical=False,
-                                                     branch_subject__subject__is_elective=False)
-    full_timetable_practical = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
-                                                        branch_subject__semester=semester_obj,
-                                                        is_practical=True)
+            full_timetable_theory = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
+                                                             branch_subject__semester=semester_obj, is_practical=False,
+                                                             branch_subject__subject__is_elective=False)
+            full_timetable_practical = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
+                                                                branch_subject__semester=semester_obj,
+                                                                is_practical=True)
 
-    full_timetable_elective = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
-                                                       branch_subject__semester=semester_obj,
-                                                       branch_subject__subject__is_elective=True)
+            full_timetable_elective = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
+                                                               branch_subject__semester=semester_obj,
+                                                               branch_subject__subject__is_elective=True)
 
-    timetable_instance = {}
-    timetable_instance_practical = {}
+            timetable_instance = {}
+            timetable_instance_practical = {}
 
-    for each_time_table in full_timetable_theory:
-        timetable_instance[
-            'id_room_' + each_time_table.time.__str__() + '_' + each_time_table.division.division + '_' + str(
-                days.index(
-                    each_time_table.day) + 2) + '_' + each_time_table.division.year_branch.year.year + '_cbx'] = {
-            'faculty': each_time_table.faculty.initials,
-            'room': each_time_table.room.room_number,
-            'subject': each_time_table.branch_subject.subject.short_form,
-            'is_practical': 'false',
-            'is_elective': 'false'
-        }
+            for each_time_table in full_timetable_theory:
+                timetable_instance[
+                    'id_room_' + each_time_table.time.__str__() + '_' + each_time_table.division.division + '_' + str(
+                        days.index(
+                            each_time_table.day) + 2) + '_' + each_time_table.division.year_branch.year.year + '_cbx'] = {
+                    'faculty': each_time_table.faculty.initials,
+                    'room': each_time_table.room.room_number,
+                    'subject': each_time_table.branch_subject.subject.short_form,
+                    'is_practical': 'false',
+                    'is_elective': 'false'
+                }
 
-    for each_time_table in full_timetable_practical:
-        timetable_instance_practical[
-            'id_room_' + each_time_table.time.__str__() + '_' + each_time_table.division.division + '_' + str(
-                days.index(each_time_table.day) + 2) + '_' + each_time_table.division.year_branch.year.year + '_' +
-            each_time_table.batch.batch_name + '_cbx'] = {
-            'faculty': each_time_table.faculty.initials,
-            'room': each_time_table.room.room_number,
-            'subject': each_time_table.branch_subject.subject.short_form,
-            'is_practical': 'true',
-            'is_elective': 'false'
-        }
+            for each_time_table in full_timetable_practical:
+                timetable_instance_practical[
+                    'id_room_' + each_time_table.time.__str__() + '_' + each_time_table.division.division + '_' + str(
+                        days.index(
+                            each_time_table.day) + 2) + '_' + each_time_table.division.year_branch.year.year + '_' +
+                    each_time_table.batch.batch_name + '_cbx'] = {
+                    'faculty': each_time_table.faculty.initials,
+                    'room': each_time_table.room.room_number,
+                    'subject': each_time_table.branch_subject.subject.short_form,
+                    'is_practical': 'true',
+                    'is_elective': 'false'
+                }
 
-    print(batches_json)
+            print(batches_json)
 
-    context = {
-        'branch': branch,
-        'current_semester': current_semester,
-        'times': times,
-        'year': years,
-        'days': days,
-        'division': list(divisions),
-        'number_of_division': range(len(divisions)),
-        'theory_room': theory_room,
-        'practical_room': practical_room,
-        'batches_json': json.dumps(batches_json),
-        'faculty': faculty,
-        'divisions_js': divisions_js,
-        'subject_json': json.dumps(subjects_json),
-        'semester_json': year_semester_json,
-        'all_subjects': all_subjects,
-        'subject_teacher_json': json.dumps(subject_teacher_json),
-        'timetable_instance_theory': timetable_instance,
-        'timetable_instance_practical': timetable_instance_practical
-    }
-    return render(request, 'test_timetable.html', context)
+            context = {
+                'branch': branch,
+                'current_semester': current_semester,
+                'times': times,
+                'year': years,
+                'days': days,
+                'division': list(divisions),
+                'number_of_division': range(len(divisions)),
+                'theory_room': theory_room,
+                'practical_room': practical_room,
+                'batches_json': json.dumps(batches_json),
+                'faculty': faculty,
+                'divisions_js': divisions_js,
+                'subject_json': json.dumps(subjects_json),
+                'semester_json': year_semester_json,
+                'all_subjects': all_subjects,
+                'subject_teacher_json': json.dumps(subject_teacher_json),
+                'timetable_instance_theory': timetable_instance,
+                'timetable_instance_practical': timetable_instance_practical
+            }
+            return render(request, 'test_timetable.html', context)
+        return HttpResponseRedirect('/login/')
+    return HttpResponseRedirect('/login/')
 
 
 def fill_date_timetable(new_date_timetable):

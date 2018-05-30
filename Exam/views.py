@@ -6,10 +6,11 @@ import datetime
 
 # Create your views here.
 from Exam.forms import ExamDetailForm
-from Exam.models import ExamMaster, ExamSubject
-from General.models import Semester, BranchSubject, CollegeYear, YearBranch, FacultySubject, Division
+from Exam.models import ExamMaster, ExamSubject, ExamDetail
+from General.models import Semester, BranchSubject, CollegeYear, YearBranch, FacultySubject, Division, StudentDetail
 from General.views import notify_users
 from Registration.models import Branch
+from Registration.views import has_role
 
 
 def exam_register(request):
@@ -63,7 +64,8 @@ def exam_detail(request):
 
                 # year_branch_obj = exam_detail_obj.year
                 # division = list(Division.objects.filter(is_active=True, year_branch=year_branch_obj))
-                notify_users(notification_type=notification_type, message=message, heading=heading, users_obj=[faculty_obj.user],
+                notify_users(notification_type=notification_type, message=message, heading=heading,
+                             users_obj=[faculty_obj.user],
                              user_type='faculty')
             return redirect('/exam/detail/')
         else:
@@ -102,3 +104,17 @@ def get_subjects(request):
             return HttpResponse("Not post")
     else:
         return HttpResponse('Not ajax')
+
+
+def view_exam(request):
+    user = request.user
+    if has_role(user, 'student'):
+        student_obj = user.student
+        student_detail_obj = StudentDetail.objects.get(student=student_obj, is_active=True)
+        year_branch_obj = student_detail_obj.batch.division.year_branch
+        exam_objs = ExamDetail.objects.filter(is_active=True, year=year_branch_obj)
+        exam_subjects = [list(each.examsubject_set.values_list('subject__short_form', flat=True)) for each in exam_objs]
+        return render(request, 'view_exam.html', {
+            'exams': exam_objs,
+            'exam_subjects': exam_subjects
+        })

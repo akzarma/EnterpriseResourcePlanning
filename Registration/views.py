@@ -20,8 +20,9 @@ from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr
 from Configuration.stateConf import states
 
 
-def has_role(user, role):
-    if RoleManager.objects.filter(user=user, role=role, is_active=True).exists():
+def has_role(user: User, role: str):
+    role_obj = RoleMaster.objects.get(role=role,is_active=True)
+    if RoleManager.objects.filter(user=user, role=role_obj, is_active=True).exists():
         return True
     else:
         return False
@@ -398,7 +399,7 @@ def set_schedule_date(request):
                 heading = 'Subject Registration'
                 type = 'forward'
                 user_type = 'Student'
-                action = 'register/student_subject/'
+                action = '/register/student_subject/'
                 division = Division.objects.filter(is_active=True)
                 notify_users(notification_type=notification_type, message=message, type=type, user_type=user_type,
                              action=action, division=division, heading=heading)
