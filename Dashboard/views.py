@@ -401,7 +401,13 @@ def get_notifications(request):
                 if not each in data:
                     data[each] = serializers.serialize('json', [final_notifications[each], ], fields=(
                         'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
+                    # if final_notifications[each] in general_notification_obj:
+                    #     data[each]['is_general'] = 'true'
+                    # else:
+                    #     data[each]['is_general'] = 'false'
+
                     struct = json.loads(data[each])
+                    struct[0]['is_general'] = final_notifications[each] in general_notification_obj
                     data[each] = json.dumps(struct[0])
 
             return HttpResponse(json.dumps(data))
