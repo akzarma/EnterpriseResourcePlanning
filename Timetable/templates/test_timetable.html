@@ -384,6 +384,7 @@
 
 
     {#    Make Selected year timetable visible#}
+    <!--suppress BadExpressionStatementJS -->
     <script>
 
 
@@ -422,7 +423,7 @@
                 text: "All the changes till this point will be lost . To save the changes, press submit.",
                 icon: "warning",
                 buttons: true,
-                dangerMode: true,
+                dangerMode: true
             })
                 .then((willDelete) => {
                 if(willDelete) {
@@ -485,6 +486,7 @@
 
 
         function block_checkbox(checkbox_object, teachers, current_subject, time, year, day, current_division, complement, real_selected) {
+            let i;
             for (subject in subject_teacher_json) {
                 if (subject_teacher_json.hasOwnProperty(subject)) {
                     for (division in subject_teacher_json[subject]) {
