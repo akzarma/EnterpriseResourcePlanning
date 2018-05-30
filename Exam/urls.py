@@ -10,5 +10,7 @@ urlpatterns = [
     url(r'^detail/$', views.exam_detail, name='exam_detail'),
     # /exam/get_subjects
     url(r'^get_subjects/$', views.get_subjects, name='get_subjects'),
+    # /exam/view_exam
+    url(r'^view_exam/$', views.view_exam, name='view_exam'),
 
 ]

@@ -35,7 +35,7 @@
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.6.4/jquery.contextMenu.min.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.6.4/jquery.ui.position.min.js"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js"></script>
 
 
     <style>
@@ -460,7 +460,7 @@
             button.setAttribute("class", "btn btn-danger");
             button.setAttribute("onclick", "overlay_off()");
             text.appendChild(button);
-        }else if(temp_json["fields"]["type"] == "forward"){
+        } else if (temp_json["fields"]["type"] == "forward") {
             let a = document.createElement('a');
             a.innerHTML = "Go To Subject Registration";
             a.setAttribute("class", "btn btn-success");
