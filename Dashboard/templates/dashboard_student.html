@@ -198,57 +198,117 @@
         <div id="content">
             {% block content %}
                 <div class="row">
-                    <div class="col-md-9">
+                    <div class="col-md-4">
                         <legend>Timetable</legend>
-                        <form method="post" action="{% url 'dashboard:dashboard' %}">
+                        <form action="{% url 'dashboard:dashboard' %}" method="post" onsubmit="event.preventDefault();"
+                              id="date_form">
                             {% csrf_token %}
-                            <input type="hidden" name="current_date" value="{{ current_date }}">
-                            <div class="row">
-                                {% for date in date_range %}
-                                    <div class="col-md-4">
-                                        <h3 style="text-align: center">{{ date }}</h3>
-                                        <h4 style="text-align: center">{{ date|date:"l" }}</h4>
-                                        {% for each in timetable %}
-                                            {% if each.date == date %}
-                                                {% if each.is_substituted is True %}
-                                                    <div class="card btn btn-info"
-                                                         style="width: 100%; font-weight: bold; margin-bottom: 5px;">
-                                                        <div class="card-header"
-                                                             style="border-bottom: 2px solid white;">{{ each.substitute.time }}</div>
-                                                        <div class="row">
-                                                            <div class="col-md-4">{{ each.substitute.branch_subject.subject.short_form }}</div>
-                                                            <div class="col-md-4">{{ each.substitute.room.room_number }}</div>
-                                                            <div class="col-md-4">{{ each.substitute.faculty.initials }}</div>
-                                                        </div>
-                                                    </div>
-                                                {% else %}
-                                                    <div class="card btn btn-info"
-                                                         style="width: 100%; font-weight: bold; margin-bottom: 5px;">
-                                                        <div class="card-header"
-                                                             style="border-bottom: 2px solid white;">{{ each.original.time }}</div>
-                                                        <div class="row">
-                                                            <div class="col-md-4">{{ each.original.branch_subject.subject.short_form }}</div>
-                                                            <div class="col-md-4">{{ each.original.room.room_number }}</div>
-                                                            <div class="col-md-4">{{ each.original.faculty.initials }}</div>
-                                                        </div>
-                                                    </div>
-                                                {% endif %}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                {% endfor %}
+                            <h4 style="text-align:center; ">Lectures on
+                                <span id="current_datePickerDate">{{ selected_date }}</span>
+                                {#                                <div id="datepicker" class="input-group date" data-date-format="mm-dd-yyyy">#}
+                                {#                                    <input class="form-control" type="text" value="{{ selected_date.month }}-{{ selected_date.day }}-{{ selected_date.year }}"/>#}
+                                {#                                    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>#}
+                                {#                                </div>#}
 
-                                <button name="previous" value="previous" class="btn left carousel-control"
-                                        style="border: 0 !important;"><span
-                                        class="glyphicon glyphicon-chevron-left"></span></button>
-                                <button name="next" value="next" type="submit" class="btn right carousel-control"
-                                        style="border: 0 !important;"><span
-                                        class="glyphicon glyphicon-chevron-right"></span></button>
-                            </div>
+                                <button id="dateButton" name="GO" type="submit" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </button>
+                                <input type="text" name="selected_date" id="txtDate"
+                                       style="display: none;" onchange="change_timetable()">
+
+                                {#                                <button type="button" name="GO" class="btn btn-default" id="datepickerbtn">#}
+                                {#                                    <span class="glyphicon glyphicon-calendar"></span>#}
+                                {#                                </button>#}
+
+                            </h4>
                         </form>
+
+
+                        <br/>
+
+                        <input type="hidden" name="selected_date" id="hidden_date" value="{{ selected_date }}">
+                        <div class="row" id="timetable">
+                            {% if timetable %}
+                                {% for each in timetable %}
+                                    <button name="date_timetable" class="card btn btn-info my-context-menu"
+                                            style="width: 100%; font-weight: bold; margin-bottom: 5px;"
+                                            value="{{ each.pk }}">
+                                        {% if each.not_available == True %}
+                                            {% if user.faculty == each.substitute.faculty %}
+                                                <div style="display: block;"
+                                                     class="not-available my-context-menu">You've taken lecture
+                                                    for {{ each.original.faculty.initials }}
+                                                </div>
+                                            {% else %}
+                                                <div id="{{ each.pk }}" style="display: block !important;"
+                                                     name="{{ each.pk }}" class="not-available my-context-menu">I'm
+                                                    not
+                                                    available
+                                                    {% if each.is_substituted is True %} <br/> Lecture taken by
+                                                        {{ each.substitute.faculty.initials }}
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        {% else %}
+                                            <div id="{{ each.pk }}" name="{{ each.pk }}"
+                                                 class="not-available my-context-menu">I'm not available
+                                            </div>
+                                        {% endif %}
+                                        {% if each.is_substituted is True %}
+                                            <div class="card-header my-context-menu"
+                                                 style="border-bottom: 2px solid white;"
+                                                 name="{{ each.pk }}">{{ each.substitute.time }}</div>
+                                            <div class="row my-context-menu">
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.substitute.branch_subject.subject.short_form }}</div>
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.substitute.room.room_number }}</div>
+                                                <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                                                    {{ each.substitute.division.year_branch.branch }}<br/>
+                                                    {{ each.substitute.division.year_branch.year }}
+                                                    {{ each.substitute.division.division }}
+                                                    {% if each.substitute.is_practical %}
+                                                        {{ each.substitute.batch.batch_name }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="card-header my-context-menu"
+                                                 style="border-bottom: 2px solid white;"
+                                                 name="{{ each.pk }}">{{ each.original.time }}</div>
+                                            <div class="row my-context-menu" name="{{ each.pk }}">
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.original.branch_subject.subject.short_form }}</div>
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.original.room.room_number }}</div>
+                                                <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                                                    {{ each.original.division.year_branch.branch }}<br/>
+                                                    {{ each.original.division.year_branch.year }}
+                                                    {{ each.original.division.division }}
+                                                    {% if each.original.is_practical %}
+                                                        {{ each.original.batch.batch_name }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                        {% endif %}
+                                    </button>
+                                {% endfor %}
+                                <button name="previous" value="previous" class="btn left carousel-control"
+                                        style="border: 0 !important;height: 20%;margin:32% 0 0 -10%;">
+                                    <span class="glyphicon glyphicon-chevron-left"></span>
+                                </button>
+                                <button name="next" value="next" type="submit" class="btn right carousel-control"
+                                        style="border: 0 !important;height: 20%;margin:32% -10% 0 0%;">
+                                    <span class="glyphicon glyphicon-chevron-right"></span>
+                                </button>
+                            {% else %}
+                                <p style="text-align: center;">Sorry! No lectures on {{ selected_date }}</p>
+                            {% endif %}
+                        </div>
                     </div>
 
-                    <div class="col-md-3">
+                    <div class="col-md-3 col-md-offset-5">
                         <legend>Attendance</legend>
                         <div class="row">
                             <h3 style="text-align: center;">Total Attendance</h3>
@@ -278,14 +338,40 @@
     $('#sidebarCollapse').on('click', function () {
     $('#sidebar').toggleClass('active');
     });
-    $('.carousel').carousel({
-    interval: false
-    });
+
     $('[data-toggle="tooltip"]').tooltip();
+
+    $('#txtDate').datepicker({
+    format: 'dd-mm-yyyy',
+
+    })  ;
+    $('#dateButton').click(function () {
+    $('#txtDate').show().focus().hide();
+    });
+
 {% endblock %}
 
 {% block html %}
 
+    <script type="text/javascript">
+
+        var current_datePickerDate = document.getElementById('current_datePickerDate');
+        $(function () {
+            $("#datepicker").datepicker({
+                autoclose: true,
+            }).datepicker('setDate', '12-05-2000');
+        });
+
+        function change_timetable() {
+            var form = document.getElementById('date_form');
+            var input = document.createElement('input');
+            input.setAttribute('name', 'GO');
+            input.setAttribute('type', 'hidden');
+            form.appendChild(input);
+            form.submit();
+        }
+
+    </script>
 
 
 

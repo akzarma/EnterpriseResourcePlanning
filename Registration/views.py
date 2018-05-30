@@ -13,7 +13,7 @@ from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSu
     FacultySubject, Batch, YearBranch, StudentSubject, YearSemester, ElectiveGroup, Schedulable, ElectiveDivision
 from General.views import notify_users
 from Login.views import generate_activation_key
-from Registration.models import Student, Branch, Faculty, Subject
+from Registration.models import Student, Branch, Faculty, Subject, Elective
 from UserModel.models import User, RoleManager, RoleMaster
 from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict, DateScheduleForm, \
     YearBranchSemForm
@@ -234,72 +234,49 @@ def register_subject(request):
     user = request.user
     if not user.is_anonymous:
 
-        all_elective = YearSemester.objects.all()
-        elective_json = {}
-        for each_elective in all_elective:
-            branch = each_elective.year_branch.branch.branch
-            year = each_elective.year_branch.year.year
-            semester = each_elective.semester.semester
-            if branch in elective_json:
-                if year in elective_json[branch]:
-                    if semester in elective_json[branch][year]:
-                        {}
-                    else:
-                        elective_json[branch][year][semester] = {}
-                else:
-                    elective_json[branch][year] = {}
-                    elective_json[branch][year][semester] = {}
-            else:
-                elective_json[branch] = {}
-                elective_json[branch][year] = {}
-                elective_json[branch][year][semester] = {}
-            elective_json[branch][year][semester] = each_elective.number_of_elective_groups
-
-        if request.method == 'POST':
-
+        if request.method == 'POST' and request.POST.get('register_subject'):
             subject_form = SubjectForm(request.POST)
-
             if subject_form.is_valid():
-                subject_obj = subject_form.save(commit=False)
                 branch_object = Branch.objects.get(branch=subject_form.cleaned_data.get('branch'))
                 year_obj = CollegeYear.objects.get(year=subject_form.cleaned_data.get('year'))
                 semester_obj = Semester.objects.get(semester=subject_form.cleaned_data.get('semester'))
-                type = subject_form.cleaned_data.get('type')
-                group = subject_form.cleaned_data.get('elective_group')
                 year_branch_obj = YearBranch.objects.get(branch=branch_object, year=year_obj, is_active=True)
+                if request.POST.get('is_elective_group'):
+                    subject_form.is_elective_group = True
+                    subject_obj = subject_form.save(commit=False)
+                    no_of_elective = int(request.POST.get('no_of_elective'))
+                    for i in range(no_of_elective):
+                        elective = Elective.objects.get_or_create(name=request.POST.get('elective_' + str(i + 1)),
+                                                                  short_form=request.POST.get('elective_short_' + str(i + 1)),
+                                                                  subject=subject_obj,
+                                                                  is_active=True)
 
-                if group is not None:
-                    subject_form.elective_group = group
-                    group_obj = ElectiveGroup.objects.get(year_branch__branch=branch_object, year_branch__year=year_obj,
-                                                          year_branch__is_active=True, semester=semester_obj,
-                                                          group=chr(65 + int(group)))
-                    BranchSubject.objects.create(year_branch=year_branch_obj,
-                                                 semester=semester_obj, subject=subject_obj, type=type, group=group_obj,
-                                                 is_active=True)
+                    subject_obj.save()
+                    return render(request, 'test_register_subject.html', {
+                        'form': SubjectForm(),
+                        'success': 'Subject with electives registered successfully'
+                    })
+
                 else:
-                    BranchSubject.objects.create(year_branch=year_branch_obj,
-                                                 semester=semester_obj, subject=subject_obj, type=type,
-                                                 is_active=True)
-                subject_form.save()
-
-                # subject_obj = Subject.objects.get(code=subject_form.cleaned_data.get('code'))
-
-                return render(request, 'test_register_subject.html',
-                              {'success': subject_obj.short_form + ' is Successfully registered',
-                               'form': SubjectForm(),
-                               'data': json.dumps(elective_json)})
+                    subject_obj = subject_form.save(commit=False)
+                    subject_obj.save()
+                    return render(request, 'test_register_subject.html', {
+                        'form': SubjectForm(),
+                        'success': 'Subject registered successfully'
+                    })
 
             else:
-                return HttpResponse('error : ' + str(subject_form.errors))
-
+                return render(request, 'test_register_subject.html', {
+                    'form': subject_form,
+                    'error': 'Form not valid. fill again with correction'
+                })
         elif request.method == 'GET':
-            subject_form = SubjectForm()
 
-        return render(request, 'test_register_subject.html', {
-            'form': subject_form,
-            'data': json.dumps(elective_json)
-        })
-    return HttpResponseRedirect('/login')
+            return render(request, 'test_register_subject.html', {
+                'form': SubjectForm(),
+            })
+
+    return HttpResponseRedirect('/')
 
 
 def change_password(request):
@@ -422,7 +399,7 @@ def set_schedule_date(request):
                 heading = 'Subject Registration'
                 type = 'forward'
                 user_type = 'Student'
-                action = 'register/student_subject/'
+                action = '/register/student_subject/'
                 division = Division.objects.filter(is_active=True)
                 notify_users(notification_type=notification_type, message=message, type=type, user_type=user_type,
                              action=action, division=division, heading=heading)
@@ -551,7 +528,7 @@ def student_subject(request):
                             student_new_detail.save()
                         return render(request, 'dashboard_student.html', context={
                             'error': 'You have to select exactly ' + str(each_group.no_of_sub_to_choose)
-                                     + ' subjects for Elective Group ' + each_group.group,
+                                     + ' subject for Elective Group ' + each_group.group,
                             'info': 'Please go to Subject registration again!'})
 
                 # ======================================================================================
@@ -861,3 +838,7 @@ def student_subject_division(request):
                                    year_branch=selected_subject_obj.year_branch,
                                    is_active=True),
                                'success': 'elective divisions are assigned successfully.'})
+
+
+def register_elective(request):
+    return None

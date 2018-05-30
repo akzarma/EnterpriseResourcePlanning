@@ -74,6 +74,7 @@
     <script>
 
         var json_notifications;
+        var notification_model = {{ notification_model | safe }};
 
         function expandNotification(pk) {
             $.ajax({
@@ -81,7 +82,9 @@
                 type: 'POST',
                 data: {
                     'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    'pk': pk
+                    'pk': pk,
+                    'model': notification_model[pk],
+
                 },
                 success: function (data) {
                     json_notifications = JSON.parse(data);
@@ -115,14 +118,18 @@
                         button.setAttribute("class", "btn btn-danger");
                         button.setAttribute("data-dismiss", "modal");
                         text.appendChild(button);
-                    }
-
-                    else {
+                    } else if (temp_json["fields"]["type"] === "forward") {
+                        let a = document.createElement('a');
+                        a.innerHTML = "Go To Subject Registration";
+                        a.setAttribute("class", "btn btn-success");
+                        a.setAttribute("href", json_notifications["fields"]["action"]);
+                        text.appendChild(a);
+                    } else {
 
                         let button = document.createElement('button');
                         button.innerHTML = "OK";
                         button.setAttribute("class", "btn btn-info");
-                        button.setAttribute("onclick", "overlay_off()");
+                        button.setAttribute("data-dismiss", "modal");
                         text.appendChild(button);
                     }
 

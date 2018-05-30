@@ -49,11 +49,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'General.apps.GeneralConfig',
     'UserModel.apps.UsermodelConfig',
-    'Registration.apps.RegistrationConfig',
     'Exam.apps.ExamConfig',
     'Dashboard.apps.DashboardConfig',
     'Login.apps.LoginConfig',
+    'Registration.apps.RegistrationConfig',
     'Timetable.apps.TimetableConfig',
     'Update.apps.UpdateConfig',
     'Requests.apps.RequestsConfig',
@@ -61,7 +62,6 @@ INSTALLED_APPS = [
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
     'Report.apps.ReportConfig',
-    'General.apps.GeneralConfig',
     'django.contrib.humanize',
     'widget_tweaks',
 
@@ -155,7 +155,7 @@ SESSION_COOKIE_AGE = minutes * 60
 APPEND_SLASH = True
 
 NOTIFICATION_SMALL_LIMIT = 5
-NOTIFICATION_LONG_LIMIT = 5
+NOTIFICATION_LONG_LIMIT = 50
 
 BROKER_URL = 'amqp://guest:**@localhost:5672//'
 
