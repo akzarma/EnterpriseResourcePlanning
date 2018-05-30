@@ -13,6 +13,7 @@ urlpatterns = [
 
     # /register/subject - Register Subject
     url(r'^subject/$', views.register_subject, name='register_subject'),
+    url(r'^elective/$', views.register_elective, name='register_elective'),
 
     # /register/year - Register Year Details
     url(r'^year_detail/$', views.register_year_detail, name='register_year_detail'),
