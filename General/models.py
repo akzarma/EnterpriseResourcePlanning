@@ -105,7 +105,7 @@ class ElectiveGroup(models.Model):
     year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     group = models.CharField(max_length=20, null=True)
-    no_of_sub_to_choose = models.IntegerField()
+    no_of_sub_to_choose = models.IntegerField(default=1)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

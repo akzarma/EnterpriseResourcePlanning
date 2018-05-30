@@ -56,17 +56,42 @@
                 {{ form.type }}
                 {{ form.type.with_errors }}
             </div>
-            <div class="form-group" id="elective_group" style="display: none;">
-                <label>Elective Group</label>
-            </div>
+
             <div class="form-group">
                 {{ form.is_practical.label_tag }}
                 {{ form.is_practical }}
                 {{ form.is_practical.with_errors }}
             </div>
 
+            <div class="form-group">
+                {{ form.is_elective_group.label_tag }}
+                <input type="checkbox" onchange="showElective();" name="is_elective_group" class="form-control"
+                       id="id_is_elective_group">
+                {{ form.is_elective_group.with_errors }}
+            </div>
 
-            <input type="submit" class="btn btn-primary">
+
+            <div class="form-group hidden" id="plus_icon_div">
+                <div class="col-md-1">
+                    <div class="row">
+                        <button type="button" onclick="add_new_row();return false;"><span
+                                class="glyphicon glyphicon-plus"></span></button>
+
+                        <button type="button" onclick="remove_new_row();return false;"><span
+                                class="glyphicon glyphicon-minus"></span></button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="elective_div">
+
+            </div>
+            <input type="hidden" name="no_of_elective" , id="no_of_elective">
+            <br>
+            <br>
+            <br>
+            <br>
+
+            <input type="submit" name="register_subject" class="btn btn-primary">
         </form>
         <br>
         <form action={% url 'registration:view_subjects' %}>
@@ -75,36 +100,129 @@
 
     </div>
     <script>
-        var elective_data = {{ data | safe }};
+        var count = 0;
 
-        function showElectiveGroup() {
-            let type = document.getElementById('id_type');
-            let branch = document.getElementById('id_branch').value;
-            let year = document.getElementById('id_year').value;
-            let semester = document.getElementById('id_semester').value;
-            let elective_div = document.getElementById('elective_group');
-            if (type.value === 'Elective') {
-                let number_of_electives = parseInt(elective_data[branch][year][semester]);
-                if(number_of_electives === 0) {
-                    alert("The" + semester + " of " + year + "of " + branch + " has no electives.");
-                    return;
-                }
-                for(let i=0;i<number_of_electives;i++) {
-                    var label = document.createTextNode(String.fromCharCode(65 + i));
-                    var input = document.createElement('input');
-                    input.setAttribute('type','radio');
-                    input.setAttribute('name','elective_group');
-                    input.setAttribute('value',i);
-                    elective_div.appendChild(input);
-                    elective_div.appendChild(label);
-                    elective_div.style.display = 'block';
-                }
+        function showElective() {
+            if (document.getElementById('id_is_elective_group').checked) {
+                plus_icon_div = document.getElementById("plus_icon_div");
+                plus_icon_div.setAttribute('class', 'form-group');
+                plus_icon_div.style.display = 'block';
+
+                count++;
+                elective_div = document.getElementById('elective_div');
+                var label = document.createElement('label');
+                label.innerText = 'Enter Name of Elective ' + count;
+                label.setAttribute('id', 'label_elective_' + count);
+                var input = document.createElement('input');
+                input.setAttribute('type', 'text');
+                input.setAttribute('name', 'elective_' + count);
+                input.setAttribute('id', 'elective_' + count);
+                elective_div.appendChild(label);
+                elective_div.appendChild(input);
+                elective_div.appendChild(document.createElement('br'));
+
+                var label1 = document.createElement('label');
+                label1.innerText = 'Enter Short Name of Elective ' + count;
+                label1.setAttribute('id', 'label_elective_short_' + count);
+                var input1 = document.createElement('input');
+                input1.setAttribute('type', 'text');
+                input1.setAttribute('name', 'elective_short_' + count);
+                input1.setAttribute('id', 'elective_short_' + count);
+                elective_div.appendChild(label1);
+                elective_div.appendChild(input1);
+                elective_div.appendChild(document.createElement('br'));
+
+                elective_div.style.display = 'block';
+
+                document.getElementById('no_of_elective').value = count;
             } else {
-                for(let i=1;i<elective_div.childElementCount;i++) {
-                    elective_div.removeChild(elective_div.childNodes[i]);
+                plus_icon_div = document.getElementById("plus_icon_div");
+                plus_icon_div.setAttribute('class', 'form-group hidden');
+                while (count) {
+                    document.getElementById('label_elective_' + count).remove();
+                    document.getElementById('elective_' + count).remove();
+                    document.getElementById('label_elective_short_' + count).remove();
+                    document.getElementById('elective_short_' + count).remove();
+                    count--;
                 }
-                elective_div.style.display = 'none';
+                count = 0;
+                document.getElementById('no_of_elective').value = count;
+            }
+        }
+
+        function add_new_row() {
+            count++;
+            elective_div = document.getElementById('elective_div');
+            var label = document.createElement('label');
+            label.innerText = 'Enter Name of Elective ' + count;
+            label.setAttribute('id', 'label_elective_' + count);
+            var input = document.createElement('input');
+            input.setAttribute('type', 'text');
+
+            input.setAttribute('name', 'elective_' + count);
+            input.setAttribute('id', 'elective_' + count);
+            elective_div.appendChild(label);
+            elective_div.appendChild(input);
+            elective_div.appendChild(document.createElement('br'));
+
+            var label1 = document.createElement('label');
+            label1.innerText = 'Enter Short Name of Elective ' + count;
+            label1.setAttribute('id', 'label_elective_short_' + count);
+            var input1 = document.createElement('input');
+            input1.setAttribute('type', 'text');
+            input1.setAttribute('name', 'elective_short_' + count);
+            input1.setAttribute('id', 'elective_short_' + count);
+            elective_div.appendChild(label1);
+            elective_div.appendChild(input1);
+            elective_div.appendChild(document.createElement('br'));
+
+            elective_div.style.display = 'block';
+            document.getElementById('no_of_elective').value = count;
+        }
+
+        function remove_new_row() {
+            if (count) {
+                document.getElementById('label_elective_' + count).remove();
+                document.getElementById('elective_' + count).remove();
+                document.getElementById('label_elective_short_' + count).remove();
+                document.getElementById('elective_short_' + count).remove();
+                count--;
+                document.getElementById('no_of_elective').value = count;
             }
         }
     </script>
+
+    {#    <script>#}
+    {#        var elective_data = {{ data | safe }};#}
+    {##}
+    {#        function showElectiveGroup() {#}
+    {#            let type = document.getElementById('id_type');#}
+    {#            let branch = document.getElementById('id_branch').value;#}
+    {#            let year = document.getElementById('id_year').value;#}
+    {#            let semester = document.getElementById('id_semester').value;#}
+    {#            let elective_div = document.getElementById('elective_group');#}
+    {#            if (type.value === 'Elective') {#}
+    {#                let number_of_electives = parseInt(elective_data[branch][year][semester]);#}
+    {#                if(number_of_electives === 0) {#}
+    {#                    alert("The" + semester + " of " + year + "of " + branch + " has no electives.");#}
+    {#                    return;#}
+    {#                }#}
+    {#                for(let i=0;i<number_of_electives;i++) {#}
+    {#                    var label = document.createTextNode(String.fromCharCode(65 + i));#}
+    {#                    var input = document.createElement('input');#}
+    {#                    input.setAttribute('type','radio');#}
+    {#                    input.setAttribute('name','elective_group');#}
+    {#                    input.setAttribute('value',i);#}
+    {#                    elective_div.appendChild(input);#}
+    {#                    elective_div.appendChild(label);#}
+    {#                    elective_div.style.display = 'block';#}
+    {#                }#}
+    {#            } else {#}
+    {#                for(let i=1;i<elective_div.childElementCount;i++) {#}
+    {#                    elective_div.removeChild(elective_div.childNodes[i]);#}
+    {#                }#}
+    {#                elective_div.style.display = 'none';#}
+    {#            }#}
+    {#        }#}
+    {#    </script>#}
 {% endblock content %}

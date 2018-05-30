@@ -771,10 +771,10 @@ class SubjectForm(forms.ModelForm):
     semester = forms.ChoiceField(
         choices=[(i.semester, i.semester) for i in Semester.objects.all()]
     )
-
-    type = forms.ChoiceField(
-        choices=[('Regular', 'Regular'), ('Elective', 'Elective')],
-    )
+    #
+    # type = forms.ChoiceField(
+    #     choices=[('Regular', 'Regular'), ('Elective', 'Elective')],
+    # )
 
     is_practical = forms.BooleanField(required=False)
 
@@ -788,6 +788,7 @@ class SubjectForm(forms.ModelForm):
     class Meta:
         model = Subject
         fields = '__all__'
+        exclude = ['is_active']
 
 
 class DateScheduleForm(forms.ModelForm):
