@@ -24,6 +24,7 @@ from Registration.models import Student, Branch, Faculty
 import datetime
 
 # Student dashboard
+from Registration.views import has_role
 from Research.models import Paper
 from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
@@ -56,8 +57,8 @@ def show_dashboard(request):
     # If user exists in session (i.e. logged in)
     if not user.is_anonymous:
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-        is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
-        is_student = RoleManager.objects.filter(user=user, role__role='student')
+        is_faculty = has_role(user,'faculty')
+        is_student = has_role(user,'student')
         if is_student:
             student = user.student
             attendance = {}
