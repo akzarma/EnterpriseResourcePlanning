@@ -53,20 +53,20 @@
             </table>
         </div>
     </div>
-    <div class="row centered">
+    <div class="row" align="center">
         <form action="{% url 'dashboard:show_all_notifications' %}" method="get">
-            {% for page in pages %}
-                {% if page == current_page %}
-                    <u style="color: #0379C4">
-
-                        <a href="{% url 'dashboard:show_all_notifications' page %}">{{ page }}</a></u>&nbsp;
-                    &nbsp;
-
-                {% else %}
-                    <a href="{% url 'dashboard:show_all_notifications' page %}">{{ page }}</a>&nbsp;&nbsp;
-
-                {% endif %}
-            {% endfor %}
+            <ul class="pagination">
+                <li><a href="#">&laquo;</a></li>
+                {% for page in pages %}
+                    {% if page == current_page %}
+                        <li class="active"><a href="{% url 'dashboard:show_all_notifications' page %}">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'dashboard:show_all_notifications' page %}">{{ page }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                <li><a href="#">&raquo;</a></li>
+            </ul>
         </form>
     </div>
 

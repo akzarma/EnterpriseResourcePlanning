@@ -315,9 +315,6 @@
                         <li><a href="{% url 'report:excel_attendance' %}">Attendance</a></li>
                         <li><a href="{% url 'report:student_details' %}">Student Data</a></li>
                         <li><a href="{% url 'report:faculty_details' %}">Faculty Data</a></li>
-
-                        {#                        <li><a href="{% url 'attendance:excel_student' %}">Student</a></li>#}
-                        {#                        <li><a href="{% url 'dashboard:excel_faculty' %}">Fcaulty</a></li>#}
                     </ul>
 
                 </li>
@@ -335,14 +332,10 @@
                     <a href="{% url 'BackupRestore:backup' %}">Backup</a>
 
                 </li>
-                {##}
-                {#                <li>#}
-                {#                    <a href="{% url 'update:update' %}">Update</a>#}
-                {#                </li>#}
-                {#                <li>#}
-                {#                    <a href="{% url 'attendance:select_cat' %}">Check Attendance</a>#}
-                {#                </li>#}
+                <li>
+                    <a href="{% url 'Timetable:fill_timetable' %}">Fill Timetable</a>
 
+                </li>
                 <li>
                     <a href="#registermenu" data-toggle="collapse" aria-expanded="false">Register</a>
                     <ul class="collapse list-unstyled" id="registermenu">
