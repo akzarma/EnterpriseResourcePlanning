@@ -20,7 +20,7 @@ from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr
 from Configuration.stateConf import states
 
 
-def has_role(user, role):
+def has_role(user:User, role:str):
     if RoleManager.objects.filter(user=user, role=role, is_active=True).exists():
         return True
     else:

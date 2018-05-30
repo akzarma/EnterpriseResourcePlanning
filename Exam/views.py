@@ -102,3 +102,7 @@ def get_subjects(request):
             return HttpResponse("Not post")
     else:
         return HttpResponse('Not ajax')
+
+
+def view_exam(request):
+    user = request.user
