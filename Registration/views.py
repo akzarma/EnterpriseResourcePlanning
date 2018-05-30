@@ -20,8 +20,9 @@ from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr
 from Configuration.stateConf import states
 
 
-def has_role(user:User, role:str):
-    if RoleManager.objects.filter(user=user, role=role, is_active=True).exists():
+def has_role(user: User, role: str):
+    role_obj = RoleMaster.objects.get(role=role,is_active=True)
+    if RoleManager.objects.filter(user=user, role=role_obj, is_active=True).exists():
         return True
     else:
         return False
@@ -838,8 +839,8 @@ def student_subject_division(request):
             for_student = Student.objects.get(pk=each_student_pk)
 
             student_subject_obj = StudentSubject.objects.get_or_create(student=for_student,
-                                                 subject=selected_subject_obj.subject,
-                                                 is_active=True)[0]
+                                                                       subject=selected_subject_obj.subject,
+                                                                       is_active=True)[0]
             student_subject_obj.elective_division = selected_division_obj
             student_subject_obj.save()
 
