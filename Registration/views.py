@@ -413,6 +413,9 @@ def set_schedule_date(request):
                     'form': form
                 })
 
+    else:
+        return redirect('/login/')
+
 
 # def student_subject_registration(request):
 #     user = request.user
