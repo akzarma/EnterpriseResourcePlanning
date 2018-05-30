@@ -21,7 +21,7 @@ from Configuration.stateConf import states
 
 
 def has_role(user: User, role: str):
-    role_obj = RoleMaster.objects.get(role=role,is_active=True)
+    role_obj = RoleMaster.objects.get(role=role, is_active=True)
     if RoleManager.objects.filter(user=user, role=role_obj, is_active=True).exists():
         return True
     else:
@@ -247,7 +247,8 @@ def register_subject(request):
                     no_of_elective = int(request.POST.get('no_of_elective'))
                     for i in range(no_of_elective):
                         elective = Elective.objects.get_or_create(name=request.POST.get('elective_' + str(i + 1)),
-                                                                  short_form=request.POST.get('elective_short_' + str(i + 1)),
+                                                                  short_form=request.POST.get(
+                                                                      'elective_short_' + str(i + 1)),
                                                                   subject=subject_obj,
                                                                   is_active=True)
 
@@ -719,7 +720,7 @@ def register_year_detail(request):
             year_obj = CollegeYear.objects.get(year=year)
             semester_obj = Semester.objects.get(semester=semester)
             year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
-            number_of_elective_groups = int(request.POST.get('elective_number'))
+            # number_of_elective_groups = int(request.POST.get('elective_number'))
             semester_start_date = parse_date(request.POST.get('semester_start_date'))
             semester_end_date = parse_date(request.POST.get('semester_end_date'))
 
@@ -742,16 +743,16 @@ def register_year_detail(request):
                     'error': 'lecture end date cannot be less than lecture start date'
                 })
 
-            for i in range(number_of_elective_groups):
-                ElectiveGroup.objects.create(year_branch=year_branch_obj, semester=semester_obj,
-                                             group=chr(i + 65))
+            # for i in range(number_of_elective_groups):
+            #     ElectiveGroup.objects.create(year_branch=year_branch_obj, semester=semester_obj,
+            #                                  group=chr(i + 65))
             year_branch_obj = YearBranch.objects.get(year=year_obj, branch=branch_obj, is_active=True)
             year_sem_obj = YearSemester.objects.get(year_branch=year_branch_obj, semester=semester_obj, is_active=True)
             year_sem_obj.start_date = semester_start_date
             year_sem_obj.end_date = semester_end_date
             year_sem_obj.lecture_start_date = lecture_start_date
             year_sem_obj.lecture_end_date = lecture_end_date
-            year_sem_obj.number_of_electives_groups = number_of_elective_groups
+            # year_sem_obj.number_of_electives_groups = number_of_elective_groups
             year_sem_obj.save()
 
             return render(request, 'register_year_details.html', {

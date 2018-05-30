@@ -67,7 +67,7 @@ class YearSemester(models.Model):
     lecture_start_date = models.DateField(null=True, blank=True)
     lecture_end_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
-    number_of_elective_groups = models.IntegerField(default=0)
+    # number_of_elective_groups = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.year_branch) + " " + str(self.semester)
@@ -80,9 +80,9 @@ class YearSemester(models.Model):
 
         year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
 
-        for i in range(self.number_of_elective_groups):
-            ElectiveGroup.objects.create(year_branch=year_branch_obj, semester=self.semester,
-                                         group=chr(i + 65))
+        # for i in range(self.number_of_elective_groups):
+        #     ElectiveGroup.objects.create(year_branch=year_branch_obj, semester=self.semester,
+        #                                  group=chr(i + 65))
         year_branch_obj = YearBranch.objects.get(year=year_obj, branch=branch_obj, is_active=True)
         # year_sem_obj = YearSemester.objects.get(year_branch=year_branch_obj, semester=self.semester, is_active=True)
         # year_sem_obj.start_date = self.start_date
@@ -117,8 +117,8 @@ class BranchSubject(models.Model):
     # year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
     year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
-    type = models.CharField(max_length=20, null=True)
-    group = models.ForeignKey(ElectiveGroup, on_delete=models.CASCADE, null=True)
+    # type = models.CharField(max_length=20, null=True)
+    # group = models.ForeignKey(ElectiveGroup, on_delete=models.CASCADE, null=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True)  # Should not be null=True
     end_date = models.DateField(null=True, blank=True)
