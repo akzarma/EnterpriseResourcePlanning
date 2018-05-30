@@ -34,9 +34,12 @@ class GeneralStudentNotification(models.Model):
     type = models.CharField(max_length=200, null=True)
     priority = models.IntegerField(default=1)
     division = models.ForeignKey(Division, on_delete=models.CASCADE,null=True)
-    batch = models.ForeignKey(Batch, null=True, on_delete=models.CASCADE)
+    batch = models.ForeignKey(Batch, null=True,blank=True,on_delete=models.CASCADE)
     for_batch = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.action
 
 
 class GeneralFacultyNotification(models.Model):
@@ -49,3 +52,6 @@ class GeneralFacultyNotification(models.Model):
     division = models.ForeignKey(Division, on_delete=models.CASCADE)
     branch = models.ForeignKey(Branch)
     is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.action

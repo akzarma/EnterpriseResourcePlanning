@@ -430,9 +430,11 @@ def show_all_notifications(request, page=1):
             student_obj = user.student
             student_detail_obj = StudentDetail.objects.get(student=student_obj, is_active=True)
             division_obj = student_detail_obj.batch.division
-            general_notification_obj = GeneralStudentNotification.objects.filter(division=division_obj,
+            general_notification_student = GeneralStudentNotification.objects.filter(division=division_obj,
                                                                                  is_active=True)[
                                        :NOTIFICATION_LONG_LIMIT]
+            all_notifications = list(notification_objs) + list(general_notification_student)
+
         elif is_faculty:
             faculty_obj = user.faculty
             faculty_sub_obj = list(FacultySubject.objects.filter(faculty=faculty_obj, is_active=True))
@@ -440,12 +442,22 @@ def show_all_notifications(request, page=1):
                 BranchSubject.objects.filter(subject_id__in=[each.subject_id for each in faculty_sub_obj],
                                              is_active=True))
             branch_obj = list(set([each.year_branch.branch for each in branch_obj]))
-            general_notification_obj = GeneralFacultyNotification.objects.filter(branch__in=branch_obj,
+            general_notification_faculty = GeneralFacultyNotification.objects.filter(branch__in=branch_obj,
                                                                                  is_active=True)[
                                        :NOTIFICATION_LONG_LIMIT]
+            all_notifications = list(notification_objs) + list(general_notification_faculty)
 
-        all_notifications = list(notification_objs) + list(general_notification_obj)
         final_notifications = sorted(all_notifications, key=lambda x: x.datetime)[:NOTIFICATION_LONG_LIMIT]
+
+        notification_model = {}
+        for obj in final_notifications:
+            if obj in general_notification_student:
+                notification_model[obj.pk] = 'GeneralStudent'
+            elif obj in general_notification_faculty:
+                notification_model[obj.pk] = 'GeneralFaculty'
+            else:
+                notification_model[obj.pk] = 'SpecificNotification'
+
         pages = len(final_notifications)
         pages = pages // 50
         pages += 1 if pages % 50 is not 0 else 0
@@ -456,14 +468,23 @@ def show_all_notifications(request, page=1):
             'notifications': final_notifications,
             'pages': range(1, pages + 1),
             'current_page': int(page),
+            'notification_model' : json.dumps(notification_model)
         })
     return redirect('/login/')
 
 
 def view_notification(request):
-    notification = SpecificNotification.objects.get(user=request.user, pk=int(request.POST.get('pk')))
-    notification.has_read = True
-    notification.save()
+    model = request.POST.get('model')
+    if model == 'GeneralStudent':
+        notification = GeneralStudentNotification.objects.get(pk=int(request.POST.get('pk')))
+
+    elif model == 'GeneralFaculty':
+        notification = GeneralFacultyNotification.objects.get(pk=int(request.POST.get('pk')))
+    else:
+        notification = SpecificNotification.objects.get(user=request.user, pk=int(request.POST.get('pk')))
+        notification.has_read = True
+        notification.save()
+
     data = serializers.serialize('json', [notification, ])
     struct = json.loads(data)
     data = json.dumps(struct[0])

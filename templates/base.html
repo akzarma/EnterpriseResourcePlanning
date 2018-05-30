@@ -250,14 +250,13 @@
 
                             {% if user.student %}
 
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                                   aria-haspopup="true"
-                                   aria-expanded="false">
-
-
-                                    Hi <span
-                                        style="color: #0379C4; text-transform: uppercase;">{{ user.student.first_name }}</span><span
-                                        class="caret"></span></a>
+                                <div href="#" class="" data-toggle="dropdown" role="button"
+                                     aria-haspopup="true" aria-expanded="false" style="width: 48px;height: 48px">
+                                    <div style="width: 48px;height: 48px">
+                                        <img src="https://ui-avatars.com/api/?name={{ user.student.first_name }} {{ user.student.last_name }}"
+                                             style="border-radius: 50%;width: 60%;margin: 15% 20%">
+                                    </div>
+                                </div>
                                 <ul class="dropdown-menu">
                                     <li>&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span>
                                         <p style="display: inline">GR number: {{ user.student.gr_number }}</p></li>
@@ -273,13 +272,11 @@
                                 <div href="#" class="" data-toggle="dropdown" role="button"
                                      aria-haspopup="true" aria-expanded="false" style="width: 48px;height: 48px">
                                     <div style="width: 48px;height: 48px">
-                                        <img src="https://ui-avatars.com/api/?name={{ user.faculty.first_name }}"
+                                        <img src="https://ui-avatars.com/api/?name={{ user.faculty.first_name }} {{ user.faculty.last_name }}"
                                              style="border-radius: 50%;width: 60%;margin: 15% 20%">
                                     </div>
                                 </div>
                                 <ul class="dropdown-menu">
-                                    <li><a>Hi <span style="color: #0379C4;">{{ user.faculty.first_name }}</span></a>
-                                    </li>
                                     <li>
                                         <a>Id: {{ user.faculty.faculty_code }}</a>
                                     </li>
@@ -373,7 +370,6 @@
             },
             success: function (data) {
                 notifications_json = JSON.parse(data);
-                console.log(notifications_json);
                 current_date = new Date(notifications_json['today']);
 
                 var notification_list = document.getElementById('notification_dropdown');
@@ -427,10 +423,8 @@
     });
 
     function showExpandedNotification(index) {
-        let notification_num_obj = document.getElementById('notification_count');
-        notification_num_obj.innerHTML = (parseInt(notification_num_obj.innerHTML) - 1);
+
         temp_json = JSON.parse(notifications_json[index]);
-        console.log(temp_json);
 
         let modalTitle = document.getElementById("modal-title");
         let modalBodyText = document.getElementById("modal-body-text");
@@ -466,23 +460,28 @@
             a.setAttribute("class", "btn btn-success");
             a.setAttribute("href", temp_json["fields"]["action"]);
             text.appendChild(a);
-        }
-
-        else {
+        } else {
             let button = document.createElement('button');
             button.innerHTML = "OK";
             button.setAttribute("class", "btn btn-info");
-            button.setAttribute("onclick", "overlay_off()");
+            button.setAttribute("data-dismiss", "modal");
             text.appendChild(button);
         }
-        $.ajax({
+
+        if (temp_json['model'].includes('general') === false) {
+            $.ajax({
                 url: '{% url 'dashboard:view_notification' %}',
                 type: 'POST',
                 data: {
                     'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    'pk': temp_json['pk']
+                    'pk': temp_json['pk'],
+                    'model': temp_json['model']
+                }, success: function (data) {
+                    let notification_num_obj = document.getElementById('notification_count');
+                    notification_num_obj.innerHTML = (parseInt(notification_num_obj.innerHTML) - 1);
                 }
             });
+        }
 
 
     }
