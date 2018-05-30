@@ -174,8 +174,9 @@ class Subject(models.Model):
     is_practical = models.BooleanField(default=False)
     # semester = models.IntegerField(default=1)
     credits = models.IntegerField(default=0, blank=True)
-    is_elective_group = models.BooleanField(default=False)
+    # elective_group = models.IntegerField(default=1,null=True, blank=True)
     course_pattern = models.IntegerField(default=2015, blank=True)
+    is_elective_group = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
