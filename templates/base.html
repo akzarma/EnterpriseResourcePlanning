@@ -262,7 +262,6 @@
                                     <li>&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span>
                                         <p style="display: inline">GR number: {{ user.student.gr_number }}</p></li>
                                     <li role="separator" class="divider"></li>
-                                    {#                                    <li><a href="{% url 'registration:change_password' %}"><span class="glyphicon glyphicon-lock"></span> Change Password</a></li>#}
                                     <li><a href="{% url 'dashboard:profile' %}"><span
                                             class="glyphicon glyphicon-user"></span>View Profile</a></li>
                                     <li><a href="{% url 'dashboard:logout' %}"><span
@@ -273,9 +272,6 @@
 
                                 <div href="#" class="" data-toggle="dropdown" role="button"
                                      aria-haspopup="true" aria-expanded="false" style="width: 48px;height: 48px">
-                                    {#                                    Hi#}
-                                    {#                                    <span style="color: #0379C4;">{{ user.faculty.first_name }}</span>#}
-                                    {#                                    <span class="caret"></span>#}
                                     <div style="width: 48px;height: 48px">
                                         <img src="https://ui-avatars.com/api/?name={{ user.faculty.first_name }}"
                                              style="border-radius: 50%;width: 60%;margin: 15% 20%">
@@ -377,6 +373,7 @@
             },
             success: function (data) {
                 notifications_json = JSON.parse(data);
+                console.log(notifications_json);
                 current_date = new Date(notifications_json['today']);
 
                 var notification_list = document.getElementById('notification_dropdown');
@@ -430,7 +427,10 @@
     });
 
     function showExpandedNotification(index) {
+        let notification_num_obj = document.getElementById('notification_count');
+        notification_num_obj.innerHTML = (parseInt(notification_num_obj.innerHTML) - 1);
         temp_json = JSON.parse(notifications_json[index]);
+        console.log(temp_json);
 
         let modalTitle = document.getElementById("modal-title");
         let modalBodyText = document.getElementById("modal-body-text");
@@ -460,7 +460,7 @@
             button.setAttribute("class", "btn btn-danger");
             button.setAttribute("onclick", "overlay_off()");
             text.appendChild(button);
-        }else if(temp_json["fields"]["type"] == "forward"){
+        } else if (temp_json["fields"]["type"] === "forward") {
             let a = document.createElement('a');
             a.innerHTML = "Go To Subject Registration";
             a.setAttribute("class", "btn btn-success");
@@ -475,6 +475,14 @@
             button.setAttribute("onclick", "overlay_off()");
             text.appendChild(button);
         }
+        $.ajax({
+                url: '{% url 'dashboard:view_notification' %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'pk': temp_json['pk']
+                }
+            });
 
 
     }

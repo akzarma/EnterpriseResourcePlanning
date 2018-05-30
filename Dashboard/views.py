@@ -370,16 +370,9 @@ def get_notifications(request):
                                 :NOTIFICATION_SMALL_LIMIT]
 
             data = {'today': date}
-            num_specific_notification = len(notification_objs)
-            # for each in range(num_specific_notification):
-            #     if not each in data:
-            #         data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-            #             'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
-            #         struct = json.loads(data[each])
-            #         data[each] = json.dumps(struct[0])
 
-            is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
-            is_student = RoleManager.objects.filter(user=user, role__role='student')
+            is_faculty = has_role(user, 'faculty')
+            is_student = has_role(user, 'student')
 
             if is_student:
                 student_obj = user.student
@@ -388,14 +381,6 @@ def get_notifications(request):
                 general_notification_obj = GeneralStudentNotification.objects.filter(division=division_obj,
                                                                                      is_active=True)[
                                            :NOTIFICATION_SMALL_LIMIT]
-                num_general_notification = len(general_notification_obj)
-
-                # for each in range(num_specific_notification,num_general_notification):
-                #     if not each in data:
-                #         data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                #             'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
-                #         struct = json.loads(data[each])
-                #         data[each] = json.dumps(struct[0])
 
             elif is_faculty:
                 faculty_obj = user.faculty
@@ -410,7 +395,7 @@ def get_notifications(request):
 
                 num_general_notification = len(general_notification_obj)
             all_notifications = list(notification_objs) + list(general_notification_obj)
-            final_notifications = sorted(all_notifications, key=lambda x: x.datetime)[:5]
+            final_notifications = sorted(all_notifications, key=lambda x: x.datetime)[:NOTIFICATION_SMALL_LIMIT]
 
             for each in range(len(final_notifications)):
                 if not each in data:
@@ -427,37 +412,50 @@ def get_notifications(request):
         return redirect('/login/')
 
 
-@csrf_exempt
-def android_toggle_availability(request):
-    return HttpResponse("Yeah!")
-
-
 def show_all_notifications(request, page=1):
     user = request.user
     if not user.is_anonymous:
         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
         is_student = RoleManager.objects.filter(user=user, role__role='student')
-        if is_faculty or is_student:
-            notification_objs = sorted(SpecificNotification.objects.filter(user=user), key=lambda x: x.datetime,
-                                       reverse=True)[
-                                (int(page) - 1) * 50:(int(page) - 1) * 50 + 50]
-            pages = SpecificNotification.objects.count()
-            pages = pages // 50
-            pages += 1 if pages % 50 is not 0 else 0
-            if pages == 0:
-                pages = 1
+        notification_objs = sorted(SpecificNotification.objects.filter(user=user))[
+                            (int(page) - 1) * NOTIFICATION_LONG_LIMIT:(int(
+                                page) - 1) * NOTIFICATION_LONG_LIMIT + NOTIFICATION_LONG_LIMIT]
+        if is_student:
+            student_obj = user.student
+            student_detail_obj = StudentDetail.objects.get(student=student_obj, is_active=True)
+            division_obj = student_detail_obj.batch.division
+            general_notification_obj = GeneralStudentNotification.objects.filter(division=division_obj,
+                                                                                 is_active=True)[
+                                       :NOTIFICATION_LONG_LIMIT]
+        elif is_faculty:
+            faculty_obj = user.faculty
+            faculty_sub_obj = list(FacultySubject.objects.filter(faculty=faculty_obj, is_active=True))
+            branch_obj = list(
+                BranchSubject.objects.filter(subject_id__in=[each.subject_id for each in faculty_sub_obj],
+                                             is_active=True))
+            branch_obj = list(set([each.year_branch.branch for each in branch_obj]))
+            general_notification_obj = GeneralFacultyNotification.objects.filter(branch__in=branch_obj,
+                                                                                 is_active=True)[
+                                       :NOTIFICATION_LONG_LIMIT]
 
-            return render(request, 'all_notifications.html', {
-                'notifications': notification_objs,
-                'pages': range(1, pages + 1),
-                'current_page': int(page),
-            })
-        return HttpResponseRedirect('/login/')
-    return HttpResponseRedirect("/login/")
+        all_notifications = list(notification_objs) + list(general_notification_obj)
+        final_notifications = sorted(all_notifications, key=lambda x: x.datetime)[:NOTIFICATION_LONG_LIMIT]
+        pages = len(final_notifications)
+        pages = pages // 50
+        pages += 1 if pages % 50 is not 0 else 0
+        if pages == 0:
+            pages = 1
+
+        return render(request, 'all_notifications.html', {
+            'notifications': final_notifications,
+            'pages': range(1, pages + 1),
+            'current_page': int(page),
+        })
+    return redirect('/login/')
 
 
 def view_notification(request):
-    notification = SpecificNotification.objects.get(pk=int(request.POST.get('pk')))
+    notification = SpecificNotification.objects.get(user=request.user, pk=int(request.POST.get('pk')))
     notification.has_read = True
     notification.save()
     data = serializers.serialize('json', [notification, ])
@@ -582,6 +580,11 @@ def android_get_subjects(request):
         'subject__short_form', flat=True)
 
     return HttpResponse(json.dumps(list(subjects)))
+
+
+@csrf_exempt
+def android_toggle_availability(request):
+    return HttpResponse("Yeah!")
 
 
 def read_all_notification(request):
