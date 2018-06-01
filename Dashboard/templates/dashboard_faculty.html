@@ -342,10 +342,17 @@
                         <li><a href="{% url 'registration:register_subject' %}">Subject</a></li>
                         <li><a href="{% url 'registration:register_year' %}">New Year</a></li>
                         <li><a href="{% url 'registration:register_year_detail' %}">Set Semester Details</a></li>
-                        <li><a href="{% url 'registration:register_faculty_subject' %}">Bind faculty with subject</a>
-                        <li><a href="{% url 'exam:exam_register' %}">Add new exam</a>
+                        <li><a href="{% url 'registration:register_faculty_subject' %}">Bind faculty with subject</a></li>
+                        <li><a href="{% url 'registration:student_subject_division' %}">Student Subject Division</a></li>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#exammenu" data-toggle="collapse" aria-expanded="false">Exam</a>
+                    <ul class="collapse list-unstyled" id="exammenu">
+                        <li><a href="{% url 'exam:manage_exam' %}">Manage exam</a>
                         <li><a href="{% url 'exam:exam_detail' %}">Set exam</a>
-                        <li><a href="{% url 'registration:student_subject_division' %}">Student Subject Division</a>
+                        <li><a href="{% url 'exam:exam_register' %}">Add new exam</a>
                         </li>
                     </ul>
                 </li>
