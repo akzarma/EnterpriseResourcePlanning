@@ -18,7 +18,7 @@ from django.contrib.auth.models import User
 
 from General.models import Division, BranchSubject, FacultySubject, CollegeYear, Batch, \
     StudentDetail, Semester, YearBranch, YearSemester, ElectiveDivision, StudentSubject
-from Registration.models import Branch, Subject, Faculty, Student
+from Registration.models import Branch, Subject, Faculty, Student, ElectiveSubject
 from Registration.models import Branch, Subject
 from UserModel.models import RoleManager
 from .models import Time, Room, Timetable, DateTimetable
@@ -93,25 +93,22 @@ def fill_timetable(request):
                 subjects_practical = list(
                     subjects.filter(subject__is_practical=True, subject__is_elective=False).values_list(
                         'subject__short_form', flat=True))
-                subjects_elective_theory = list(subjects.filter(subject__is_elective=True, subject__is_practical=False))
+                subjects_elective_theory = list(
+                    subjects.filter(subject__is_elective=True, subject__is_practical=False))
                 subjects_elective_practical = list(
                     subjects.filter(subject__is_elective=True, subject__is_practical=True))
                 subjects_json[year] = {
                     'theory': subjects_theory,
                     'practical': subjects_practical,
-                    'elective_theory': {
-                        'subject':subjects_elective_theory,
-                        'division':
-                    },
-                    'elective_practical':{
-                        'subject':subjects_elective_practical,
-                        # ''
-                    }
                 }
                 for each_elective_theory in subjects_elective_theory:
-                    subjects_json[year]['elective_theory'] = {
-                        each_elective_theory:ElectiveDivision.objects.filter(is_active=True,year_branch=year_branch_obj)
-                    }
+                    subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form]={}
+                    # a = each_elective_theory.subject.electivesubject_set
+                    for each_option in each_elective_theory.subject.electivesubject_set.all():
+                        subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form][each_option.short_form]={
+                            each_option.electivedivision_set.all()
+                        }
+
 
             # Create dict of subject teacher binding
             # eg
