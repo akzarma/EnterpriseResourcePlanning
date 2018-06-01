@@ -105,9 +105,8 @@ def fill_timetable(request):
                     subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form]={}
                     # a = each_elective_theory.subject.electivesubject_set
                     for each_option in each_elective_theory.subject.electivesubject_set.all():
-                        subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form][each_option.short_form]={
-                            each_option.electivedivision_set.all()
-                        }
+                        subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form][each_option.short_form]=each_option.electivedivision_set.all()
+
 
 
             # Create dict of subject teacher binding
