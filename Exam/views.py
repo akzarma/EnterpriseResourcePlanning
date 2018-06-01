@@ -118,3 +118,14 @@ def view_exam(request):
             'exams': exam_objs,
             'exam_subjects': exam_subjects
         })
+
+
+def manage_exam(request):
+    user = request.user
+
+    if user.is_anonymous:
+        return redirect('/login/')
+
+
+
+    return None

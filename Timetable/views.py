@@ -17,7 +17,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User
 
 from General.models import Division, BranchSubject, FacultySubject, CollegeYear, Batch, \
-    StudentDetail, Semester, YearBranch, YearSemester
+    StudentDetail, Semester, YearBranch, YearSemester, ElectiveDivision, StudentSubject
 from Registration.models import Branch, Subject, Faculty, Student
 from Registration.models import Branch, Subject
 from UserModel.models import RoleManager
@@ -99,9 +99,19 @@ def fill_timetable(request):
                 subjects_json[year] = {
                     'theory': subjects_theory,
                     'practical': subjects_practical,
-                    'elective_theory': subjects_elective_theory,
-                    'elective_practical': subjects_elective_practical
+                    'elective_theory': {
+                        'subject':subjects_elective_theory,
+                        'division': StudentSubject.objects.filter(Q(is_active=True),)
+                    },
+                    'elective_practical':{
+                        'subject':subjects_elective_practical,
+                        # ''
+                    }
                 }
+                for each_elective_theory in subjects_elective_theory:
+                    subjects_json[year]['elective_theory'] = {
+                        each_elective_theory:ElectiveDivision.objects.filter(is_active=True,year_branch=year_branch_obj)
+                    }
 
             # Create dict of subject teacher binding
             # eg
