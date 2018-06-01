@@ -183,7 +183,7 @@ class Subject(models.Model):
         return self.name
 
 
-class Elective(models.Model):
+class ElectiveSubject(models.Model):
     name = models.CharField(max_length=100)
     short_form = models.CharField(max_length=10)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)

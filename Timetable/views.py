@@ -101,7 +101,7 @@ def fill_timetable(request):
                     'practical': subjects_practical,
                     'elective_theory': {
                         'subject':subjects_elective_theory,
-                        'division': StudentSubject.objects.filter(Q(is_active=True),)
+                        'division':
                     },
                     'elective_practical':{
                         'subject':subjects_elective_practical,
