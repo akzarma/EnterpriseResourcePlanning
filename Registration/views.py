@@ -10,10 +10,10 @@ from django.utils.dateparse import parse_date
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSubject, Semester, \
-    FacultySubject, Batch, YearBranch, StudentSubject, YearSemester, ElectiveGroup, Schedulable, ElectiveDivision
+    FacultySubject, Batch, YearBranch, StudentSubject, YearSemester, Schedulable, ElectiveDivision
 from General.views import notify_users
 from Login.views import generate_activation_key
-from Registration.models import Student, Branch, Faculty, Subject, Elective
+from Registration.models import Student, Branch, Faculty, Subject, ElectiveSubject
 from UserModel.models import User, RoleManager, RoleMaster
 from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict, DateScheduleForm, \
     YearBranchSemForm
@@ -246,11 +246,11 @@ def register_subject(request):
                     subject_obj = subject_form.save(commit=False)
                     no_of_elective = int(request.POST.get('no_of_elective'))
                     for i in range(no_of_elective):
-                        elective = Elective.objects.get_or_create(name=request.POST.get('elective_' + str(i + 1)),
-                                                                  short_form=request.POST.get(
+                        elective = ElectiveSubject.objects.get_or_create(name=request.POST.get('elective_' + str(i + 1)),
+                                                                         short_form=request.POST.get(
                                                                       'elective_short_' + str(i + 1)),
-                                                                  subject=subject_obj,
-                                                                  is_active=True)
+                                                                         subject=subject_obj,
+                                                                         is_active=True)
 
                     subject_obj.save()
                     BranchSubject.objects.get_or_create(year_branch=year_branch_obj,
@@ -648,14 +648,14 @@ def student_subject(request):
                                                             year_branch__branch=student_detail.batch.division.year_branch.branch,
                                                             is_active=True)
                     subjects = all_subjects.filter(subject__is_elective_group=False)
-                    elective_subjects = Elective.objects.filter(subject__branchsubject__in=
+                    elective_subjects = ElectiveSubject.objects.filter(subject__branchsubject__in=
                                                                 all_subjects.filter(subject__is_elective_group=True))
                 else:
                     all_subjects = BranchSubject.objects.filter(year_branch=student_detail.batch.division.year_branch,
                                                             semester=next_sem_obj,
                                                             is_active=True)
                     subjects = all_subjects.filter(subject__is_elective_group=False)
-                    elective_subjects = Elective.objects.filter(subject__branchsubject__in=
+                    elective_subjects = ElectiveSubject.objects.filter(subject__branchsubject__in=
                                                                 all_subjects.filter(subject__is_elective_group=True))
                 return render(request, 'register_student_subject.html', context={'subjects': subjects,
                                                                                  'elective_subjects':elective_subjects})

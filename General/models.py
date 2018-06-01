@@ -1,7 +1,7 @@
 import datetime
 from django.db import models
 
-from Registration.models import Subject, Faculty, Branch, Student
+from Registration.models import Subject, Faculty, Branch, Student, ElectiveSubject
 
 
 class CollegeYear(models.Model):
@@ -67,6 +67,7 @@ class YearSemester(models.Model):
     lecture_start_date = models.DateField(null=True, blank=True)
     lecture_end_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+
     # number_of_elective_groups = models.IntegerField(default=0)
 
     def __str__(self):
@@ -101,15 +102,6 @@ class Batch(models.Model):
         return self.division.year_branch.year.year + ' ' + self.division.division + " " + self.batch_name
 
 
-class ElectiveGroup(models.Model):
-    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE)
-    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
-    group = models.CharField(max_length=20, null=True)
-    no_of_sub_to_choose = models.IntegerField(default=1)
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return str(self.year_branch) + " " + str(self.semester) + " " + str(self.group)
 
 
 class BranchSubject(models.Model):
@@ -131,7 +123,11 @@ class BranchSubject(models.Model):
 class FacultySubject(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    division = models.ForeignKey(Division, on_delete=models.CASCADE)
+    division = models.ForeignKey(Division, on_delete=models.CASCADE,null=True)
+
+    elective_subject = models.ForeignKey(ElectiveSubject,on_delete=models.CASCADE,null=True)
+    elective_division = models.ForeignKey(Division,on_delete=models.CASCADE,null=True)
+
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -153,19 +149,22 @@ class StudentDetail(models.Model):
 
 
 class ElectiveDivision(models.Model):
-    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
+    elective_subject = models.ForeignKey(ElectiveSubject)
     division = models.CharField(max_length=1)
-    shift = models.ForeignKey(Shift, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
-    def __str__(self):
-        return str(self.year_branch)+" "+str(self.division)
+
+class ElectiveBatch(models.Model):
+    division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE)
+    batch_name = models.CharField(max_length=10)
 
 
 class StudentSubject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    elective_division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE, null=True, default=None, blank=True)
+    elective_division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE, null=True, default=None,
+                                          blank=True)
+    elective_batch = models.ForeignKey(ElectiveBatch,null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

@@ -30,7 +30,7 @@ from Registration.models import Branch, Student, Subject
 from Timetable.models import Timetable, DateTimetable, Room, Time
 
 RESTORE = [Subject, Student, Faculty, Branch, CollegeYear, Shift, YearBranch, Division, Semester, YearSemester, Batch,
-           ElectiveGroup, BranchSubject, FacultySubject, StudentDetail, StudentSubject, Schedulable, Schedule,
+           BranchSubject, FacultySubject, StudentDetail, StudentSubject, Schedulable, Schedule,
            TotalAttendance, Room, Time, Timetable, DateTimetable, FacultyAttendance,
            GeneralFacultyNotification, GeneralStudentNotification, SpecificNotification, ExamMaster, ExamDetail,
            ExamSubject, Mark, MarksType, StudentAttendance]
