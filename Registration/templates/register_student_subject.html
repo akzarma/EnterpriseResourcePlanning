@@ -13,23 +13,24 @@
             <table class="table">
                 <th>Sr. No</th>
                 <th>Subject</th>
-                {% for subject in subjects %}
-                    {% ifequal subject.type "Regular" %}
+                {% for branch_subject in subjects %}
+                    {% if not branch_subject.subject.is_elective_group %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
-                            <td>{{ subject }}</td>
+                            <td>{{ branch_subject.subject.name }}</td>
                         </tr>
-                    {% endifequal %}
-                    {% ifequal subject.type "Elective" %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>Elective Group {{ subject.group.group }} - {{ subject }} <input type="checkbox"
-                                                                                                name="elective_{{ subject.group_id }}"
-                                                                                                value="{{ subject.id }}">
-                            </td>
-                        </tr>
-                    {% endifequal %}
+                    {% endif %}
+
                 {% endfor %}
+                {% for each_elective in elective_subjects %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>Elective Group {{ each_elective.subject.name }} - <input type="checkbox"
+                                                                                      name="elective_{{ each_elective.subject.code }}"
+                                                                                      value="{{ subject.id }}">
+                        </td>
+                    </tr>
+                {% endfor    %}
 
             </table>
 
