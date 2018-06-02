@@ -1170,7 +1170,7 @@
     <script>
         function is_practical(subject) {
             for (var i = 0; i < all_years.length; i++) {
-                if (subjects_json[all_years[i]]['practical'].indexOf(subject) !== -1 || subjects_json[all_years[i]]['elective_practical'].indexOf(subject) !== -1) {
+                if (subjects_json[all_years[i]]['practical'].indexOf(subject) !== -1 || (subject in subjects_json[all_years[i]]['elective_practical'])) {
                     return true;
                 }
             }
@@ -1179,7 +1179,7 @@
 
         function is_elective(subject) {
             for (var i = 0; i < all_years.length; i++) {
-                if (subjects_json[all_years[i]]['elective_theory'].indexOf(subject) !== -1 && subjects_json[all_years[i]]['elective_practical'].indexOf(subject) !== -1) {
+                if ((subject in subjects_json[all_years[i]]['elective_theory']) && (subject in subjects_json[all_years[i]]['elective_practical'])) {
                     return true;
                 }
             }
