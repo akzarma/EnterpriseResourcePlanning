@@ -322,23 +322,25 @@
 
         <br>
         {% for yr in year %}
+            {#            {{ yr }}#}
             {#                <option>{{ yr }}</option>#}
             <div class="container-fluid hidden" id="timetable_{{ yr }}">
                 <table id="time_tab_{{ yr }}">
                     <tr>
                         <th colspan="2" class="titlebar">Time</th>
+                        {#                    {{ days }}#}
                         {% for day in days %}
                             <th class="titlebar">
                                 {{ day }}
                             </th>
                         {% endfor %}
                     </tr>
+                    {#                {{ times }}#}
                     {% for time in times %}
                         <tr class="border-down">
                             <th rowspan="4" class="sidebar time-sidebar">
                                 {{ time }}
                             </th>
-
                             {% for x in division %}
                                 <tr class="content border-down" style="">
                                     {% for z in '1234567' %}
@@ -426,15 +428,14 @@
                 dangerMode: true
             })
                 .then((willDelete) => {
-                if(willDelete) {
-                    document.semester_form.submit();
-                } else {
+                    if (willDelete) {
+                        document.semester_form.submit();
+                    } else {
 
-                    $('#id_semester'
-        ).
-            val(previous_semester);
-        }
-        })
+                        $('#id_semester'
+                        ).val(previous_semester);
+                    }
+                })
             ;
 
 
@@ -633,11 +634,11 @@
             });
             //add elective subject theory
             $.each(current_subject_elective_theory, function (i, el) {
-                $('#id_subject').append(new Option(el, el))
+                $('#id_subject').append(new Option(i,i))
             });
             //add elective subject practical
             $.each(current_subject_elective_practical, function (i, el) {
-                $('#id_subject').append(new Option(el, el))
+                $('#id_subject').append(new Option(i, i))
             });
             //add practical subject
             $.each(current_subjects_practical, function (i, el) {
@@ -689,6 +690,7 @@
                 block_faculty_list[element] = [];
             });
         }
+
         function create_room_dictionary() {
             $.each(theory_room, function (i, element) {
                 block_room_list[element] = [];
@@ -716,7 +718,6 @@
                 let teachers = subject_teacher_json[selected_subject][division];
                 if (checkbox_object.checked) {
                     if (is_practical(selected_subject) === false && is_elective(selected_subject) === false) {
-                        //add <select> Room </select>
                         let room_object = document.createElement("select");
                         room_object.id = "id_room_" + time + "_" + division + "_" + day + "_" + year;
                         let at_least_one_room = false;
@@ -746,7 +747,6 @@
                                 subject_dictionary[selected_subject].push(id);
 
                                 let checkbox_parent_object = checkbox_object.parentElement;
-                                {#let subject_text = document.createTextNode(selected_subject);#}
                                 //add <input> Subject</input>
                                 let subject_object = document.createElement("input");
                                 subject_object.value = selected_subject;
@@ -801,6 +801,7 @@
                         checkbox_object.classList.add("practical-cbx");
                         checkbox_object.parentElement.classList.add("practical-cbx-parent");
                         let table_obj = document.createElement('table');
+                        table_obj.classList.add("practical");
                         for (let batch in batches_json[year][division]) {
                             let row_obj = document.createElement('tr');
                             let column_obj = document.createElement('td');
@@ -827,32 +828,60 @@
                         checkbox_object.classList.add("practical-cbx");
                         checkbox_object.parentElement.classList.add("practical-cbx-parent");
                         let table_obj = document.createElement('table');
-                        for (let batch in batches_json[year][division]) {
-                            let row_obj = document.createElement('tr');
-                            let column_obj = document.createElement('td');
-                            column_obj.innerHTML = batches_json[year][division][batch];
-                            row_obj.appendChild(column_obj);
+                        table_obj.classList.add("elective");
+                        if (is_practical(selected_subject)) {
+                            /*Elective Lab*/
+                            for (let divisions in subjects_json[year][division]) {
+                                let row_obj = document.createElement('tr');
+                                let column_obj = document.createElement('td');
+                                column_obj.innerHTML = batches_json[year][division][batch];
+                                row_obj.appendChild(column_obj);
 
-                            column_obj = document.createElement('td');
-                            let cbx_obj = document.createElement('input');
-                            cbx_obj.setAttribute('type', 'checkbox');
-                            cbx_obj.setAttribute('class', 'checked-cbx');
-                            cbx_obj.setAttribute('onchange', 'block_faculty_practical(this)');
-                            cbx_obj.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch] + "_cbx";
-                            cbx_obj.setAttribute('name', "id_cbx_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch]);
+                                column_obj = document.createElement('td');
+                                let cbx_obj = document.createElement('input');
+                                cbx_obj.setAttribute('type', 'checkbox');
+                                cbx_obj.setAttribute('class', 'checked-cbx');
+                                cbx_obj.setAttribute('onchange', 'block_faculty_practical(this)');
+                                cbx_obj.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch] + "_cbx";
+                                cbx_obj.setAttribute('name', "id_cbx_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch]);
 
-                            column_obj.appendChild(cbx_obj);
-                            row_obj.appendChild(column_obj);
+                                column_obj.appendChild(cbx_obj);
+                                row_obj.appendChild(column_obj);
 
-                            table_obj.appendChild(row_obj);
+                                table_obj.appendChild(row_obj);
+                            }
+                            checkbox_object.parentElement.appendChild(table_obj);
+                        } else {
+                            for (let subject in subjects_json[year]['elective_theory'][selected_subject]) {
+                                for (let divisions in subjects_json[year]['elective_theory'][selected_subject][subject]) {
+                                    let row_obj = document.createElement('tr');
+                                    let column_obj = document.createElement('td');
+                                    column_obj.innerHTML = subjects_json[year]['elective_theory'][selected_subject][subject][divisions];
+                                    row_obj.appendChild(column_obj);
+
+                                    /**/
+                                    column_obj = document.createElement('td');
+                                    let cbx_obj = document.createElement('input');
+                                    cbx_obj.setAttribute('type', 'checkbox');
+                                    cbx_obj.setAttribute('class', 'checked-cbx');
+                                    {#cbx_obj.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch] + "_cbx";#}
+                                    {#cbx_obj.setAttribute('name', "id_cbx_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch]);#}
+
+                                    column_obj.appendChild(cbx_obj);
+                                    row_obj.appendChild(column_obj);
+
+                                    table_obj.appendChild(row_obj);
+                                }
+                                checkbox_object.parentElement.appendChild(table_obj);
+                            }
                         }
-                        checkbox_object.parentElement.appendChild(table_obj);
                     }
                 }
                 else {
                     {#for practical#}
-                    let table = checkbox_object.parentElement.querySelector('table');
-                    if (table) {
+                    let table_practical = checkbox_object.parentElement.querySelector('table.practical');
+                    let table_elective = checkbox_object.parentElement.querySelector('table.elective');
+                    if (table_practical) {
                         for (let batch in batches_json[year][division]) {
                             let batch_cbx_id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + batches_json[year][division][batch] + "_cbx";
                             let batch_cbx_obj = document.getElementById(batch_cbx_id);
@@ -862,13 +891,15 @@
                             }
                         }
                         {#let table = checkbox_object.parentElement.querySelector('table');#}
-                        table.parentElement.removeChild(table);
+                        table_practical.parentElement.removeChild(table_practical);
                         checkbox_object.classList.remove("checked-cbx");
                         checkbox_object.classList.remove("practical-cbx");
                         checkbox_object.parentElement.classList.remove("checked-cbx-parent");
                         checkbox_object.parentElement.classList.remove("practical-cbx-parent");
-                    }
-                    else {
+                    } else if (table_elective) {
+                        /*Unchecking code for elective*/
+
+                    } else {
                         let local_selected_subject = document.getElementById('id_subject_' + time + '_' + division + '_' + day + "_" + year).value;
                         let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];
                         let index = subject_dictionary[local_selected_subject].indexOf(id);
@@ -1140,7 +1171,7 @@
     <script>
         function is_practical(subject) {
             for (var i = 0; i < all_years.length; i++) {
-                if (subjects_json[all_years[i]]['practical'].indexOf(subject) !== -1) {
+                if (subjects_json[all_years[i]]['practical'].indexOf(subject) !== -1 || (subject in subjects_json[all_years[i]]['elective_practical'])) {
                     return true;
                 }
             }
@@ -1149,7 +1180,7 @@
 
         function is_elective(subject) {
             for (var i = 0; i < all_years.length; i++) {
-                if (subjects_json[all_years[i]]['elective_theory'].indexOf(subject) !== -1 && subjects_json[all_years[i]]['elective_practical'].indexOf(subject) !== -1) {
+                if ((subject in subjects_json[all_years[i]]['elective_theory']) && (subject in subjects_json[all_years[i]]['elective_practical'])) {
                     return true;
                 }
             }
@@ -1283,7 +1314,7 @@
 
 
                 let splitted = id.split('_');
-
+                console.log(id);
                 let year = splitted[configuration['year_index']];
                 let time = splitted[configuration['time_index']];
                 let division = splitted[configuration['division_index']];
@@ -1393,8 +1424,8 @@
         function toggle_practical_cbx(subject) {
             $('#timetable_form').find('input[type="checkbox"]').each(function () {
                 if ($(this).is(":checked")) {
-                    if (this.parentElement.querySelector('table')) {
-                        $(this.parentElement.querySelector('table').querySelectorAll('input[type="checkbox"]')).each(function () {
+                    if (this.parentElement.querySelector('table.practical')) {
+                        $(this.parentElement.querySelector('table.practical').querySelectorAll('input[type="checkbox"]')).each(function () {
                             if (is_practical(subject) === false && !$(this).is(":checked")) {
                                 $(this).attr("disabled", true);
                             }

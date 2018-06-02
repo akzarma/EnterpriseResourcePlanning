@@ -74,12 +74,15 @@ def update_role(request):
 
 
 def update_exam_status(request):
-    dataSet = ExamMaster.objects.all()
     if request.method == "GET":
-        return render(request, 'update_exam_status.html', {'dataset': dataSet, })
+        data_set = ExamMaster.objects.all()
+
+        return render(request, 'update_exam_status.html', {'dataset': data_set})
     elif request.method == "POST":
         id = request.POST.get('id')
         exam = ExamMaster.objects.get(pk=id)
         exam.is_active = not exam.is_active
         exam.save()
-        return render(request, 'update_exam_status.html', {'dataset': dataSet, })
+        data_set = ExamMaster.objects.all()
+
+        return render(request, 'update_exam_status.html', {'dataset': data_set})

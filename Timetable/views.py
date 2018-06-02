@@ -51,14 +51,15 @@ def fill_timetable(request):
                 years.append(i)
 
             year_semester_json = {}
-            for obj in YearSemester.objects.all():
+            for obj in YearSemester.objects.filter(is_active=True,semester__is_active=True):
                 year_sem = obj.year_branch.year.year
                 semester = obj.semester.semester
                 if year_sem not in year_semester_json:
                     year_semester_json[year_sem] = []
                 year_semester_json[year_sem] += [semester]
 
-            divisions = Division.objects.filter(year_branch__in=year_branch_obj).order_by('division').values_list(
+            divisions = Division.objects.filter(year_branch__in=year_branch_obj, is_active=True).order_by(
+                'division').values_list(
                 'division',
                 flat=True).distinct()
             days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -100,15 +101,28 @@ def fill_timetable(request):
                 subjects_json[year] = {
                     'theory': subjects_theory,
                     'practical': subjects_practical,
+                    'elective_theory': {},
+                    'elective_practical': {}
                 }
                 for each_elective_theory in subjects_elective_theory:
                     subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form] = {}
                     # a = each_elective_theory.subject.electivesubject_set
                     for each_option in each_elective_theory.subject.electivesubject_set.all():
+                        a = each_option.electivedivision_set.filter(is_active=True).values_list(
+                            'elective_subject__short_form', flat=True)
                         subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form][
-                            each_option.short_form] = {
-                            each_option.electivedivision_set.filter(is_active=True)
-                        }
+                            each_option.short_form] = [
+                            list(each_option.electivedivision_set.filter(is_active=True).values_list(
+                                'division', flat=True))]
+
+                for each_elective_practical in subjects_elective_practical:
+                    subjects_json[year]['elective_practical'][each_elective_practical.subject.short_form] = {}
+                    # a = each_elective_theory.subject.electivesubject_set
+                    for each_option in each_elective_practical.subject.electivesubject_set.all():
+                        subjects_json[year]['elective_practical'][each_elective_practical.subject.short_form][
+                            each_option.short_form] = [
+                            list(each_option.electivedivision_set.filter(is_active=True).values_list(
+                                'elective_subject__short_form', flat=True))]
 
             # Create dict of subject teacher binding
             # eg
@@ -134,6 +148,18 @@ def fill_timetable(request):
 
             elective_subject_teacher_json = {}
 
+            # eg
+            # {
+            #     EL1: {
+            #         ML: {
+            #             1:[APK, PVK]
+            #
+            #         }
+            #         DM: {
+            #
+            #         }
+            #     }
+            # }
             for each_subject in elective_subjects:
                 elective_subject_teacher_json[each_subject.subject.short_form] = {}
 
@@ -142,22 +168,15 @@ def fill_timetable(request):
                 for each_option in elective_option:
                     elective_subject_teacher_json[each_subject.subject.short_form][each_option.short_form] = {}
 
-                    divisions = each_option.electivedivision_set.filter(is_active=True)
+                    division_elective = each_option.electivedivision_set.filter(is_active=True)
 
-                    for each_division in divisions:
+                    for each_division in division_elective:
                         elective_subject_teacher_json[each_subject.subject.short_form][each_option.short_form][
-                            each_division.division] = {
-
-                        }
-
-                for each_division in divisions:
-                    division_object = Division.objects.get(year_branch=each_subject.year_branch, division=each_division)
-                    faculty_subjects_division = FacultySubject.objects.filter(subject=each_subject.subject,
-                                                                              division=division_object).values_list(
-                        'faculty__initials', flat=True)
-
-                    subject_teacher_json[each_subject.subject.short_form][each_division] = list(
-                        faculty_subjects_division)
+                            each_division.division] = list(FacultySubject.objects.filter(is_active=True,
+                                                                                         subject=each_subject.subject,
+                                                                                         elective_subject=each_option,
+                                                                                         elective_division=each_division).values_list(
+                            'faculty__initials', flat=True))
 
             all_subjects = list(all_subjects.values_list('subject__short_form', flat=True))
 
@@ -185,18 +204,18 @@ def fill_timetable(request):
                 #                                                                      year=CollegeYear.objects.get(
                 #                                                                          year=yr))).values_list('batch_name',
                 #                                                                                                 flat=True)
-                #     ]
+                #
 
             full_timetable_theory = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
                                                              branch_subject__semester=semester_obj, is_practical=False,
-                                                             branch_subject__subject__is_elective=False)
+                                                             branch_subject__subject__is_elective_group=False)
             full_timetable_practical = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
                                                                 branch_subject__semester=semester_obj,
                                                                 is_practical=True)
 
             full_timetable_elective = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
                                                                branch_subject__semester=semester_obj,
-                                                               branch_subject__subject__is_elective=True)
+                                                               branch_subject__subject__is_elective_group=True)
 
             timetable_instance = {}
             timetable_instance_practical = {}
@@ -246,7 +265,8 @@ def fill_timetable(request):
                 'all_subjects': all_subjects,
                 'subject_teacher_json': json.dumps(subject_teacher_json),
                 'timetable_instance_theory': timetable_instance,
-                'timetable_instance_practical': timetable_instance_practical
+                'timetable_instance_practical': timetable_instance_practical,
+                'elective_subject_teacher_json': elective_subject_teacher_json
             }
             return render(request, 'test_timetable.html', context)
         return HttpResponseRedirect('/login/')
@@ -272,7 +292,7 @@ def fill_date_timetable(new_date_timetable):
             for each in new_date_timetable:
                 if days[date.weekday()] == each.day:
                     creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
-    DateTimetable.objects.bulk_create(creation_list)
+    DateTimetable.objects.bulk_create(creation_list, batch_size=400)
     # return HttpResponse('DOne')
 
 

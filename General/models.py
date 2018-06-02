@@ -102,8 +102,6 @@ class Batch(models.Model):
         return self.division.year_branch.year.year + ' ' + self.division.division + " " + self.batch_name
 
 
-
-
 class BranchSubject(models.Model):
     # branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     # year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
@@ -121,7 +119,7 @@ class BranchSubject(models.Model):
 
 class ElectiveDivision(models.Model):
     elective_subject = models.ForeignKey(ElectiveSubject)
-    division = models.IntegerField( default=1)
+    division = models.IntegerField(default=1)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -130,10 +128,10 @@ class ElectiveDivision(models.Model):
 class FacultySubject(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    division = models.ForeignKey(Division, on_delete=models.CASCADE,null=True)
+    division = models.ForeignKey(Division, on_delete=models.CASCADE, null=True)
 
     elective_subject = models.ForeignKey(ElectiveSubject, on_delete=models.CASCADE, null=True)
-    elective_division = models.ForeignKey(ElectiveDivision,on_delete=models.CASCADE,null=True)
+    elective_division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE, null=True)
 
     is_active = models.BooleanField(default=True)
 
@@ -155,9 +153,6 @@ class StudentDetail(models.Model):
         return str(self.batch.division) + " " + str(self.student.first_name) + " " + str(self.roll_number)
 
 
-
-
-
 class ElectiveBatch(models.Model):
     division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE)
     batch_name = models.CharField(max_length=10)
@@ -171,7 +166,7 @@ class StudentSubject(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     elective_division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE, null=True, default=None,
                                           blank=True)
-    elective_batch = models.ForeignKey(ElectiveBatch,null=True)
+    elective_batch = models.ForeignKey(ElectiveBatch, null=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
