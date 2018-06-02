@@ -100,12 +100,22 @@ def fill_timetable(request):
                 subjects_json[year] = {
                     'theory': subjects_theory,
                     'practical': subjects_practical,
+                    'elective_theory': {},
+                    'elective_practical': {}
                 }
                 for each_elective_theory in subjects_elective_theory:
                     subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form] = {}
                     # a = each_elective_theory.subject.electivesubject_set
                     for each_option in each_elective_theory.subject.electivesubject_set.all():
                         subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form][
+                            each_option.short_form] = [
+                            each_option.electivedivision_set.filter(is_active=True)]
+
+                for each_elective_practical in subjects_elective_practical:
+                    subjects_json[year]['elective_practical'][each_elective_practical.subject.short_form] = {}
+                    # a = each_elective_theory.subject.electivesubject_set
+                    for each_option in each_elective_practical.subject.electivesubject_set.all():
+                        subjects_json[year]['elective_practical'][each_elective_practical.subject.short_form][
                             each_option.short_form] = [
                             each_option.electivedivision_set.filter(is_active=True)]
 
@@ -198,7 +208,7 @@ def fill_timetable(request):
                 #                                                                      year=CollegeYear.objects.get(
                 #                                                                          year=yr))).values_list('batch_name',
                 #                                                                                                 flat=True)
-                #     ]
+                #
 
             full_timetable_theory = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
                                                              branch_subject__semester=semester_obj, is_practical=False,
