@@ -51,7 +51,7 @@ def fill_timetable(request):
                 years.append(i)
 
             year_semester_json = {}
-            for obj in YearSemester.objects.all():
+            for obj in YearSemester.objects.filter(is_active=True,semester__is_active=True):
                 year_sem = obj.year_branch.year.year
                 semester = obj.semester.semester
                 if year_sem not in year_semester_json:
