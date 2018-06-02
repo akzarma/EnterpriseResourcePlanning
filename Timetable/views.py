@@ -106,9 +106,7 @@ def fill_timetable(request):
                     # a = each_elective_theory.subject.electivesubject_set
                     for each_option in each_elective_theory.subject.electivesubject_set.all():
                         subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form][
-                            each_option.short_form] = {
-                            each_option.electivedivision_set.filter(is_active=True)
-                        }
+                            each_option.short_form] = each_option.electivedivision_set.filter(is_active=True)
 
             # Create dict of subject teacher binding
             # eg
