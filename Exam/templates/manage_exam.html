@@ -1,0 +1,33 @@
+{% extends 'dashboard_student.html' %}
+{% block title %}
+    Exam-Schedule | ERP
+{% endblock title %}
+
+
+
+{% block content %}
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Sr no.</th>
+            <th>Exam</th>
+            <th>Schedule</th>
+            <th>Subjects</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for each_exam in all_exams %}
+            <td>{{ forloop.counter }}</td>
+            <td>{{ each_exam.exam.exam_name }}</td>
+            <td>{{ each_exam.schedule_start_date }}</td>
+            <td>
+                {% for each_subject in each_exam.examsubject_set.all %}
+                    {{ each_subject.subject.short_form }}
+                {% endfor %}
+            </td>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock content %}
