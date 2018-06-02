@@ -634,7 +634,7 @@
             });
             //add elective subject theory
             $.each(current_subject_elective_theory, function (i, el) {
-                $('#id_subject').append(new Option(i,i))
+                $('#id_subject').append(new Option(i, i))
             });
             //add elective subject practical
             $.each(current_subject_elective_practical, function (i, el) {
@@ -715,9 +715,10 @@
                 let time = id_splilt_array[configuration['time_index']];
                 let day = id_splilt_array[configuration['day_index']];
                 let year = id_splilt_array[configuration['year_index']];
-                let teachers = subject_teacher_json[selected_subject][division];
                 if (checkbox_object.checked) {
                     if (is_practical(selected_subject) === false && is_elective(selected_subject) === false) {
+                        let teachers = subject_teacher_json[selected_subject][division];
+
                         let room_object = document.createElement("select");
                         room_object.id = "id_room_" + time + "_" + division + "_" + day + "_" + year;
                         let at_least_one_room = false;
@@ -798,6 +799,8 @@
                         }
                     }
                     else if (is_practical(selected_subject) === true && is_elective(selected_subject) === false) {
+                        let teachers = subject_teacher_json[selected_subject][division];
+
                         checkbox_object.classList.add("practical-cbx");
                         checkbox_object.parentElement.classList.add("practical-cbx-parent");
                         let table_obj = document.createElement('table');
@@ -856,7 +859,7 @@
                                 for (let divisions in subjects_json[year]['elective_theory'][selected_subject][subject]) {
                                     let row_obj = document.createElement('tr');
                                     let column_obj = document.createElement('td');
-                                    column_obj.innerHTML = subjects_json[year]['elective_theory'][selected_subject][subject][divisions];
+                                    column_obj.innerHTML = subjects_json[year]['elective_theory'][selected_subject][subject] + "-" + subjects_json[year]['elective_theory'][selected_subject][subject];
                                     row_obj.appendChild(column_obj);
 
                                     /**/
@@ -1180,7 +1183,7 @@
 
         function is_elective(subject) {
             for (var i = 0; i < all_years.length; i++) {
-                if ((subject in subjects_json[all_years[i]]['elective_theory']) && (subject in subjects_json[all_years[i]]['elective_practical'])) {
+                if ((subject in subjects_json[all_years[i]]['elective_theory']) || (subject in subjects_json[all_years[i]]['elective_practical'])) {
                     return true;
                 }
             }
@@ -1314,7 +1317,6 @@
 
 
                 let splitted = id.split('_');
-                console.log(id);
                 let year = splitted[configuration['year_index']];
                 let time = splitted[configuration['time_index']];
                 let division = splitted[configuration['division_index']];
