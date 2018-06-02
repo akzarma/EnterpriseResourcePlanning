@@ -58,7 +58,7 @@ def fill_timetable(request):
                     year_semester_json[year_sem] = []
                 year_semester_json[year_sem] += [semester]
 
-            divisions = Division.objects.filter(year_branch__in=year_branch_obj).order_by('division').values_list(
+            divisions = Division.objects.filter(year_branch__in=year_branch_obj,is_active=True).order_by('division').values_list(
                 'division',
                 flat=True).distinct()
             days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -107,10 +107,12 @@ def fill_timetable(request):
                     subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form] = {}
                     # a = each_elective_theory.subject.electivesubject_set
                     for each_option in each_elective_theory.subject.electivesubject_set.all():
+                        a = each_option.electivedivision_set.filter(is_active=True).values_list(
+                            'elective_subject__short_form', flat=True)
                         subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form][
                             each_option.short_form] = [
-                            each_option.electivedivision_set.filter(is_active=True).values_list(
-                                'elective_subject__short_form', flat=True)]
+                            list(each_option.electivedivision_set.filter(is_active=True).values_list(
+                                'elective_subject__short_form', flat=True))]
 
                 for each_elective_practical in subjects_elective_practical:
                     subjects_json[year]['elective_practical'][each_elective_practical.subject.short_form] = {}
@@ -118,8 +120,8 @@ def fill_timetable(request):
                     for each_option in each_elective_practical.subject.electivesubject_set.all():
                         subjects_json[year]['elective_practical'][each_elective_practical.subject.short_form][
                             each_option.short_form] = [
-                            each_option.electivedivision_set.filter(is_active=True).values_list(
-                                'elective_subject__short_form', flat=True)]
+                            list(each_option.electivedivision_set.filter(is_active=True).values_list(
+                                'elective_subject__short_form', flat=True))]
 
             # Create dict of subject teacher binding
             # eg
@@ -165,9 +167,9 @@ def fill_timetable(request):
                 for each_option in elective_option:
                     elective_subject_teacher_json[each_subject.subject.short_form][each_option.short_form] = {}
 
-                    divisions = each_option.electivedivision_set.filter(is_active=True)
+                    division_elective = each_option.electivedivision_set.filter(is_active=True)
 
-                    for each_division in divisions:
+                    for each_division in division_elective:
                         elective_subject_teacher_json[each_subject.subject.short_form][each_option.short_form][
                             each_division.division] = FacultySubject.objects.filter(is_active=True,
                                                                                     subject=each_subject,
@@ -175,14 +177,14 @@ def fill_timetable(request):
                                                                                     elective_division=each_division).values_list(
                             'faculty__initials', flat=True)
 
-                for each_division in divisions:
-                    division_object = Division.objects.get(year_branch=each_subject.year_branch, division=each_division)
-                    faculty_subjects_division = FacultySubject.objects.filter(subject=each_subject.subject,
-                                                                              division=division_object).values_list(
-                        'faculty__initials', flat=True)
-
-                    subject_teacher_json[each_subject.subject.short_form][each_division] = list(
-                        faculty_subjects_division)
+                # for each_division in divisions:
+                #     division_object = Division.objects.get(year_branch=each_subject.year_branch, division=each_division)
+                #     faculty_subjects_division = FacultySubject.objects.filter(subject=each_subject.subject,
+                #                                                               division=division_object).values_list(
+                #         'faculty__initials', flat=True)
+                #
+                #     subject_teacher_json[each_subject.subject.short_form][each_division] = list(
+                #         faculty_subjects_division)
 
             all_subjects = list(all_subjects.values_list('subject__short_form', flat=True))
 

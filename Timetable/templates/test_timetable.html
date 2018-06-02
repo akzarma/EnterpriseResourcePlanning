@@ -322,23 +322,25 @@
 
         <br>
         {% for yr in year %}
+            {#            {{ yr }}#}
             {#                <option>{{ yr }}</option>#}
             <div class="container-fluid hidden" id="timetable_{{ yr }}">
                 <table id="time_tab_{{ yr }}">
                     <tr>
                         <th colspan="2" class="titlebar">Time</th>
+                        {#                    {{ days }}#}
                         {% for day in days %}
                             <th class="titlebar">
                                 {{ day }}
                             </th>
                         {% endfor %}
                     </tr>
+                    {#                {{ times }}#}
                     {% for time in times %}
                         <tr class="border-down">
                             <th rowspan="4" class="sidebar time-sidebar">
                                 {{ time }}
                             </th>
-
                             {% for x in division %}
                                 <tr class="content border-down" style="">
                                     {% for z in '1234567' %}
@@ -426,15 +428,14 @@
                 dangerMode: true
             })
                 .then((willDelete) => {
-                if(willDelete) {
-                    document.semester_form.submit();
-                } else {
+                    if (willDelete) {
+                        document.semester_form.submit();
+                    } else {
 
-                    $('#id_semester'
-        ).
-            val(previous_semester);
-        }
-        })
+                        $('#id_semester'
+                        ).val(previous_semester);
+                    }
+                })
             ;
 
 
@@ -633,11 +634,11 @@
             });
             //add elective subject theory
             $.each(current_subject_elective_theory, function (i, el) {
-                $('#id_subject').append(new Option(el, el))
+                $('#id_subject').append(new Option(i,i))
             });
             //add elective subject practical
             $.each(current_subject_elective_practical, function (i, el) {
-                $('#id_subject').append(new Option(el, el))
+                $('#id_subject').append(new Option(i, i))
             });
             //add practical subject
             $.each(current_subjects_practical, function (i, el) {
@@ -890,12 +891,12 @@
                             }
                         }
                         {#let table = checkbox_object.parentElement.querySelector('table');#}
-                        table.parentElement.removeChild(table);
+                        table_practical.parentElement.removeChild(table_practical);
                         checkbox_object.classList.remove("checked-cbx");
                         checkbox_object.classList.remove("practical-cbx");
                         checkbox_object.parentElement.classList.remove("checked-cbx-parent");
                         checkbox_object.parentElement.classList.remove("practical-cbx-parent");
-                    } else if(table_elective){
+                    } else if (table_elective) {
                         /*Unchecking code for elective*/
 
                     } else {
@@ -1313,7 +1314,7 @@
 
 
                 let splitted = id.split('_');
-
+                console.log(id);
                 let year = splitted[configuration['year_index']];
                 let time = splitted[configuration['time_index']];
                 let division = splitted[configuration['division_index']];
