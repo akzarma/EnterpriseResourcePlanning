@@ -119,14 +119,18 @@ class BranchSubject(models.Model):
     def __str__(self):
         return str(self.year_branch) + " " + self.subject.name
 
+class ElectiveDivision(models.Model):
+    elective_subject = models.ForeignKey(ElectiveSubject)
+    division = models.CharField(max_length=1)
+    is_active = models.BooleanField(default=True)
 
 class FacultySubject(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     division = models.ForeignKey(Division, on_delete=models.CASCADE,null=True)
 
-    elective_subject = models.ForeignKey(ElectiveSubject,on_delete=models.CASCADE,null=True)
-    elective_division = models.ForeignKey(Division,on_delete=models.CASCADE,null=True)
+    elective_subject = models.ForeignKey(ElectiveSubject, on_delete=models.CASCADE, null=True)
+    elective_division = models.ForeignKey(ElectiveDivision,on_delete=models.CASCADE,null=True)
 
     is_active = models.BooleanField(default=True)
 
@@ -148,10 +152,7 @@ class StudentDetail(models.Model):
         return str(self.batch.division) + " " + str(self.student.first_name) + " " + str(self.roll_number)
 
 
-class ElectiveDivision(models.Model):
-    elective_subject = models.ForeignKey(ElectiveSubject)
-    division = models.CharField(max_length=1)
-    is_active = models.BooleanField(default=True)
+
 
 
 class ElectiveBatch(models.Model):
