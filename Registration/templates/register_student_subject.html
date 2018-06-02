@@ -26,7 +26,7 @@
                     <tr>
                         <td>{{ forloop.counter }}</td>
                         <td>Elective Group {{ each_elective.subject.name }} - {{ each_elective.name }} <input type="checkbox"
-                                                                                      name="elective_subject_{{ each_elective.subject.code }}"
+                                                                                      name="elective_subject_{{ each_elective.subject.pk }}"
                                                                                       value="{{ each_elective.id }}">
                         </td>
                     </tr>

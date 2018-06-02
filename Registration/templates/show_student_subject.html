@@ -12,20 +12,22 @@
             <table class="table">
                 <th>Sr. No</th>
                 <th>Subject</th>
-                {% for subject in subjects %}
-                    {% ifequal subject.type "Regular" %}
+                {% for branch_subject in subjects %}
+                    {% if not branch_subject.subject.is_elective_group %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
-                            <td>{{ subject }}</td>
+                            <td>{{ branch_subject.subject.name }}</td>
                         </tr>
-                    {% endifequal %}
-                    {% ifequal subject.type "Elective" %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>Elective Group {{ subject.group.group }} - {{ subject }}</td>
-                        </tr>
-                    {% endifequal %}
+                    {% endif %}
+
                 {% endfor %}
+                {% for each_elective in elective_subjects %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>Elective Group {{ each_elective.subject.name }} - {{ each_elective.name }}
+                        </td>
+                    </tr>
+                {% endfor    %}
 
             </table>
 

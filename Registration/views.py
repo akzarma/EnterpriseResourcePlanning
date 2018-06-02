@@ -10,7 +10,7 @@ from django.utils.dateparse import parse_date
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSubject, Semester, \
-    FacultySubject, Batch, YearBranch, StudentSubject, YearSemester, Schedulable, ElectiveDivision
+    FacultySubject, Batch, YearBranch, StudentSubject, YearSemester, Schedulable, ElectiveDivision, ElectiveBatch
 from General.views import notify_users
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject, ElectiveSubject
@@ -246,11 +246,12 @@ def register_subject(request):
                     subject_obj = subject_form.save(commit=False)
                     no_of_elective = int(request.POST.get('no_of_elective'))
                     for i in range(no_of_elective):
-                        elective = ElectiveSubject.objects.get_or_create(name=request.POST.get('elective_' + str(i + 1)),
-                                                                         short_form=request.POST.get(
-                                                                      'elective_short_' + str(i + 1)),
-                                                                         subject=subject_obj,
-                                                                         is_active=True)
+                        elective = ElectiveSubject.objects.get_or_create(
+                            name=request.POST.get('elective_' + str(i + 1)),
+                            short_form=request.POST.get(
+                                'elective_short_' + str(i + 1)),
+                            subject=subject_obj,
+                            is_active=True)
 
                     subject_obj.save()
                     BranchSubject.objects.get_or_create(year_branch=year_branch_obj,
@@ -524,20 +525,22 @@ def student_subject(request):
                     student_new_detail.save()
 
                 # ================Validation elective subs count=======================================
-                electives_groups = ElectiveGroup.objects.filter(
+                electives_groups = BranchSubject.objects.filter(
                     year_branch=student_new_detail.batch.division.year_branch,
                     semester=student_new_detail.semester,
+                    subject__is_elective_group=True,
+                    subject__is_active=True,
                     is_active=True)
                 selected_elective_pks = {}
                 for each_group in electives_groups:
-                    selected_elective_pks[each_group] = request.POST.getlist('elective_' + str(each_group.id))
-                    if len(selected_elective_pks[each_group]) != each_group.no_of_sub_to_choose:
+                    selected_elective_pks[each_group] = request.POST.getlist(
+                        'elective_subject_' + str(each_group.subject.pk))
+                    if len(selected_elective_pks[each_group]) != 1:
                         if student_new_detail:
                             student_new_detail.is_active = False
                             student_new_detail.save()
                         return render(request, 'dashboard_student.html', context={
-                            'error': 'You have to select exactly ' + str(each_group.no_of_sub_to_choose)
-                                     + ' subject for Elective Group ' + each_group.group,
+                            'error': 'You have to select exactly 1 subject for Elective Group ' + each_group.subject.name,
                             'info': 'Please go to Subject registration again!'})
 
                 # ======================================================================================
@@ -548,15 +551,25 @@ def student_subject(request):
                 # ================this is for elective=====================
                 for each_group in electives_groups:
                     for each_elective_pk in selected_elective_pks[each_group]:
-                        each_elective_obj = BranchSubject.objects.get(pk=each_elective_pk)
-                        StudentSubject.objects.get_or_create(student=student, subject=each_elective_obj.subject,
+                        each_elective_obj = ElectiveSubject.objects.get(pk=each_elective_pk)
+                        elective_division_obj = \
+                            ElectiveDivision.objects.get_or_create(elective_subject=each_elective_obj,
+                                                                   division=1,
+                                                                   is_active=True)[0]
+                        elective_batch_obj = ElectiveBatch.objects.get_or_create(
+                            division=elective_division_obj,
+                            batch_name='Batch 1',
+                            is_active=True
+                        )[0]
+                        StudentSubject.objects.get_or_create(student=student,
+                                                             elective_division=elective_division_obj,
+                                                             subject=each_group.subject,
                                                              is_active=True)
                 # =========================================================
 
                 regular_subjects = BranchSubject.objects.filter(
                     year_branch=student_new_detail.batch.division.year_branch,
                     semester=next_sem_obj,
-                    type='Regular',
                     is_active=True)
                 for each_regular_sub in regular_subjects:
                     StudentSubject.objects.get_or_create(student=student,
@@ -565,7 +578,7 @@ def student_subject(request):
 
                 student_detail.is_active = False
                 student_detail.save()
-                for each in StudentSubject.objects.filter(student=student):
+                for each in StudentSubject.objects.filter(student=student, is_active=True):
                     sub_to_inactive = BranchSubject.objects.filter(subject=each.subject,
                                                                    year_branch=student_detail.batch.division.year_branch,
                                                                    semester=student_detail.semester,
@@ -579,6 +592,11 @@ def student_subject(request):
                 subjects = BranchSubject.objects.filter(subject__pk__in=StudentSubject.objects.filter(student=student,
                                                                                                       is_active=True).values_list(
                     'subject__pk', flat=True), is_active=True)
+                elective_subjects = [ElectiveSubject.objects.filter(pk=i.elective_division.elective_subject.pk)
+                                     for i in StudentSubject.objects.filter(student=student,
+                                                                            is_active=True,
+                                                                            subject__is_active=True,
+                                                                            subject__is_elective_group=True)]
                 return render(request, 'show_student_subject.html', context={'subjects': subjects,
                                                                              'success': 'Subjects registered successfully'})
             except Exception as e:
@@ -586,7 +604,7 @@ def student_subject(request):
                     student_new_detail.is_active = False
                     student_new_detail.save()
                 return render(request, 'dashboard_student.html', context={
-                    'error': 'You have error: ' + e,
+                    'error': 'You have error: ' + str(e),
                     'info': 'Please go to Subject registration again!'})
         if is_faculty:
             return HttpResponse('Faculty')
@@ -614,10 +632,19 @@ def student_subject(request):
                 if student_detail.last_subject_registration_date:
                     if schedule_obj.event_active('Student Subject Registration',
                                                  student_detail.last_subject_registration_date):
+                        student_subject_all = StudentSubject.objects.filter(student=student,
+                                                                            subject__is_active=True,
+                                                                            is_active=True)
+                        student_subject_regular = student_subject_all.filter(subject__is_elective_group=False)
+                        student_subject_elective = student_subject_all.filter(subject__is_elective_group=True)
+
                         subjects = [BranchSubject.objects.get(subject=i.subject, is_active=True) for i in
-                                    StudentSubject.objects.filter(student=student, is_active=True)]
+                                    student_subject_regular]
+                        elective_subjects = [ElectiveSubject.objects.get(pk=i.elective_division.elective_subject.pk)
+                                             for i in student_subject_elective]
                         return render(request, 'show_student_subject.html',
                                       context={'subjects': subjects,
+                                               'elective_subjects': elective_subjects,
                                                'info': 'Already registered. Your current semester subjects are shown.'})
 
                 no_of_semester = student_detail.batch.division.year_branch.year.no_of_semester
@@ -644,24 +671,31 @@ def student_subject(request):
                                                })
 
                     all_subjects = BranchSubject.objects.filter(year_branch__year=next_year_obj,
-                                                            semester=next_sem_obj,
-                                                            year_branch__branch=student_detail.batch.division.year_branch.branch,
-                                                            is_active=True)
+                                                                semester=next_sem_obj,
+                                                                year_branch__branch=student_detail.batch.division.year_branch.branch,
+                                                                is_active=True)
                     subjects = all_subjects.filter(subject__is_elective_group=False)
                     elective_subjects = ElectiveSubject.objects.filter(subject__branchsubject__in=
-                                                                all_subjects.filter(subject__is_elective_group=True))
+                    all_subjects.filter(
+                        subject__is_elective_group=True),
+                        is_active=True)
                 else:
                     all_subjects = BranchSubject.objects.filter(year_branch=student_detail.batch.division.year_branch,
-                                                            semester=next_sem_obj,
-                                                            is_active=True)
+                                                                semester=next_sem_obj,
+                                                                is_active=True)
                     subjects = all_subjects.filter(subject__is_elective_group=False)
                     elective_subjects = ElectiveSubject.objects.filter(subject__branchsubject__in=
-                                                                all_subjects.filter(subject__is_elective_group=True))
+                    all_subjects.filter(
+                        subject__is_elective_group=True),
+                        is_active=True)
                 return render(request, 'register_student_subject.html', context={'subjects': subjects,
-                                                                                 'elective_subjects':elective_subjects})
+                                                                                 'elective_subjects': elective_subjects})
             else:
                 subjects = [BranchSubject.objects.get(subject=i.subject, is_active=True) for i in
-                            StudentSubject.objects.filter(student=student, is_active=True)]
+                            StudentSubject.objects.filter(student=student,
+                                                          subject__is_elective_group=False,
+                                                          subject__is_active=True,
+                                                          is_active=True)]
 
                 return render(request, 'show_student_subject.html',
                               context={'subjects': subjects,
@@ -799,17 +833,22 @@ def student_subject_division(request):
             year_branch = YearBranch.objects.get(year=year_obj,
                                                  branch=branch_obj,
                                                  is_active=True)
-            subjects = BranchSubject.objects.filter(year_branch=year_branch,
-                                                    semester=semester_obj,
-                                                    is_active=True)
+            subjects_all = BranchSubject.objects.filter(year_branch=year_branch,
+                                                        semester=semester_obj,
+                                                        is_active=True)
+            subjects_regular = subjects_all.filter(subject__is_elective_group=False)
+            subjects_elective_group = subjects_all.filter(subject__is_elective_group=True)
+            elective_subjects = ElectiveSubject.objects.filter(subject__branchsubject__in=subjects_elective_group,
+                                                               is_active=True)
             return render(request, 'student_subject_division.html',
                           context={'selected_year': year_obj.year,
                                    'selected_branch': branch_obj.branch,
                                    'selected_semester': semester_obj.semester,
                                    'select_subjects': True,
-                                   'subjects': subjects})
+                                   'regular_subjects': subjects_regular,
+                                   'elective_subjects': elective_subjects})
 
-    elif request.method == 'POST' and request.POST.get('selected_subject_link'):
+    elif request.POST.get('selected_subject_link'):
         selected_subject = request.POST.get('selected_subject_link')
         selected_subject_obj = BranchSubject.objects.get(pk=selected_subject)
         student_subjects = StudentSubject.objects.filter(subject=selected_subject_obj.subject,
@@ -821,39 +860,76 @@ def student_subject_division(request):
                                'selected_semester': selected_subject_obj.semester.semester,
                                'selected_subject_obj': selected_subject_obj,
                                'select_student_division': True,
-                               'student_subjects': student_subjects,
-                               'divisions': ElectiveDivision.objects.filter(
-                                   year_branch=selected_subject_obj.year_branch,
-                                   is_active=True)})
+                               'student_subjects': student_subjects, })
+    elif request.POST.get('selected_subject_elective_link'):
+        selected_elective = request.POST.get('selected_subject_elective_link')
+        selected_elective_subject_obj = ElectiveSubject.objects.get(pk=selected_elective)
+        student_subjects = StudentSubject.objects.filter(subject=selected_elective_subject_obj.subject,
+                                                         is_active=True)
+        selected_semester = request.POST.get('selected_semester')
+        selected_branch = request.POST.get('selected_branch')
+        selected_year = request.POST.get('selected_year')
 
-    elif request.method == 'POST' and request.POST.get('select_division_student_button'):
+        elective_divisions = list(ElectiveDivision.objects.filter(
+            elective_subject=selected_elective_subject_obj,
+            is_active=True))
+        division_batch = {}
+        for each_division in elective_divisions:
+            # a=list(each_division.electivebatch_set.all())
+            division_batch[each_division.division] = list(
+                each_division.electivebatch_set.all().values_list('batch_name',flat=True))
+        return render(request, 'student_subject_division.html',
+                      context={'selected_semester': selected_semester,
+                               'selected_branch': selected_branch,
+                               'selected_year': selected_year,
+                               'selected_subject_obj': selected_elective_subject_obj,
+                               'select_student_division': True,
+                               'student_subjects': student_subjects,
+                               'divisions': elective_divisions,
+                               'division_batch': json.dumps(division_batch)})
+
+    elif request.POST.get('select_division_student_button'):
         selected_division_student_pks = request.POST.getlist('selected_division_student')
-        selected_subject_obj = BranchSubject.objects.get(pk=request.POST.get('selected_subject'))
+        selected_elective_subject_obj = ElectiveSubject.objects.get(pk=request.POST.get('selected_subject'))
         for each in selected_division_student_pks:
             each_division_pk = each.split('_student_')[0]
             each_student_pk = each.split('_student_')[1]
             selected_division_obj = ElectiveDivision.objects.get(pk=each_division_pk)
             for_student = Student.objects.get(pk=each_student_pk)
 
+            selected_elective_batch_obj = ElectiveBatch.objects.get(batch_name=request.POST.get('selected_division_student_batch_'+each_student_pk),
+                                                                    division=selected_division_obj,
+                                                                    is_active=True)
+
             student_subject_obj = StudentSubject.objects.get_or_create(student=for_student,
-                                                                       subject=selected_subject_obj.subject,
+                                                                       subject=selected_elective_subject_obj.subject,
                                                                        is_active=True)[0]
             student_subject_obj.elective_division = selected_division_obj
+            student_subject_obj.elective_batch = selected_elective_batch_obj
             student_subject_obj.save()
 
-        student_subjects = StudentSubject.objects.filter(subject=selected_subject_obj.subject,
+        student_subjects = StudentSubject.objects.filter(subject=selected_elective_subject_obj.subject,
                                                          is_active=True)
-        year_branch_obj = selected_subject_obj.year_branch
+        selected_semester = request.POST.get('selected_semester')
+        selected_branch = request.POST.get('selected_branch')
+        selected_year = request.POST.get('selected_year')
+        elective_divisions = list(ElectiveDivision.objects.filter(
+            elective_subject=selected_elective_subject_obj,
+            is_active=True))
+        division_batch = {}
+        for each_division in elective_divisions:
+            # a=list(each_division.electivebatch_set.all())
+            division_batch[each_division.division] = list(
+                each_division.electivebatch_set.all().values_list('batch_name', flat=True))
         return render(request, 'student_subject_division.html',
-                      context={'selected_year': year_branch_obj.year.year,
-                               'selected_branch': year_branch_obj.branch.branch,
-                               'selected_semester': selected_subject_obj.semester.semester,
-                               'selected_subject_obj': selected_subject_obj,
+                      context={'selected_year': selected_year,
+                               'selected_branch': selected_branch,
+                               'selected_semester': selected_semester,
+                               'selected_subject_obj': selected_elective_subject_obj,
                                'select_student_division': True,
                                'student_subjects': student_subjects,
-                               'divisions': ElectiveDivision.objects.filter(
-                                   year_branch=selected_subject_obj.year_branch,
-                                   is_active=True),
+                               'divisions': elective_divisions,
+                               'division_batch': json.dumps(division_batch),
                                'success': 'elective divisions are assigned successfully.'})
 
 
