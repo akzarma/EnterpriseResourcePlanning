@@ -106,7 +106,8 @@ def fill_timetable(request):
                     # a = each_elective_theory.subject.electivesubject_set
                     for each_option in each_elective_theory.subject.electivesubject_set.all():
                         subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form][
-                            each_option.short_form] = each_option.electivedivision_set.filter(is_active=True)
+                            each_option.short_form] = [
+                            each_option.electivedivision_set.filter(is_active=True)]
 
             # Create dict of subject teacher binding
             # eg
@@ -132,6 +133,18 @@ def fill_timetable(request):
 
             elective_subject_teacher_json = {}
 
+            # eg
+            # {
+            #     EL1: {
+            #         ML: {
+            #             1:[APK, PVK]
+            #
+            #         }
+            #         DM: {
+            #
+            #         }
+            #     }
+            # }
             for each_subject in elective_subjects:
                 elective_subject_teacher_json[each_subject.subject.short_form] = {}
 
@@ -144,9 +157,11 @@ def fill_timetable(request):
 
                     for each_division in divisions:
                         elective_subject_teacher_json[each_subject.subject.short_form][each_option.short_form][
-                            each_division.division] = {
-
-                        }
+                            each_division.division] = FacultySubject.objects.filter(is_active=True,
+                                                                                    subject=each_subject,
+                                                                                    elective_subject=each_option,
+                                                                                    elective_division=each_division).values_list(
+                            'faculty__initials', flat=True)
 
                 for each_division in divisions:
                     division_object = Division.objects.get(year_branch=each_subject.year_branch, division=each_division)
@@ -270,7 +285,7 @@ def fill_date_timetable(new_date_timetable):
             for each in new_date_timetable:
                 if days[date.weekday()] == each.day:
                     creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
-    DateTimetable.objects.bulk_create(creation_list)
+    DateTimetable.objects.bulk_create(creation_list, batch_size=400)
     # return HttpResponse('DOne')
 
 

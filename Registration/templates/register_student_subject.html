@@ -25,9 +25,9 @@
                 {% for each_elective in elective_subjects %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td>Elective Group {{ each_elective.subject.name }} - <input type="checkbox"
-                                                                                      name="elective_{{ each_elective.subject.code }}"
-                                                                                      value="{{ subject.id }}">
+                        <td>Elective Group {{ each_elective.subject.name }} - {{ each_elective.name }} <input type="checkbox"
+                                                                                      name="elective_subject_{{ each_elective.subject.code }}"
+                                                                                      value="{{ each_elective.id }}">
                         </td>
                     </tr>
                 {% endfor    %}
