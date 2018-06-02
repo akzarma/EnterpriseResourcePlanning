@@ -58,7 +58,8 @@ def fill_timetable(request):
                     year_semester_json[year_sem] = []
                 year_semester_json[year_sem] += [semester]
 
-            divisions = Division.objects.filter(year_branch__in=year_branch_obj,is_active=True).order_by('division').values_list(
+            divisions = Division.objects.filter(year_branch__in=year_branch_obj, is_active=True).order_by(
+                'division').values_list(
                 'division',
                 flat=True).distinct()
             days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -171,20 +172,11 @@ def fill_timetable(request):
 
                     for each_division in division_elective:
                         elective_subject_teacher_json[each_subject.subject.short_form][each_option.short_form][
-                            each_division.division] = FacultySubject.objects.filter(is_active=True,
-                                                                                    subject=each_subject,
-                                                                                    elective_subject=each_option,
-                                                                                    elective_division=each_division).values_list(
-                            'faculty__initials', flat=True)
-
-                # for each_division in divisions:
-                #     division_object = Division.objects.get(year_branch=each_subject.year_branch, division=each_division)
-                #     faculty_subjects_division = FacultySubject.objects.filter(subject=each_subject.subject,
-                #                                                               division=division_object).values_list(
-                #         'faculty__initials', flat=True)
-                #
-                #     subject_teacher_json[each_subject.subject.short_form][each_division] = list(
-                #         faculty_subjects_division)
+                            each_division.division] = list(FacultySubject.objects.filter(is_active=True,
+                                                                                         subject=each_subject,
+                                                                                         elective_subject=each_option,
+                                                                                         elective_division=each_division).values_list(
+                            'faculty__initials', flat=True))
 
             all_subjects = list(all_subjects.values_list('subject__short_form', flat=True))
 
@@ -273,7 +265,8 @@ def fill_timetable(request):
                 'all_subjects': all_subjects,
                 'subject_teacher_json': json.dumps(subject_teacher_json),
                 'timetable_instance_theory': timetable_instance,
-                'timetable_instance_practical': timetable_instance_practical
+                'timetable_instance_practical': timetable_instance_practical,
+                'elective_subject_teacher_json': elective_subject_teacher_json
             }
             return render(request, 'test_timetable.html', context)
         return HttpResponseRedirect('/login/')
