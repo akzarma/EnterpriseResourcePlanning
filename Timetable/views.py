@@ -113,7 +113,7 @@ def fill_timetable(request):
                         subjects_json[year]['elective_theory'][each_elective_theory.subject.short_form][
                             each_option.short_form] = [
                             list(each_option.electivedivision_set.filter(is_active=True).values_list(
-                                'elective_subject__short_form', flat=True))]
+                                'division', flat=True))]
 
                 for each_elective_practical in subjects_elective_practical:
                     subjects_json[year]['elective_practical'][each_elective_practical.subject.short_form] = {}
