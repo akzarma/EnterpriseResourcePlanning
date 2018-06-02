@@ -173,7 +173,7 @@ def fill_timetable(request):
                     for each_division in division_elective:
                         elective_subject_teacher_json[each_subject.subject.short_form][each_option.short_form][
                             each_division.division] = list(FacultySubject.objects.filter(is_active=True,
-                                                                                         subject=each_subject,
+                                                                                         subject=each_subject.subject,
                                                                                          elective_subject=each_option,
                                                                                          elective_division=each_division).values_list(
                             'faculty__initials', flat=True))
