@@ -202,14 +202,14 @@ def fill_timetable(request):
 
             full_timetable_theory = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
                                                              branch_subject__semester=semester_obj, is_practical=False,
-                                                             branch_subject__subject__is_elective=False)
+                                                             branch_subject__subject__is_elective_group=False)
             full_timetable_practical = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
                                                                 branch_subject__semester=semester_obj,
                                                                 is_practical=True)
 
             full_timetable_elective = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
                                                                branch_subject__semester=semester_obj,
-                                                               branch_subject__subject__is_elective=True)
+                                                               branch_subject__subject__is_elective_group=True)
 
             timetable_instance = {}
             timetable_instance_practical = {}
