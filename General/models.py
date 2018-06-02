@@ -117,12 +117,10 @@ class BranchSubject(models.Model):
     def __str__(self):
         return str(self.year_branch) + " " + self.subject.name
 
-
 class ElectiveDivision(models.Model):
     elective_subject = models.ForeignKey(ElectiveSubject)
     division = models.CharField(max_length=1)
     is_active = models.BooleanField(default=True)
-
 
 class FacultySubject(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)

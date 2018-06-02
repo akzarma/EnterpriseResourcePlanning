@@ -662,6 +662,7 @@ def student_subject(request):
             else:
                 subjects = [BranchSubject.objects.get(subject=i.subject, is_active=True) for i in
                             StudentSubject.objects.filter(student=student, is_active=True)]
+
                 return render(request, 'show_student_subject.html',
                               context={'subjects': subjects,
                                        'info': 'Subject registration is not started yet. Your current semester subjects are shown.'})
