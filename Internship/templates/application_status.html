@@ -1,0 +1,118 @@
+{% extends 'dashboard_student.html' %}
+
+{% block content %}
+    <div class="col-md-12">
+        <div class="table-responsive col-md-11">
+            {% if application_list %}
+                <table class="table table-bordered white">
+                    <thead class="thead-inverse">
+                    <tr>
+                        <th>Internship company</th>
+                        <th>Internship Start date</th>
+                        <th>Internship End date</th>
+                        <th>Application Date</th>
+                        <th>Application Status</th>
+                        <th>Remarks</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <form method="post" action="{% url 'internship:status' %}">
+                        {% csrf_token %}
+                        {% for each in student_internship_objs %}
+                            <tr>
+                                <td>{{ each.internship.company_name }}</td>
+
+                                <td> {{ each.start_date }}</td>
+
+                                <td>{{ each.end_date }}</td>
+
+                                <td>{{ each.application_date }}</td>
+
+                                <td>
+                                    {% if each.is_reviewed %}
+                                        {% if each.is_accepted %}
+                                            Accepted
+                                        {% else %}
+                                            Rejected
+                                            <button class="btn btn-primary" name="reapply_button" value="{{ each.pk }}">
+                                                Re-Apply
+                                            </button>
+                                        {% endif %}
+                                    {% else %}
+                                        Not Reviewed
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <textarea class="form-control" disabled>{{ each.remarks }}</textarea>
+
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </form>
+                    </tbody>
+                </table>
+
+            {% else %}
+                <table class="table table-bordered white" id="fcm_form_table">
+                    <thead class="thead-inverse">
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Internship Company</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Work from Home</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            {{ student_internship.student.first_name }} {{ student_internship.student.last_name }}
+
+                        </td>
+                        <td>{{ student_internship.internship.company_name }}
+                        </td>
+                        <td>
+                            {{ student_internship.start_date }}
+                        </td>
+                        <td>
+                            {{ student_internship.end_date }}
+                        </td>
+                        <td>
+                            {{ student_internship.work_from_home }}
+                        </td>
+
+
+                    </tr>
+                    </tbody>
+
+                </table>
+
+                <table class="table table-bordered white" id="fcm_form_table">
+                    <thead class="thead-inverse">
+                    <tr>
+                        <th>Remarks</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                {% if student_internship.is_reviewed %}
+                                    <textarea class="form-control" rows="4"
+                                              disabled>{{ student_internship.remarks }}</textarea>
+                                {% else %}
+                                    <textarea class="form-control" id="remarks" name="remarks"
+                                              rows="4">{{ student_internship.remarks }}</textarea>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+
+
+        </div>
+    </div>
+
+{% endblock content %}

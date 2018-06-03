@@ -1,0 +1,131 @@
+{% extends 'dashboard_faculty.html' %}
+
+{% block content %}
+    <div class="col-md-12">
+        <div class="table-responsive col-md-11">
+            <table class="table table-bordered white" id="fcm_form_table">
+                <thead class="thead-inverse">
+                <tr>
+                    <th>Student Name</th>
+                    <th>Internship Company</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Work from Home</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        {{ student_internship.student.first_name }} {{ student_internship.student.last_name }}
+
+                    </td>
+                    <td>{{ student_internship.internship.company_name }}
+                    </td>
+                    <td>
+                        {{ student_internship.start_date }}
+                    </td>
+                    <td>
+                        {{ student_internship.end_date }}
+                    </td>
+                    <td>
+                        {{ student_internship.work_from_home }}
+                    </td>
+
+
+                </tr>
+                </tbody>
+
+            </table>
+
+            <form method="post" action="{% url 'internship:review' %}">
+                {% csrf_token %}
+                <table class="table table-bordered white" id="fcm_form_table">
+                    <thead class="thead-inverse">
+                    <tr>
+                        <th>Remarks</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                {% if student_internship.is_reviewed %}
+                                    <textarea class="form-control" rows="4" disabled>{{ student_internship.remarks }}</textarea>
+                                {% else %}
+                                    <textarea class="form-control" id="remarks" name="remarks" rows="4">{{ student_internship.remarks }}</textarea>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <legend>Internship Company Details</legend>
+                <table class="table table-bordered white" id="fcm_form_table">
+                    <thead class="thead-inverse">
+                    <tr>
+                        <th>Company name</th>
+                        <th>Address</th>
+                        <th>Email</th>
+                        <th>Contact No.</th>
+                        <th>Website</th>
+                        <th>Verification status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            {{ student_internship.internship.company_name }}
+                        </td>
+                        <td>
+                            {{ student_internship.internship.address }}
+                        </td>
+                        <td>
+                            {{ student_internship.internship.email }}
+                        </td>
+                        <td>
+                            {{ student_internship.internship.contact_number }}
+                        </td>
+                        <td>
+                            {{ student_internship.internship.website }}
+                        </td>
+                        <td>
+                            {% if student_internship.internship.is_verified %}
+                                <span class="glyphicon glyphicon-ok-sign"></span>Verified
+                            {% else %}
+                                <span class="glyphicon glyphicon-remove-sign"></span>Not Verified
+                            {% endif %}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="form-group">
+                    <div class="col-md-6 col-md-offset-5">
+                        {% if student_internship.is_reviewed %}
+                            {% if student_internship.is_accepted %}
+                                <button class="btn btn-success"
+                                        disabled>Already accepted
+                                </button>
+                            {% else %}
+
+                                <button class="btn btn-danger"
+                                        disabled>Already rejected
+                                </button>
+                            {% endif %}
+                        {% else %}
+                            <button class="btn btn-success" value="{{ student_internship.pk }}"
+                                    name="accept_button">Accept
+                            </button>
+                            &nbsp;
+                            <button class="btn btn-danger" value="{{ student_internship.pk }}"
+                                    name="reject_button">Reject
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+{% endblock content %}
