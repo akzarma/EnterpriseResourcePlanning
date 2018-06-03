@@ -874,6 +874,14 @@
 
 
                                 teacher_object.setAttribute('name', "id_teacher_" + time + "_" + division + "_" + day + "_" + year);
+                                teacher_object.setAttribute('onfocus', "set_previous_faculty(this)");
+
+                                teacher_object.addEventListener(
+                                    'change', function () {
+                                        {#alert(selected_subject);#}
+                                        block_checkbox(checkbox_object, [previous_faculty], selected_subject, time, year, day, division, true);
+                                        block_checkbox(checkbox_object, [teacher_object.value], document.getElementById('id_subject').value, time, year, day, division, false);
+                                    });
                                 $.each(teachers, function (i, element) {
                                     let option = document.createElement("option");
                                     option.value = element;
@@ -882,7 +890,7 @@
                                 });
                                 checkbox_parent_object.classList.add("checked-cbx-parent");
 
-                                block_checkbox(checkbox_object, teachers, selected_subject, time, year, day, division, false);
+                                block_checkbox(checkbox_object, [teacher_object.value], selected_subject, time, year, day, division, false);
                                 room_object.setAttribute('onfocus', 'set_previous_room(this)');
                                 room_object.setAttribute('onchange', 'room_change_block(this,false)');
                                 checkbox_parent_object.appendChild(room_object);
@@ -1023,7 +1031,8 @@
                         checkbox_object.classList.remove("practical-cbx");
                         checkbox_object.parentElement.classList.remove("checked-cbx-parent");
                         checkbox_object.parentElement.classList.remove("practical-cbx-parent");
-                    } else if (table_elective) {
+                    }
+                    else if (table_elective) {
                         /*Unchecking code for elective*/
                         for (let subject in subjects_json[year]['elective_theory'][selected_subject]) {
                             for (let divisions in subjects_json[year]['elective_theory'][selected_subject][subject]) {
@@ -1387,7 +1396,6 @@
                         room_object.setAttribute('onchange', 'room_change_block(this, false)');
                         room_column.appendChild(room_object);
                         cbx_obj.parentElement.appendChild(room_column);
-
 
 
                         cbx_obj.parentElement.parentElement.appendChild(room_column);
