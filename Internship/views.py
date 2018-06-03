@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 
 # Create your views here.
 from General.models import StudentInternship
-from Internship.forms import StudentInternshipForm
+from Internship.forms import StudentInternshipForm, InternshipForm
 from Internship.models import Internship
 from Registration.models import Branch
 from Registration.views import has_role
@@ -18,7 +18,7 @@ def apply(request):
             if request.method == 'GET':
                 return render(request, 'apply.html',
                               context={'form': StudentInternshipForm})
-            elif request.method == 'POST':
+            elif request.POST.get('apply_button'):
                 student_internship_form_obj = StudentInternshipForm(request.POST)
                 if student_internship_form_obj.is_valid():
                     student_internship_obj = student_internship_form_obj.save(commit=False)
@@ -38,7 +38,29 @@ def apply(request):
                     return render(request, 'apply.html',
                                   context={'form': student_internship_form_obj,
                                            'error': 'Form not valid. ' + str(student_internship_form_obj.errors)})
-
+            elif request.POST.get('not_listed_button'):
+                return render(request, 'internship_list.html',
+                              {'internship_not_verified_objs': Internship.objects.filter(is_verified=False,
+                                                                                         is_active=True)})
+            elif request.POST.get('request_new_internship_company'):
+                return render(request, 'new_internship.html',
+                              {'form':InternshipForm})
+            elif request.POST.get('request_company_button'):
+                internship_form = InternshipForm(request.POST)
+                if internship_form.is_valid():
+                    branch_obj = Branch.objects.get(pk=request.POST.get('branch'))
+                    internship_obj = internship_form.save(commit=False)
+                    internship_obj.branch = branch_obj
+                    internship_obj.save()
+                    return render(request, 'new_internship.html',
+                                  {
+                                      'form': internship_form,
+                                      'success': 'Request for company sent to Internship coordinator!'
+                                  })
+                else:
+                    return render(request, 'new_internship.html',
+                                  {'form':internship_form,
+                                   'error': 'form not valid. '+internship_form.errors})
         else:
             return HttpResponse('faculty not allowed')
 
@@ -58,7 +80,7 @@ def review(request):
                 all_student_internship_objs_not_accepted = all_student_internship_objs.filter(is_accepted=False)
                 all_student_internship_objs_accepted = all_student_internship_objs.filter(is_accepted=True)
 
-                return render(request, 'internship_list.html',
+                return render(request, 'student_internship_list.html',
                               {'student_internships_not_accepted': all_student_internship_objs_not_accepted,
                                'student_internships_accepted': all_student_internship_objs_accepted})
             elif request.POST.get('review_button'):
@@ -112,6 +134,8 @@ def status(request):
                                'student_internship_objs': student_internship_objs})
             elif request.POST.get('reapply_button'):
                 student_internship_obj = StudentInternship.objects.get(pk=request.POST.get('reapply_button'))
+                student_internship_obj.is_active = False
+                student_internship_obj.save()
                 return render(request, 'apply.html',
                               {'form': StudentInternshipForm(instance=student_internship_obj)})
 

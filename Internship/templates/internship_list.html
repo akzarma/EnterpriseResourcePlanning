@@ -1,43 +1,47 @@
-{% extends 'dashboard_faculty.html' %}
+{% extends 'dashboard_student.html' %}
 
 {% block content %}
     <div class="col-md-12">
         <div class="table-responsive col-md-11">
-            <table class="table table-bordered white" id="fcm_form_table">
+
+            <legend>Companies which are being verified by coordinator</legend>
+            <table class="table table-bordered white">
                 <thead class="thead-inverse">
                 <tr>
                     <th>Sr. No.</th>
-                    <th>Student Name</th>
                     <th>Internship Company</th>
-                    <th>Review</th>
+                    <th>Status</th>
                 </tr>
                 </thead>
                 <tbody>
-                <form method="post" action="{% url 'internship:review' %}">
-                {% csrf_token %}
-                    {% for each in student_internships_not_accepted %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>
-                                {{ each.student.first_name }} {{ each.student.last_name }}
 
-                            </td>
-                            <td>
-                                {{ each.internship.company_name }}
-                            </td>
-                            <td>
-                                <button class="btn btn-primary" type="submit" name="review_button"
-                                        value="{{ each.pk }}">
-                                    Review
-                                </button>
-                            </td>
+                {% for each in internship_not_verified_objs %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            {{ each.company_name }}
+                        </td>
+                        <td>
+Under verification
+                        </td>
 
-                        </tr>
-                    {% endfor %}
+                    </tr>
+                {% endfor %}
                 </form>
                 </tbody>
 
             </table>
+            <form method="post" action="{% url 'internship:apply' %}">
+                {% csrf_token %}
+                <label for="request_new_internship_company">
+                    Request for a new company which is not present here:
+                </label>
+                <button class="btn btn-primary" id="request_new_internship_company"
+                        type="submit" name="request_new_internship_company"
+                        value="true">
+                    Click Here
+                </button>
+            </form>
         </div>
     </div>
 

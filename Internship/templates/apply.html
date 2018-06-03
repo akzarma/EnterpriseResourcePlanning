@@ -195,6 +195,7 @@
                 {{ form.internship.with_errors }}
             </div>
 
+
             <div class="checkbox checkbox-primary">
                 {{ form.work_from_home }}
                 {{ form.work_from_home.label_tag }}
@@ -214,9 +215,14 @@
             </div>
 
 
-            <input type="submit" value="Apply" class="btn btn-primary" style="margin: 5px;">
+            <button class="btn btn-primary" name="apply_button" value="true">Apply</button>
+
         </form>
 
+        <form method="post" action="{% url 'internship:apply' %}">
+            {% csrf_token %}
+            <button class="btn btn-danger" name="not_listed_button" value="true">Click here if Internship not listed</button>
+        </form>
     </div>
     <script>
         $(function () {
