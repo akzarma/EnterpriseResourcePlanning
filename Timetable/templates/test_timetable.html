@@ -645,7 +645,9 @@
                                                         else {
                                                             let index = block_list[subject].indexOf(id);
                                                             block_list[subject].splice(index, 1);
-                                                            document.getElementById(id).disabled = false;
+                                                            if(document.getElementById(id)) {
+                                                                document.getElementById(id).disabled = false;
+                                                            }
                                                         }
                                                     }
                                                     else {
@@ -1042,8 +1044,8 @@
                         for (let electives in subjects_json[year]['elective_theory']) {
                             for (let subject in subjects_json[year]['elective_theory'][electives]) {
                                 for (let divisions in subjects_json[year]['elective_theory'][electives][subject]) {
-                                    let cbx_id = "id_room_" + time + "_" + divisions + "_" + day + "_" + year + "_" + subject + "_elective_cbx";
-                                    let cbx_obj = document.getElementById(cbx_id);
+                                    let cbx_id = "id_room_" + time + "_" + subjects_json[year]['elective_theory'][electives][subject][divisions] + "_" + day + "_" + year + "_" + subject + "_elective_cbx";
+                                    let cbx_obj = table_elective.querySelector("[id='" + cbx_id + "']");
                                     if (cbx_obj) {
                                         if (cbx_obj.checked) {
                                             cbx_obj.checked = false;
@@ -1667,6 +1669,7 @@
             let current_subject = subject_obj.value;
             block_all_current_subject(current_subject, true);
             toggle_practical_cbx(current_subject);
+            toggle_elective_cbx(current_subject);
 
 
         }
@@ -1795,6 +1798,23 @@
                     if (this.parentElement.querySelector('table.practical')) {
                         $(this.parentElement.querySelector('table.practical').querySelectorAll('input[type="checkbox"]')).each(function () {
                             if (is_practical(subject) === false && !$(this).is(":checked")) {
+                                $(this).attr("disabled", true);
+                            }
+                            else {
+                                $(this).removeAttr("disabled");
+                            }
+                        })
+                    }
+                }
+            });
+        }
+
+        function toggle_elective_cbx(subject) {
+            $('#timetable_form').find('input[type="checkbox"]').each(function () {
+                if ($(this).is(":checked")) {
+                    if (this.parentElement.querySelector('table.elective')) {
+                        $(this.parentElement.querySelector('table.elective').querySelectorAll('input[type="checkbox"]')).each(function () {
+                            if (is_elective(subject) === false && !$(this).is(":checked")) {
                                 $(this).attr("disabled", true);
                             }
                             else {
