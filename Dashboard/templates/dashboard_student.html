@@ -205,6 +205,13 @@
                 <li>
                     <a href="{% url 'exam:view_exam' %}">View Exams</a>
                 </li>
+                <li>
+                    <a href="#internshipmenu" data-toggle="collapse" aria-expanded="false">Internship</a>
+                    <ul class="collapse list-unstyled" id="internshipmenu">
+                        <li><a href="{% url 'internship:apply' %}">Apply</a></li>
+                        <li><a href="{% url 'internship:status' %}">Application Status</a></li>
+                    </ul>
+                </li>
             </ul>
         </nav>
 

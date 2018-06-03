@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^general/', include('General.urls')),
     url(r'^exam/', include('Exam.urls')),
     url(r'^backup/', include('BackupRestore.urls')),
+    url(r'^internship/', include('Internship.urls'))
     # url(r'^research/', include('Research.urls')),
     # url(r'^update/', include('Update.urls'))
 

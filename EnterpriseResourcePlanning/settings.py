@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'BackupRestore.apps.BackuprestoreConfig',
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
+    'Internship.apps.InternshipConfig',
     'Report.apps.ReportConfig',
     'django.contrib.humanize',
     'widget_tweaks',
@@ -153,8 +154,13 @@ SESSION_COOKIE_AGE = minutes * 60
 
 APPEND_SLASH = True
 
+
+# Limits
 NOTIFICATION_SMALL_LIMIT = 5
 NOTIFICATION_LONG_LIMIT = 50
+EXAM_LIMIT = 10
+
+
 
 BROKER_URL = 'amqp://guest:**@localhost:5672//'
 

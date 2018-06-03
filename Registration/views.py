@@ -42,8 +42,8 @@ def register_faculty_subject(request):
             faculty = Faculty.objects.get(pk=form.cleaned_data.get('faculty'))
             subject = Subject.objects.get(pk=form.cleaned_data.get('subject'))
             if subject.is_elective_group == True:
-                elective_subject = ElectiveSubject.objects.get(pk=form.cleaned_data.get('elective_subject'))
-                elective_division = ElectiveSubject.objects.get(pk=form.cleaned_data.get('elective_division'))
+                elective_subject = form.cleaned_data.get('elective_subject')
+                elective_division = form.cleaned_data.get('elective_division')
                 faculty_subject_obj = FacultySubject.objects.filter(faculty=faculty,
                                                                     subject=subject,
                                                                     elective_subject=elective_subject,
@@ -66,7 +66,7 @@ def register_faculty_subject(request):
             else:
                 faculty_subject = FacultySubject.objects.create(faculty=faculty,
                                                                 subject=subject,
-                                                                division=division) if subject.is_elective_group is False else FacultySubject.objects.filter(
+                                                                division=division) if subject.is_elective_group == False else FacultySubject.objects.create(
                     faculty=faculty,
                     subject=subject,
                     elective_subject=elective_subject,
@@ -279,6 +279,7 @@ def register_subject(request):
                                 'elective_short_' + str(i + 1)),
                             subject=subject_obj,
                             is_active=True)
+                        ElectiveDivision.objects.create(elective_subject=elective)
 
                     subject_obj.save()
                     BranchSubject.objects.get_or_create(year_branch=year_branch_obj,

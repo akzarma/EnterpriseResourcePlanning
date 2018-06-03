@@ -487,6 +487,12 @@
                 block_list[subject] = []
             }
         }
+        for (subject in elective_subject_teacher_json) {
+            if (elective_subject_teacher_json.hasOwnProperty(subject)) {
+                block_list[subject] = []
+            }
+
+        }
 
 
         function block_checkbox(checkbox_object, teachers, current_subject, time, year, day, current_division, complement, real_selected) {
@@ -608,7 +614,7 @@
                 if (elective_subject_teacher_json.hasOwnProperty(subject)) {
                     for (each_option in elective_subject_teacher_json[subject]) {
                         for (division in elective_subject_teacher_json[subject][each_option]) {
-                            if (elective_subject_teacher_json[subject[each_option]].hasOwnProperty(division)) {
+                            if (elective_subject_teacher_json[subject][each_option].hasOwnProperty(division)) {
                                 let all_teachers = elective_subject_teacher_json[subject][each_option][division];
                                 for (each_teacher in all_teachers) {
                                     if (all_teachers.hasOwnProperty(each_teacher)) {
@@ -627,15 +633,16 @@
 
                                                 if (subject_year !== "") {
 
-                                                    if ((subject in subjects_json[each_year]['elective_subject'])) {
+                                                    if ((subject in subjects_json[each_year]['elective_theory'])) {
                                                         let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_' + subject + '_elective_cbx';
                                                         if (complement === false) {
-                                                            block_list[subject].push(id);
+                                                            {#alert(subject);#}
+                                                            block_list[each_option].push(id);
                                                             {#alert(subject + current_subject + current_division + division);#}
                                                         }
                                                         else {
-                                                            let index = block_list[subject].indexOf(id);
-                                                            block_list[subject].splice(index, 1);
+                                                            let index = block_list[each_option].indexOf(id);
+                                                            block_list[each_option].splice(index, 1);
                                                             document.getElementById(id).disabled = false;
                                                         }
                                                     }
@@ -705,7 +712,7 @@
                 }
             }
 
-            if (subjects_json[year]['theory'].indexOf(current_subject) !== -1) {
+            if (current_subject in subjects_json[year]['elective_theory']) {
 
                 if (complement === false) {
                     block_all_current_subject(current_subject, false);
@@ -715,9 +722,6 @@
                 }
             }
         }
-
-        {#        Blocks all checkboxes for the selected subject#}
-
 
     </script>
 
@@ -768,17 +772,6 @@
 
         global_current_subject = document.getElementById('id_subject').value;
 
-        //Mark current year checked boxes on year change
-        /*function mark_current_year(selected_year) {
-
-            let subjects = subjects_json[selected_year];
-            for (i = 0; i < subjects.length(); i++) {
-                let to_check = subject_teacher_json[subjects[i]];
-                for (j = 0; j < to_check.length(); j++) {
-                    document.getElementById(to_check[j]).checked = true;
-                }
-            }
-        }*/
     </script>
 
 
@@ -880,6 +873,14 @@
 
 
                                 teacher_object.setAttribute('name', "id_teacher_" + time + "_" + division + "_" + day + "_" + year);
+                                teacher_object.setAttribute('onfocus', "set_previous_faculty(this)");
+
+                                teacher_object.addEventListener(
+                                    'change', function () {
+                                        {#alert(selected_subject);#}
+                                        block_checkbox(checkbox_object, [previous_faculty], selected_subject, time, year, day, division, true);
+                                        block_checkbox(checkbox_object, [teacher_object.value], document.getElementById('id_subject').value, time, year, day, division, false);
+                                    });
                                 $.each(teachers, function (i, element) {
                                     let option = document.createElement("option");
                                     option.value = element;
@@ -888,7 +889,7 @@
                                 });
                                 checkbox_parent_object.classList.add("checked-cbx-parent");
 
-                                block_checkbox(checkbox_object, teachers, selected_subject, time, year, day, division, false);
+                                block_checkbox(checkbox_object, [teacher_object.value], selected_subject, time, year, day, division, false);
                                 room_object.setAttribute('onfocus', 'set_previous_room(this)');
                                 room_object.setAttribute('onchange', 'room_change_block(this,false)');
                                 checkbox_parent_object.appendChild(room_object);
@@ -968,6 +969,7 @@
                                 row_obj.appendChild(column_obj);
 
                                 table_obj.appendChild(row_obj);
+
                             }
                             checkbox_object.parentElement.appendChild(table_obj);
                         } else {
@@ -1028,10 +1030,33 @@
                         checkbox_object.classList.remove("practical-cbx");
                         checkbox_object.parentElement.classList.remove("checked-cbx-parent");
                         checkbox_object.parentElement.classList.remove("practical-cbx-parent");
-                    } else if (table_elective) {
+                    }
+                    else if (table_elective) {
                         /*Unchecking code for elective*/
+                        for (let electives in subjects_json[year]['elective_theory']) {
+                            for (let subject in subjects_json[year]['elective_theory'][electives]) {
+                                for (let divisions in subjects_json[year]['elective_theory'][electives][subject]) {
+                                    let cbx_id = "id_room_" + time + "_" + divisions + "_" + day + "_" + year + "_" + subject + "_elective_cbx";
+                                    let cbx_obj = document.getElementById(cbx_id);
+                                    if (cbx_obj) {
+                                        if (cbx_obj.checked) {
+                                            cbx_obj.checked = false;
+                                            block_faculty_elective_theory(cbx_obj);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        {#let table = checkbox_object.parentElement.querySelector('table');#}
+                        table_elective.parentElement.removeChild(table_elective);
+                        checkbox_object.classList.remove("checked-cbx");
+                        checkbox_object.classList.remove("practical-cbx");
+                        checkbox_object.parentElement.classList.remove("checked-cbx-parent");
+                        checkbox_object.parentElement.classList.remove("practical-cbx-parent");
 
-                    } else {
+
+                    }
+                    else {
                         let local_selected_subject = document.getElementById('id_subject_' + time + '_' + division + '_' + day + "_" + year).value;
                         let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];
                         let index = subject_dictionary[local_selected_subject].indexOf(id);
@@ -1302,19 +1327,20 @@
             let selected_subject = document.getElementById("id_subject").value;
             let id = cbx_obj.id;
             let id_split_array = id.split('_');
-            let division = id_split_array[configuration['division_index']];
+            let elective_division = id_split_array[configuration['division_index']];
             let time = id_split_array[configuration['time_index']];
             let day = id_split_array[configuration['day_index']];
             let year = id_split_array[configuration['year_index']];
             let elective_subject = id_split_array[configuration['year_index'] + 1];
-            let elective_division = id_split_array[configuration['year_index'] + 1];
-
             let room_object = document.createElement("select");
-            room_object.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + elective_subject + "_" + elective_division;
+            room_object.id = "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject;
+            room_object.setAttribute('name', "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject);
+
+
             if (cbx_obj.checked) {
                 let at_least_one_room = false;
                 $.each(theory_room, function (i, element) {
-                    if (block_room_list[element].indexOf(room_object.id) === -1) {
+                    if (block_room_list[element].indexOf(id) === -1) {
                         at_least_one_room = true;
                     }
                 });
@@ -1330,24 +1356,26 @@
 
                     let at_least_one_teacher = false;
                     $.each(faculty_list, function (i, element) {
-                        if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {
-                            at_least_one_teacher = true;
-                        }
+                        at_least_one_teacher = true;
                     });
+
                     if (at_least_one_teacher === true) {
                         $.each(theory_room, function (i, element) {
-                            if (block_room_list[element].indexOf(room_object.id) === -1) {
+                            console.log(id);
+                            console.log(element);
+                            console.log(block_room_list[element].indexOf(id));
+                            if (block_room_list[element].indexOf(id) === -1) {
                                 let option = document.createElement("option");
                                 option.value = element;
                                 option.text = element;
                                 room_object.appendChild(option);
+                                console.log('inside');
                             }
                         });
                         subject_dictionary[selected_subject].push(id);
 
 
                         for (let i in faculty_list) {
-
                             if (!select_obj.querySelector('option[value="' + faculty_list[i] + '"]')) {
                                 if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {
                                     let option = document.createElement('option');
@@ -1363,28 +1391,21 @@
                         /* Block Faculty */
                         block_checkbox_elective(cbx_obj, [selected_faculty], elective_subject, time, year, day, elective_division, false);
 
+                        cbx_obj.parentElement.appendChild(faculty_column);
+
 
                         let room_column = document.createElement('td');
-                        let select = document.createElement('select');
-                        select.id = "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + "_" + elective_subject;
-                        select.setAttribute('name', "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject);
-                        {#select.setAttribute('onfocus', 'set_previous_room(this)');#}
-                        {#select.setAttribute('onchange', 'room_change_block(this, true)');#}
-                        room_column.appendChild(select);
+                        room_object.setAttribute('onfocus', 'set_previous_room(this)');
+                        room_object.setAttribute('onchange', 'room_change_block(this, false)');
+                        room_column.appendChild(room_object);
+                        cbx_obj.parentElement.appendChild(room_column);
 
-                        $.each(theory_room, function (i, element) {
-                            {#if (block_room_list[element].indexOf(select.id) === -1) {#}
-                            let option = document.createElement("option");
-                            option.value = element;
-                            option.text = element;
-                            select.appendChild(option);
-
-                        });
 
                         cbx_obj.parentElement.parentElement.appendChild(room_column);
-                        let current_room = select.value;
+                        let current_room = room_object.value;
                         /*block room*/
-                        block_room(select.id, current_room, false, false);
+                        alert(current_room);
+                        block_room(id, current_room, false, false);
 
                     } else {
                         alert("Sorry no faculty available");
@@ -1397,10 +1418,47 @@
                     alert("Sorry no room available.");
                 }
 
-            } else {
+            }
+            else {
+
+                let faculty_id = "id_teacher_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject;
+                let faculty_obj = document.getElementById(faculty_id);
+                let selected_faculty = faculty_obj.value;
+                {#update_faculty_blocking_list(selected_faculty, time, division, day, year, batch, true);#}
+                {#practical_faculty_change(faculty_obj, true, selected_faculty, true);#}
+
+
+                let room_id = "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject;
+                let room_obj = document.getElementById(room_id);
+                {#block_room(cbx_obj.id, room_obj.value, true, true);#}
+
+
+                let subject_id = "id_subject_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject;
+                let subject_obj = document.getElementById(subject_id);
+                {#block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, true, subject_obj.value);#}
+
+
+                {#toggle_practical_cbx(selected_subject);#}
+
+
+                let local_selected_subject = subject_obj.value;
+                {#let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];#}
+                let index = 1;
+                if (index !== -1) {
+                    {#subject_dictionary[local_selected_subject].splice(index, 1);#}
+
+                    block_room(cbx_obj.id, room_obj.value, true, false);
+                    block_checkbox(cbx_obj, [selected_faculty], local_selected_subject, time, year, day, elective_division, true, selected_subject);
+                    room_obj.parentElement.parentElement.removeChild(room_obj.parentElement);
+                    faculty_obj.parentElement.parentElement.removeChild(faculty_obj.parentElement);
+
+
+                }
+                else {
+                    console.log("Should never go here")
+                }
 
             }
-
         }
     </script>
 
@@ -1450,6 +1508,8 @@
         var counterrr = 0;
 
         function block_room(cbx_id, current_room, complement, batch) {
+            {#This for pushes into blovk_faculty_list#}
+
             let cbx = cbx_id.split('_');
             for (let yr in all_years) {
                 {#alert(yr);#}
@@ -1486,6 +1546,7 @@
                         }
 
                     }
+                    {#below code blocks the checkboxes from all block_room_list#}
 
                     let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + current_div + '_' + cbx[4] + '_' + current_year;
                     if (!(current_div === cbx[configuration['division_index']] && current_year === cbx[configuration['year_index']] && cbx.length <= 6)) {
@@ -1517,6 +1578,79 @@
                 }
             }
 
+            let time = cbx[configuration['time_index']];
+            let day = cbx[configuration['day_index']];
+            let year = cbx[configuration['year_index']];
+
+            let current_div = cbx[configuration['division_index']];
+            let is_elective = false;
+            if (cbx_id.includes('elective')) {
+                let subject = cbx[configuration['year_index'] + 1];
+                is_elective = true;
+            }
+            {#alert()#}
+            for (let yr in all_years) {
+                for (let each_sub in subjects_json[all_years[yr]]['elective_theory']) {
+                    {#alert(each_sub + all_years[yr]);#}
+                    for (let each_subject in subjects_json[all_years[yr]]['elective_theory'][each_sub]) {
+                        for (let division in subjects_json[all_years[yr]]['elective_theory'][each_sub][each_subject]) {
+                            let temp_division = subjects_json[all_years[yr]]['elective_theory'][each_sub][each_subject][division];
+                            let block_id = 'id_room_' + time + '_' + temp_division + '_' + day + '_' + all_years[yr] + '_' + each_subject + '_elective_cbx';
+                            if (is_elective === true) {
+                                if (!(temp_division === cbx[configuration['division_index']] && current_year === cbx[configuration['year_index']] && subject === each_subject)) {
+                                    if (complement === false) {
+                                        {#let blocked = document.getElementById()#}
+                                        block_room_list[current_room].push(block_id);
+                                        if (document.getElementById(block_id)) {
+                                            let blocked = document.getElementById(block_id);
+                                            if (blocked.querySelector('option[value="' + current_room + '"]')) {
+                                                blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
+                                            }
+                                        }
+
+                                    }
+                                    else {
+                                        let index = block_room_list[current_room].indexOf(block_id);
+                                        block_room_list[current_room].splice(index, 1);
+                                        if (document.getElementById(block_id)) {
+                                            let blocked = document.getElementById(block_id);
+                                            let option_element = document.createElement('option');
+                                            option_element.text = current_room;
+                                            option_element.value = current_room;
+                                            blocked.appendChild(option_element);
+                                        }
+                                    }
+                                }
+
+                            }
+                            else {
+                                if (complement === false) {
+                                    {#let blocked = document.getElementById()#}
+                                    block_room_list[current_room].push(block_id);
+                                    if (document.getElementById(block_id)) {
+                                        let blocked = document.getElementById(block_id);
+                                        if (blocked.querySelector('option[value="' + current_room + '"]')) {
+                                            blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
+                                        }
+                                    }
+
+                                }
+                                else {
+                                    let index = block_room_list[current_room].indexOf(block_id);
+                                    block_room_list[current_room].splice(index, 1);
+                                    if (document.getElementById(block_id)) {
+                                        let blocked = document.getElementById(block_id);
+                                        let option_element = document.createElement('option');
+                                        option_element.text = current_room;
+                                        option_element.value = current_room;
+                                        blocked.appendChild(option_element);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     </script>
 

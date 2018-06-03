@@ -135,4 +135,10 @@ def manage_exam(request):
     if user.is_anonymous:
         return redirect('/login/')
 
-    return None
+    else:
+        if has_role(user, 'faculty'):
+            all_exams = ExamDetail.objects.all().order_by('-schedule_start_date')
+
+            return render(request, 'manage_exam.html', {
+                'all_exams': all_exams
+            })
