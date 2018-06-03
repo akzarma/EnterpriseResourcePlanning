@@ -34,6 +34,7 @@ def view_subjects(request):
 
 
 def register_faculty_subject(request):
+    elective_list = list(Subject.objects.filter(is_elective_group=True).values_list('short_form', flat=True))
     if request.method == 'POST':
         form = FacultySubjectForm(request.POST)
         if form.is_valid():
@@ -45,6 +46,7 @@ def register_faculty_subject(request):
                                              subject=subject,
                                              division=division):
                 return render(request, 'register_faculty_subject.html', {'form': FacultySubjectForm,
+                                                                         'elective_list': elective_list,
                                                                          'info': 'Binding Exists!'})
 
             else:
@@ -52,10 +54,12 @@ def register_faculty_subject(request):
                                                                 subject=subject,
                                                                 division=division)
                 faculty_subject.save()
-            return render(request, 'register_faculty_subject.html', {'form': FacultySubjectForm,
-                                                                     'success': 'Successfully Bound'})
+            return render(request, 'register_faculty_subject.html',
+                          {'form': FacultySubjectForm, 'elective_list': json.dumps(elective_list),
+                           'success': 'Successfully Bound'})
     elif request.method == 'GET':
-        return render(request, 'register_faculty_subject.html', {'form': FacultySubjectForm})
+        return render(request, 'register_faculty_subject.html',
+                      {'form': FacultySubjectForm, 'elective_list': json.dumps(elective_list)})
 
 
 def register_student(request):
@@ -877,7 +881,7 @@ def student_subject_division(request):
         for each_division in elective_divisions:
             # a=list(each_division.electivebatch_set.all())
             division_batch[each_division.division] = list(
-                each_division.electivebatch_set.all().values_list('batch_name',flat=True))
+                each_division.electivebatch_set.all().values_list('batch_name', flat=True))
         return render(request, 'student_subject_division.html',
                       context={'selected_semester': selected_semester,
                                'selected_branch': selected_branch,
@@ -897,9 +901,10 @@ def student_subject_division(request):
             selected_division_obj = ElectiveDivision.objects.get(pk=each_division_pk)
             for_student = Student.objects.get(pk=each_student_pk)
 
-            selected_elective_batch_obj = ElectiveBatch.objects.get(batch_name=request.POST.get('selected_division_student_batch_'+each_student_pk),
-                                                                    division=selected_division_obj,
-                                                                    is_active=True)
+            selected_elective_batch_obj = ElectiveBatch.objects.get(
+                batch_name=request.POST.get('selected_division_student_batch_' + each_student_pk),
+                division=selected_division_obj,
+                is_active=True)
 
             student_subject_obj = StudentSubject.objects.get_or_create(student=for_student,
                                                                        subject=selected_elective_subject_obj.subject,
