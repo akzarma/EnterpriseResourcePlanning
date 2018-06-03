@@ -488,9 +488,8 @@
             }
         }
         for (subject in elective_subject_teacher_json) {
-            for(sub_subject in elective_subject_teacher_json[subject]) {
+            for (sub_subject in elective_subject_teacher_json[subject]) {
                 if (elective_subject_teacher_json[subject].hasOwnProperty(sub_subject)) {
-                    alert(sub_subject);
                     block_list[sub_subject] = []
                 }
             }
@@ -616,7 +615,7 @@
                 if (elective_subject_teacher_json.hasOwnProperty(subject)) {
                     for (each_option in elective_subject_teacher_json[subject]) {
                         for (division in elective_subject_teacher_json[subject][each_option]) {
-                            if (elective_subject_teacher_json[subject[each_option]].hasOwnProperty(division)) {
+                            if (elective_subject_teacher_json[subject][each_option].hasOwnProperty(division)) {
                                 let all_teachers = elective_subject_teacher_json[subject][each_option][division];
                                 for (each_teacher in all_teachers) {
                                     if (all_teachers.hasOwnProperty(each_teacher)) {
@@ -635,9 +634,10 @@
 
                                                 if (subject_year !== "") {
 
-                                                    if ((subject in subjects_json[each_year]['elective_subject'])) {
+                                                    if ((subject in subjects_json[each_year]['elective_theory'])) {
                                                         let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_' + subject + '_elective_cbx';
                                                         if (complement === false) {
+                                                            alert(subject);
                                                             block_list[subject].push(id);
                                                             {#alert(subject + current_subject + current_division + division);#}
                                                         }
@@ -724,9 +724,6 @@
             }
         }
 
-        {#        Blocks all checkboxes for the selected subject#}
-
-
     </script>
 
     <script>
@@ -776,17 +773,6 @@
 
         global_current_subject = document.getElementById('id_subject').value;
 
-        //Mark current year checked boxes on year change
-        /*function mark_current_year(selected_year) {
-
-            let subjects = subjects_json[selected_year];
-            for (i = 0; i < subjects.length(); i++) {
-                let to_check = subject_teacher_json[subjects[i]];
-                for (j = 0; j < to_check.length(); j++) {
-                    document.getElementById(to_check[j]).checked = true;
-                }
-            }
-        }*/
     </script>
 
 
@@ -1311,13 +1297,11 @@
             let selected_subject = document.getElementById("id_subject").value;
             let id = cbx_obj.id;
             let id_split_array = id.split('_');
-            let division = id_split_array[configuration['division_index']];
+            let elective_division = id_split_array[configuration['division_index']];
             let time = id_split_array[configuration['time_index']];
             let day = id_split_array[configuration['day_index']];
             let year = id_split_array[configuration['year_index']];
             let elective_subject = id_split_array[configuration['year_index'] + 1];
-            let elective_division = id_split_array[configuration['year_index'] + 1];
-
             let room_object = document.createElement("select");
             room_object.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + elective_subject + "_" + elective_division;
             if (cbx_obj.checked) {
@@ -1339,10 +1323,9 @@
 
                     let at_least_one_teacher = false;
                     $.each(faculty_list, function (i, element) {
-                        if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {
-                            at_least_one_teacher = true;
-                        }
+                        at_least_one_teacher = true;
                     });
+
                     if (at_least_one_teacher === true) {
                         $.each(theory_room, function (i, element) {
                             if (block_room_list[element].indexOf(room_object.id) === -1) {
