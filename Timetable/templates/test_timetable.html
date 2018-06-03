@@ -294,83 +294,88 @@
             transform: rotate(-90deg);
         }
 
+        select {
+            display: block;
+            padding: 5px;
+        }
     </style>
 {% endblock style %}
 
 {% block body %}
-    <form method="post" name="semester_form" id="semester_form" action="{% url 'Timetable:fill_timetable' %}">
-        {% csrf_token %}
-        <label for="id_semester">Semester: </label>
-        <select id="id_semester" name="current_semester" onchange="changeSemester()"
-                onfocus="set_previous_semester(this)">
-        </select>
-    </form>
-    <form method="post" id="timetable_form" action="{% url 'Timetable:save_timetable' %}">
-        {% csrf_token %}
-        <label for="id_year">Year: </label>
-        <select id="id_year" onchange="set_subject(); set_semester();">
+    <div class="col-lg-4">
+        <form method="post" name="semester_form" id="semester_form" action="{% url 'Timetable:fill_timetable' %}"
+              class="form-group">
+            {% csrf_token %}
+            <label for="id_semester">Semester: </label>
+            <select id="id_semester" name="current_semester" onchange="changeSemester()"
+                    onfocus="set_previous_semester(this)" class="form-control">
+            </select>
+        </form>
+        <form method="post" id="timetable_form" action="{% url 'Timetable:save_timetable' %}" class="form-group">
+            {% csrf_token %}
+            <label for="id_year">Year: </label>
+            <select class="form-control" id="id_year" onchange="set_subject(); set_semester();">
+                {% for yr in year %}
+                    <option>{{ yr }}</option>
+                {% endfor %}
+            </select>
+            <label for="id_subject">Subjects: </label>
+            <select id="id_subject" onchange="change_selected_subject(this)">
+            </select>
+
+
+            <br>
             {% for yr in year %}
-                <option>{{ yr }}</option>
-            {% endfor %}
-        </select>
-        <label for="id_subject">Subjects: </label>
-
-
-        <select id="id_subject" onchange="change_selected_subject(this)">
-        </select>
-
-
-        <br>
-        {% for yr in year %}
-            {#            {{ yr }}#}
-            {#                <option>{{ yr }}</option>#}
-            <div class="container-fluid hidden" id="timetable_{{ yr }}">
-                <table id="time_tab_{{ yr }}">
-                    <tr>
-                        <th colspan="2" class="titlebar">Time</th>
-                        {#                    {{ days }}#}
-                        {% for day in days %}
-                            <th class="titlebar">
-                                {{ day }}
-                            </th>
-                        {% endfor %}
-                    </tr>
-                    {#                {{ times }}#}
-                    {% for time in times %}
-                        <tr class="border-down">
-                            <th rowspan="4" class="sidebar time-sidebar">
-                                {{ time }}
-                            </th>
-                            {% for x in division %}
-                                <tr class="content border-down" style="">
-                                    {% for z in '1234567' %}
-
-                                        {% if forloop.counter0 %}
-                                            <td class="border-left">
-                                                <input type="checkbox" class="cbx"
-                                                       name="id_cbx_{{ time }}_{{ x }}_{{ z }}_{{ yr }}"
-                                                       id="id_room_{{ time }}_{{ x }}_{{ z }}_{{ yr }}_cbx"
-                                                       onchange="add_remove_from_dictionary(this)">
-
-                                            </td>
-                                        {% else %}
-                                            <td class="sidebar">{{ x }}</td>
-                                        {% endif %}
-                                    {% endfor %}
-                                </tr>
+                {#            {{ yr }}#}
+                {#                <option>{{ yr }}</option>#}
+                <div class="container-fluid hidden" id="timetable_{{ yr }}">
+                    <table id="time_tab_{{ yr }}">
+                        <tr>
+                            <th colspan="2" class="titlebar">Time</th>
+                            {#                    {{ days }}#}
+                            {% for day in days %}
+                                <th class="titlebar">
+                                    {{ day }}
+                                </th>
                             {% endfor %}
+                        </tr>
+                        {#                {{ times }}#}
+                        {% for time in times %}
+                            <tr class="border-down">
+                                <th rowspan="4" class="sidebar time-sidebar">
+                                    {{ time }}
+                                </th>
+                                {% for x in division %}
+                                    <tr class="content border-down" style="">
+                                        {% for z in '1234567' %}
 
-                    {% endfor %}
-                </table>
-                <br/>
+                                            {% if forloop.counter0 %}
+                                                <td class="border-left">
+                                                    <input type="checkbox" class="cbx"
+                                                           name="id_cbx_{{ time }}_{{ x }}_{{ z }}_{{ yr }}"
+                                                           id="id_room_{{ time }}_{{ x }}_{{ z }}_{{ yr }}_cbx"
+                                                           onchange="add_remove_from_dictionary(this)">
 
+                                                </td>
+                                            {% else %}
+                                                <td class="sidebar">{{ x }}</td>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+
+                        {% endfor %}
+                    </table>
+                    <br/>
+
+                </div>
+            {% endfor %}
+            <div class="col-md-offset-6">
+                <button type="submit" class="btn btn-primary">Submit</button>
             </div>
-        {% endfor %}
-        <div class="col-md-offset-6">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-    </form>
+        </form>
 
+    </div>
 
 {% endblock body %}
 
@@ -427,15 +432,16 @@
                 buttons: true,
                 dangerMode: true
             })
-                .then((willDelete) => {
-                    if (willDelete) {
-                        document.semester_form.submit();
-                    } else {
+                .then((willDelete) = > {
+                if(willDelete) {
+                    document.semester_form.submit();
+                } else {
 
-                        $('#id_semester'
-                        ).val(previous_semester);
-                    }
-                })
+                    $('#id_semester'
+        ).
+            val(previous_semester);
+        }
+        })
             ;
 
 
@@ -634,7 +640,7 @@
             });
             //add elective subject theory
             $.each(current_subject_elective_theory, function (i, el) {
-                $('#id_subject').append(new Option(i,i))
+                $('#id_subject').append(new Option(i, i))
             });
             //add elective subject practical
             $.each(current_subject_elective_practical, function (i, el) {
