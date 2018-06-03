@@ -488,10 +488,11 @@
             }
         }
         for (subject in elective_subject_teacher_json) {
-            if (elective_subject_teacher_json.hasOwnProperty(subject)) {
-                block_list[subject] = []
+            for (sub_subject in elective_subject_teacher_json[subject]) {
+                if (elective_subject_teacher_json[subject].hasOwnProperty(sub_subject)) {
+                    block_list[sub_subject] = []
+                }
             }
-
         }
 
 
@@ -712,7 +713,7 @@
                 }
             }
 
-            if (current_subject in subjects_json[year]['elective_theory']) {
+            if (subjects_json[year]['elective_theory'].indexOf(current_subject) !== -1) {
 
                 if (complement === false) {
                     block_all_current_subject(current_subject, false);
@@ -1008,6 +1009,8 @@
                                     document.getElementById(id).disabled = true;
                                 }
                             }
+                            block_all_current_subject(selected_subject, true);
+
                         }
                     }
                 }
@@ -1443,14 +1446,15 @@
 
                 let local_selected_subject = subject_obj.value;
                 {#let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];#}
-                let index = 1;
+                let index = subject_dictionary[local_selected_subject].indexOf(id);
                 if (index !== -1) {
-                    {#subject_dictionary[local_selected_subject].splice(index, 1);#}
+                    subject_dictionary[local_selected_subject].splice(index, 1);
 
-                    block_room(cbx_obj.id, room_obj.value, true, false);
+                    block_room(checkbox_object.id, room_obj.value, true, false);
                     block_checkbox(cbx_obj, [selected_faculty], local_selected_subject, time, year, day, elective_division, true, selected_subject);
                     room_obj.parentElement.parentElement.removeChild(room_obj.parentElement);
                     faculty_obj.parentElement.parentElement.removeChild(faculty_obj.parentElement);
+                    subject_obj.parentElement.parentElement.removeChild(subject_obj.parentElement);
 
 
                 }
