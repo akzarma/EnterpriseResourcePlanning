@@ -74,15 +74,34 @@ def update_role(request):
 
 
 def update_exam_status(request):
+    field_list = ['exam_name', 'start_date', 'end_date']
+    url = '/update/exam/status/'
     if request.method == "GET":
-        data_set = ExamMaster.objects.all()
-
-        return render(request, 'update_exam_status.html', {'dataset': data_set})
+        object_list = ExamMaster.objects.all()
+        return render(request, 'update_status.html', {
+            'object_list': object_list,
+            'field_list': field_list,
+            'url': url,
+        })
     elif request.method == "POST":
         id = request.POST.get('id')
         exam = ExamMaster.objects.get(pk=id)
         exam.is_active = not exam.is_active
         exam.save()
-        data_set = ExamMaster.objects.all()
+        object_list = ExamMaster.objects.all()
 
-        return render(request, 'update_exam_status.html', {'dataset': data_set})
+    return render(request, 'update_status.html', {
+        'object_list': object_list,
+        'field_list': field_list,
+    })
+
+
+def update_subject_status(request):
+    field_list = ['exam_name', 'start_date']
+    url = '/update/subject/status/'
+    object_list = ExamMaster.objects.all()
+    return render(request, 'update_status.html', {
+        'object_list': object_list,
+        'field_list': field_list,
+        'url': url,
+    })

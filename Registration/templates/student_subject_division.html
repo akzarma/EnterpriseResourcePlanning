@@ -1,15 +1,19 @@
 {% extends "./dashboard_faculty.html" %}
 {% block title %}Student Subject Division {% endblock %}
-
+{% block extra_style %}
+    label{
+    margin-left:0;
+    }
+{% endblock extra_style %}
 {% block content %}
-    <div class="container">
+    <div class="container col-md-6">
 
         <!-- Default panel contents -->
         {#                    <div class="panel-heading">Heading</div>#}
 
         <!-- Table -->
         {% if select_year_branch_sem %}
-            <form action="{% url 'registration:student_subject_division' %}" method="POST">
+            <form class="form-group" action="{% url 'registration:student_subject_division' %}" method="POST">
                 {% csrf_token %}
                 <div class="form-element">
                     <span class="error">{{ form.year.errors }}</span>
@@ -165,7 +169,8 @@
     {% for each_student in student_subjects %}
         {#        console.log("{{  each_student}}");#}
         console.log("{{ each_student.elective_batch.batch_namex }}");
-        loadBatch("{{ each_student.elective_division.pk }}_student_{{ each_student.student.pk }}","{{ each_student.student.pk }}","{{ each_student.elective_batch.batch_name }}");
+        loadBatch("{{ each_student.elective_division.pk }}_student_{{ each_student.student.pk }}","
+        {{ each_student.student.pk }}","{{ each_student.elective_batch.batch_name }}");
     {% endfor %}
     {#</script>#}
 {% endblock %}
