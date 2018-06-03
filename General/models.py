@@ -1,6 +1,7 @@
 import datetime
 from django.db import models
 
+from Internship.models import Internship
 from Registration.models import Subject, Faculty, Branch, Student, ElectiveSubject
 
 
@@ -196,3 +197,17 @@ class Schedule(models.Model):
                 if self.end_date > date > self.start_date:
                     return True
         return False
+
+
+
+class StudentInternship(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    internship = models.ForeignKey(Internship, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    work_from_home = models.BooleanField(default=False)
+    application_date = models.DateField()
+    is_accepted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.student) + ' '+ str(self.internship)
