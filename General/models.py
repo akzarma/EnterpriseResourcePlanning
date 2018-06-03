@@ -120,7 +120,7 @@ class BranchSubject(models.Model):
 
 
 class ElectiveDivision(models.Model):
-    elective_subject = models.ForeignKey(ElectiveSubject)
+    elective_subject = models.ForeignKey(ElectiveSubject, on_delete=models.CASCADE)
     division = models.IntegerField(default=1)
     is_active = models.BooleanField(default=True)
 
