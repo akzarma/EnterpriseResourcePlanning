@@ -1323,10 +1323,17 @@
                 if (at_least_one_room === true) {
                     let faculty_list = elective_subject_teacher_json[selected_subject][elective_subject][elective_division];
 
+                    let faculty_column = document.createElement('td');
+                    let select_obj = document.createElement('select');
+                    select_obj.id = "id_teacher_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject;
+                    select_obj.setAttribute('name', "id_teacher_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject);
+
 
                     let at_least_one_teacher = false;
                     $.each(faculty_list, function (i, element) {
-                        at_least_one_teacher = true;
+                        if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {
+                            at_least_one_teacher = true;
+                        }
                     });
                     if (at_least_one_teacher === true) {
                         $.each(theory_room, function (i, element) {
@@ -1339,20 +1346,16 @@
                         });
                         subject_dictionary[selected_subject].push(id);
 
-                        let faculty_column = document.createElement('td');
-                        let select_obj = document.createElement('select');
-                        select_obj.id = "id_teacher_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject;
-                        select_obj.setAttribute('name', "id_teacher_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject);
-
 
                         for (let i in faculty_list) {
 
                             if (!select_obj.querySelector('option[value="' + faculty_list[i] + '"]')) {
-                                {#if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {#}
-                                let option = document.createElement('option');
-                                option.text = faculty_list[i];
-                                option.value = faculty_list[i];
-                                select_obj.appendChild(option);
+                                if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {
+                                    let option = document.createElement('option');
+                                    option.text = faculty_list[i];
+                                    option.value = faculty_list[i];
+                                    select_obj.appendChild(option);
+                                }
                             }
                         }
                         faculty_column.appendChild(select_obj);

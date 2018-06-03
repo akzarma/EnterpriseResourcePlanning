@@ -581,10 +581,12 @@ def student_subject(request):
                             batch_name='Batch 1',
                             is_active=True
                         )[0]
-                        StudentSubject.objects.get_or_create(student=student,
-                                                             elective_division=elective_division_obj,
+                        student_subject_obj = StudentSubject.objects.get_or_create(student=student,
                                                              subject=each_group.subject,
-                                                             is_active=True)
+                                                             is_active=True)[0]
+                        student_subject_obj.elective_division = elective_division_obj
+                        student_subject_obj.elective_batch = elective_batch_obj
+                        student_subject_obj.save()
                 # =========================================================
 
                 regular_subjects = BranchSubject.objects.filter(
@@ -885,6 +887,8 @@ def student_subject_division(request):
         selected_elective = request.POST.get('selected_subject_elective_link')
         selected_elective_subject_obj = ElectiveSubject.objects.get(pk=selected_elective)
         student_subjects = StudentSubject.objects.filter(subject=selected_elective_subject_obj.subject,
+                                                         elective_division__elective_subject=selected_elective_subject_obj,
+                                                         elective_division__is_active=True,
                                                          is_active=True)
         selected_semester = request.POST.get('selected_semester')
         selected_branch = request.POST.get('selected_branch')
@@ -896,7 +900,7 @@ def student_subject_division(request):
         division_batch = {}
         for each_division in elective_divisions:
             # a=list(each_division.electivebatch_set.all())
-            division_batch[each_division.division] = list(
+            division_batch[each_division.pk] = list(
                 each_division.electivebatch_set.all().values_list('batch_name', flat=True))
         return render(request, 'student_subject_division.html',
                       context={'selected_semester': selected_semester,
@@ -904,6 +908,7 @@ def student_subject_division(request):
                                'selected_year': selected_year,
                                'selected_subject_obj': selected_elective_subject_obj,
                                'select_student_division': True,
+                               'selected_sub_name': selected_elective_subject_obj.name,
                                'student_subjects': student_subjects,
                                'divisions': elective_divisions,
                                'division_batch': json.dumps(division_batch)})
