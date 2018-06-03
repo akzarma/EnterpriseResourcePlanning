@@ -1514,6 +1514,43 @@
                 }
             }
 
+            let time = cbx_id[configuration['time_index']];
+            let day = cbx_id[configuration['day_index']];
+            let year = cbx_id[configuration['year_index']];
+            let subject = cbx_id[configuration['year_index'] + 1];
+
+
+            for (let each_sub in subjects_json['elective_theory']) {
+                for (let each_subject in subjects_json[year]['elective_theory'][each_sub]) {
+                    for (let division in subjects_json[year]['elective_theory'][each_sub][each_subject]) {
+                        let block_id = 'id_room_' + time + '_' + division + '_' + day + '_' + year + '_' + subject + '_elective_cbx';
+                        if (!(current_div === cbx[configuration['division_index']] && current_year === cbx[configuration['year_index']] && subject === each_subject)) {
+                            if (complement === false) {
+                                {#let blocked = document.getElementById()#}
+                                block_room_list[current_room].push(block_id);
+                                if (document.getElementById(block_id)) {
+                                    let blocked = document.getElementById(block_id);
+                                    if (blocked.querySelector('option[value="' + current_room + '"]')) {
+                                        blocked.removeChild(blocked.querySelector('option[value="' + current_room + '"]'));
+                                    }
+                                }
+
+                            }
+                            else {
+                                let index = block_room_list[current_room].indexOf(block_id);
+                                block_room_list[current_room].splice(index, 1);
+                                if (document.getElementById(block_id)) {
+                                    let blocked = document.getElementById(block_id);
+                                    let option_element = document.createElement('option');
+                                    option_element.text = current_room;
+                                    option_element.value = current_room;
+                                    blocked.appendChild(option_element);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     </script>
 
