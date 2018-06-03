@@ -487,6 +487,13 @@
                 block_list[subject] = []
             }
         }
+        for (subject in elective_subject_teacher_json) {
+            for(sub_subject in elective_subject_teacher_json[subject]) {
+                if (elective_subject_teacher_json[subject].hasOwnProperty(sub_subject)) {
+                    block_list[sub_subject] = []
+                }
+            }
+        }
 
 
         function block_checkbox(checkbox_object, teachers, current_subject, time, year, day, current_division, complement, real_selected) {
