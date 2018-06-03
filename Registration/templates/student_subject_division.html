@@ -1,15 +1,19 @@
 {% extends "./dashboard_faculty.html" %}
 {% block title %}Student Subject Division {% endblock %}
-
+{% block extra_style %}
+    label{
+    margin-left:0;
+    }
+{% endblock extra_style %}
 {% block content %}
-    <div class="container">
+    <div class="container col-md-6">
 
         <!-- Default panel contents -->
         {#                    <div class="panel-heading">Heading</div>#}
 
         <!-- Table -->
         {% if select_year_branch_sem %}
-            <form action="{% url 'registration:student_subject_division' %}" method="POST">
+            <form class="form-group" action="{% url 'registration:student_subject_division' %}" method="POST">
                 {% csrf_token %}
                 <div class="form-element">
                     <span class="error">{{ form.year.errors }}</span>
@@ -70,7 +74,7 @@
 
         {% if select_student_division %}
             <legend>{{ selected_year }} {{ selected_branch }} Sem {{ selected_semester }}
-                - {{ selected_subject_obj.subject.name }}</legend>
+                - {{ selected_subject_obj.subject.name }} - {{ selected_sub_name }}</legend>
             <table class="table">
                 <th>Sr. No</th>
                 <th>GR Number</th>
@@ -88,7 +92,6 @@
                                 {% if each.subject.is_elective_group %}
                                     <label>
                                         <select name="selected_division_student"
-                                                id="{{ each_div.pk }}_student_{{ each.student.pk }}"
                                                 onchange="loadBatch(this.value, '{{ each.student.pk }}','{{ each.elective_batch.batch_name }}');">
                                             {% for each_div in divisions %}
                                                 {% ifequal each.elective_division each_div %}
@@ -135,8 +138,9 @@
         var a = {{ division_batch | safe }};
 
         function loadBatch(select_div, student_pk, nam) {
-            console.log(select_div);
+            console.log(select_div+"rgegtggx");
             key = select_div.split('_student_')[0];
+            console.log(key+"key");
             select_batch = document.getElementsByName('selected_division_student_batch_' + student_pk)[0];
             while (select_batch.length > 0) {
                 select_batch.remove(0);
@@ -149,7 +153,7 @@
                 select_batch.add(option);
                 i++;
             }
-            alert(nam);
+            {#alert(nam);#}
             select_batch.value = nam;
 
         };
@@ -164,7 +168,7 @@
     {#let all_select = document.getElementsByName('selected_division_student');#}
     {% for each_student in student_subjects %}
         {#        console.log("{{  each_student}}");#}
-        console.log("{{ each_student.elective_batch.batch_namex }}");
+        console.log("{{  each_student.elective_division.pk }}");
         loadBatch("{{ each_student.elective_division.pk }}_student_{{ each_student.student.pk }}","{{ each_student.student.pk }}","{{ each_student.elective_batch.batch_name }}");
     {% endfor %}
     {#</script>#}

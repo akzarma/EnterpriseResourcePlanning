@@ -129,12 +129,12 @@
 
         #sidebar ul li ul li a:hover {
             color: #fff;
-            background: rgb(0, 138, 150);
+            background: #3593cf !important;
         }
 
         #sidebar ul li.active > a, a[aria-expanded="true"] {
-            color: #fff;
-            background: rgb(0, 181, 197);
+            color: #fff !important;
+            background: #0379C4 !important;
 
         }
 
@@ -158,8 +158,8 @@
         #sidebar ul ul a {
             font-size: 0.9em !important;
             padding-left: 30px !important;
-            background: rgb(0, 158, 183);
-            color: #fff;
+            background: #fff;
+            color: #000;
         }
 
         #sidebar ul.CTAs {
@@ -299,7 +299,6 @@
         <!-- Sidebar Holder -->
         <nav id="sidebar">
             <ul class="list-unstyled components">
-                <p id="head">Dashboard</p>
                 <li class="active">
                     <a href="{% url 'dashboard:dashboard' %}">Dashboard</a>
                 </li>
@@ -342,8 +341,10 @@
                         <li><a href="{% url 'registration:register_subject' %}">Subject</a></li>
                         <li><a href="{% url 'registration:register_year' %}">New Year</a></li>
                         <li><a href="{% url 'registration:register_year_detail' %}">Set Semester Details</a></li>
-                        <li><a href="{% url 'registration:register_faculty_subject' %}">Bind faculty with subject</a></li>
-                        <li><a href="{% url 'registration:student_subject_division' %}">Student Subject Division</a></li>
+                        <li><a href="{% url 'registration:register_faculty_subject' %}">Bind faculty with subject</a>
+                        </li>
+                        <li><a href="{% url 'registration:student_subject_division' %}">Student Subject Division</a>
+                        </li>
                         </li>
                     </ul>
                 </li>
@@ -359,7 +360,8 @@
                 <li>
                     <a href="#statusmenu" data-toggle="collapse" aria-expanded="false">Status</a>
                     <ul class="collapse list-unstyled" id="statusmenu">
-                        <li><a href="{% url 'update:update_exam_status' %}">View Exam</a></li>
+                        <li><a href="{% url 'update:update_exam_status' %}">Manage Exam</a></li>
+                        <li><a href="{% url 'update:update_subject_status' %}">Manage Subject</a></li>
                     </ul>
                 </li>
 

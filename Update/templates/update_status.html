@@ -137,59 +137,21 @@
 
 {% endblock extra_style %}
 {% block content %}
-
-
-    <!--Table-->
-    {#    <table class="table table-responsive">#}
-    {#        <thead>#}
-    {#        <tr>#}
-    {#            <th>#</th>#}
-    {#            <th>Exam Name</th>#}
-    {#            <th>Start Date</th>#}
-    {#            <th>End Date</th>#}
-    {#            <th>Active</th>#}
-    {#        </tr>#}
-    {#        </thead>#}
-    {#        <tbody>#}
-    {#        {% for data in dataset %}#}
-    {#            <tr>#}
-    {#                <th scope="row">{{ forloop.counter }}</th>#}
-    {#                <td>{{ data.exam_name }}</td>#}
-    {#                <td>{{ data.start_date }}</td>#}
-    {#                <td>{{ data.end_date }}</td>#}
-    {#                <td>#}
-    {#                    <form action="{% url 'update:update_exam_status' %}" method="post" id="exam_update_form">#}
-    {#                        {% csrf_token %}#}
-    {#                        <label class="switch switch_round" role="switch">#}
-    {#                            <input type="checkbox" class="switch__toggle"#}
-    {#                                    {% if data.is_active %}#}
-    {#                                   checked#}
-    {#                                    {% endif %} onchange="document.getElementById('exam_update_form').submit();">#}
-    {#                            <input type="hidden" value="{{ data.id }}" name="id">#}
-    {#                            <span class="switch__label"></span>#}
-    {#                        </label>#}
-    {#                    </form>#}
-    {#                </td>#}
-    {#            </tr>#}
-    {#        {% endfor %}#}
-    {#        </tbody>#}
-    {#    </table>#}
-
-
     <table class="table table-responsive">
         <thead>
         {% for field in field_list %}
             <th>{{ field }}</th>
         {% endfor %}
+        <th>Is Active</th>
         </thead>
         <tbody>
         {% for object in object_list %}
             <tr>
                 {% for field in field_list %}
-                    <td>{% lookup object field %}</td>
+                    <th>{% lookup object field %}</th>
                 {% endfor %}
                 <td>
-                    <form action="{% url 'update:update_exam_status' %}" method="post" id="exam_update_form">
+                    <form action="{{ url }}" method="post" id="exam_update_form">
                         {% csrf_token %}
                         <label class="switch switch_round" role="switch">
                             <input type="checkbox" class="switch__toggle"

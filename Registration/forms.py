@@ -7,11 +7,11 @@ from .models import Faculty, Subject, Student, Branch
 
 branch_list = Branch.objects.all()
 
-subject_list = Subject.objects.all()
+subject_list = Subject.objects.filter(is_active=True)
 
 faculty_list = Faculty.objects.all()
 
-division_list = Division.objects.filter(year_branch__branch=Branch.objects.get(branch='Computer'))
+division_list = Division.objects.filter(year_branch__branch=Branch.objects.get(branch='Computer'), is_active=True)
 
 year_list = CollegeYear.objects.all()
 
@@ -662,12 +662,14 @@ class FacultySubjectForm(forms.ModelForm):
         )
 
         for field in self.fields:
+            if field in ['subject']:
+                self.fields[field].widget.attrs.update({'onchange': 'checkElective()'})
             self.fields[field].widget.attrs.update({'class': 'form-control', })
 
     class Meta:
         model = FacultySubject
         fields = '__all__'
-        exclude = ['faculty', 'subject', 'division']
+        exclude = ['is_active']
 
 
 class StudentForm(forms.ModelForm):

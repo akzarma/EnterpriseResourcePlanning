@@ -65,7 +65,6 @@ INSTALLED_APPS = [
     'Report.apps.ReportConfig',
     'django.contrib.humanize',
     'widget_tweaks',
-
 ]
 
 MIDDLEWARE = [
