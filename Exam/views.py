@@ -14,8 +14,12 @@ from Registration.views import has_role
 
 
 def exam_register(request):
+    class_active = "exam"
     if request.method == 'GET':
-        return render(request, 'exam_register.html')
+        return render(request, 'exam_register.html', {
+            'class_active': class_active,
+
+        })
 
     else:
         exam_name = request.POST.get('exam_name')
@@ -25,8 +29,12 @@ def exam_register(request):
 
 
 def exam_detail(request):
+    class_active = 'exam'
     if request.method == "GET":
-        return render(request, 'exam_detail.html', {'form': ExamDetailForm})
+        return render(request, 'exam_detail.html', {
+            'class_active': class_active,
+            'form': ExamDetailForm
+        })
     else:
         form = ExamDetailForm(request.POST)
         if form.is_valid():
@@ -70,6 +78,7 @@ def exam_detail(request):
             return redirect('/exam/detail/')
         else:
             return render(request, 'exam_detail.html', {
+                'class_active': class_active,
                 'form': form,
                 'error': 'Not valid'
             })
@@ -125,7 +134,5 @@ def manage_exam(request):
 
     if user.is_anonymous:
         return redirect('/login/')
-
-
 
     return None

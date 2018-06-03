@@ -90,7 +90,7 @@
 
         #sidebar ul li.active > a, a[aria-expanded="true"] {
             color: #fff;
-            background: rgb(0, 181, 197);
+            background: #0379C4 !important;
 
         }
 
@@ -163,6 +163,21 @@
             filter: none !important;
         }
 
+        .custom-row {
+            padding: 0;
+        }
+
+        .progress-bar-info {
+            background: #0379C4;
+        }
+
+        .progress {
+            border-radius: 0;
+            height: 16px;
+        }
+
+        {% block extra_style %}
+        {% endblock extra_style %}
     </style>
 
 {% endblock style %}
@@ -172,9 +187,8 @@
         <!-- Sidebar Holder -->
         <nav id="sidebar">
             <ul class="list-unstyled components">
-                <p id="head">Dashboard</p>
                 <li class="active">
-                    <a href="#" data-toggle="collapse" aria-expanded="false">Home</a>
+                    <a href="{% url 'dashboard:dashboard' %}">Home</a>
 
                 <li>
                     <a href="#registration" data-toggle="collapse" aria-expanded="false">Registration</a>
@@ -204,7 +218,8 @@
                               id="date_form">
                             {% csrf_token %}
                             <h4 style="text-align:center; ">Lectures on
-                                <span id="current_datePickerDate">{{ selected_date }}</span>
+                                <span id="current_datePickerDate"
+                                      style="color: #0379C4;font-weight: bold;">{{ selected_date }}</span>
                                 {#                                <div id="datepicker" class="input-group date" data-date-format="mm-dd-yyyy">#}
                                 {#                                    <input class="form-control" type="text" value="{{ selected_date.month }}-{{ selected_date.day }}-{{ selected_date.year }}"/>#}
                                 {#                                    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>#}
@@ -222,10 +237,7 @@
 
                             </h4>
                         </form>
-
-
                         <br/>
-
                         <input type="hidden" name="selected_date" id="hidden_date" value="{{ selected_date }}">
                         <div class="row" id="timetable">
                             {% if timetable %}
@@ -307,14 +319,16 @@
                             {% endif %}
                         </div>
                     </div>
-
-                    <div class="col-md-3 col-md-offset-5">
+                    <div class="col-md-6">
+                        <legend>Notification</legend>
+                    </div>
+                    <div class="col-md-2">
                         <legend>Attendance</legend>
-                        <div class="row">
-                            <h3 style="text-align: center;">Total Attendance</h3>
-                            <h4 style="text-align: center;">{{ total_attendance }}%</h4>
+                        <div class="">
+                            <h4 style="text-align: center;">Total Attendance <span
+                                    style="color: #0379C4;font-weight: bold;">{{ total_attendance }}%</span></h4>
                             {% for key, value in attendance.items %}
-                                <div class="row">
+                                <div class="row custom-row">
                                     <h4>{{ key }}</h4>
                                     <div class="progress">
                                         <div class="progress-bar progress-bar-info" role="progressbar"

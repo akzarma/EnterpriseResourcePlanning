@@ -195,6 +195,7 @@ def save(request):
 
 
 def select_cat(request):
+    class_active = "attendance"
     user = request.user
     if not user.is_anonymous:
         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
@@ -209,6 +210,7 @@ def select_cat(request):
                         key=lambda x: (x.date, x.original.time.starting_time))
 
                     return render(request, 'dashboard_faculty.html', {
+                        'class_active': class_active,
                         'timetable': timetable,
                         'selected_date': selected_date,
                     })
@@ -255,6 +257,7 @@ def select_cat(request):
                         att = 0
 
                     return render(request, 'dashboard_faculty.html', {
+                        'class_active': class_active,
                         'timetable': timetable,
                         'selected_date': selected_date,
                         'att': att,
@@ -264,7 +267,9 @@ def select_cat(request):
                     })
 
             else:
-                return render(request, 'select_cat.html')
+                return render(request, 'select_cat.html', {
+                    'class_active': class_active,
+                })
 
         else:
             # should be faculty....alert on login page with proper message.
@@ -477,7 +482,7 @@ def android_fill_attendance(request):
                 year_obj = CollegeYear.objects.get(year=attendance_json['year'])
                 subject_obj = Subject.objects.get(short_form=attendance_json['subject'])
                 division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
-                                                              division=attendance_json['division'])
+                                                    division=attendance_json['division'])
                 # college_detail = Division.objects.filter(branch=branch_obj, year=year_obj)
                 branch_subject = BranchSubject.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj
                                                            , subject=subject_obj)
@@ -549,7 +554,7 @@ def android_instance(request):
         year_obj = CollegeYear.objects.get(year=timetable_json['year'])
         subject_obj = Subject.objects.get(short_form=timetable_json['subject'])
         division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
-                                                      division=timetable_json['division'])
+                                            division=timetable_json['division'])
         # college_detail = Division.objects.filter(branch=branch_obj, year=year_obj)
         branch_subject = BranchSubject.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
                                                    subject=subject_obj)

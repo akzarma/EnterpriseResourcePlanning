@@ -53,6 +53,7 @@ def logout_user(request):
 
 
 def show_dashboard(request):
+    class_active = "dashboard"
     user = request.user
     # If user exists in session (i.e. logged in)
     if not user.is_anonymous:
@@ -134,6 +135,7 @@ def show_dashboard(request):
                     DateTimetable.objects.filter(date=datetime.date.today(), original__faculty=faculty),
                     key=lambda x: (x.date, x.original.time.starting_time))
                 return render(request, 'dashboard_faculty.html', {
+                    'class_active': class_active,
                     'timetable': timetable,
                     'selected_date': datetime.date.today().strftime('%d-%m-%Y'),
                 })
@@ -147,6 +149,7 @@ def show_dashboard(request):
                         key=lambda x: (x.date, x.original.time.starting_time))
 
                     return render(request, 'dashboard_faculty.html', {
+                        'class_active': class_active,
                         'timetable': timetable,
                         'selected_date': selected_date.strftime('%d-%m-%Y'),
                     })
@@ -165,6 +168,7 @@ def show_dashboard(request):
                         key=lambda x: (x.date, x.original.time.starting_time))
 
                     return render(request, 'dashboard_faculty.html', {
+                        'class_active': class_active,
                         'timetable': timetable,
                         'selected_date': selected_date.strftime('%d-%m-%Y'),
                     })
@@ -212,6 +216,7 @@ def show_dashboard(request):
                         att = 0
 
                     return render(request, 'dashboard_faculty.html', {
+                        'class_active': class_active,
                         'timetable': timetable,
                         'selected_date': selected_date.strftime('%d-%m-%Y'),
                         'att': att,
@@ -431,8 +436,8 @@ def show_all_notifications(request, page=1):
             student_detail_obj = StudentDetail.objects.get(student=student_obj, is_active=True)
             division_obj = student_detail_obj.batch.division
             general_notification_student = GeneralStudentNotification.objects.filter(division=division_obj,
-                                                                                 is_active=True)[
-                                       :NOTIFICATION_LONG_LIMIT]
+                                                                                     is_active=True)[
+                                           :NOTIFICATION_LONG_LIMIT]
             all_notifications = list(notification_objs) + list(general_notification_student)
 
         elif is_faculty:
@@ -443,8 +448,8 @@ def show_all_notifications(request, page=1):
                                              is_active=True))
             branch_obj = list(set([each.year_branch.branch for each in branch_obj]))
             general_notification_faculty = GeneralFacultyNotification.objects.filter(branch__in=branch_obj,
-                                                                                 is_active=True)[
-                                       :NOTIFICATION_LONG_LIMIT]
+                                                                                     is_active=True)[
+                                           :NOTIFICATION_LONG_LIMIT]
             all_notifications = list(notification_objs) + list(general_notification_faculty)
 
         final_notifications = sorted(all_notifications, key=lambda x: x.datetime)[:NOTIFICATION_LONG_LIMIT]
@@ -468,7 +473,7 @@ def show_all_notifications(request, page=1):
             'notifications': final_notifications,
             'pages': range(1, pages + 1),
             'current_page': int(page),
-            'notification_model' : json.dumps(notification_model)
+            'notification_model': json.dumps(notification_model)
         })
     return redirect('/login/')
 
