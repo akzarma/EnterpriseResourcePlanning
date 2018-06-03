@@ -31,6 +31,7 @@ from UserModel.models import User, RoleMaster, RoleManager
 
 
 def student_details(request):
+    class_active = "excel"
     if request.method == 'POST':
         all_students = Student.objects.all()
         directory = './Media/documents/StudentDetails/'
@@ -97,11 +98,14 @@ def student_details(request):
             i_row += 1
         workbook.close()
 
-        return render(request, 'student_details.html', {'fields': StudentForm,
-                                                        'success': 'Done'})
+        return render(request, 'student_details.html', {
+            'class_active': class_active,
+            'fields': StudentForm,
+            'success': 'Done'})
 
     elif request.method == 'GET':
         return render(request, 'student_details.html', {
+            'class_active': class_active,
             'fields': StudentForm,
         })
 
@@ -382,13 +386,14 @@ def generate_excel_from_query_set(full_timetable, file_name, is_room=False, room
 
 def excel_room_schedule(request):
     branch = Branch.objects.all()
-
+    class_active = "excel"
     branch_room_json = {}
 
     for each_branch in branch:
         branch_room_json[each_branch.branch] = list(set(each_branch.room_set.values_list('room_number', flat=True)))
 
     return render(request, 'excel_room_schedule.html', {
+        'class_active': class_active,
         'branch_room_json': branch_room_json
     })
 
@@ -430,7 +435,7 @@ def download_excel_room_schedule(request):
 
 def excel_attendance(request):
     timetable_json = {}
-
+    class_active = "excel"
     college_extra_detail = Division.objects.all()
 
     for each in college_extra_detail:
@@ -452,6 +457,7 @@ def excel_attendance(request):
     print(timetable_json)
 
     return render(request, 'excel_attendance.html', {
+        'class_active': class_active,
         'timetable': timetable_json
     })
 
@@ -462,6 +468,7 @@ def download_excel_attendance_subject(request):
 
 
 def excel_timetable(request):
+    class_active = "excel"
     timetable_json = {}
 
     college_extra_detail = Division.objects.all()
@@ -483,11 +490,13 @@ def excel_timetable(request):
         timetable_json[branch][year].append(division)
 
     return render(request, 'excel_timetable.html', {
+        'class_active': class_active,
         'timetable': timetable_json
     })
 
 
 def faculty_details(request):
+    class_active = 'excel'
     if request.method == 'POST':
         all_faculties = Faculty.objects.all()
         directory = './Media/documents/FacultyDetails/'
@@ -535,10 +544,14 @@ def faculty_details(request):
             i_row += 1
         workbook.close()
 
-        return render(request, 'faculty_details.html', {'fields': FacultyForm,
-                                                        'success': 'Done'})
+        return render(request, 'faculty_details.html', {
+            'class_active': class_active,
+            'fields': FacultyForm,
+            'success': 'Done'})
 
     elif request.method == 'GET':
+        class_active = 'excel'
         return render(request, 'faculty_details.html', {
+            'class_active': class_active,
             'fields': FacultyForm,
         })

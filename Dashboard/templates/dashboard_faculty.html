@@ -286,27 +286,30 @@
             }
         {% endblock extra_style %}
 
+        .navbar-default .navbar-nav > li:hover {
+            background-color: white;
+        }
+
+        button:focus {
+            outline: 0 !important;
+        }
     </style>
 
 {% endblock style %}
 
 {% block body %}
-
-
-
-
     <div class="wrapper">
         <!-- Sidebar Holder -->
         <nav id="sidebar">
             <ul class="list-unstyled components">
-                <li class="active">
+                <li id="dashboard">
                     <a href="{% url 'dashboard:dashboard' %}">Dashboard</a>
                 </li>
-                <li>
+                <li id="attendance">
                     <a href="{% url 'attendance:select_cat' %}">Fill or Check Attendance</a>
                 </li>
 
-                <li>
+                <li id="excel">
                     <a href="#excelSubmenu" data-toggle="collapse" aria-expanded="false">Excel</a>
                     <ul class="collapse list-unstyled" id="excelSubmenu">
                         <li><a href="{% url 'report:excel_timetable' %}">TimeTable</a></li>
@@ -315,10 +318,9 @@
                         <li><a href="{% url 'report:student_details' %}">Student Data</a></li>
                         <li><a href="{% url 'report:faculty_details' %}">Faculty Data</a></li>
                     </ul>
-
                 </li>
-                <li>
-                    <a href="#set_dates" data-toggle="collapse" aria-expanded="false">Set Dates</a>
+                <li id="set_date">
+                    <a href="#set_dates" data-toggle="collapse" aria-expanded="false">Set Date</a>
                     <ul class="collapse list-unstyled" id="set_dates">
                         <li><a href="{% url 'registration:set_schedule_date' %}">Subject Registration</a>
                         </li>
@@ -327,15 +329,14 @@
                     </ul>
 
                 </li>
-                <li>
+                <li id="backup">
                     <a href="{% url 'BackupRestore:backup' %}">Backup</a>
-
                 </li>
-                <li>
+                <li id="fill_timetable">
                     <a href="{% url 'Timetable:fill_timetable' %}">Fill Timetable</a>
 
                 </li>
-                <li>
+                <li id="register">
                     <a href="#registermenu" data-toggle="collapse" aria-expanded="false">Register</a>
                     <ul class="collapse list-unstyled" id="registermenu">
                         <li><a href="{% url 'registration:register_subject' %}">Subject</a></li>
@@ -345,10 +346,9 @@
                         </li>
                         <li><a href="{% url 'registration:student_subject_division' %}">Student Subject Division</a>
                         </li>
-                        </li>
                     </ul>
                 </li>
-                <li>
+                <li id="exam">
                     <a href="#exammenu" data-toggle="collapse" aria-expanded="false">Exam</a>
                     <ul class="collapse list-unstyled" id="exammenu">
                         <li><a href="{% url 'exam:manage_exam' %}">Manage exam</a>
@@ -357,7 +357,7 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li id="status">
                     <a href="#statusmenu" data-toggle="collapse" aria-expanded="false">Status</a>
                     <ul class="collapse list-unstyled" id="statusmenu">
                         <li><a href="{% url 'update:update_exam_status' %}">Manage Exam</a></li>
@@ -404,8 +404,6 @@
 
                             </h4>
                         </form>
-
-
                         <br/>
                         <form method="post" action="{% url 'dashboard:dashboard' %}" id="timetable_form">
                             {% csrf_token %}
@@ -753,8 +751,9 @@
 
         }
     </script>
+    //Script to toggle active class
     <script>
-
+        var active_class = document.getElementById("{{ class_active }}");
+        active_class.setAttribute("class", "active");
     </script>
-
 {% endblock html %}

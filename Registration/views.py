@@ -34,6 +34,7 @@ def view_subjects(request):
 
 
 def register_faculty_subject(request):
+    class_active = "register"
     elective_list = list(Subject.objects.filter(is_elective_group=True).values_list('short_form', flat=True))
     if request.method == 'POST':
         form = FacultySubjectForm(request.POST)
@@ -56,9 +57,11 @@ def register_faculty_subject(request):
                                                                     division=division)
 
             if faculty_subject_obj:
-                return render(request, 'register_faculty_subject.html', {'form': FacultySubjectForm,
-                                                                         'elective_list': elective_list,
-                                                                         'info': 'Binding Exists!'})
+                return render(request, 'register_faculty_subject.html', {
+                    'class_active': class_active,
+                    'form': FacultySubjectForm,
+                    'elective_list': elective_list,
+                    'info': 'Binding Exists!'})
 
             else:
                 faculty_subject = FacultySubject.objects.create(faculty=faculty,
@@ -69,12 +72,16 @@ def register_faculty_subject(request):
                     elective_subject=elective_subject,
                     elective_division=elective_division)
                 faculty_subject.save()
-            return render(request, 'register_faculty_subject.html',
-                          {'form': FacultySubjectForm, 'elective_list': json.dumps(elective_list),
-                           'success': 'Successfully Bound'})
+            return render(request, 'register_faculty_subject.html', {
+                'class_active': class_active,
+                'form': FacultySubjectForm, 'elective_list': json.dumps(elective_list),
+                'success': 'Successfully Bound'
+            })
     elif request.method == 'GET':
-        return render(request, 'register_faculty_subject.html',
-                      {'form': FacultySubjectForm, 'elective_list': json.dumps(elective_list)})
+        return render(request, 'register_faculty_subject.html', {
+            'class_active': class_active,
+            'form': FacultySubjectForm, 'elective_list': json.dumps(elective_list)
+        })
 
 
 def register_student(request):
@@ -251,6 +258,7 @@ def get_shift(request):
 
 def register_subject(request):
     user = request.user
+    class_active = "register"
     if not user.is_anonymous:
 
         if request.method == 'POST' and request.POST.get('register_subject'):
@@ -279,6 +287,7 @@ def register_subject(request):
                                                         subject=subject_obj,
                                                         is_active=True)
                     return render(request, 'test_register_subject.html', {
+                        'class_active': class_active,
                         'form': SubjectForm(),
                         'success': 'Subject with electives registered successfully'
                     })
@@ -291,18 +300,21 @@ def register_subject(request):
                                                         subject=subject_obj,
                                                         is_active=True)
                     return render(request, 'test_register_subject.html', {
+                        'class_active': class_active,
                         'form': SubjectForm(),
                         'success': 'Subject registered successfully'
                     })
 
             else:
                 return render(request, 'test_register_subject.html', {
+                    'class_active': class_active,
                     'form': subject_form,
                     'error': 'Form not valid. fill again with correction'
                 })
         elif request.method == 'GET':
 
             return render(request, 'test_register_subject.html', {
+                'class_active': class_active,
                 'form': SubjectForm(),
             })
 
@@ -412,11 +424,13 @@ def verification_process(request, key, username):
 
 
 def set_schedule_date(request):
+    class_active = "set_date"
     user = request.user
     if not user.is_anonymous:
         if request.method == 'GET':
             form = DateScheduleForm()
             return render(request, 'set_schedule_date.html', {
+                'class_active': class_active,
                 'form': form
             })
         else:
@@ -434,11 +448,13 @@ def set_schedule_date(request):
                 notify_users(notification_type=notification_type, message=message, type=type, user_type=user_type,
                              action=action, division=division, heading=heading)
                 return render(request, 'set_schedule_date.html', {
+                    'class_active': class_active,
                     'success': 'Successfully saved',
                     'form': form
                 })
             else:
                 return render(request, 'set_schedule_date.html', {
+                    'class_active': class_active,
                     'form': form
                 })
 
@@ -582,8 +598,8 @@ def student_subject(request):
                             is_active=True
                         )[0]
                         student_subject_obj = StudentSubject.objects.get_or_create(student=student,
-                                                             subject=each_group.subject,
-                                                             is_active=True)[0]
+                                                                                   subject=each_group.subject,
+                                                                                   is_active=True)[0]
                         student_subject_obj.elective_division = elective_division_obj
                         student_subject_obj.elective_batch = elective_batch_obj
                         student_subject_obj.save()
@@ -728,12 +744,15 @@ def student_subject(request):
 
 
 def register_year(request):
+    class_active = 'register'
     user = request.user
     if not user.is_anonymous:
         if request.method == 'GET':
             branches = Branch.objects.all()
-            return render(request, 'register_year.html',
-                          context={'branches': branches, })
+            return render(request, 'register_year.html', {
+                'class_active': class_active,
+                'branches': branches,
+            })
         elif request.method == 'POST':
             year = request.POST.get('year')
             branch = request.POST.get('branch')
@@ -754,12 +773,16 @@ def register_year(request):
                     # print(i+1, 'except')
                 year_branch_obj = YearBranch.objects.get_or_create(year=year_obj, branch=branch_obj, is_active=True)
                 YearSemester.objects.create(semester=sem_obj, year_branch=year_branch_obj[0])
-            return render(request, 'register_year.html', context={'success': 'Year ' + year + ' Saved!'})
+            return render(request, 'register_year.html', {
+                'class_active': class_active,
+                'success': 'Year ' + year + ' Saved!'
+            })
         return HttpResponse('Something is wrong!')
     return HttpResponseRedirect('/login/')
 
 
 def register_year_detail(request):
+    class_active = "register"
     user = request.user
     if not user.is_anonymous:
         branches = Branch.objects.all()
@@ -781,6 +804,7 @@ def register_year_detail(request):
 
         if request.method == 'GET':
             return render(request, 'register_year_details.html', {
+                'class_active': class_active,
                 'branches': branches,
                 'years': years,
                 'year_semester': year_semester_json
@@ -801,6 +825,7 @@ def register_year_detail(request):
 
             if semester_end_date < semester_start_date:
                 return render(request, 'register_year_details.html', {
+                    'class_active': class_active,
                     'branches': branches,
                     'years': years,
                     'year_semester': year_semester_json,
@@ -812,6 +837,7 @@ def register_year_detail(request):
 
             if lecture_end_date < lecture_start_date:
                 return render(request, 'register_year_details.html', {
+                    'class_active': class_active,
                     'branches': branches,
                     'years': years,
                     'year_semester': year_semester_json,
@@ -831,6 +857,7 @@ def register_year_detail(request):
             year_sem_obj.save()
 
             return render(request, 'register_year_details.html', {
+                'class_active': class_active,
                 'branches': branches,
                 'years': years,
                 'year_semester': year_semester_json,
@@ -840,11 +867,13 @@ def register_year_detail(request):
 
 
 def student_subject_division(request):
+    class_active = 'register'
     if request.method == 'GET':
 
-        return render(request, 'student_subject_division.html',
-                      context={'form': YearBranchSemForm,
-                               'select_year_branch_sem': True})
+        return render(request, 'student_subject_division.html', {
+            'class_active': class_active,
+            'form': YearBranchSemForm,
+            'select_year_branch_sem': True})
 
     elif request.method == 'POST' and request.POST.get('select_year_branch_sem_button'):
         year_branch_sem_form = YearBranchSemForm(request.POST)
@@ -862,13 +891,14 @@ def student_subject_division(request):
             subjects_elective_group = subjects_all.filter(subject__is_elective_group=True)
             elective_subjects = ElectiveSubject.objects.filter(subject__branchsubject__in=subjects_elective_group,
                                                                is_active=True)
-            return render(request, 'student_subject_division.html',
-                          context={'selected_year': year_obj.year,
-                                   'selected_branch': branch_obj.branch,
-                                   'selected_semester': semester_obj.semester,
-                                   'select_subjects': True,
-                                   'regular_subjects': subjects_regular,
-                                   'elective_subjects': elective_subjects})
+            return render(request, 'student_subject_division.html', {
+                'class_active': class_active,
+                'selected_year': year_obj.year,
+                'selected_branch': branch_obj.branch,
+                'selected_semester': semester_obj.semester,
+                'select_subjects': True,
+                'regular_subjects': subjects_regular,
+                'elective_subjects': elective_subjects})
 
     elif request.POST.get('selected_subject_link'):
         selected_subject = request.POST.get('selected_subject_link')
@@ -876,13 +906,14 @@ def student_subject_division(request):
         student_subjects = StudentSubject.objects.filter(subject=selected_subject_obj.subject,
                                                          is_active=True)
         year_branch_obj = selected_subject_obj.year_branch
-        return render(request, 'student_subject_division.html',
-                      context={'selected_year': year_branch_obj.year.year,
-                               'selected_branch': year_branch_obj.branch.branch,
-                               'selected_semester': selected_subject_obj.semester.semester,
-                               'selected_subject_obj': selected_subject_obj,
-                               'select_student_division': True,
-                               'student_subjects': student_subjects, })
+        return render(request, 'student_subject_division.html', {
+            'class_active': class_active,
+            'selected_year': year_branch_obj.year.year,
+            'selected_branch': year_branch_obj.branch.branch,
+            'selected_semester': selected_subject_obj.semester.semester,
+            'selected_subject_obj': selected_subject_obj,
+            'select_student_division': True,
+            'student_subjects': student_subjects, })
     elif request.POST.get('selected_subject_elective_link'):
         selected_elective = request.POST.get('selected_subject_elective_link')
         selected_elective_subject_obj = ElectiveSubject.objects.get(pk=selected_elective)
@@ -902,16 +933,17 @@ def student_subject_division(request):
             # a=list(each_division.electivebatch_set.all())
             division_batch[each_division.pk] = list(
                 each_division.electivebatch_set.all().values_list('batch_name', flat=True))
-        return render(request, 'student_subject_division.html',
-                      context={'selected_semester': selected_semester,
-                               'selected_branch': selected_branch,
-                               'selected_year': selected_year,
-                               'selected_subject_obj': selected_elective_subject_obj,
-                               'select_student_division': True,
-                               'selected_sub_name': selected_elective_subject_obj.name,
-                               'student_subjects': student_subjects,
-                               'divisions': elective_divisions,
-                               'division_batch': json.dumps(division_batch)})
+        return render(request, 'student_subject_division.html', {
+            'class_active': class_active,
+            'selected_semester': selected_semester,
+            'selected_branch': selected_branch,
+            'selected_year': selected_year,
+            'selected_subject_obj': selected_elective_subject_obj,
+            'select_student_division': True,
+            'selected_sub_name': selected_elective_subject_obj.name,
+            'student_subjects': student_subjects,
+            'divisions': elective_divisions,
+            'division_batch': json.dumps(division_batch)})
 
     elif request.POST.get('select_division_student_button'):
         selected_division_student_pks = request.POST.getlist('selected_division_student')
@@ -947,16 +979,17 @@ def student_subject_division(request):
             # a=list(each_division.electivebatch_set.all())
             division_batch[each_division.division] = list(
                 each_division.electivebatch_set.all().values_list('batch_name', flat=True))
-        return render(request, 'student_subject_division.html',
-                      context={'selected_year': selected_year,
-                               'selected_branch': selected_branch,
-                               'selected_semester': selected_semester,
-                               'selected_subject_obj': selected_elective_subject_obj,
-                               'select_student_division': True,
-                               'student_subjects': student_subjects,
-                               'divisions': elective_divisions,
-                               'division_batch': json.dumps(division_batch),
-                               'success': 'elective divisions are assigned successfully.'})
+        return render(request, 'student_subject_division.html', {
+            'class_active': class_active,
+            'selected_year': selected_year,
+            'selected_branch': selected_branch,
+            'selected_semester': selected_semester,
+            'selected_subject_obj': selected_elective_subject_obj,
+            'select_student_division': True,
+            'student_subjects': student_subjects,
+            'divisions': elective_divisions,
+            'division_batch': json.dumps(division_batch),
+            'success': 'elective divisions are assigned successfully.'})
 
 
 def register_elective(request):

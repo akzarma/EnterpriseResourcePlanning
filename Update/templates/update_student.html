@@ -2,6 +2,19 @@
 {% block title %}
     Update Profile
 {% endblock title %}
+{% block extra_style %}
+    body{
+    overflow-x:hidden;
+    }
+    #profile-info-stud > a{
+    word-wrap: break-word;
+    display:block;
+    padding:5px 0 5px 0;
+    }
+    #profile-info-stud{
+    font-weight:700;
+    }
+{% endblock extra_style %}
 {% block content %}
     <br><br>
     <div class="row">
@@ -10,7 +23,7 @@
     <form action="{% url 'update:update' %}" onsubmit="return fileSizeValidate()" method="post"
           enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="container" style="margin-top:-60px">
+        <div class=" " style="margin-top:-60px">
             <div class="row">
                 <legend>Basic Info:</legend>
                 <fieldset class="col-lg-6">
@@ -20,11 +33,11 @@
                         <div class="form-element">
                             <span class="error">{{ form.doc_profile_pic.errors }}</span>
                             {{ form.doc_profile_pic.label_tag }}
-                            <div class="input-file">{{ form.doc_profile_pic }}</div>
+                            <div class="input-file" id="profile-info-stud">{{ form.doc_profile_pic }}</div>
                             {% if form.instance.doc_profile_pic %}
                                 <img id="myImg"
                                      src="{{ form.instance.doc_profile_pic.url }}"
-                                     alt="Uploaded image is broken"/>
+                                     alt="Uploaded image is broken" style="height: 70px;width: auto;"/>
                             {% endif %}
                         </div>
 
