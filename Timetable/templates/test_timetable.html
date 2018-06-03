@@ -1459,9 +1459,8 @@
 
                 let local_selected_subject = subject_obj.value;
                 {#let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];#}
-                let index = subject_dictionary[local_selected_subject].indexOf(id);
+                let index = 1;
                 if (index !== -1) {
-                    subject_dictionary[local_selected_subject].splice(index, 1);
 
                     block_room(checkbox_object.id, room_obj.value, true, false);
                     block_checkbox(cbx_obj, [selected_faculty], local_selected_subject, time, year, day, elective_division, true, selected_subject);
