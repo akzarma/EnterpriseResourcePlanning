@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'BackupRestore.apps.BackuprestoreConfig',
     'Attendance.apps.AttendanceConfig',
     'Research.apps.ResearchConfig',
+    'Internship.apps.InternshipConfig',
     'Report.apps.ReportConfig',
     'django.contrib.humanize',
     'widget_tweaks',

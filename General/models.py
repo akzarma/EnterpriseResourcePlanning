@@ -1,6 +1,7 @@
 import datetime
 from django.db import models
 
+from Internship.models import Internship
 from Registration.models import Subject, Faculty, Branch, Student, ElectiveSubject
 
 
@@ -117,13 +118,15 @@ class BranchSubject(models.Model):
     def __str__(self):
         return str(self.year_branch) + " " + self.subject.name
 
+
 class ElectiveDivision(models.Model):
     elective_subject = models.ForeignKey(ElectiveSubject)
     division = models.IntegerField(default=1)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.division)+" "+ str(self.elective_subject)
+        return str(self.division) + " " + str(self.elective_subject)
+
 
 class FacultySubject(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
@@ -136,7 +139,7 @@ class FacultySubject(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.faculty.user.first_name + self.subject.name  + " " + self.faculty.initials
+        return self.faculty.user.first_name + self.subject.name + " " + self.faculty.initials
 
 
 class StudentDetail(models.Model):
@@ -160,6 +163,7 @@ class ElectiveBatch(models.Model):
 
     def __str__(self):
         return str(self.batch_name)
+
 
 class StudentSubject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -196,3 +200,19 @@ class Schedule(models.Model):
                 if self.end_date > date > self.start_date:
                     return True
         return False
+
+
+class StudentInternship(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, blank=True)
+    internship = models.ForeignKey(Internship, on_delete=models.CASCADE, blank=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    work_from_home = models.BooleanField(default=False)
+    application_date = models.DateField()
+    remarks = models.CharField(max_length=300, null=True, blank=True)
+    is_reviewed = models.BooleanField(default=False)
+    is_accepted = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return str(self.student) + ' ' + str(self.internship)
