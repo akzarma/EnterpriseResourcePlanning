@@ -256,6 +256,7 @@ def register_subject(request):
                                 'elective_short_' + str(i + 1)),
                             subject=subject_obj,
                             is_active=True)
+                        ElectiveDivision.objects.create(elective_subject=elective)
 
                     subject_obj.save()
                     BranchSubject.objects.get_or_create(year_branch=year_branch_obj,
