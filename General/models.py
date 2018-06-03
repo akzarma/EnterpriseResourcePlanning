@@ -136,7 +136,7 @@ class FacultySubject(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.faculty.user.first_name + self.subject.name + self.division.division + " " + self.faculty.initials
+        return self.faculty.user.first_name + self.subject.name  + " " + self.faculty.initials
 
 
 class StudentDetail(models.Model):
