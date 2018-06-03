@@ -669,7 +669,7 @@ class FacultySubjectForm(forms.ModelForm):
     class Meta:
         model = FacultySubject
         fields = '__all__'
-        exclude = ['is_active']
+        exclude = ['faculty', 'subject','division','is_active']
 
 
 class StudentForm(forms.ModelForm):

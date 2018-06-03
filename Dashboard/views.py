@@ -99,7 +99,7 @@ def show_dashboard(request):
                                                      original__division=college_extra_detail),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
-                    return render(request, 'dashboard_faculty.html', {
+                    return render(request, 'dashboard_student.html', {
                         'timetable': timetable,
                         'total_attendance': total_percent,
                         'attendance': attendance,
@@ -119,7 +119,7 @@ def show_dashboard(request):
                                                      original__division=college_extra_detail),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
-                    return render(request, 'dashboard_faculty.html', {
+                    return render(request, 'dashboard_student.html', {
                         'timetable': timetable,
                         'total_attendance': total_percent,
                         'attendance': attendance,
