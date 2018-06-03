@@ -630,12 +630,13 @@
                                                     if ((subject in subjects_json[each_year]['elective_subject'])) {
                                                         let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_' + subject + '_elective_cbx';
                                                         if (complement === false) {
-                                                            block_list[subject].push(id);
+                                                            {#alert(subject);#}
+                                                            block_list[each_option].push(id);
                                                             {#alert(subject + current_subject + current_division + division);#}
                                                         }
                                                         else {
-                                                            let index = block_list[subject].indexOf(id);
-                                                            block_list[subject].splice(index, 1);
+                                                            let index = block_list[each_option].indexOf(id);
+                                                            block_list[each_option].splice(index, 1);
                                                             document.getElementById(id).disabled = false;
                                                         }
                                                     }
