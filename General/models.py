@@ -128,15 +128,15 @@ class ElectiveDivision(models.Model):
 class FacultySubject(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    division = models.ForeignKey(Division, on_delete=models.CASCADE, null=True)
+    division = models.ForeignKey(Division, on_delete=models.CASCADE, null=True, blank=True)
 
-    elective_subject = models.ForeignKey(ElectiveSubject, on_delete=models.CASCADE, null=True)
-    elective_division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE, null=True)
+    elective_subject = models.ForeignKey(ElectiveSubject, on_delete=models.CASCADE, null=True, blank=True)
+    elective_division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE, null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.faculty.user.first_name + self.subject.name + self.division.division + " " + self.faculty.initials
+        return self.faculty.user.first_name + self.subject.name  + " " + self.faculty.initials
 
 
 class StudentDetail(models.Model):
