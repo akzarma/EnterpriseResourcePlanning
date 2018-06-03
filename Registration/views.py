@@ -40,11 +40,22 @@ def register_faculty_subject(request):
         if form.is_valid():
             faculty = Faculty.objects.get(pk=form.cleaned_data.get('faculty'))
             subject = Subject.objects.get(pk=form.cleaned_data.get('subject'))
-            division = Division.objects.get(pk=form.cleaned_data.get('division'))
+            if subject.is_elective_group == True:
+                elective_subject = ElectiveSubject.objects.get(pk=form.cleaned_data.get('elective_subject'))
+                elective_division = ElectiveSubject.objects.get(pk=form.cleaned_data.get('elective_division'))
+                faculty_subject_obj = FacultySubject.objects.filter(faculty=faculty,
+                                                 subject=subject,
+                                                 elective_subject=elective_subject,
+                                                 elective_division=elective_division)
 
-            if FacultySubject.objects.filter(faculty=faculty,
-                                             subject=subject,
-                                             division=division):
+            else:
+                division = Division.objects.get(pk=form.cleaned_data.get('division'))
+
+                faculty_subject_obj = FacultySubject.objects.filter(faculty=faculty,
+                                                 subject=subject,
+                                                 division=division)
+
+            if faculty_subject_obj:
                 return render(request, 'register_faculty_subject.html', {'form': FacultySubjectForm,
                                                                          'elective_list': elective_list,
                                                                          'info': 'Binding Exists!'})
@@ -52,7 +63,11 @@ def register_faculty_subject(request):
             else:
                 faculty_subject = FacultySubject.objects.create(faculty=faculty,
                                                                 subject=subject,
-                                                                division=division)
+                                                                division=division) if subject.is_elective_group is False else FacultySubject.objects.filter(
+                    faculty=faculty,
+                    subject=subject,
+                    elective_subject=elective_subject,
+                    elective_division=elective_division)
                 faculty_subject.save()
             return render(request, 'register_faculty_subject.html',
                           {'form': FacultySubjectForm, 'elective_list': json.dumps(elective_list),
