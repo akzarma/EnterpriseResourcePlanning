@@ -975,7 +975,7 @@
                                     subject_object.id = "id_subject_" + time + "_" + subjects_json[year]['elective_theory'][selected_subject][subject][divisions] + "_" + day + "_" + year + "_" + subject;
                                     subject_object.setAttribute('name', "id_subject_" + time + "_" + subjects_json[year]['elective_theory'][selected_subject][subject][divisions] + "_" + day + "_" + year + "_" + subject);
                                     subject_object.classList.add("subject_input");
-                                    subject_object.readOnly = true;
+                                    subject_object.ureadOnly = true;
                                     column_obj.appendChild(subject_object);
                                     row_obj.appendChild(column_obj);
 
@@ -1025,8 +1025,26 @@
                         checkbox_object.parentElement.classList.remove("practical-cbx-parent");
                     } else if (table_elective) {
                         /*Unchecking code for elective*/
+                        for (let subject in subjects_json[year]['elective_theory'][selected_subject]) {
+                            for (let divisions in subjects_json[year]['elective_theory'][selected_subject][subject]) {
+                                let cbx_id = "id_room_" + time + "_" + divisions + "_" + day + "_" + year + "_" + subject + "_elective_cbx";
+                                let cbx_obj = document.getElementById(cbx_id);
+                                if (batch_cbx_obj.checked) {
+                                    batch_cbx_obj.checked = false;
+                                    block_faculty_practical(batch_cbx_obj);
+                                }
+                            }
+                        }
+                        {#let table = checkbox_object.parentElement.querySelector('table');#}
+                        table_practical.parentElement.removeChild(table_practical);
+                        checkbox_object.classList.remove("checked-cbx");
+                        checkbox_object.classList.remove("practical-cbx");
+                        checkbox_object.parentElement.classList.remove("checked-cbx-parent");
+                        checkbox_object.parentElement.classList.remove("practical-cbx-parent");
 
-                    } else {
+
+                    }
+                    else {
                         let local_selected_subject = document.getElementById('id_subject_' + time + '_' + division + '_' + day + "_" + year).value;
                         let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];
                         let index = subject_dictionary[local_selected_subject].indexOf(id);
@@ -1302,8 +1320,12 @@
             let day = id_split_array[configuration['day_index']];
             let year = id_split_array[configuration['year_index']];
             let elective_subject = id_split_array[configuration['year_index'] + 1];
+
             let room_object = document.createElement("select");
-            room_object.id = "id_room_" + time + "_" + division + "_" + day + "_" + year + "_" + elective_subject + "_" + elective_division;
+            room_object.id = "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject;
+            room_object.setAttribute('name', "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject);
+
+
             if (cbx_obj.checked) {
                 let at_least_one_room = false;
                 $.each(theory_room, function (i, element) {
@@ -1339,7 +1361,6 @@
 
 
                         for (let i in faculty_list) {
-
                             if (!select_obj.querySelector('option[value="' + faculty_list[i] + '"]')) {
                                 if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {
                                     let option = document.createElement('option');
@@ -1355,29 +1376,29 @@
                         /* Block Faculty */
                         block_checkbox_elective(cbx_obj, [selected_faculty], elective_subject, time, year, day, elective_division, false);
 
+                        cbx_obj.parentElement.appendChild(faculty_column);
+
 
                         let room_column = document.createElement('td');
-                        let select = document.createElement('select');
-                        select.id = "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + "_" + elective_subject;
-                        select.setAttribute('name', "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject);
-                        {#select.setAttribute('onfocus', 'set_previous_room(this)');#}
-                        {#select.setAttribute('onchange', 'room_change_block(this, true)');#}
-                        room_column.appendChild(select);
+                        room_object.setAttribute('onfocus', 'set_previous_room(this)');
+                        room_object.setAttribute('onchange', 'room_change_block(this, false)');
+                        room_column.appendChild(room_object);
+                        cbx_obj.parentElement.appendChild(room_column);
 
                         $.each(theory_room, function (i, element) {
-                            if (block_room_list[element].indexOf(select.id) === -1) {
+                            if (block_room_list[element].indexOf(room_object.id) === -1) {
                                 let option = document.createElement("option");
                                 option.value = element;
                                 option.text = element;
-                                select.appendChild(option);
+                                room_object.appendChild(option);
                             }
 
                         });
 
                         cbx_obj.parentElement.parentElement.appendChild(room_column);
-                        let current_room = select.value;
+                        let current_room = room_object.value;
                         /*block room*/
-                        block_room(select.id, current_room, false, false);
+                        block_room(room_object.id, current_room, false, false);
 
                     } else {
                         alert("Sorry no faculty available");
@@ -1452,7 +1473,7 @@
                 for (let div in all_divisions) {
                     {#alert(current_room);#}
                     let current_year = all_years[yr];
-                    let current_div = [div];
+                    let current_div = all_divisions[div];
                     if (batches_json.hasOwnProperty(current_year) && batches_json[current_year].hasOwnProperty(current_div)) {
                         for (let i in batches_json[current_year][current_div]) {
                             let block_id = cbx[0] + '_' + cbx[1] + '_' + cbx[2] + '_' + current_div + '_' + cbx[4] + '_' + current_year + "_" + batches_json[current_year][current_div][i];
