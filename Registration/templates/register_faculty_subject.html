@@ -6,18 +6,66 @@
     .form-control{
     margin-bottom:20px;
     }
+
+    .elective {
+    display: none;
+    }
 {% endblock extra_style %}
 {% block content %}
     <div class="row col-md-3">
         <form method="POST" action="{% url 'registration:register_faculty_subject' %}">
             {% csrf_token %}
             <div class="form-group">
-                {% for each in form %}
-                    <label>{{ each.label }}</label>
-                    {{ each }}
-                {% endfor %}
+                <label>{{ form.subject.label }}</label>
+                {{ form.subject }}
+                {{ form.subject.errors }}
+            </div>
+            <div class="form-group" id="elective_subject" style="display: none;">
+                <label>{{ form.elective_subject.label }}</label>
+                {{ form.elective_subject }}
+                {{ form.elective_subject.errors }}
+            </div>
+            <div class="form-group" id="elective_division" style="display: none;">
+                <label>{{ form.elective_division.label }}</label>
+                {{ form.elective_division }}
+                {{ form.elective_division.errors }}
+            </div>
+            <div class="form-group">
+                <label>{{ form.faculty.label }}</label>
+                {{ form.faculty }}
+                {{ form.faculty.errors }}
+            </div>
+            <div class="form-group" id="division">
+                <label>{{ form.division.label }}</label>
+                {{ form.division }}
+                {{ form.division.errors }}
+            </div>
+            <div class="form-group">
+                <label>{{ form.is_active.label }}</label>
+                {{ form.is_active }}
+                {{ form.is_active.errors }}
             </div>
             <input type="submit" class="btn btn-primary">
         </form>
     </div>
 {% endblock content %}
+
+{% block html %}
+    <script>
+        var elective_list = {{ elective_list|safe }};
+
+        function checkElective() {
+            let subject_obj = document.getElementById('id_subject');
+            let subject = subject_obj.querySelector("option[value='" + subject_obj.value + "']").innerHTML;
+            if (elective_list.indexOf(subject) !== -1) {
+                document.getElementById('elective_subject').style.display = "inline";
+                document.getElementById('elective_division').style.display = "inline";
+                document.getElementById('division').style.display = "none";
+            } else{
+                document.getElementById('elective_subject').style.display = "none";
+                document.getElementById('elective_division').style.display = "none";
+                document.getElementById('division').style.display = "inline";
+            }
+        }
+    </script>
+{% endblock html %}
