@@ -1325,7 +1325,9 @@
 
                     let at_least_one_teacher = false;
                     $.each(faculty_list, function (i, element) {
-                        at_least_one_teacher = true;
+                        if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {
+                            at_least_one_teacher = true;
+                        }
                     });
                     if (at_least_one_teacher === true) {
                         $.each(theory_room, function (i, element) {
@@ -1347,11 +1349,12 @@
                         for (let i in faculty_list) {
 
                             if (!select_obj.querySelector('option[value="' + faculty_list[i] + '"]')) {
-                                {#if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {#}
-                                let option = document.createElement('option');
-                                option.text = faculty_list[i];
-                                option.value = faculty_list[i];
-                                select_obj.appendChild(option);
+                                if (block_faculty_list[faculty_list[i]].indexOf(select_obj.id) === -1) {
+                                    let option = document.createElement('option');
+                                    option.text = faculty_list[i];
+                                    option.value = faculty_list[i];
+                                    select_obj.appendChild(option);
+                                }
                             }
                         }
                         faculty_column.appendChild(select_obj);
