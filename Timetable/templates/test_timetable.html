@@ -713,7 +713,7 @@
                 }
             }
 
-            if (subjects_json[year]['theory'].indexOf(current_subject) !== -1) {
+            if (subjects_json[year]['elective_theory'].indexOf(current_subject) !== -1) {
 
                 if (complement === false) {
                     block_all_current_subject(current_subject, false);
@@ -1431,20 +1431,36 @@
 
                 let room_id = "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject;
                 let room_obj = document.getElementById(room_id);
-                block_room(cbx_obj.id, room_obj.value, true, true);
+                {#block_room(cbx_obj.id, room_obj.value, true, true);#}
 
 
                 let subject_id = "id_subject_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject;
                 let subject_obj = document.getElementById(subject_id);
                 {#block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, true, subject_obj.value);#}
 
-                room_obj.parentElement.parentElement.removeChild(room_obj.parentElement);
-                faculty_obj.parentElement.parentElement.removeChild(faculty_obj.parentElement);
-                subject_obj.parentElement.parentElement.removeChild(subject_obj.parentElement);
+
                 {#toggle_practical_cbx(selected_subject);#}
 
-            }
 
+                let local_selected_subject = subject_obj.value;
+                {#let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];#}
+                let index = subject_dictionary[local_selected_subject].indexOf(id);
+                if (index !== -1) {
+                    subject_dictionary[local_selected_subject].splice(index, 1);
+
+                    block_room(checkbox_object.id, room_obj.value, true, false);
+                    block_checkbox(cbx_obj, [selected_faculty], local_selected_subject, time, year, day, elective_division, true, selected_subject);
+                    room_obj.parentElement.parentElement.removeChild(room_obj.parentElement);
+                    faculty_obj.parentElement.parentElement.removeChild(faculty_obj.parentElement);
+                    subject_obj.parentElement.parentElement.removeChild(subject_obj.parentElement);
+
+
+                }
+                else{
+                    console.log("Should never go here")
+                }
+
+            }
         }
     </script>
 
