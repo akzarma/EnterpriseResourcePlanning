@@ -490,6 +490,7 @@
         for (subject in elective_subject_teacher_json) {
             for(sub_subject in elective_subject_teacher_json[subject]) {
                 if (elective_subject_teacher_json[subject].hasOwnProperty(sub_subject)) {
+                    alert(sub_subject);
                     block_list[sub_subject] = []
                 }
             }
