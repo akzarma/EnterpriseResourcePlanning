@@ -37,6 +37,7 @@ RESTORE = [Subject, Student, Faculty, Branch, CollegeYear, Shift, YearBranch, Di
 
 
 def backup(request, page=1):
+    class_active = "backup"
     user = request.user
     if not user.is_anonymous:
         # if has_role(user,'faculty'):
@@ -48,14 +49,16 @@ def backup(request, page=1):
                 current_version = current_db_obj.current_version.version
             # all_backup = Backup.objects.filter(is_active=True).order_by('-id')[:10]
             # request.GET.get()
-            all_backup = Backup.objects.filter(is_active=True).order_by('-id')[(int(page) - 1) * 10:(int(page) - 1) * 10+10]
+            all_backup = Backup.objects.filter(is_active=True).order_by('-id')[
+                         (int(page) - 1) * 10:(int(page) - 1) * 10 + 10]
             pages = Backup.objects.count()
             pages = pages // 10
             pages += 1 if pages % 10 is not 0 else 0
             if pages == 0:
                 pages = 1
             return render(request, 'backup.html', {
-                'current_version':current_version,
+                'class_active':class_active,
+                'current_version': current_version,
                 'all_backup': all_backup,
                 'pages': range(1, pages + 1),
                 'current_page': int(page),

@@ -205,6 +205,9 @@
             padding: 0;
         }
 
+        .glyphicon-bell:hover {
+            background-color: #CCCCCC;
+        }
     </style>
     {% block style %}
 
@@ -231,11 +234,12 @@
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li class="bell-icon dropdown">
-                    <button class="btn btn-default btn-lg btn-link dropdown-toggle"
+                    <button class="btn btn-lg btn-link dropdown-toggle"
                             style="font-size:20px;display: inline;" data-toggle="dropdown" role="button"
                             aria-haspopup="true"
                             aria-expanded="false">
-                        <span class="glyphicon glyphicon-bell"></span>
+                        <span class="glyphicon glyphicon-bell"
+                              style="padding:2px;border-radius: 50%;   "></span>
                     </button>
                     <span class="badge badge-notify dropdown-toggle" id="notification_count" data-toggle="dropdown"
                           role="button"
@@ -251,8 +255,9 @@
                             {% if user.student %}
 
                                 <div href="#" class="" data-toggle="dropdown" role="button"
-                                     aria-haspopup="true" aria-expanded="false" style="width: 48px;height: 48px">
-                                    <div style="width: 48px;height: 48px">
+                                     aria-haspopup="true" aria-expanded="false"
+                                     style="width:48px;height:48px;position:relative;top:5px;">
+                                    <div style="width: 42px;height: 42px">
                                         <img src="https://ui-avatars.com/api/?name={{ user.student.first_name }} {{ user.student.last_name }}"
                                              style="border-radius: 50%;width: 60%;margin: 15% 20%">
                                     </div>
@@ -401,6 +406,9 @@
                         a.setAttribute("onclick", "showExpandedNotification('" + each + "')");
                         li.appendChild(a);
                         notification_list.appendChild(li);
+                        let seprator = document.createElement('li');
+                        seprator.setAttribute("class", "divider");
+                        notification_list.appendChild(seprator);
                     }
 
                 }

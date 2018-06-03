@@ -74,6 +74,7 @@ def update_role(request):
 
 
 def update_exam_status(request):
+    class_active = "status"
     field_list = ['exam_name', 'start_date', 'end_date']
     url = '/update/exam/status/'
     if request.method == "GET":

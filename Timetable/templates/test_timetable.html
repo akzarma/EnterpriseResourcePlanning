@@ -452,7 +452,10 @@
             let previous_block_list = block_list[global_current_subject];
             if (previous_block_list) {
                 for (i = 0; i < previous_block_list.length; i++) {
-                    document.getElementById(previous_block_list[i]).disabled = false;
+                    {#console.log(previous_block_list);#}
+                    if (document.getElementById(previous_block_list[i])) {
+                        document.getElementById(previous_block_list[i]).disabled = false;
+                    }
                 }
             }
         }
@@ -465,13 +468,16 @@
             }
 
             global_current_subject = current_subject;
-
+            console.log(current_block_list);
             if (current_block_list) {
                 for (i = 0; i < current_block_list.length; i++) {
-                    let checkbox_object = document.getElementById(current_block_list[i]);
-                    {#alert(checkbox_object.id);#}
-                    if (checkbox_object.checked === false) {
-                        checkbox_object.disabled = true;
+                    if (document.getElementById(current_block_list[i])) {
+
+                        let checkbox_object = document.getElementById(current_block_list[i]);
+                        {#alert(checkbox_object.id);#}
+                        if (checkbox_object.checked === false) {
+                            checkbox_object.disabled = true;
+                        }
                     }
                 }
             }
@@ -488,9 +494,9 @@
             }
         }
         for (subject in elective_subject_teacher_json) {
-            if (elective_subject_teacher_json.hasOwnProperty(subject)) {
-                block_list[subject] = []
-            }
+
+            block_list[subject] = []
+
 
         }
 
@@ -634,15 +640,15 @@
                                                 if (subject_year !== "") {
 
                                                     if ((subject in subjects_json[each_year]['elective_theory'])) {
-                                                        let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_' + subject + '_elective_cbx';
+                                                        let id = 'id_room_' + time + '_' + division + '_' + day + '_' + subject_year + '_' + each_option + '_elective_cbx';
                                                         if (complement === false) {
                                                             {#alert(subject);#}
-                                                            block_list[each_option].push(id);
+                                                            block_list[subject].push(id);
                                                             {#alert(subject + current_subject + current_division + division);#}
                                                         }
                                                         else {
-                                                            let index = block_list[each_option].indexOf(id);
-                                                            block_list[each_option].splice(index, 1);
+                                                            let index = block_list[subject].indexOf(id);
+                                                            block_list[subject].splice(index, 1);
                                                             document.getElementById(id).disabled = false;
                                                         }
                                                     }
@@ -879,7 +885,10 @@
                                     'change', function () {
                                         {#alert(selected_subject);#}
                                         block_checkbox(checkbox_object, [previous_faculty], selected_subject, time, year, day, division, true);
+                                        block_checkbox_elective(checkbox_object, [previous_faculty], selected_subject, time, year, day, division, true);
                                         block_checkbox(checkbox_object, [teacher_object.value], document.getElementById('id_subject').value, time, year, day, division, false);
+                                        block_checkbox_elective(checkbox_object, [teacher_object.value], document.getElementById('id_subject').value, time, year, day, division, false);
+
                                     });
                                 $.each(teachers, function (i, element) {
                                     let option = document.createElement("option");
@@ -890,6 +899,7 @@
                                 checkbox_parent_object.classList.add("checked-cbx-parent");
 
                                 block_checkbox(checkbox_object, [teacher_object.value], selected_subject, time, year, day, division, false);
+                                block_checkbox_elective(checkbox_object, [teacher_object.value], selected_subject, time, year, day, division, false);
                                 room_object.setAttribute('onfocus', 'set_previous_room(this)');
                                 room_object.setAttribute('onchange', 'room_change_block(this,false)');
                                 checkbox_parent_object.appendChild(room_object);
@@ -1008,6 +1018,8 @@
                                     document.getElementById(id).disabled = true;
                                 }
                             }
+                            block_all_current_subject(selected_subject, true);
+
                         }
                     }
                 }
@@ -1071,6 +1083,7 @@
                             block_room(checkbox_object.id, room_obj.value, true, false);
                             checkbox_object.parentElement.removeChild(room_obj);
                             block_checkbox(checkbox_object, local_teachers, local_selected_subject, time, year, day, division, true, selected_subject);
+                            block_checkbox_elective(checkbox_object, local_teachers, local_selected_subject, time, year, day, division, true, selected_subject);
                         }
                         else {
                             alert('Some error occured');
@@ -1312,12 +1325,14 @@
 
             if (remove_prev === true) {
                 block_checkbox(cbx_obj, [prev_faculty], selected_subject, time, year, day, division, true);
+                {#block_checkbox_elective(cbx_obj, [prev_faculty], selected_subject, time, year, day, division, true);#}
             }
             if (temp === true) {
 
             }
             else {
                 block_checkbox(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, false);
+                {#block_checkbox_elective(cbx_obj, [selected_faculty], selected_subject, time, year, day, division, false);#}
             }
 
 
@@ -1361,15 +1376,15 @@
 
                     if (at_least_one_teacher === true) {
                         $.each(theory_room, function (i, element) {
-                            console.log(id);
-                            console.log(element);
-                            console.log(block_room_list[element].indexOf(id));
+                            {#console.log(id);#}
+                            {#console.log(element);#}
+                            {#console.log(block_room_list[element].indexOf(id));#}
                             if (block_room_list[element].indexOf(id) === -1) {
                                 let option = document.createElement("option");
                                 option.value = element;
                                 option.text = element;
                                 room_object.appendChild(option);
-                                console.log('inside');
+                                {#console.log('inside');#}
                             }
                         });
                         subject_dictionary[selected_subject].push(id);
@@ -1390,6 +1405,7 @@
 
                         /* Block Faculty */
                         block_checkbox_elective(cbx_obj, [selected_faculty], elective_subject, time, year, day, elective_division, false);
+                        block_checkbox(cbx_obj, [selected_faculty], elective_subject, time, year, day, elective_division, false);
 
                         cbx_obj.parentElement.appendChild(faculty_column);
 
@@ -1443,14 +1459,16 @@
 
                 let local_selected_subject = subject_obj.value;
                 {#let local_teachers = [document.getElementById('id_teacher_' + time + '_' + division + '_' + day + "_" + year).value];#}
-                let index = 1;
+                let index = subject_dictionary[local_selected_subject].indexOf(id);
                 if (index !== -1) {
-                    {#subject_dictionary[local_selected_subject].splice(index, 1);#}
+                    subject_dictionary[local_selected_subject].splice(index, 1);
 
-                    block_room(cbx_obj.id, room_obj.value, true, false);
+                    block_room(checkbox_object.id, room_obj.value, true, false);
                     block_checkbox(cbx_obj, [selected_faculty], local_selected_subject, time, year, day, elective_division, true, selected_subject);
+                    block_checkbox_elective(cbx_obj, [selected_faculty], local_selected_subject, time, year, day, elective_division, true, selected_subject);
                     room_obj.parentElement.parentElement.removeChild(room_obj.parentElement);
                     faculty_obj.parentElement.parentElement.removeChild(faculty_obj.parentElement);
+                    subject_obj.parentElement.parentElement.removeChild(subject_obj.parentElement);
 
 
                 }

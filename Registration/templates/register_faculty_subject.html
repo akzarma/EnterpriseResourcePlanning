@@ -52,6 +52,10 @@
 
 {% block html %}
     <script>
+        var active_class = document.getElementById("{{ class_active }}");
+        active_class.setAttribute("class", "active");
+    </script>
+    <script>
         var elective_list = {{ elective_list|safe }};
 
         function checkElective() {
@@ -61,7 +65,7 @@
                 document.getElementById('elective_subject').style.display = "inline";
                 document.getElementById('elective_division').style.display = "inline";
                 document.getElementById('division').style.display = "none";
-            } else{
+            } else {
                 document.getElementById('elective_subject').style.display = "none";
                 document.getElementById('elective_division').style.display = "none";
                 document.getElementById('division').style.display = "inline";
