@@ -1343,7 +1343,7 @@
             let elective_subject = id_split_array[configuration['year_index'] + 1];
             let room_object = document.createElement("select");
             room_object.id = "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject;
-            room_object.setAttribute('name', "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_" + elective_subject);
+            room_object.setAttribute('name', "id_room_" + time + "_" + elective_division + "_" + day + "_" + year + "_elective" );
 
 
             if (cbx_obj.checked) {
