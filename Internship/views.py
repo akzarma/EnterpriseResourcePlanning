@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 
 # Create your views here.
+# from General.models import StudentInternship
 from General.models import StudentInternship
 from Internship.forms import StudentInternshipForm, InternshipForm
 from Internship.models import Internship
@@ -17,7 +18,7 @@ def apply(request):
         if has_role(user, 'student'):
             if request.method == 'GET':
                 return render(request, 'apply.html',
-                              context={'form': StudentInternshipForm})
+                              context={'form': StudentInternshipForm(label_suffix='')})
             elif request.POST.get('apply_button'):
                 student_internship_form_obj = StudentInternshipForm(request.POST)
                 if student_internship_form_obj.is_valid():
@@ -32,7 +33,7 @@ def apply(request):
                     student_internship_obj.save()
 
                     return render(request, 'apply.html',
-                                  context={'form': StudentInternshipForm,
+                                  context={'form': StudentInternshipForm(label_suffix=''),
                                            'success': 'Submitted successfully. You will get notification if application is accepted.'})
                 else:
                     return render(request, 'apply.html',
@@ -44,7 +45,7 @@ def apply(request):
                                                                                          is_active=True)})
             elif request.POST.get('request_new_internship_company'):
                 return render(request, 'new_internship.html',
-                              {'form':InternshipForm})
+                              {'form': InternshipForm})
             elif request.POST.get('request_company_button'):
                 internship_form = InternshipForm(request.POST)
                 if internship_form.is_valid():
@@ -59,8 +60,8 @@ def apply(request):
                                   })
                 else:
                     return render(request, 'new_internship.html',
-                                  {'form':internship_form,
-                                   'error': 'form not valid. '+internship_form.errors})
+                                  {'form': internship_form,
+                                   'error': 'form not valid. ' + internship_form.errors})
         else:
             return HttpResponse('faculty not allowed')
 
@@ -70,6 +71,7 @@ def apply(request):
 
 
 def review(request):
+    class_active = "internship"
     user = request.user
     if not user.is_anonymous:
         if has_role(user, 'faculty'):
@@ -80,15 +82,17 @@ def review(request):
                 all_student_internship_objs_not_accepted = all_student_internship_objs.filter(is_accepted=False)
                 all_student_internship_objs_accepted = all_student_internship_objs.filter(is_accepted=True)
 
-                return render(request, 'student_internship_list.html',
-                              {'student_internships_not_accepted': all_student_internship_objs_not_accepted,
-                               'student_internships_accepted': all_student_internship_objs_accepted})
+                return render(request, 'student_internship_list.html', {
+                    'class_active': class_active,
+                    'student_internships_not_accepted': all_student_internship_objs_not_accepted,
+                    'student_internships_accepted': all_student_internship_objs_accepted})
             elif request.POST.get('review_button'):
                 student_internship_pk = request.POST.get('review_button')
                 student_internship_obj = StudentInternship.objects.get(pk=student_internship_pk)
 
-                return render(request, 'review_internship.html',
-                              {'student_internship': student_internship_obj})
+                return render(request, 'review_internship.html', {
+                    'class_active': class_active,
+                    'student_internship': student_internship_obj})
             elif request.POST.get('accept_button'):
                 student_internship_pk = request.POST.get('accept_button')
                 remarks = request.POST.get('remarks')
@@ -98,8 +102,9 @@ def review(request):
                 student_internship_obj.remarks = remarks
                 student_internship_obj.save()
 
-                return render(request, 'review_internship.html',
-                              {'student_internship': student_internship_obj})
+                return render(request, 'review_internship.html', {
+                    'class_active': class_active,
+                    'student_internship': student_internship_obj})
             elif request.POST.get('reject_button'):
                 student_internship_pk = request.POST.get('reject_button')
                 remarks = request.POST.get('remarks')
@@ -109,8 +114,10 @@ def review(request):
                 student_internship_obj.remarks = remarks
                 student_internship_obj.save()
 
-                return render(request, 'review_internship.html',
-                              {'student_internship': student_internship_obj})
+                return render(request, 'review_internship.html', {
+                    'class_active': class_active,
+                    'student_internship': student_internship_obj
+                })
 
 
 

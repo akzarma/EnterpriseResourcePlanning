@@ -182,10 +182,15 @@
     .checkbox-primary > label{
     font-weight:700;
     }
-
+    .btn{
+    border-radius:0;
+    }
+    .btn-danger,.btn-primary{
+    margin :10px!important;
+    }
 {% endblock extra_style %}
 {% block content %}
-    <div class="row col-md-3">
+    <div class="col-md-5">
         <legend>Enter Intership Details</legend>
         <form method="POST" action="{% url 'internship:apply' %}">
             {% csrf_token %}
@@ -195,12 +200,6 @@
                 {{ form.internship.with_errors }}
             </div>
 
-
-            <div class="checkbox checkbox-primary">
-                {{ form.work_from_home }}
-                {{ form.work_from_home.label_tag }}
-                {{ form.work_from_home.with_errors }}
-            </div>
 
             <div class="form-group">
                 {{ form.start_date.label_tag }}
@@ -214,6 +213,11 @@
                 {{ form.end_date.with_errors }}
             </div>
 
+            <div class="checkbox checkbox-primary">
+                {{ form.work_from_home }}
+                {{ form.work_from_home.label_tag }}
+                {{ form.work_from_home.with_errors }}
+            </div>
 
             <button class="btn btn-primary" name="apply_button" value="true">Apply</button>
 
@@ -221,7 +225,8 @@
 
         <form method="post" action="{% url 'internship:apply' %}">
             {% csrf_token %}
-            <button class="btn btn-danger" name="not_listed_button" value="true">Click here if Internship not listed</button>
+            <button class="btn btn-danger" name="not_listed_button" value="true">Click here if Internship not listed
+            </button>
         </form>
     </div>
     <script>
