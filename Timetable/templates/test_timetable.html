@@ -1037,7 +1037,6 @@
                             }
                             {#theory_faculty_change()#}
                             block_all_current_subject(selected_subject, true);
-
                         }
                     }
                 }
@@ -1083,6 +1082,12 @@
                         checkbox_object.classList.remove("practical-cbx");
                         checkbox_object.parentElement.classList.remove("checked-cbx-parent");
                         checkbox_object.parentElement.classList.remove("practical-cbx-parent");
+                        for (let div in all_divisions) {
+                            if (all_divisions[div] !== division) {
+                                id = "id_room_" + time + "_" + all_divisions[div] + "_" + day + "_" + year + "_cbx";
+                                document.getElementById(id).disabled = false;
+                            }
+                        }
 
 
                     }
