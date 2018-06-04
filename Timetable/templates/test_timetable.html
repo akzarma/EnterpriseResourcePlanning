@@ -991,7 +991,8 @@
 
                             }
                             checkbox_object.parentElement.appendChild(table_obj);
-                        } else {
+                        }
+                        else {
                             for (let subject in subjects_json[year]['elective_theory'][selected_subject]) {
                                 for (let divisions in subjects_json[year]['elective_theory'][selected_subject][subject]) {
                                     let row_obj = document.createElement('tr');
@@ -1028,7 +1029,6 @@
                                 }
                             }
                             block_all_current_subject(selected_subject, true);
-
                         }
                     }
                 }
@@ -1074,6 +1074,12 @@
                         checkbox_object.classList.remove("practical-cbx");
                         checkbox_object.parentElement.classList.remove("checked-cbx-parent");
                         checkbox_object.parentElement.classList.remove("practical-cbx-parent");
+                        for (let div in all_divisions) {
+                            if (all_divisions[div] !== division) {
+                                id = "id_room_" + time + "_" + all_divisions[div] + "_" + day + "_" + year + "_cbx";
+                                document.getElementById(id).disabled = false;
+                            }
+                        }
 
 
                     }
@@ -1086,6 +1092,7 @@
                             checkbox_object.classList.remove("checked-cbx");
                             checkbox_object.parentElement.classList.remove("checked-cbx-parent");
                             checkbox_object.classList += " cbx";
+                            theory_faculty_change(document.getElementById("id_teacher_" + time + "_" + division + "_" + day + "_" + year), true, true);
                             checkbox_object.parentElement.removeChild(document.getElementById("id_teacher_" + time + "_" + division + "_" + day + "_" + year));
                             checkbox_object.parentElement.removeChild(document.getElementById("id_subject_" + time + "_" + division + "_" + day + "_" + year));
                             let room_obj = document.getElementById("id_room_" + time + "_" + division + "_" + day + "_" + year);
@@ -1093,7 +1100,6 @@
                             checkbox_object.parentElement.removeChild(room_obj);
                             block_checkbox(checkbox_object, local_teachers, local_selected_subject, time, year, day, division, true, selected_subject);
                             block_checkbox_elective(checkbox_object, local_teachers, local_selected_subject, time, year, day, division, true, selected_subject);
-                            theory_faculty_change(teacher_object, true, true)
 
                         }
                         else {
@@ -1165,9 +1171,9 @@
                                     let temp_obj = select_obj.querySelector('option[value="' + selected_faculty + '"]');
                                     if (!temp_obj) {
                                         let option_element = document.createElement('option');
-                                            option_element.text = selected_faculty;
-                                            option_element.value = selected_faculty;
-                                            select_obj.add(option_element);
+                                        option_element.text = selected_faculty;
+                                        option_element.value = selected_faculty;
+                                        select_obj.add(option_element);
                                     }
                                 }
                             }
