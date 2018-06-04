@@ -889,7 +889,7 @@
                                         block_checkbox_elective(checkbox_object, [previous_faculty], selected_subject, time, year, day, division, true);
                                         block_checkbox(checkbox_object, [teacher_object.value], document.getElementById('id_subject').value, time, year, day, division, false);
                                         block_checkbox_elective(checkbox_object, [teacher_object.value], document.getElementById('id_subject').value, time, year, day, division, false);
-                                        theory_faculty_change(this, false);
+                                        theory_faculty_change(this, false, false);
 
                                     });
 
@@ -917,7 +917,7 @@
                                 let current_room = room_object.value;
                                 block_room(room_object.id, current_room, false, false);
                                 console.log('checked');
-                                theory_faculty_change(teacher_object, true)
+                                theory_faculty_change(teacher_object, true, false)
                             } else {
                                 swal({
                                     text: "No faculty available for this lecture",
@@ -1093,6 +1093,8 @@
                             checkbox_object.parentElement.removeChild(room_obj);
                             block_checkbox(checkbox_object, local_teachers, local_selected_subject, time, year, day, division, true, selected_subject);
                             block_checkbox_elective(checkbox_object, local_teachers, local_selected_subject, time, year, day, division, true, selected_subject);
+                            theory_faculty_change(teacher_object, true, true)
+
                         }
                         else {
                             alert('Some error occured');
@@ -1153,7 +1155,22 @@
                                 }
                             }
                         }
-                        else{
+                        else {
+                            let index = block_faculty_list[selected_faculty].indexOf(id);
+                            if (index !== -1) {
+                                block_faculty_list[selected_faculty].splice(index, 1);
+                            }
+                            if (select_obj) {
+                                if (subject_teacher_json[blocking_subject_obj.value][current_div].indexOf(selected_faculty) !== -1) {
+                                    let temp_obj = select_obj.querySelector('option[value="' + selected_faculty + '"]');
+                                    if (!temp_obj) {
+                                        let option_element = document.createElement('option');
+                                            option_element.text = selected_faculty;
+                                            option_element.value = selected_faculty;
+                                            select_obj.add(option_element);
+                                    }
+                                }
+                            }
 
                         }
                     }
