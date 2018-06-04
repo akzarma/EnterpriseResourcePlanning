@@ -51,7 +51,7 @@ def fill_timetable(request):
                 years.append(i)
 
             year_semester_json = {}
-            for obj in YearSemester.objects.filter(is_active=True,semester__is_active=True):
+            for obj in YearSemester.objects.filter(is_active=True, semester__is_active=True):
                 year_sem = obj.year_branch.year.year
                 semester = obj.semester.semester
                 if year_sem not in year_semester_json:
@@ -277,8 +277,8 @@ def fill_date_timetable(new_date_timetable):
     creation_list = []
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     # Should always return 1 object
-    branch_obj = Branch.objects.get(branch='Computer')
     DateTimetable.objects.all().delete()
+    branch_obj = Branch.objects.get(branch='Computer')
     current_semester = Semester.objects.get(is_active=True)
     all_years = set(CollegeYear.objects.all()) - set(CollegeYear.objects.filter(year='FE'))
     for year in all_years:
@@ -290,7 +290,7 @@ def fill_date_timetable(new_date_timetable):
         end_date = year_semester_obj.lecture_end_date
         date_range = (end_date - start_date).days + 1
         for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
-            for each in new_date_timetable:
+            for each in new_date_timetable.filter(branch_subject__year_branch = year_branch_obj):
                 if days[date.weekday()] == each.day:
                     creation_list += [DateTimetable(date=date, original=each, is_substituted=False, not_available=False)]
     DateTimetable.objects.bulk_create(creation_list, batch_size=499)
@@ -332,7 +332,7 @@ def save_timetable(request):
 
                 # branch = Branch.objects.get(branch='Computer')
                 year_obj = CollegeYear.objects.get(year=year)
-                year_branch_obj = YearBranch.objects.get(branch=branch, year=year_obj)
+                year_branch_obj = YearBranch.objects.get(branch=branch, year=year_obj, is_active=True)
 
                 branch_subject = BranchSubject.objects.get(year_branch=year_branch_obj,
                                                            subject__short_form=subject_short_name)
@@ -341,9 +341,10 @@ def save_timetable(request):
                 faculty = Faculty.objects.get(
                     initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
 
-                division = Division.objects.get(division=division, year_branch=branch_subject.year_branch)
-
                 if len(token) < 5:  # theory (normal)
+                    division = Division.objects.get(division=division, year_branch=branch_subject.year_branch,
+                                                    is_active=True)
+
                     timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                          is_practical=False)
                     room = Room.objects.get(room_number=room_number, branch=branch_subject.year_branch.branch,
@@ -366,11 +367,18 @@ def save_timetable(request):
 
                         # timetable.save()
                         new_timetable += [timetable]
-                # elif len(token)<6 and 'elective' in token: #Elective theory
+                elif len(token) < 6 and 'elective' in token:  # Elective theory
+                    division = ElectiveDivision.objects.get(division=division, year_branch=branch_subject.year_branch,
+                                                    is_active=True)
 
+                    timetable = Timetable.objects.filter(time=time, day=day, division=division,
+                                                         is_practical=False)
 
                 else:  # practical
                     # batch = token[4]
+                    division = Division.objects.get(division=division, year_branch=branch_subject.year_branch,
+                                                    is_active=True)
+
                     batch = Batch.objects.get(division=division, batch_name=token[4])
 
                     timetable = Timetable.objects.filter(time=time, day=day, division=division,
@@ -397,7 +405,7 @@ def save_timetable(request):
                         # timetable.save()
                         new_timetable += [timetable]
 
-        # Timetable.objects.bulk_create(new_timetable)
+        Timetable.objects.bulk_create(new_timetable)
 
         # to_json(request)
 
