@@ -296,7 +296,6 @@ def fill_date_timetable(new_date_timetable):
     # return HttpResponse('DOne')
 
 
-@task
 def save_timetable(request):
     if request.method == "POST":
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -344,7 +343,7 @@ def save_timetable(request):
 
                 division = Division.objects.get(division=division, year_branch=branch_subject.year_branch)
 
-                if len(token) < 5:  # theory
+                if len(token) < 5:  # theory (normal)
                     timetable = Timetable.objects.filter(time=time, day=day, division=division,
                                                          is_practical=False)
                     room = Room.objects.get(room_number=room_number, branch=branch_subject.year_branch.branch,
@@ -367,6 +366,8 @@ def save_timetable(request):
 
                         # timetable.save()
                         new_timetable += [timetable]
+                # elif len(token)<6 and 'elective' in token: #Elective theory
+
 
                 else:  # practical
                     # batch = token[4]
