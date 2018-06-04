@@ -278,7 +278,8 @@ def fill_date_timetable(new_date_timetable):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     # Should always return 1 object
     branch_obj = Branch.objects.get(branch='Computer')
-    current_semester = Semester.objects.get(semester=1, is_active=True)
+    DateTimetable.objects.all().delete()
+    current_semester = Semester.objects.get(is_active=True)
     all_years = set(CollegeYear.objects.all()) - set(CollegeYear.objects.filter(year='FE'))
     for year in all_years:
         print(branch_obj, year)
@@ -291,9 +292,8 @@ def fill_date_timetable(new_date_timetable):
         for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
             for each in new_date_timetable:
                 if days[date.weekday()] == each.day:
-                    creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
-    DateTimetable.objects.bulk_create(creation_list, batch_size=400)
-    # return HttpResponse('DOne')
+                    creation_list += [DateTimetable(date=date, original=each, is_substituted=False, not_available=False)]
+    DateTimetable.objects.bulk_create(creation_list, batch_size=499)
 
 
 def save_timetable(request):
