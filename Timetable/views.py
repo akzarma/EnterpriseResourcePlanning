@@ -366,7 +366,7 @@ def save_timetable(request):
 
                         # timetable.save()
                         new_timetable += [timetable]
-                elif len(token)<6 and 'elective' in token: #Elective theory
+                # elif len(token)<6 and 'elective' in token: #Elective theory
 
 
                 else:  # practical

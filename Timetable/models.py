@@ -1,5 +1,5 @@
 from django.db import models
-from Registration.models import Faculty
+from Registration.models import Faculty, ElectiveSubject
 from General.models import BranchSubject, Batch, Division, ElectiveDivision
 
 # from Attendance.models import Division
@@ -53,7 +53,7 @@ class Timetable(models.Model):
     is_practical = models.BooleanField(default=False)
     batch = models.ForeignKey(Batch, null=True)
     elective_division = models.ForeignKey(ElectiveDivision,on_delete=models.CASCADE,null=True)
-    elective_subject
+    elective_subject = models.ForeignKey(ElectiveSubject,on_delete=models.CASCADE,null=True)
 
 
     def __str__(self):
