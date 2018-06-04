@@ -8,7 +8,7 @@ from Registration.models import Branch
 class StudentInternshipForm(forms.ModelForm):
     # branch should be passed as a parameter in form
     internship = forms.ChoiceField(
-        choices=[]
+        choices=[],
     )
 
     def __init__(self, *args, **kwargs):
@@ -19,11 +19,14 @@ class StudentInternshipForm(forms.ModelForm):
             choices=[(i.pk, i) for i in Internship.objects.filter(branch=Branch.objects.get(branch='Computer'),
                                                                   is_verified=True,
                                                                   is_active=True)])
+        self.fields['internship'].widget.attrs.update({'class': 'form-control', })
 
     class Meta:
         widgets = {
-            'start_date': forms.DateInput(attrs={'class': 'datepicker'}),
-            'end_date': forms.DateInput(attrs={'class': 'datepicker'}),
+            'start_date': forms.DateInput(attrs={'class': 'datepicker form-control'}),
+            'end_date': forms.DateInput(attrs={'class': 'datepicker form-control'}),
+            'work_from_home': forms.CheckboxInput(attrs={'class': 'form-control'}),
+
         }
         model = StudentInternship
         fields = '__all__'
@@ -32,7 +35,7 @@ class StudentInternshipForm(forms.ModelForm):
 
 class InternshipForm(forms.ModelForm):
     branch = forms.ChoiceField(
-        choices=[]
+        choices=[],
     )
 
     def __init__(self, *args, **kwargs):
@@ -40,13 +43,22 @@ class InternshipForm(forms.ModelForm):
 
         self.fields['branch'] = forms.ChoiceField(
             choices=[(i.pk, i) for i in Branch.objects.all()]
-        )
 
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({'class': 'form-control', })
+        )
+        self.fields['branch'].widget.attrs.update({'class': 'form-control', })
+
+        # for field in self.fields:
+        #     self.fields[field].widget.attrs.update({'class': 'form-control', })
 
     class Meta:
         model = Internship
-
+        widgets = {
+            'company_name': forms.TextInput(attrs={'class': 'form-control   '}),
+            'address': forms.TextInput(attrs={'class': 'form-control   '}),
+            'email': forms.TextInput(attrs={'class': 'form-control   '}),
+            'contact_number': forms.TextInput(attrs={'class': 'form-control   '}),
+            'website': forms.TextInput(attrs={'class': 'form-control   '}),
+            'branch': forms.TextInput(attrs={'class': 'form-control   '}),
+        }
         fields = '__all__'
         exclude = ['is_active', 'is_verified', 'branch']

@@ -263,13 +263,15 @@
                                     </div>
                                 </div>
                                 <ul class="dropdown-menu">
-                                    <li>&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign"></span>
-                                        <p style="display: inline">GR number: {{ user.student.gr_number }}</p></li>
+                                    <li><a>Id : <span style="color: #0379C4;">{{ user.student.gr_number }}</span></a>
+                                    </li>
                                     <li role="separator" class="divider"></li>
                                     <li><a href="{% url 'dashboard:profile' %}"><span
-                                            class="glyphicon glyphicon-user"></span>View Profile</a></li>
+                                            class="glyphicon glyphicon-user"></span> <span style="color: #0379C4;">View Profile</span></a>
+                                    </li>
                                     <li><a href="{% url 'dashboard:logout' %}"><span
-                                            class="glyphicon glyphicon-off"></span> Logout</a>
+                                            class="glyphicon glyphicon-off"></span> <span
+                                            style="color: #0379C4;">Logout</span></a>
                                     </li>
                                 </ul>
                             {% else %}

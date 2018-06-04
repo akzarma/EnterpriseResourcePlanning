@@ -131,7 +131,7 @@ def view_exam(request):
 
 def manage_exam(request):
     user = request.user
-
+    class_active = "exam"
     if user.is_anonymous:
         return redirect('/login/')
 
@@ -140,5 +140,6 @@ def manage_exam(request):
             all_exams = ExamDetail.objects.all().order_by('-schedule_start_date')
 
             return render(request, 'manage_exam.html', {
+                'class_active': class_active,
                 'all_exams': all_exams
             })

@@ -80,6 +80,7 @@ def update_exam_status(request):
     if request.method == "GET":
         object_list = ExamMaster.objects.all()
         return render(request, 'update_status.html', {
+            'class_active': class_active,
             'object_list': object_list,
             'field_list': field_list,
             'url': url,
@@ -92,16 +93,19 @@ def update_exam_status(request):
         object_list = ExamMaster.objects.all()
 
     return render(request, 'update_status.html', {
+        'class_active': class_active,
         'object_list': object_list,
         'field_list': field_list,
     })
 
 
 def update_subject_status(request):
+    class_active = "status"
     field_list = ['exam_name', 'start_date']
     url = '/update/subject/status/'
     object_list = ExamMaster.objects.all()
     return render(request, 'update_status.html', {
+        'class_active': class_active,
         'object_list': object_list,
         'field_list': field_list,
         'url': url,
