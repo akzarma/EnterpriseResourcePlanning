@@ -20,7 +20,7 @@ urlpatterns = [
     url(r'^exam/', include('Exam.urls')),
     url(r'^backup/', include('BackupRestore.urls')),
     url(r'^internship/', include('Internship.urls')),
-    url(r'^self-concept/', include('SelfConcept.urls'))
+    url(r'^feedback/', include('Feedback.urls'))
     # url(r'^research/', include('Research.urls')),
     # url(r'^update/', include('Update.urls'))
 

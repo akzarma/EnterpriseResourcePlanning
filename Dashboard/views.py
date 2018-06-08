@@ -26,7 +26,6 @@ import datetime
 # Student dashboard
 from Registration.views import has_role
 from Research.models import Paper
-from SelfConcept.models import Question
 from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
 from UserModel.models import User, RoleMaster, RoleManager

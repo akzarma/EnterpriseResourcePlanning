@@ -50,9 +50,11 @@
                         <td>
                             <div class="form-group">
                                 {% if student_internship.is_reviewed %}
-                                    <textarea class="form-control" rows="4" disabled>{{ student_internship.remarks }}</textarea>
+                                    <textarea class="form-control" rows="4"
+                                              disabled>{{ student_internship.remarks }}</textarea>
                                 {% else %}
-                                    <textarea class="form-control" id="remarks" name="remarks" rows="4">{{ student_internship.remarks }}</textarea>
+                                    <textarea class="form-control" id="remarks" name="remarks"
+                                              rows="4">{{ student_internship.remarks }}</textarea>
                                 {% endif %}
                             </div>
                         </td>
