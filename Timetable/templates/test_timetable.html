@@ -1020,7 +1020,7 @@
                                     cbx_obj.setAttribute('class', 'checked-cbx');
                                     cbx_obj.setAttribute('onchange', 'block_faculty_elective_theory(this)');
                                     cbx_obj.id = "id_room_" + time + "_" + subjects_json[year]['elective_theory'][selected_subject][subject][divisions] + "_" + day + "_" + year + "_" + subject + "_elective_cbx";
-                                    cbx_obj.setAttribute('name', "id_cbx_" + time + "_" + subjects_json[year]['elective_theory'][selected_subject][subject][divisions] + "_" + day + "_" + year + "_" + subject);
+                                    cbx_obj.setAttribute('name', "id_cbx_" + time + "_" + subjects_json[year]['elective_theory'][selected_subject][subject][divisions] + "_" + day + "_" + year + "_" + subject + "_" + selected_subject);
 
                                     column_obj.appendChild(cbx_obj);
                                     row_obj.appendChild(column_obj);

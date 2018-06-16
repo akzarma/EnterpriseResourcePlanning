@@ -551,19 +551,22 @@ def get_subjects(request):
 
 @csrf_exempt
 def android_get_notifications(request):
-    user = User.objects.get(username=request.POST.get('username'))
-    notification_objs = SpecificNotification.objects.filter(user=user, is_active=True)
+    if request.method=="POST":
+        user = User.objects.get(username=request.POST.get('username'))
+        notification_objs = SpecificNotification.objects.filter(user=user, is_active=True)
 
-    data = {}
-    for each in range(len(notification_objs)):
-        if not each in data:
-            data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
-                'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
-            data[each] = json.loads(data[each])[0]
-            # data[each] = json.dumps(struct[0])
-    answer = {}
-    answer['timeline'] = data
-    return JsonResponse(data)
+        data = {}
+        for each in range(len(notification_objs)):
+            if not each in data:
+                data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
+                    'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
+                data[each] = json.loads(data[each])[0]
+                # data[each] = json.dumps(struct[0])
+        answer = {}
+        answer['timeline'] = data
+        return JsonResponse(data)
+    else:
+        return JsonResponse({'error':'Not a post request'})
 
 
 @csrf_exempt
