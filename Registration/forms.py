@@ -17,7 +17,9 @@ year_list = CollegeYear.objects.all()
 
 shift_list = Shift.objects.all()
 
-gr_roll = '''I1510432	3
+gr_roll = '''student2	1
+student	1
+I1510432	3
 test	322050
 U1410306	322079
 U1410625	321012
@@ -670,7 +672,7 @@ class FacultySubjectForm(forms.ModelForm):
     class Meta:
         model = FacultySubject
         fields = '__all__'
-        exclude = ['faculty', 'subject','division','is_active']
+        exclude = ['faculty', 'subject', 'division', 'is_active']
 
 
 class StudentForm(forms.ModelForm):
@@ -704,9 +706,8 @@ class StudentForm(forms.ModelForm):
         choices=[(i, i) for i in shift_list]
     )
 
-    division = forms.ChoiceField(
-        choices=sorted(set([(i.division, i.division) for i in division_list]))
-
+    division = forms.CharField(
+        widget=forms.TextInput(attrs={'placeholder': 'Eg: A'})
     )
     year = forms.ChoiceField(
         choices=[(i, i) for i in year_list]
