@@ -26,8 +26,8 @@ def apply(request):
                     intership_pk = request.POST.get('internship')
                     internship_obj = Internship.objects.get(pk=intership_pk)
                     student_internship_obj.application_date = datetime.date.today()
-                    student_internship_obj.start_date = student_internship_form_obj.cleaned_data['start_date']
-                    student_internship_obj.end_date = student_internship_form_obj.cleaned_data['end_date']
+                    # student_internship_obj.start_date = student_internship_form_obj.cleaned_data['start_date']
+                    # student_internship_obj.end_date = student_internship_form_obj.cleaned_data['end_date']
                     student_internship_obj.student = user.student
                     student_internship_obj.internship = internship_obj
                     student_internship_obj.save()
