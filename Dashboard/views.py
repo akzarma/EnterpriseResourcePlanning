@@ -629,3 +629,4 @@ def read_all_notification(request):
         notification.has_read = True
         notification.save()
     return HttpResponse("Done")
+

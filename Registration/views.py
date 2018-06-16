@@ -88,44 +88,56 @@ def register_student(request):
     if request.method == "POST":
         form = StudentForm(request.POST, request.FILES)
         if form.is_valid():
-            student = form.save(commit=False)
-            student.key = generate_activation_key()
-            new_user = User.objects.create_user(username=student.gr_number,
-                                                first_name=form.cleaned_data.get('first_name'),
-                                                last_name=form.cleaned_data.get('last_name'),
-                                                email=form.cleaned_data.get('email'))
-            new_user.save()
-            division = form.cleaned_data.get('division')
-            shift = form.cleaned_data.get('shift')
-            branch = form.cleaned_data.get('branch')
-            year = form.cleaned_data.get('year')
-            batch = form.cleaned_data.get('batch')
-            batch = "".join(batch.split()).upper()
+            student = 0
+            try:
+                student = form.save(commit=False)
+                student.key = generate_activation_key()
+                new_user = User.objects.create_user(username=student.gr_number,
+                                                    first_name=form.cleaned_data.get('first_name'),
+                                                    last_name=form.cleaned_data.get('last_name'),
+                                                    email=form.cleaned_data.get('email'))
+                new_user.save()
+                division = form.cleaned_data.get('division')
+                shift = form.cleaned_data.get('shift')
+                branch = form.cleaned_data.get('branch')
+                year = form.cleaned_data.get('year')
+                batch = form.cleaned_data.get('batch')
+                batch = "".join(batch.split()).upper()
 
-            student.user = new_user
+                student.user = new_user
 
-            student.save()
+                student.save()
 
-            roll_number = gr_roll_dict[student.gr_number]
-            branch_obj = Branch.objects.get(branch=branch)
-            year_obj = CollegeYear.objects.get(year=year)
-            division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
-                                                division=division, shift__shift=shift)
-            batch_obj = Batch.objects.get(division=division_obj, batch_name=batch)
-            StudentDetail.objects.create(student=student, batch=batch_obj, roll_number=roll_number)
+                roll_number = gr_roll_dict[student.gr_number]
+                branch_obj = Branch.objects.get(branch=branch)
+                year_obj = CollegeYear.objects.get(year=year)
+                division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
+                                                    division=division, shift__shift=shift)
+                batch_obj = Batch.objects.get(division=division_obj, batch_name=batch)
+                sem_obj = Semester.objects.get(semester=1, is_active=True)
+                StudentDetail.objects.get_or_create(student=student, batch=batch_obj, roll_number=roll_number,
+                                                    semester=sem_obj)
 
-            # college_year_obj = CollegeYear.objects.get(year=year)
-            # shift_obj = Shift.objects.get(shift=shift)
-            # new_student_division = StudentDetail(student=student,
-            #                                      division=CollegeExtraDetail.objects.get(branch=branch_obj,
-            #                                                                                year=college_year_obj,
-            #                                                                                division=division,
-            #                                                                                shift=shift_obj))
-            # StudentRollNumber.objects.create(student=student, roll_number=[gr_roll_dict[i] for i in gr_roll_dict if i==student.gr_number][0])
-            # new_student_division.save()
-            request.session['user_id'] = student.pk
-            return HttpResponseRedirect('/register/student/success/')
-            # return HttpResponse(form.errors)
+                # college_year_obj = CollegeYear.objects.get(year=year)
+                # shift_obj = Shift.objects.get(shift=shift)
+                # new_student_division = StudentDetail(student=student,
+                #                                      division=CollegeExtraDetail.objects.get(branch=branch_obj,
+                #                                                                                year=college_year_obj,
+                #                                                                                division=division,
+                #                                                                                shift=shift_obj))
+                # StudentRollNumber.objects.create(student=student, roll_number=[gr_roll_dict[i] for i in gr_roll_dict if i==student.gr_number][0])
+                # new_student_division.save()
+                request.session['user_id'] = student.pk
+                return HttpResponseRedirect('/register/student/success/')
+                # return HttpResponse(form.errors)
+            except Exception as e:
+                if not student==0:
+                    StudentDetail.objects.filter(student=student).delete()
+                    Student.objects.filter(pk=student.pk).delete()
+                    User.objects.filter(pk=student.pk).delete()
+                form = StudentForm(initial={'handicapped': False})
+                return render(request, "register_student.html", {'form': form,
+                                                                 'error': e})
         else:
             print(form.errors)
             # return HttpResponse(form.errors)

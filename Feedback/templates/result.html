@@ -1,0 +1,83 @@
+{% extends 'dashboard_faculty.html' %}
+{% load custom_tags %}
+{% block content %}
+    <div class="col-md-12">
+        <div class="table-responsive col-md-11">
+            <legend>Test Result</legend>
+            <table class="table table-bordered white">
+                <thead class="thead-inverse">
+                <tr>
+                    <th></th>
+                    <th>Positive</th>
+                    <th>Negative</th>
+                </tr>
+                </thead>
+                <tbody>
+                <form method="post" action="{% url 'Feedback:self_concept_result' %}">
+                    {% csrf_token %}
+                    {% for each in form_answers %}
+                        <tr>
+                            <td>{{ each.answer.answer }}</td>
+                            <td>
+                                {% for answer in result_pos %}
+                                    {% ifequal each.answer.answer answer %}
+                                        {{ result_pos|get_item:answer }}
+                                    {% endifequal %}
+                                {% endfor %}
+
+                            </td>
+                            <td>
+
+                                {% for answer in result_neg %}
+                                    {% ifequal each.answer.answer answer %}
+                                        {{ result_neg|get_item:answer }}
+                                    {% endifequal %}
+                                {% endfor %}
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </form>
+                </tbody>
+
+            </table>
+            <table class="table table-bordered">
+                <tbody>
+                <tr>
+                    <td><strong>Overall Score</strong></td>
+                    <td>{{ score }}</td>
+                </tr>
+                </tbody>
+            </table>
+            <legend>Student Details</legend>
+            <table class="table table-bordered">
+                <tbody>
+                <tr>
+                    <td>Name</td>
+                    <td>{{ student.student.first_name }} {{ student.student.last_name }}</td>
+                </tr>
+                <tr>
+                    <td>DOB</td>
+                    <td>{{ student.student.DOB }}</td>
+                </tr>
+                <tr>
+                    <td>Gr/Sr no.</td>
+                    <td>{{ student.student.gr_number }}</td>
+                </tr>
+                <tr>
+                    <td>Year</td>
+                    <td>{{ student.batch.division.year_branch.year.year }}</td>
+                </tr>
+                <tr>
+                    <td>Branch</td>
+                    <td>{{ student.batch.division.year_branch.branch.branch }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock content %}
