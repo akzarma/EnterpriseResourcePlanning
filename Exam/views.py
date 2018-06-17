@@ -1,12 +1,13 @@
 import json
 
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 import datetime
 
 # Create your views here.
 from Exam.forms import ExamDetailForm
-from Exam.models import ExamMaster, ExamSubject, ExamDetail
+from Exam.models import ExamMaster, ExamSubject, ExamDetail, ExamGroupDetail
 from General.models import Semester, BranchSubject, CollegeYear, YearBranch, FacultySubject, Division, StudentDetail
 from General.views import notify_users
 from Registration.models import Branch
@@ -143,3 +144,16 @@ def manage_exam(request):
                 'class_active': class_active,
                 'all_exams': all_exams
             })
+
+
+def set_rooms(request):
+    user = request.user
+    if has_role(user,'faculty'):
+        if request.method=='GET':
+            all_exams = list(ExamDetail.objects.filter(is_active=True))
+            done_exams = set([each.exam for each in ExamGroupDetail.objects.filter(is_active=True)])
+            remaining = list(set(all_exams)-done_exams)
+            print(remaining)
+            return render(request,'set_rooms.html')
+    else:
+        return HttpResponse('Access Denied')

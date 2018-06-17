@@ -279,20 +279,22 @@ def fill_date_timetable(new_date_timetable):
     # Should always return 1 object
     DateTimetable.objects.all().delete()
     branch_obj = Branch.objects.get(branch='Computer')
-    current_semester = Semester.objects.get(is_active=True)
+    all_semester = Semester.objects.filter(is_active=True)
     all_years = set(CollegeYear.objects.all()) - set(CollegeYear.objects.filter(year='FE'))
-    for year in all_years:
-        print(branch_obj, year)
-        year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year)
-        year_semester_obj = YearSemester.objects.get(year_branch=year_branch_obj, semester=current_semester,
-                                                     is_active=True)
-        start_date = year_semester_obj.lecture_start_date
-        end_date = year_semester_obj.lecture_end_date
-        date_range = (end_date - start_date).days + 1
-        for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
-            for each in new_date_timetable.filter(branch_subject__year_branch=year_branch_obj):
-                if days[date.weekday()] == each.day:
-                    creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
+    for current_semester in all_semester:
+        for year in all_years:
+            print(branch_obj, year)
+            year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year)
+            year_semester_obj = YearSemester.objects.get(year_branch=year_branch_obj, semester=current_semester,
+                                                         is_active=True)
+            start_date = year_semester_obj.lecture_start_date
+            end_date = year_semester_obj.lecture_end_date
+            date_range = (end_date - start_date).days + 1
+            for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
+                for each in new_date_timetable.filter(branch_subject__year_branch=year_branch_obj):
+                    if days[date.weekday()] == each.day:
+                        creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
+
     DateTimetable.objects.bulk_create(creation_list, batch_size=400)
     # return HttpResponse('DOne')
 

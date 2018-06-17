@@ -428,9 +428,11 @@ def show_all_notifications(request, page=1):
     if not user.is_anonymous:
         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
         is_student = RoleManager.objects.filter(user=user, role__role='student')
-        notification_objs = sorted(SpecificNotification.objects.filter(user=user))[
+        notification_objs = SpecificNotification.objects.filter(user=user)[
                             (int(page) - 1) * NOTIFICATION_LONG_LIMIT:(int(
                                 page) - 1) * NOTIFICATION_LONG_LIMIT + NOTIFICATION_LONG_LIMIT]
+        general_notification_student = []
+        all_notifications = []
         if is_student:
             student_obj = user.student
             student_detail_obj = StudentDetail.objects.get(student=student_obj, is_active=True)
@@ -452,7 +454,8 @@ def show_all_notifications(request, page=1):
                                            :NOTIFICATION_LONG_LIMIT]
             all_notifications = list(notification_objs) + list(general_notification_faculty)
 
-        final_notifications = sorted(all_notifications, key=lambda x: x.datetime)[:NOTIFICATION_LONG_LIMIT]
+        final_notifications = sorted(all_notifications, key=lambda x: x.datetime, reverse=True)[
+                              :NOTIFICATION_LONG_LIMIT]
 
         notification_model = {}
         for obj in final_notifications:
@@ -551,22 +554,55 @@ def get_subjects(request):
 
 @csrf_exempt
 def android_get_notifications(request):
-    if request.method=="POST":
+    if request.method == "POST":
         user = User.objects.get(username=request.POST.get('username'))
-        notification_objs = SpecificNotification.objects.filter(user=user, is_active=True)
+        pk_specific = int(request.POST.get('pk_specific'))
+        pk_general = int(request.POST.get('pk_general'))
+        specific_notification_objs = SpecificNotification.objects.filter(user=user, is_active=True, pk__gt=pk_specific)
+        general_notification_objs = []
+        if has_role(user, 'faculty'):
+            faculty_obj = user.faculty
+            faculty_sub_obj = list(FacultySubject.objects.filter(faculty=faculty_obj, is_active=True))
+            branch_obj = list(
+                BranchSubject.objects.filter(subject_id__in=[each.subject_id for each in faculty_sub_obj],
+                                             is_active=True))
+            branch_obj = list(set([each.year_branch.branch for each in branch_obj]))
+            general_notification_objs = GeneralFacultyNotification.objects.filter(branch__in=branch_obj,
+                                                                                  is_active=True, pk__gt=pk_general)[
+                                        :NOTIFICATION_LONG_LIMIT]
+        elif has_role(user, 'student'):
+            student_obj = user.student
+            student_detail_obj = StudentDetail.objects.get(student=student_obj, is_active=True)
+            division_obj = student_detail_obj.batch.division
+            general_notification_objs = GeneralStudentNotification.objects.filter(division=division_obj,
+                                                                                  is_active=True, pk__gt=pk_general)[
+                                        :NOTIFICATION_LONG_LIMIT]
+        # print(pk)
+        data1 = {}
 
-        data = {}
-        for each in range(len(notification_objs)):
-            if not each in data:
-                data[each] = serializers.serialize('json', [notification_objs[each], ], fields=(
+        for each in range(len(specific_notification_objs)):
+            if not each in data1:
+                data1[each] = serializers.serialize('json', [specific_notification_objs[each], ], fields=(
                     'heading', 'datetime', 'type', 'notification', 'has_read', 'action', 'priority'))
-                data[each] = json.loads(data[each])[0]
+                data1[each] = json.loads(data1[each])[0]
                 # data[each] = json.dumps(struct[0])
         answer = {}
-        answer['timeline'] = data
-        return JsonResponse(data)
+        # answer['timeline'] = {'specific': {},
+        #                       'general': {}
+        #                       }
+        answer['specific'] = data1
+        data2 = {}
+        for each in range(len(general_notification_objs)):
+            if not each in data2:
+                data2[each] = serializers.serialize('json', [general_notification_objs[each], ], fields=(
+                    'heading', 'datetime', 'type', 'notification', 'action', 'priority'))
+                data2[each] = json.loads(data2[each])[0]
+                # data[each] = json.dumps(struct[0])
+        answer['general'] = data2
+
+        return JsonResponse(answer)
     else:
-        return JsonResponse({'error':'Not a post request'})
+        return JsonResponse({'error': 'Not a post request'})
 
 
 @csrf_exempt
@@ -629,4 +665,3 @@ def read_all_notification(request):
         notification.has_read = True
         notification.save()
     return HttpResponse("Done")
-

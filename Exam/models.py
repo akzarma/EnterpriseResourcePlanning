@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 from General.models import Division, Semester, StudentSubject, YearBranch
 from Registration.models import Subject, Faculty
+from Timetable.models import Room
 
 
 class ExamMaster(models.Model):
@@ -29,6 +30,23 @@ class ExamSubject(models.Model):
     exam = models.ForeignKey(ExamDetail, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     coordinator = models.ForeignKey(Faculty, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+
+
+class ExamGroup(models.Model):
+    name = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+
+
+class ExamGroupDetail(models.Model):
+    exam_group = models.ForeignKey(ExamGroup, on_delete=models.CASCADE)
+    exam = models.ForeignKey(ExamDetail, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+
+
+class ExamGroupRoom(models.Model):
+    exam_group = models.ForeignKey(ExamGroup, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
 

@@ -14,5 +14,7 @@ urlpatterns = [
     url(r'^view_exam/$', views.view_exam, name='view_exam'),
     # /exam/manage_exam
     url(r'^manage_exam/$', views.manage_exam, name='manage_exam'),
+    # /exam/set_rooms
+    url(r'^set_rooms/$', views.set_rooms, name='set_rooms'),
 
 ]

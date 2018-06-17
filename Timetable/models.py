@@ -38,7 +38,7 @@ class Room(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     room_number = models.CharField(max_length=10)
     lab = models.BooleanField()
-
+    capacity = models.PositiveIntegerField(default=28)
     def __str__(self):
         return str(self.branch) + str(self.room_number)
 
