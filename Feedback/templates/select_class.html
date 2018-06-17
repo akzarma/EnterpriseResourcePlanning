@@ -8,7 +8,7 @@
 
     <div class="row col-md-3">
         <form action="{% url 'Feedback:self_concept_result' %}" method="post">
-        {% csrf_token %}
+            {% csrf_token %}
             <div class="form-group">
                 <label for="branch_select">Select Branch</label>
                 <select class="form-control" id="branch_select" onload="loadYear()" onchange="loadYear()" name="branch">
@@ -42,6 +42,9 @@
             function loadYear() {
                 let branch = document.getElementById('branch_select').value;
                 let year_select = document.getElementById('year_select');
+                while (year_select.length > 0) {
+                    year_select.remove(0);
+                }
                 {#let option = document.createElement('option');#}
                 {#option.value = "all";#}
                 {#option.text = "All";#}
@@ -54,8 +57,8 @@
                     year_select.appendChild(option);
                 }
 
-
-            }
+                loadDivision();
+            };
 
         function loadDivision() {
             let branch = document.getElementById('branch_select').value;
