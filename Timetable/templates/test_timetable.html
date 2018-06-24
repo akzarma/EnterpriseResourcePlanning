@@ -1000,6 +1000,28 @@
                             checkbox_object.parentElement.appendChild(table_obj);
                         }
                         else {
+
+                            let first_td = document.getElementById("id_room_" + time + "_A_" + day + "_" + year + "_cbx").parentElement;
+                            let second_td = document.getElementById("id_room_" + time + "_B_" + day + "_" + year + "_cbx").parentElement;
+                            let third_td = document.getElementById("id_room_" + time + "_C_" + day + "_" + year + "_cbx").parentElement;
+                            second_td.parentElement.removeChild(second_td);
+                            third_td.parentElement.removeChild(third_td);
+                            while(first_td.hasChildNodes()){
+                                first_td.removeChild(first_td.childNodes[0]);
+                            }
+                            first_td.setAttribute("rowspan", "3");
+                            let checkbox_object = document.createElement('input');
+                            checkbox_object.setAttribute("type", "checkbox");
+                            checkbox_object.classList.add("practical-cbx");
+                            checkbox_object.id = id;
+                            let name = id.replace("_cbx","");
+                            name = id.replace("room","cbx");
+                            checkbox_object.setAttribute("name", name);
+                            checkbox_object.checked = true;
+                            first_td.appendChild(checkbox_object);
+                            checkbox_object.parentElement.classList.add("practical-cbx-parent");
+
+
                             for (let subject in subjects_json[year]['elective_theory'][selected_subject]) {
                                 for (let divisions in subjects_json[year]['elective_theory'][selected_subject][subject]) {
                                     let row_obj = document.createElement('tr');
@@ -1029,12 +1051,7 @@
                                 }
                                 checkbox_object.parentElement.appendChild(table_obj);
                             }
-                            for (let div in all_divisions) {
-                                if (all_divisions[div] !== division) {
-                                    id = "id_room_" + time + "_" + all_divisions[div] + "_" + day + "_" + year + "_cbx";
-                                    document.getElementById(id).disabled = true;
-                                }
-                            }
+
                             {#theory_faculty_change()#}
                             block_all_current_subject(selected_subject, true);
                         }
