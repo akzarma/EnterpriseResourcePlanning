@@ -38,7 +38,7 @@ class Room(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     room_number = models.CharField(max_length=10)
     lab = models.BooleanField()
-
+    capacity = models.PositiveIntegerField(default=28)
     def __str__(self):
         return str(self.branch) + str(self.room_number)
 
@@ -49,9 +49,9 @@ class Timetable(models.Model):
     day = models.CharField(max_length=10)
     branch_subject = models.ForeignKey(BranchSubject, on_delete=models.CASCADE)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
-    division = models.ForeignKey(Division, max_length=10,null=True)
+    division = models.ForeignKey(Division, max_length=10,null=True,on_delete=models.CASCADE)
     is_practical = models.BooleanField(default=False)
-    batch = models.ForeignKey(Batch, null=True)
+    batch = models.ForeignKey(Batch, null=True,on_delete=models.CASCADE)
     elective_division = models.ForeignKey(ElectiveDivision,on_delete=models.CASCADE,null=True)
     elective_subject = models.ForeignKey(ElectiveSubject,on_delete=models.CASCADE,null=True)
 
@@ -66,5 +66,5 @@ class DateTimetable(models.Model):
     original = models.ForeignKey(Timetable, on_delete=models.CASCADE, related_name='original')
     not_available = models.BooleanField(default=False)
     is_substituted = models.BooleanField(default=False)
-    substitute = models.ForeignKey(Timetable, related_name='substitute', null=True)
+    substitute = models.ForeignKey(Timetable, related_name='substitute', null=True,on_delete=models.CASCADE)
 

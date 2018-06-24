@@ -354,6 +354,7 @@
                         <li><a href="{% url 'exam:manage_exam' %}">Manage exam</a>
                         <li><a href="{% url 'exam:exam_detail' %}">Set exam</a>
                         <li><a href="{% url 'exam:exam_register' %}">Add new exam</a>
+                        <li><a href="{% url 'exam:set_rooms' %}">Set Rooms</a>
                         </li>
                     </ul>
                 </li>
@@ -368,6 +369,12 @@
                     <a href="#internshipmenu" data-toggle="collapse" aria-expanded="false">Internship</a>
                     <ul class="collapse list-unstyled" id="internshipmenu">
                         <li><a href="{% url 'internship:review' %}">Review</a></li>
+                    </ul>
+                </li>
+                <li id="feedback">
+                    <a href="#feedbackmenu" data-toggle="collapse" aria-expanded="false">Feedback Forms</a>
+                    <ul class="collapse list-unstyled" id="feedbackmenu">
+                        <li><a href="{% url 'Feedback:self_concept_result' %}">Self concept result</a></li>
                     </ul>
                 </li>
 

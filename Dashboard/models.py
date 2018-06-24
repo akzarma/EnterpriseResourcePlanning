@@ -50,7 +50,7 @@ class GeneralFacultyNotification(models.Model):
     type = models.CharField(max_length=200, null=True)
     priority = models.IntegerField(default=1)
     division = models.ForeignKey(Division, on_delete=models.CASCADE)
-    branch = models.ForeignKey(Branch)
+    branch = models.ForeignKey(Branch,on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

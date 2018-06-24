@@ -1,0 +1,58 @@
+{% extends 'dashboard_student.html' %}
+{% block title %}
+    Exam-Schedule | ERP
+{% endblock title %}
+
+
+
+{% block content %}
+
+
+
+    <form method="post">
+        Branch:{{ branch }}
+        Year:{{ year }}
+        Exam:{{ exam_name }}
+        <input type="hidden" value="{{ exam_pk }}" name="exam_pk">
+        <table>
+            <thead>
+            <tr>
+                <th>Sr No</th>
+                <th>Subject</th>
+                <th>Date and Time</th>
+            </tr>
+            </thead>
+            {% for each_subject in subjects %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><input type="text" readonly value="{{ each_subject }}"
+                               id="{{ each_subject }}" name="subject"></td>
+                    <td>
+                        <div class="form-group">
+                            <div class='input-group date' name='datetimepicker1'>
+                                <input type='text' class="form-control" name="datetime_{{ each_subject }}"/>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+
+                </tr>
+            {% endfor %}
+        </table>
+    </form>
+
+    <script type="text/javascript">
+        $(function () {
+            let all_datetime = $("[name='datetimepicker1']");
+            let len = all_datetime.length;
+            for (let i = 0; i < len; i++) {
+                all_datetime[i].datetimepicker();
+            }
+        });
+    </script>
+{% endblock content %}
+
+
+

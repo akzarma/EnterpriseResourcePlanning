@@ -24,9 +24,6 @@ def login_user(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(username=username, password=password)
-        if hasattr(user, 'username'):
-            if user.username == 'admin':
-                return HttpResponseRedirect('/admin/')
         if user is not None:
             login(request, user)
             return HttpResponseRedirect('/dashboard/')
@@ -70,19 +67,23 @@ def login_android(request):
 
                     # Add subjects taught by faculty division-wise
 
-                    theory = FacultySubject.objects.filter(faculty=user.faculty, subject__is_practical=False)
-                    practical = FacultySubject.objects.filter(faculty=user.faculty, subject__is_practical=True)
+                    theory = FacultySubject.objects.filter(faculty=user.faculty, subject__is_practical=False, is_active=True)
+                    practical = FacultySubject.objects.filter(faculty=user.faculty, subject__is_practical=True, is_active=True)
                     subject_json = {}
                     theory_json = {}
                     practical_json = {}
                     for each in theory:
-                        theory_json[each.division.division] = []
+                        if each.division is not None:
+                            theory_json[each.division.division] = []
                     for each in theory:
-                        theory_json[each.division.division] += [each.subject.short_form]
+                        if each.division is not None:
+                            theory_json[each.division.division] += [each.subject.short_form]
                     for each in practical:
-                        practical_json[each.division.division] = []
+                        if each.division is not None:
+                            practical_json[each.division.division] = []
                     for each in practical:
-                        practical_json[each.division.division] += [each.subject.short_form]
+                        if each.division is not None:
+                            practical_json[each.division.division] += [each.subject.short_form]
 
                     subject_json['theory'] = theory_json
                     subject_json['practical'] = practical_json
@@ -125,15 +126,15 @@ def login_android(request):
 
                         for each_student in all_student:
 
-                            roll_number = StudentDetail.objects.filter(student=each_student,
-                                                                       is_active=True)[0].roll_number
+                            roll_number = StudentDetail.objects.get(student=each_student,
+                                                                       is_active=True).roll_number
 
                             if 'all' in attendance_list[year][branch][division]:
                                 attendance_list[year][branch][division]['all'].append(roll_number)
                             else:
                                 attendance_list[year][branch][division]['all'] = []
                                 attendance_list[year][branch][division]['all'].append(roll_number)
-                            curr_batch = StudentDetail.objects.get(student=each_student).batch.batch_name
+                            curr_batch = StudentDetail.objects.get(student=each_student, is_active=True).batch.batch_name
                             if curr_batch in attendance_list[year][branch][division]:
                                 attendance_list[year][branch][division][curr_batch].append(roll_number)
                             else:
@@ -151,7 +152,7 @@ def login_android(request):
                     return HttpResponse(json.dumps(faculty_response))
                 elif is_student:
                     student = user.student
-                    student_detail = StudentDetail.objects.get(student=student)
+                    student_detail = StudentDetail.objects.get(student=student, is_active=True)
                     branch = student.branch
 
                     student_response = {

@@ -31,14 +31,14 @@ class StudentAttendance(models.Model):
 
 
 class FacultyAttendance(models.Model):
-    faculty = models.OneToOneField(Faculty)
+    faculty = models.OneToOneField(Faculty,on_delete=models.CASCADE)
     in_time = models.TimeField()
     out_time = models.TimeField()
 
 
 class TotalAttendance(models.Model):
-    student = models.ForeignKey(Student)
-    subject = models.ForeignKey(Subject)
+    student = models.ForeignKey(Student,on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject,on_delete=models.CASCADE)
     total_lectures = models.PositiveIntegerField()
     attended_lectures = models.PositiveIntegerField()
 

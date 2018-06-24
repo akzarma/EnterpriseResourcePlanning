@@ -1,0 +1,39 @@
+{% extends 'dashboard_student.html' %}
+{% block title %}
+    Exam-Schedule | ERP
+{% endblock title %}
+
+
+
+{% block content %}
+    <form>
+        <table class="table">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Sr no.</th>
+                <th>Exam</th>
+                <th>Schedule</th>
+                <th>Subjects</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for each_exam in exams %}
+                <td><input type="checkbox" name="exam" value="{{ each_exam.id }}"></td>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ each_exam.exam.exam_name }}</td>
+                <td>{{ each_exam.schedule_start_date }}</td>
+                <td>
+                    {% for each_subject in each_exam.examsubject_set.all %}
+                        {{ each_subject.subject.short_form }}
+                    {% endfor %}
+                </td>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% for each_room in available_rooms %}
+            <input type="checkbox" name="room" value="{{ each_room }}">
+            <label>{{ each_room.room_number }}</label>
+        {% endfor %}
+    </form>
+{% endblock content %}

@@ -4,13 +4,13 @@ from collections import OrderedDict
 import datetime
 from ipaddress import collapse_addresses
 
-import firebase_admin
+# import firebase_admin
 from celery import current_app
 from celery.task import task
 from django.db.models import Q
 from django.http.response import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
-from firebase_admin import credentials, db
+# from firebase_admin import credentials, db
 
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -22,7 +22,7 @@ from Registration.models import Branch, Subject, Faculty, Student, ElectiveSubje
 from Registration.models import Branch, Subject
 from UserModel.models import RoleManager
 from .models import Time, Room, Timetable, DateTimetable
-from Sync.function import write_to_firebase
+# from Sync.function import write_to_firebase
 
 import xlsxwriter
 
@@ -279,21 +279,24 @@ def fill_date_timetable(new_date_timetable):
     # Should always return 1 object
     DateTimetable.objects.all().delete()
     branch_obj = Branch.objects.get(branch='Computer')
-    current_semester = Semester.objects.get(is_active=True)
+    all_semester = Semester.objects.filter(is_active=True)
     all_years = set(CollegeYear.objects.all()) - set(CollegeYear.objects.filter(year='FE'))
-    for year in all_years:
-        print(branch_obj, year)
-        year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year)
-        year_semester_obj = YearSemester.objects.get(year_branch=year_branch_obj, semester=current_semester,
-                                                     is_active=True)
-        start_date = year_semester_obj.lecture_start_date
-        end_date = year_semester_obj.lecture_end_date
-        date_range = (end_date - start_date).days + 1
-        for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
-            for each in new_date_timetable.filter(branch_subject__year_branch = year_branch_obj):
-                if days[date.weekday()] == each.day:
-                    creation_list += [DateTimetable(date=date, original=each, is_substituted=False, not_available=False)]
-    DateTimetable.objects.bulk_create(creation_list, batch_size=499)
+    for current_semester in all_semester:
+        for year in all_years:
+            print(branch_obj, year)
+            year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year)
+            year_semester_obj = YearSemester.objects.get(year_branch=year_branch_obj, semester=current_semester,
+                                                         is_active=True)
+            start_date = year_semester_obj.lecture_start_date
+            end_date = year_semester_obj.lecture_end_date
+            date_range = (end_date - start_date).days + 1
+            for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
+                for each in new_date_timetable.filter(branch_subject__year_branch=year_branch_obj):
+                    if days[date.weekday()] == each.day:
+                        creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
+
+    DateTimetable.objects.bulk_create(creation_list, batch_size=400)
+    # return HttpResponse('DOne')
 
 
 def save_timetable(request):
@@ -317,8 +320,6 @@ def save_timetable(request):
 
                 year = token[3]
 
-                subject_short_name = request.POST.get(subject)
-
                 division = token[1]
 
                 faculty_initials = request.POST.get(splitted[0] + '_teacher_' + splitted[1])
@@ -333,15 +334,16 @@ def save_timetable(request):
                 # branch = Branch.objects.get(branch='Computer')
                 year_obj = CollegeYear.objects.get(year=year)
                 year_branch_obj = YearBranch.objects.get(branch=branch, year=year_obj, is_active=True)
+                subject_short_name = request.POST.get(subject)
 
-                branch_subject = BranchSubject.objects.get(year_branch=year_branch_obj,
-                                                           subject__short_form=subject_short_name)
                 # room = Room.objects.get(room_number=room_number, branch=branch_subject.branch,lab=i)
 
                 faculty = Faculty.objects.get(
                     initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
 
                 if len(token) < 5:  # theory (normal)
+                    branch_subject = BranchSubject.objects.get(year_branch=year_branch_obj,
+                                                               subject__short_form=subject_short_name, is_active=True)
                     division = Division.objects.get(division=division, year_branch=branch_subject.year_branch,
                                                     is_active=True)
 
@@ -368,13 +370,23 @@ def save_timetable(request):
                         # timetable.save()
                         new_timetable += [timetable]
                 elif len(token) < 6 and 'elective' in token:  # Elective theory
-                    division = ElectiveDivision.objects.get(division=division, year_branch=branch_subject.year_branch,
-                                                    is_active=True)
 
-                    timetable = Timetable.objects.filter(time=time, day=day, division=division,
+                    cbx_id = i + '_elective_cbx'
+
+
+
+
+                    elective_subject = ElectiveSubject.objects.get()
+                    elective_division = ElectiveDivision.objects.get(division=division, year_branch=branch_subject.year_branch,
+                                                            is_active=True)
+
+                    timetable = Timetable.objects.filter(time=time, day=day, elective_division=elective_division,
                                                          is_practical=False)
 
+
                 else:  # practical
+                    branch_subject = BranchSubject.objects.get(year_branch=year_branch_obj,
+                                                               subject__short_form=subject_short_name, is_active=True)
                     # batch = token[4]
                     division = Division.objects.get(division=division, year_branch=branch_subject.year_branch,
                                                     is_active=True)
@@ -875,6 +887,6 @@ def android_timetable_json(request):
         return HttpResponse('Error')
 
 
-def bg_task(request):
-    celery_app.send_task("Timetable.tasks.bg_task", [])
-    return HttpResponse('running in bg')
+# def bg_task(request):
+#     celery_app.send_task("Timetable.tasks.bg_task", [])
+#     return HttpResponse('running in bg')
