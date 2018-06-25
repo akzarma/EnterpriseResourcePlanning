@@ -273,14 +273,14 @@ def fill_timetable(request):
     return HttpResponseRedirect('/login/')
 
 
-def fill_date_timetable(new_date_timetable):
+def fill_date_timetable(new_date_timetable, current_semester):
     creation_list = []
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     # Should always return 1 object
-    DateTimetable.objects.all().delete()
+    DateTimetable.objects.all().update(is_active=False)
     branch_obj = Branch.objects.get(branch='Computer')
-    all_semester = Semester.objects.filter(is_active=True)
-    all_years = set(CollegeYear.objects.all()) - set(CollegeYear.objects.filter(year='FE'))
+    all_semester = Semester.objects.filter(semester=current_semester)
+    all_years = set(CollegeYear.objects.all()) - set(CollegeYear.objects.filter(year='FE'))        #FE ka dekhna hai
     for current_semester in all_semester:
         for year in all_years:
             print(branch_obj, year)
@@ -293,7 +293,7 @@ def fill_date_timetable(new_date_timetable):
             for date in (start_date + datetime.timedelta(n) for n in range(date_range)):
                 for each in new_date_timetable.filter(branch_subject__year_branch=year_branch_obj):
                     if days[date.weekday()] == each.day:
-                        creation_list += [DateTimetable(date=date, original=each, is_substituted=False)]
+                        creation_list += [DateTimetable(date=date, original=each, is_substituted=False, is_active=True)]
 
     DateTimetable.objects.bulk_create(creation_list, batch_size=400)
     # return HttpResponse('DOne')
@@ -424,7 +424,7 @@ def save_timetable(request):
         # Timetable.objects.filter(id__in=[i.id for i in full_timetable]).delete()
 
         to_json()
-        fill_date_timetable(Timetable.objects.all())
+        fill_date_timetable(Timetable.objects.all(), request.POST.get('current_semester'))
         # get_excel(request)
         return HttpResponseRedirect('/timetable/enter/')
     else:
