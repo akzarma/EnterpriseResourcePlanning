@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 import datetime
+import dateutil.parser
 
 # Create your views here.
 from Exam.forms import ExamDetailForm
@@ -43,11 +44,21 @@ def exam_detail(request):
             exam_detail_obj = form.save()
             subjects = request.POST.getlist('subject')
 
+            for each_subject in subjects:
+                subject = BranchSubject.objects.get(is_active=True, year_branch=exam_detail_obj.year,
+                                                    subject__short_form=each_subject).subject
+                faculty_initials = request.POST.get(each_subject + '_faculty')
+
+                faculty_obj = FacultySubject.objects.filter(faculty__initials=faculty_initials, is_active=True,
+                                                            subject=subject)[0].faculty
+
+                ExamSubject.objects.create(exam=exam_detail_obj, subject=subject, coordinator=faculty_obj,is_active=True)
+
             return render(request, 'set_exam_time.html', {
                 'subjects': subjects,
                 'exam_name': exam_detail_obj.exam.exam_name,
                 'branch': exam_detail_obj.year.branch.branch,
-                'exam_pk': exam_detail_obj.id
+                'exam_pk': exam_detail_obj.id,
             })
         else:
             return render(request, 'exam_detail.html', {
@@ -81,23 +92,23 @@ def set_exam_time(request):
 
             # Add to examsubject
             user_obj = []
-            for each_subject in subjects:
-                subject = BranchSubject.objects.get(is_active=True, year_branch=exam_detail_obj.year,
-                                                    subject__short_form=each_subject).subject
-                faculty_initials = request.POST.get(each_subject + '_faculty')
+            for each_exam_subject in exam_detail_obj.examsubject_set.all():
 
-                faculty_obj = FacultySubject.objects.filter(faculty__initials=faculty_initials, is_active=True,
-                                                            subject=subject)[0].faculty
+                each_subject = each_exam_subject.subject.short_form
 
-                exam_time = request.POST.get('datetime_' + each_subject)
+                exam_start_time = dateutil.parser.parse(request.POST.get('start_' + each_subject))
+                exam_end_time = dateutil.parser.parse(request.POST.get('end_' + each_subject))
 
-                ExamSubject.objects.create(exam=exam_detail_obj, subject=subject, coordinator=faculty_obj)
+                each_exam_subject.start_datetime = exam_start_time
+                each_exam_subject.end_datetime = exam_end_time
+                # each_exam_subject.start_datetime
+
                 # user_obj.append(faculty_obj.user)
                 # Notify Faculty about exam
                 notification_type = 'specific'
                 message = 'You have been selected as Exam coordinator for ' + exam_detail_obj.exam.exam_name + ' exam which is scheduled from ' + \
                           exam_detail_obj.schedule_start_date.__str__() + ' to ' + exam_detail_obj.schedule_end_date.__str__() + \
-                          ' for subject ' + subject.short_form
+                          ' for subject ' + each_subject
                 heading = 'Exam Schedule for ' + exam_detail_obj.exam.exam_name
 
                 # year_branch_obj = exam_detail_obj.year
@@ -105,10 +116,10 @@ def set_exam_time(request):
 
                 # Notify Exam co-ordinator
                 notify_users(notification_type=notification_type, message=message, heading=heading,
-                             users_obj=[faculty_obj.user],
+                             users_obj=[each_exam_subject.coordinator.user],
                              user_type='faculty')
 
-
+                return redirect('/')
 
 def get_subjects(request):
     if request.is_ajax():
