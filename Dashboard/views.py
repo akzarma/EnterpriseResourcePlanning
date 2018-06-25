@@ -84,7 +84,8 @@ def show_dashboard(request):
             college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
             if request.method == "GET":
                 timetable = sorted(
-                    DateTimetable.objects.filter(date=datetime.date.today(), original__division=college_extra_detail, is_active=True),
+                    DateTimetable.objects.filter(date=datetime.date.today(), original__division=college_extra_detail,
+                                                 is_active=True),
                     key=lambda x: (x.date, x.original.time.starting_time))
 
                 return render(request, 'dashboard_student.html', {
@@ -181,30 +182,33 @@ def show_dashboard(request):
                                                      Q(original__faculty=faculty) | Q(substitute__faculty=faculty)),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
-                    selected_class_obj = DateTimetable.objects.get(pk=request.POST.get('date_timetable'))
+                    selected_class_obj = DateTimetable.objects.get(pk=request.POST.get('date_timetable'),
+                                                                   is_active=True)
 
                     if selected_class_obj.original.is_practical:
                         attendance = StudentAttendance.objects.filter(
                             student__studentdetail__batch=selected_class_obj.original.batch,
+                            student__studentdetail__is_active=True,
                             timetable=selected_class_obj)
 
                         present_roll = sorted(
-                            [StudentDetail.objects.get(student=each.student).roll_number for each in attendance if
+                            [StudentDetail.objects.get(student=each.student, is_active=True).roll_number for each in
+                             attendance if
                              each.attended is True])
 
                         all_students = StudentDetail.objects.filter(
-                            batch=selected_class_obj.original.batch).values_list('student', flat=True)
+                            batch=selected_class_obj.original.batch, is_active=True).values_list('student', flat=True)
                         all_students_roll = sorted(
                             [StudentDetail.objects.get(student=each, is_active=True).roll_number for
                              each in all_students])
 
                     else:
                         attendance = StudentAttendance.objects.filter(timetable=selected_class_obj)
-                        present_roll = sorted([StudentDetail.objects.get(student=each.student).roll_number
+                        present_roll = sorted([StudentDetail.objects.get(student=each.student,is_active=True).roll_number
                                                for each in attendance if each.attended is True])
 
                         all_students = StudentDetail.objects.filter(
-                            batch__division=selected_class_obj.original.division) \
+                            batch__division=selected_class_obj.original.division, is_active=True) \
                             .values_list('student', flat=True)
                         all_students_roll = sorted(
                             [StudentDetail.objects.get(student=each, is_active=True).roll_number for
@@ -336,7 +340,7 @@ def toggle_availability(request):
                 all_faculty_at_that_time.append(each_tt.substitute.faculty.user.username)
             else:
                 if not each_tt.not_available:
-                    all_faculty_at_that_time.append((each_tt.original.faculty.user.username))
+                    all_faculty_at_that_time.append(each_tt.original.faculty.user.username)
 
         free_faculty = (
                 set(all_faculty_that_div) - (
@@ -618,7 +622,7 @@ def android_set_substitute(request):
     selected_timetable = DateTimetable.objects.get(pk=int(request.POST.get('pk')))
     if selected_timetable.not_available is True:
         if selected_timetable.is_substituted is True:
-            return HttpResponse("Sorry, this lecture has already been taken by someone else.")
+            return HttpResponse("Sorry, this lecture has already been taken.")
 
         selected_timetable.is_substituted = True
         subject = BranchSubject.objects.get(
