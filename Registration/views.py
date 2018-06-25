@@ -84,6 +84,99 @@ def register_faculty_subject(request):
         })
 
 
+def auto_register_student(request):
+    if request.method == "POST":
+        form = StudentForm(request.POST, request.FILES)
+        i = 1
+        while (i < 46):
+            if form.is_valid():
+                student = 0
+                try:
+                    student = form.save(commit=False)
+                    student.key = generate_activation_key()
+                    curr_gr_number = 'ENTC' + str(i)
+                    student.gr_number = curr_gr_number
+                    student.first_name = 'Akz' + str(i)
+                    new_user = User.objects.create_user(username=student.gr_number,
+                                                        first_name='Akz' + str(i),
+                                                        last_name=form.cleaned_data.get('last_name'),
+                                                        email=form.cleaned_data.get('email'))
+                    new_user.save()
+                    # division = form.cleaned_data.get('division')
+                    shift = form.cleaned_data.get('shift')
+                    branch = form.cleaned_data.get('branch')
+                    year = form.cleaned_data.get('year')
+                    # batch = form.cleaned_data.get('batch')
+                    if 1 <= i <= 15:
+                        batch = 'A1'
+                        division = 'A'
+                    elif 15 < i <= 30:
+                        batch = 'B1'
+                        division = 'B'
+                    else:
+                        batch = 'C1'
+                        division = 'C'
+                        shift = '2'
+
+                    student.user = new_user
+
+                    student.save()
+
+                    roll_number = str(i)
+                    if year == 'FE':
+                        branch_obj = Branch.objects.get(branch='E&AS')
+                    else:
+                        branch_obj = Branch.objects.get(branch=branch)
+                    year_obj = CollegeYear.objects.get(year=year)
+                    year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
+                    shift_obj = Shift.objects.get(shift=shift)
+                    division_obj = Division.objects.get_or_create(year_branch=year_branch_obj,
+                                                                  division=division, shift=shift_obj)[0]
+                    batch_obj = Batch.objects.get_or_create(division=division_obj, batch_name=batch)[0]
+                    sem_obj = Semester.objects.get(semester=2, is_active=True)
+                    StudentDetail.objects.get_or_create(student=student, batch=batch_obj, roll_number=roll_number,
+                                                        semester=sem_obj)
+
+                    # college_year_obj = CollegeYear.objects.get(year=year)
+                    # shift_obj = Shift.objects.get(shift=shift)
+                    # new_student_division = StudentDetail(student=student,
+                    #                                      division=CollegeExtraDetail.objects.get(branch=branch_obj,
+                    #                                                                                year=college_year_obj,
+                    #                                                                                division=division,
+                    #                                                                                shift=shift_obj))
+                    # StudentRollNumber.objects.create(student=student, roll_number=[gr_roll_dict[i] for i in gr_roll_dict if i==student.gr_number][0])
+                    # new_student_division.save()
+                    request.session['user_id'] = student.pk
+                    # user_id = request.session.get('user_id')
+                    # student = Student.objects.get(pk=user_id)
+                    user = User.objects.get(username=student.gr_number)
+                    role = RoleMaster.objects.get(role='student')
+                    RoleManager.objects.create(user=user, role=role, start_date=datetime.date.today())
+                    # user.role = 'Student'
+                    user.set_password('test')
+                    user.save()
+                    request.session.flush()
+                    print('done ' + student.gr_number)
+                    # return HttpResponse(form.errors)
+                except Exception as e:
+                    if not student == 0:
+                        StudentDetail.objects.filter(student=student).delete()
+                        Student.objects.filter(pk=student.pk).delete()
+                        User.objects.filter(pk=student.pk).delete()
+                    form = StudentForm(initial={'handicapped': False})
+                    return render(request, "register_student.html", {'form': form,
+                                                                     'error': e})
+            else:
+                print(form.errors)
+                # return HttpResponse(form.errors)
+            i += 1
+
+        return render(request, "register_student.html", {'form': form})
+    else:
+        form = StudentForm(initial={'handicapped': False})
+        return render(request, "register_student.html", {'form': form})
+
+
 def register_student(request):
     if request.method == "POST":
         form = StudentForm(request.POST, request.FILES)
@@ -118,7 +211,7 @@ def register_student(request):
                 year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
                 shift_obj = Shift.objects.get(shift=shift)
                 division_obj = Division.objects.get_or_create(year_branch=year_branch_obj,
-                                                    division=division, shift=shift_obj)[0]
+                                                              division=division, shift=shift_obj)[0]
                 batch_obj = Batch.objects.get_or_create(division=division_obj, batch_name=batch)[0]
                 sem_obj = Semester.objects.get(semester=1, is_active=True)
                 StudentDetail.objects.get_or_create(student=student, batch=batch_obj, roll_number=roll_number,
@@ -137,7 +230,7 @@ def register_student(request):
                 return HttpResponseRedirect('/register/student/success/')
                 # return HttpResponse(form.errors)
             except Exception as e:
-                if not student==0:
+                if not student == 0:
                     StudentDetail.objects.filter(student=student).delete()
                     Student.objects.filter(pk=student.pk).delete()
                     User.objects.filter(pk=student.pk).delete()
@@ -517,6 +610,269 @@ def set_schedule_date(request):
 #
 # load_student_detail()
 
+# i = 1
+# while (i < 43):
+#     if i != 11 and i!= 12:
+#         student_detail = StudentDetail.objects.get(student__gr_number='MECH' + str(i))
+#         student_detail.semester = Semester.objects.get(semester=1, is_active=True)
+#         student_detail.save()
+#         print('MECH' + str(i) + ' Done')
+#     student_detail = StudentDetail.objects.get(student__gr_number='ENTC' + str(i))
+#     student_detail.semester = Semester.objects.get(semester=1, is_active=True)
+#     student_detail.save()
+#     print('ENTC' + str(i) + ' Done')
+#     i += 1
+
+
+# def auto_student_subject(request):
+#     if request.method == 'POST':
+#         user = request.user
+#         is_student = RoleManager.objects.filter(user=user, role__role='student')
+#         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+#         i = 1
+#         while (i < 45):
+#
+#             # if i != 11 and i != 12:
+#             if is_student:
+#                 student_new_detail = 0
+#                 try:
+#
+#                     student = Student.objects.get(gr_number='ENTC'+str(i))
+#                     student_detail = StudentDetail.objects.get(student=student, is_active=True)
+#
+#                     subjects = BranchSubject.objects.filter(year_branch=student_detail.batch.division.year_branch,
+#                                                             is_active=True)
+#                     no_of_semester = student_detail.batch.division.year_branch.year.no_of_semester
+#                     student_curr_sem_obj = student_detail.semester
+#                     student_curr_year_obj = student_detail.batch.division.year_branch.year
+#                     next_sem = (student_curr_sem_obj.semester % no_of_semester) + 1
+#                     try:
+#                         next_sem_obj = Semester.objects.get(semester=next_sem, is_active=True)
+#                     except:
+#                         return render(request, 'register_student_subject.html',
+#                                       context={'error': 'Semester object getting error!'})
+#                     if student_curr_sem_obj.semester == no_of_semester:
+#                         try:
+#                             next_year_obj = CollegeYear.objects.get(number=(student_curr_year_obj.number + 1))
+#
+#                         except Exception as e:
+#                             return render(request, 'show_student_subject.html',
+#                                           context={'error': 'You are in final year.',
+#                                                    'subjects': StudentSubject.objects.filter(student=student,
+#                                                                                              is_active=True).values_list(
+#                                                        'subject', flat=True)
+#                                                    })
+#                         try:
+#                             student_new_detail = StudentDetail.objects.get_or_create(student=student_detail.student,
+#                                                                                      semester=next_sem_obj, is_active=True)[
+#                                 0]
+#                             next_batch_obj = Batch.objects.get_or_create(batch_name=student_detail.batch.batch_name,
+#                                                                          division=Division.objects.get_or_create(
+#                                                                              division=student_detail.batch.division.division,
+#                                                                              shift=student_detail.batch.division.shift,
+#                                                                              year_branch=YearBranch.objects.get(
+#                                                                                  year=next_year_obj,
+#                                                                                  branch=student_detail.batch.division.year_branch.branch))[
+#                                                                              0])[0]
+#                             student_new_detail.batch = next_batch_obj
+#                             student_new_detail.save()
+#
+#                         except Exception as e:
+#                             print(e)
+#                             return render(request, 'register_student_subject.html',
+#                                           context={'error': 'Next batch creation failed!'})
+#                     else:
+#                         student_new_detail = StudentDetail.objects.get_or_create(student=student_detail.student,
+#                                                                                  semester=next_sem_obj, is_active=True)[0]
+#                         next_batch_obj = Batch.objects.get_or_create(batch_name=student_detail.batch.batch_name,
+#                                                                      division=student_detail.batch.division)[0]
+#                         student_new_detail.batch = next_batch_obj
+#                         student_new_detail.save()
+#
+#                     # ================Validation elective subs count=======================================
+#                     electives_groups = BranchSubject.objects.filter(
+#                         year_branch=student_new_detail.batch.division.year_branch,
+#                         semester=student_new_detail.semester,
+#                         subject__is_elective_group=True,
+#                         subject__is_active=True,
+#                         is_active=True)
+#                     selected_elective_pks = {}
+#                     for each_group in electives_groups:
+#                         selected_elective_pks[each_group] = request.POST.getlist(
+#                             'elective_subject_' + str(each_group.subject.pk))
+#                         if len(selected_elective_pks[each_group]) != 1:
+#                             if student_new_detail:
+#                                 student_new_detail.is_active = False
+#                                 student_new_detail.save()
+#                             return render(request, 'dashboard_student.html', context={
+#                                 'error': 'You have to select exactly 1 subject for Elective Group ' + each_group.subject.name,
+#                                 'info': 'Please go to Subject registration again!'})
+#
+#                     # ======================================================================================
+#                     # ========================inactive all prev subjects====================================
+#                     for each in StudentSubject.objects.filter(student=student, is_active=True):
+#                         each.is_active = False
+#                         each.save()
+#                     # ================this is for elective=====================
+#                     for each_group in electives_groups:
+#                         for each_elective_pk in selected_elective_pks[each_group]:
+#                             each_elective_obj = ElectiveSubject.objects.get(pk=each_elective_pk)
+#                             elective_division_obj = \
+#                                 ElectiveDivision.objects.get_or_create(elective_subject=each_elective_obj,
+#                                                                        division=1,
+#                                                                        is_active=True)[0]
+#                             elective_batch_obj = ElectiveBatch.objects.get_or_create(
+#                                 division=elective_division_obj,
+#                                 batch_name='Batch 1',
+#                                 is_active=True
+#                             )[0]
+#                             student_subject_obj = StudentSubject.objects.get_or_create(student=student,
+#                                                                                        subject=each_group.subject,
+#                                                                                        is_active=True)[0]
+#                             student_subject_obj.elective_division = elective_division_obj
+#                             student_subject_obj.elective_batch = elective_batch_obj
+#                             student_subject_obj.save()
+#                     # =========================================================
+#
+#                     regular_subjects = BranchSubject.objects.filter(
+#                         year_branch=student_new_detail.batch.division.year_branch,
+#                         semester=next_sem_obj,
+#                         is_active=True)
+#                     for each_regular_sub in regular_subjects:
+#                         StudentSubject.objects.get_or_create(student=student,
+#                                                              subject=each_regular_sub.subject,
+#                                                              is_active=True)
+#
+#                     student_detail.is_active = False
+#                     student_detail.save()
+#                     for each in StudentSubject.objects.filter(student=student, is_active=True):
+#                         sub_to_inactive = BranchSubject.objects.filter(subject=each.subject,
+#                                                                        year_branch=student_detail.batch.division.year_branch,
+#                                                                        semester=student_detail.semester,
+#                                                                        is_active=True)
+#                         if sub_to_inactive:
+#                             each.is_active = False
+#                             each.save()
+#                     student_new_detail.has_registered_subject = True
+#                     student_new_detail.last_subject_registration_date = datetime.date.today()
+#                     student_new_detail.save()
+#                     subjects = BranchSubject.objects.filter(subject__pk__in=StudentSubject.objects.filter(student=student,
+#                                                                                                           is_active=True).values_list(
+#                         'subject__pk', flat=True), is_active=True)
+#                     elective_subjects = [ElectiveSubject.objects.filter(pk=i.elective_division.elective_subject.pk)
+#                                          for i in StudentSubject.objects.filter(student=student,
+#                                                                                 is_active=True,
+#                                                                                 subject__is_active=True,
+#                                                                                 subject__is_elective_group=True)]
+#                     # return render(request, 'show_student_subject.html', context={'subjects': subjects,
+#                     #                                                              'success': 'Subjects registered successfully'})
+#                     print('DONE SUBJECT ENTC'+str(i))
+#                 except Exception as e:
+#                     if student_new_detail != 0:
+#                         student_new_detail.is_active = False
+#                         student_new_detail.save()
+#                     return render(request, 'dashboard_student.html', context={
+#                         'error': 'You have error: ' + str(e),
+#                         'info': 'Please go to Subject registration again!'})
+#             if is_faculty:
+#                 return HttpResponse('Faculty')
+#             i+=1
+#     elif request.method == 'GET':
+#         user = request.user
+#         is_student = RoleManager.objects.filter(user=user, role__role='student')
+#         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
+#         if is_student:
+#
+#             student = Student.objects.get(user=user)
+#             try:
+#                 schedulable = Schedulable.objects.get(name='Student Subject Registration')
+#                 schedule_obj = schedulable.schedule_set.filter(is_active=True)
+#                 if len(schedule_obj) != 1:
+#                     return HttpResponse('Either you have multiple active or none active')
+#                 else:
+#                     schedule_obj = schedule_obj[0]
+#
+#             except:
+#                 return render(request, 'register_student_subject.html',
+#                               context={'info': 'Subject registration is not started yet.'})
+#             if schedule_obj.event_active("Student Subject Registration", datetime.date.today()):
+#                 student = Student.objects.get(user=user)
+#                 student_detail = StudentDetail.objects.get(student=student, is_active=True)
+#                 if student_detail.last_subject_registration_date:
+#                     if schedule_obj.event_active('Student Subject Registration',
+#                                                  student_detail.last_subject_registration_date):
+#                         student_subject_all = StudentSubject.objects.filter(student=student,
+#                                                                             subject__is_active=True,
+#                                                                             is_active=True)
+#                         student_subject_regular = student_subject_all.filter(subject__is_elective_group=False)
+#                         student_subject_elective = student_subject_all.filter(subject__is_elective_group=True)
+#
+#                         subjects = [BranchSubject.objects.get(subject=i.subject, is_active=True) for i in
+#                                     student_subject_regular]
+#                         elective_subjects = [ElectiveSubject.objects.get(pk=i.elective_division.elective_subject.pk)
+#                                              for i in student_subject_elective]
+#                         return render(request, 'show_student_subject.html',
+#                                       context={'subjects': subjects,
+#                                                'elective_subjects': elective_subjects,
+#                                                'info': 'Already registered. Your current semester subjects are shown.'})
+#
+#                 no_of_semester = student_detail.batch.division.year_branch.year.no_of_semester
+#                 student_curr_sem_obj = student_detail.semester
+#                 student_curr_year_obj = student_detail.batch.division.year_branch.year
+#                 next_sem = (student_curr_sem_obj.semester % no_of_semester) + 1
+#                 try:
+#                     next_sem_obj = Semester.objects.get(semester=next_sem, is_active=True)
+#                 except:
+#                     return render(request, 'register_student_subject.html',
+#                                   context={'error': 'Semester object getting error!'})
+#
+#                 if student_curr_sem_obj.semester == no_of_semester:
+#                     try:
+#                         next_year_obj = CollegeYear.objects.get(number=(student_curr_year_obj.number + 1))
+#
+#                     except Exception as e:
+#                         return render(request, 'show_student_subject.html',
+#                                       context={'error': 'You are in final year.',
+#                                                'subjects': [BranchSubject.objects.get(subject=i.subject,
+#                                                                                       is_active=True) for i in
+#                                                             StudentSubject.objects.filter(student=student,
+#                                                                                           is_active=True)]
+#                                                })
+#
+#                     all_subjects = BranchSubject.objects.filter(year_branch__year=next_year_obj,
+#                                                                 semester=next_sem_obj,
+#                                                                 year_branch__branch=student_detail.batch.division.year_branch.branch,
+#                                                                 is_active=True)
+#                     subjects = all_subjects.filter(subject__is_elective_group=False)
+#                     elective_subjects = ElectiveSubject.objects.filter(subject__branchsubject__in=
+#                     all_subjects.filter(
+#                         subject__is_elective_group=True),
+#                         is_active=True)
+#                 else:
+#                     all_subjects = BranchSubject.objects.filter(year_branch=student_detail.batch.division.year_branch,
+#                                                                 semester=next_sem_obj,
+#                                                                 is_active=True)
+#                     subjects = all_subjects.filter(subject__is_elective_group=False)
+#                     elective_subjects = ElectiveSubject.objects.filter(subject__branchsubject__in=
+#                     all_subjects.filter(
+#                         subject__is_elective_group=True),
+#                         is_active=True)
+#                 return render(request, 'register_student_subject.html', context={'subjects': subjects,
+#                                                                                  'elective_subjects': elective_subjects})
+#             else:
+#                 subjects = [BranchSubject.objects.get(subject=i.subject, is_active=True) for i in
+#                             StudentSubject.objects.filter(student=student,
+#                                                           subject__is_elective_group=False,
+#                                                           subject__is_active=True,
+#                                                           is_active=True)]
+#
+#                 return render(request, 'show_student_subject.html',
+#                               context={'subjects': subjects,
+#                                        'info': 'Subject registration is not started yet. Your current semester subjects are shown.'})
+#         if is_faculty:
+#             return HttpResponse('Faculty')
+#         return render(request, 'register_student_subject.html')
+
 
 def student_subject(request):
     if request.method == 'POST':
@@ -529,8 +885,6 @@ def student_subject(request):
                 student = Student.objects.get(user=user)
                 student_detail = StudentDetail.objects.get(student=student, is_active=True)
 
-                subjects = BranchSubject.objects.filter(year_branch=student_detail.batch.division.year_branch,
-                                                        is_active=True)
                 no_of_semester = student_detail.batch.division.year_branch.year.no_of_semester
                 student_curr_sem_obj = student_detail.semester
                 student_curr_year_obj = student_detail.batch.division.year_branch.year
