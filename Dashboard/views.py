@@ -83,7 +83,7 @@ def show_dashboard(request):
             college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
             if request.method == "GET":
                 timetable = sorted(
-                    DateTimetable.objects.filter(date=datetime.date.today(), original__division=college_extra_detail),
+                    DateTimetable.objects.filter(date=datetime.date.today(), original__division=college_extra_detail, is_active=True),
                     key=lambda x: (x.date, x.original.time.starting_time))
 
                 return render(request, 'dashboard_student.html', {
@@ -97,7 +97,7 @@ def show_dashboard(request):
                     selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
                     timetable = sorted(
                         DateTimetable.objects.filter(date=selected_date,
-                                                     original__division=college_extra_detail),
+                                                     original__division=college_extra_detail, is_active=True),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
                     return render(request, 'dashboard_student.html', {
@@ -117,7 +117,7 @@ def show_dashboard(request):
 
                     timetable = sorted(
                         DateTimetable.objects.filter(date=selected_date,
-                                                     original__division=college_extra_detail),
+                                                     original__division=college_extra_detail, is_active=True),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
                     return render(request, 'dashboard_student.html', {
@@ -132,7 +132,7 @@ def show_dashboard(request):
 
             if request.method == "GET":
                 timetable = sorted(
-                    DateTimetable.objects.filter(date=datetime.date.today(), original__faculty=faculty),
+                    DateTimetable.objects.filter(date=datetime.date.today(), original__faculty=faculty, is_active=True),
                     key=lambda x: (x.date, x.original.time.starting_time))
                 return render(request, 'dashboard_faculty.html', {
                     'class_active': class_active,
@@ -144,7 +144,7 @@ def show_dashboard(request):
                 if 'GO' in request.POST:
                     selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
                     timetable = sorted(
-                        DateTimetable.objects.filter(Q(date=selected_date),
+                        DateTimetable.objects.filter(Q(date=selected_date), Q(is_active=True),
                                                      Q(original__faculty=faculty) | Q(substitute__faculty=faculty)),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
@@ -163,7 +163,7 @@ def show_dashboard(request):
                         selected_date = selected_date + datetime.timedelta(1)
 
                     timetable = sorted(
-                        DateTimetable.objects.filter(Q(date=selected_date),
+                        DateTimetable.objects.filter(Q(date=selected_date), Q(is_active=True),
                                                      Q(original__faculty=faculty) | Q(substitute__faculty=faculty)),
                         key=lambda x: (x.date, x.original.time.starting_time))
 
@@ -176,7 +176,7 @@ def show_dashboard(request):
                 elif 'date_timetable' in request.POST:
                     selected_date = datetime.datetime.strptime(request.POST.get('selected_date'), '%d-%m-%Y').date()
                     timetable = sorted(
-                        DateTimetable.objects.filter(Q(date=selected_date),
+                        DateTimetable.objects.filter(Q(date=selected_date), Q(is_active=True),
                                                      Q(original__faculty=faculty) | Q(substitute__faculty=faculty)),
                         key=lambda x: (x.date, x.original.time.starting_time))
 

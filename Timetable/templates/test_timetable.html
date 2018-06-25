@@ -307,6 +307,7 @@
     </form>
     <form method="post" id="timetable_form" action="{% url 'Timetable:save_timetable' %}">
         {% csrf_token %}
+        <input type="hidden" name="current_semester" value="{{ current_semester }}">
         <label for="id_year">Year: </label>
         <select id="id_year" onchange="set_subject(); set_semester();">
             {% for yr in year %}
