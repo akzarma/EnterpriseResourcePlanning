@@ -3,13 +3,14 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from django.db import models
 
 # Contains
 # Faculty (Entity)
 # Student (Entity)
 # Subject (Entity)
-from UserModel.models import User
+
 
 
 def faculty_directory_path(instance, filename):
@@ -170,7 +171,7 @@ class Student(models.Model):
 class Subject(models.Model):
     code = models.CharField(max_length=20, primary_key=True, blank=True)
     name = models.CharField(max_length=100)
-    short_form = models.CharField(max_length=10,unique=True)
+    short_form = models.CharField(max_length=10)
     is_practical = models.BooleanField(default=False)
     # semester = models.IntegerField(default=1)
     credits = models.IntegerField(default=0, blank=True)

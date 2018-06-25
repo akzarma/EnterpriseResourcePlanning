@@ -1,9 +1,9 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
 from General.models import Division, Batch
 from Registration.models import Branch
-from UserModel.models import User
 
 
 class SpecificNotification(models.Model):

@@ -185,53 +185,54 @@
 {% endblock extra_style %}
 {% block content %}
     <div class="row col-md-3">
+
         <legend>Enter Subject Details</legend>
         <form method="POST" id="subject_form" action="{% url 'registration:register_subject' %}">
             {% csrf_token %}
             <div class="form-group">
                 {{ form.branch.label_tag }}
                 {{ form.branch }}
-                {{ form.branch.with_errors }}
+                {{ form.branch.errors }}
             </div>
 
             <div class="form-group">
                 {{ form.year.label_tag }}
                 {{ form.year }}
-                {{ form.year.with_errors }}
+                {{ form.year.errors }}
             </div>
 
             <div class="form-group">
                 {{ form.semester.label_tag }}
                 {{ form.semester }}
-                {{ form.semester.with_errors }}
+                {{ form.semester.errors }}
             </div>
 
             <div class="form-group">
                 {{ form.name.label_tag }}
                 {{ form.name }}
-                {{ form.name.with_errors }}
+                {{ form.name.errors }}
             </div>
 
             <div class="form-group">
                 {{ form.short_form.label_tag }}
                 {{ form.short_form }}
-                {{ form.short_form.with_errors }}
+                {{ form.short_form.errors }}
             </div>
 
             <div class="form-group">
                 {{ form.code.label_tag }}
                 {{ form.code }}
-                {{ form.code.with_errors }}
+                {{ form.code.errors }}
             </div>
             <div class="form-group">
                 {{ form.course_pattern.label_tag }}
                 {{ form.course_pattern }}
-                {{ form.course_pattern.with_errors }}
+                {{ form.course_pattern.errors }}
             </div>
             <div class="form-group">
                 {{ form.credits.label_tag }}
                 {{ form.credits }}
-                {{ form.credits.with_errors }}
+                {{ form.credits.errors }}
             </div>
 
             {##}
@@ -244,13 +245,13 @@
             <div class="checkbox checkbox-primary">
                 {{ form.is_practical }}
                 {{ form.is_practical.label_tag }}
-                {{ form.is_practical.with_errors }}
+                {{ form.is_practical.errors }}
             </div>
             <div class="checkbox checkbox-primary">
                 <input type="checkbox" onchange="showElective();" name="is_elective_group"
                        id="id_is_elective_group">
                 {{ form.is_elective_group.label_tag }}
-                {{ form.is_elective_group.with_errors }}
+                {{ form.is_elective_group.errors }}
             </div>
 
             <div class="col-md-10" id="elective_div"></div>

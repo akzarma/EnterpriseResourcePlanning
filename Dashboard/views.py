@@ -6,6 +6,7 @@ import xlsxwriter
 from django import urls
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core import serializers
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest, JsonResponse
@@ -28,7 +29,7 @@ from Registration.views import has_role
 from Research.models import Paper
 from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
-from UserModel.models import User, RoleMaster, RoleManager
+from UserModel.models import  RoleMaster, RoleManager
 
 
 # def student(request):

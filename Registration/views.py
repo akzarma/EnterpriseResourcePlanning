@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 import datetime, json
+
+# from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse, redirect
@@ -118,7 +120,7 @@ def register_student(request):
                 year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
                 shift_obj = Shift.objects.get(shift=shift)
                 division_obj = Division.objects.get_or_create(year_branch=year_branch_obj,
-                                                    division=division, shift=shift_obj)[0]
+                                                              division=division, shift=shift_obj)[0]
                 batch_obj = Batch.objects.get_or_create(division=division_obj, batch_name=batch)[0]
                 sem_obj = Semester.objects.get(semester=1, is_active=True)
                 StudentDetail.objects.get_or_create(student=student, batch=batch_obj, roll_number=roll_number,
@@ -137,7 +139,7 @@ def register_student(request):
                 return HttpResponseRedirect('/register/student/success/')
                 # return HttpResponse(form.errors)
             except Exception as e:
-                if not student==0:
+                if not student == 0:
                     StudentDetail.objects.filter(student=student).delete()
                     Student.objects.filter(pk=student.pk).delete()
                     User.objects.filter(pk=student.pk).delete()
@@ -176,6 +178,7 @@ def register_faculty(request):
 
             request.session['user_id'] = faculty.pk
             faculty.user = new_user
+
             faculty.save()
             return HttpResponseRedirect('/register/faculty/success/')
             # return HttpResponse(form.errors)
@@ -324,6 +327,7 @@ def register_subject(request):
                     })
 
             else:
+                print(subject_form.errors)
                 return render(request, 'test_register_subject.html', {
                     'class_active': class_active,
                     'form': subject_form,
