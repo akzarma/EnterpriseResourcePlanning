@@ -8,7 +8,7 @@ from Timetable.models import Room
 
 class ExamMaster(models.Model):
     exam_name = models.CharField(max_length=300)
-    # Below 2 fields would be filled ate the time of active/inactive
+    # Below 2 fields would be filled at the time of active/inactive
     start_date = models.DateField()
     end_date = models.DateField(null=True)
     is_active = models.BooleanField(default=True)
@@ -18,7 +18,7 @@ class ExamMaster(models.Model):
 
 
 class ExamDetail(models.Model):
-    exam = models.ForeignKey(ExamMaster)
+    exam = models.ForeignKey(ExamMaster,on_delete=models.CASCADE)
     year = models.ForeignKey(YearBranch, on_delete=models.CASCADE)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     schedule_start_date = models.DateField()
@@ -30,6 +30,8 @@ class ExamSubject(models.Model):
     exam = models.ForeignKey(ExamDetail, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     coordinator = models.ForeignKey(Faculty, on_delete=models.CASCADE)
+    start_datetime = models.DateTimeField(null=True)
+    end_datetime = models.DateTimeField(null=True)
     is_active = models.BooleanField(default=True)
 
 

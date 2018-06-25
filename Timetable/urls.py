@@ -16,6 +16,6 @@ urlpatterns = [
 
     # url(r'get_excel/$', views.get_excel, name='get_excel'),
 
-    url(r'^bg_task/$', views.bg_task, name='bg_task')
+    # url(r'^bg_task/$', views.bg_task, name='bg_task')
 
 ]

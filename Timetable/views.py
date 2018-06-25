@@ -4,13 +4,13 @@ from collections import OrderedDict
 import datetime
 from ipaddress import collapse_addresses
 
-import firebase_admin
+# import firebase_admin
 from celery import current_app
 from celery.task import task
 from django.db.models import Q
 from django.http.response import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
-from firebase_admin import credentials, db
+# from firebase_admin import credentials, db
 
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -22,7 +22,7 @@ from Registration.models import Branch, Subject, Faculty, Student, ElectiveSubje
 from Registration.models import Branch, Subject
 from UserModel.models import RoleManager
 from .models import Time, Room, Timetable, DateTimetable
-from Sync.function import write_to_firebase
+# from Sync.function import write_to_firebase
 
 import xlsxwriter
 
@@ -887,6 +887,6 @@ def android_timetable_json(request):
         return HttpResponse('Error')
 
 
-def bg_task(request):
-    celery_app.send_task("Timetable.tasks.bg_task", [])
-    return HttpResponse('running in bg')
+# def bg_task(request):
+#     celery_app.send_task("Timetable.tasks.bg_task", [])
+#     return HttpResponse('running in bg')

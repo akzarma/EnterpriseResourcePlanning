@@ -170,7 +170,7 @@ class StudentSubject(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     elective_division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE, null=True, default=None,
                                           blank=True)
-    elective_batch = models.ForeignKey(ElectiveBatch, null=True)
+    elective_batch = models.ForeignKey(ElectiveBatch, null=True, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

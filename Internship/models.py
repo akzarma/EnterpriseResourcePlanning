@@ -10,7 +10,7 @@ class Internship(models.Model):
     email = models.EmailField()
     contact_number = models.IntegerField()
     website = models.CharField(max_length=50)
-    branch = models.ForeignKey(Branch, blank=True)
+    branch = models.ForeignKey(Branch, blank=True,on_delete=models.CASCADE)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 

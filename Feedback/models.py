@@ -36,7 +36,7 @@ class Answer(models.Model):
 
 class StudentForm(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    form = models.ForeignKey(FormMaster)
+    form = models.ForeignKey(FormMaster,on_delete=models.CASCADE)
     score = models.IntegerField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
@@ -55,8 +55,8 @@ class FormAnswer(models.Model):
 
 class StudentAnswer(models.Model):
     student_form = models.ForeignKey(StudentForm, on_delete=models.CASCADE)
-    question = models.ForeignKey(Question)
-    answer = models.ForeignKey(Answer, null=True)
+    question = models.ForeignKey(Question,on_delete=models.CASCADE)
+    answer = models.ForeignKey(Answer, null=True,on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.student_form) + ' ' + str(self.answer) + ' ' + str(self.question)

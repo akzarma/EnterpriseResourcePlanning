@@ -12,6 +12,7 @@ from General.models import Semester, BranchSubject, CollegeYear, YearBranch, Fac
 from General.views import notify_users
 from Registration.models import Branch
 from Registration.views import has_role
+from Timetable.models import Room
 
 
 def exam_register(request):
@@ -41,6 +42,31 @@ def exam_detail(request):
         if form.is_valid():
             exam_detail_obj = form.save()
             subjects = request.POST.getlist('subject')
+
+            return render(request, 'set_exam_time.html', {
+                'subjects': subjects,
+                'exam_name': exam_detail_obj.exam.exam_name,
+                'branch': exam_detail_obj.year.branch.branch,
+                'exam_pk': exam_detail_obj.id
+            })
+        else:
+            return render(request, 'exam_detail.html', {
+                'class_active': class_active,
+                'form': form,
+                'error': 'Not valid'
+            })
+
+
+def set_exam_time(request):
+    user = request.user
+
+    if has_role(user, 'faculty'):
+        if request.method == 'POST':
+            exam_pk = request.POST.get('exam_pk')
+            exam_detail_obj = ExamDetail.objects.get(id=exam_pk)
+
+            subjects = request.POST.getlist('subject')
+
             # Notify students about exam
             notification_type = 'general'
             message = 'Your ' + exam_detail_obj.exam.exam_name + ' exam has been scheduled from ' + \
@@ -53,6 +79,7 @@ def exam_detail(request):
 
             notify_users(notification_type=notification_type, message=message, heading=heading, division=division)
 
+            # Add to examsubject
             user_obj = []
             for each_subject in subjects:
                 subject = BranchSubject.objects.get(is_active=True, year_branch=exam_detail_obj.year,
@@ -61,6 +88,8 @@ def exam_detail(request):
 
                 faculty_obj = FacultySubject.objects.filter(faculty__initials=faculty_initials, is_active=True,
                                                             subject=subject)[0].faculty
+
+                exam_time = request.POST.get('datetime_' + each_subject)
 
                 ExamSubject.objects.create(exam=exam_detail_obj, subject=subject, coordinator=faculty_obj)
                 # user_obj.append(faculty_obj.user)
@@ -73,16 +102,12 @@ def exam_detail(request):
 
                 # year_branch_obj = exam_detail_obj.year
                 # division = list(Division.objects.filter(is_active=True, year_branch=year_branch_obj))
+
+                # Notify Exam co-ordinator
                 notify_users(notification_type=notification_type, message=message, heading=heading,
                              users_obj=[faculty_obj.user],
                              user_type='faculty')
-            return redirect('/exam/detail/')
-        else:
-            return render(request, 'exam_detail.html', {
-                'class_active': class_active,
-                'form': form,
-                'error': 'Not valid'
-            })
+
 
 
 def get_subjects(request):
@@ -148,12 +173,27 @@ def manage_exam(request):
 
 def set_rooms(request):
     user = request.user
-    if has_role(user,'faculty'):
-        if request.method=='GET':
+    if has_role(user, 'faculty'):
+        if request.method == 'GET':
             all_exams = list(ExamDetail.objects.filter(is_active=True))
             done_exams = set([each.exam for each in ExamGroupDetail.objects.filter(is_active=True)])
-            remaining = list(set(all_exams)-done_exams)
+            remaining = list(set(all_exams) - done_exams)
             print(remaining)
-            return render(request,'set_rooms.html')
+            branch_obj = Branch.objects.get(branch='Computer')
+            available_rooms = Room.objects.filter(branch=branch_obj)
+            return render(request, 'set_rooms.html', {
+                'exams': remaining,
+                'available_rooms': available_rooms
+            })
+        elif request.method == 'POST':
+            all_exam_id = request.POST.getlist('exam')
+
+            all_room_id = request.POST.getlist('room')
+
+
+
+        else:
+            return HttpResponse("Something went wrong")
+
     else:
         return HttpResponse('Access Denied')
