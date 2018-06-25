@@ -731,14 +731,14 @@ class StudentForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['salary', 'user']
 
-    def clean_gr_number(self):
-        cleaned_data = super().clean()
-        gr_number = cleaned_data['gr_number']
-        if not gr_number in gr_roll_dict:
-            raise forms.ValidationError(
-                'Your GR Number is not available in our database.\nContact us at viitdevs@gmail.com')
-
-        return gr_number
+    # def clean_gr_number(self):
+    #     cleaned_data = super().clean()
+    #     gr_number = cleaned_data['gr_number']
+    #     if not gr_number in gr_roll_dict:
+    #         raise forms.ValidationError(
+    #             'Your GR Number is not available in our database.\nContact us at viitdevs@gmail.com')
+    #
+    #     return gr_number
 
 
 class FacultyForm(forms.ModelForm):
