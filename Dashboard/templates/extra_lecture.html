@@ -1,0 +1,292 @@
+{% extends 'dashboard_faculty.html' %}
+{% load humanize %}
+{% block title %}
+    Take extra lecture | ERP
+{% endblock title %}
+
+{% block extra_style %}
+
+{% endblock extra_style %}
+
+
+{% block content %}
+    <div class="col-md-4">
+        <legend>Extra Lecture</legend>
+        <form method="post" action="{% url 'dashboard:take_extra_lecture' %}">
+            {% csrf_token %}
+            <div class="form-element">
+                <label for="branch">Branch</label>
+                <select class="form-control" id="branch" name="branch" onchange="loadYear()"></select>
+            </div>
+            <div class="form-element">
+                <label for="year">Year</label>
+                <select class="form-control" id="year" name="year" onchange="loadDivision()"></select>
+            </div>
+            <div class="form-element">
+                <label for="division">Division</label>
+                <select class="form-control" id="division" name="division"></select>
+            </div>
+            <div class="form-element">
+                <label>Select Date</label>
+                <input class="form-control datepicker" type="date" value="{{ selected_date }}" name="selected_date"
+                       id="date">
+            </div>
+            <input class="btn btn-primary" type="submit" name="date_form">
+        </form>
+    </div>
+    {% if timetable %}
+        <div class="col-md-4">
+            <legend>Lectures on {{ selected_date }}</legend>
+            <p>Click on the lecture to request corresponding faculty</p>
+            <p onclick="showLectureForm();">Select different time slot</p>
+            <input type="hidden" name="selected_date" id="hidden_date" value="{{ selected_date }}">
+            <div class="row" id="timetable">
+                {% for each in timetable %}
+                    {% if each.is_substituted is True %}
+                        <button name="date_timetable" class="card btn btn-info my-context-menu"
+                                style="width: 100%; font-weight: bold; margin-bottom: 5px;"
+                                value="{{ each.substitute.time }}" onclick="showSubjectForm(this);">
+                    {% else %}
+                        <button name="date_timetable" class="card btn btn-info my-context-menu"
+                                style="width: 100%; font-weight: bold; margin-bottom: 5px;"
+                                value="{{ each.original.time }}" onclick="showSubjectForm(this);">
+                    {% endif %}
+                {% if each.not_available == True %}
+
+                    <div id="{{ each.pk }}" style="display: block !important;"
+                         name="{{ each.pk }}" class="not-available my-context-menu">
+                        {% if each.is_substituted is True %}
+                            Lecture taken by {{ each.substitute.faculty.initials }}
+                        {% else %}
+                            Free Lecture
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% if each.is_substituted is True %}
+                    <div class="card-header my-context-menu"
+                         style="border-bottom: 2px solid white;"
+                         name="{{ each.pk }}">{{ each.substitute.time }}</div>
+                    <div class="row my-context-menu">
+                        <div class="col-md-4 my-context-menu"
+                             name="{{ each.pk }}">{{ each.substitute.branch_subject.subject.short_form }}</div>
+                        <div class="col-md-4 my-context-menu"
+                             name="{{ each.pk }}">{{ each.substitute.room.room_number }}</div>
+                        <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                            {{ each.substitute.division.year_branch.branch }}<br/>
+                            {{ each.substitute.division.year_branch.year }}
+                            {{ each.substitute.division.division }}
+                            {% if each.substitute.is_practical %}
+                                {{ each.substitute.batch.batch_name }}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="card-header my-context-menu"
+                         style="border-bottom: 2px solid white;"
+                         name="{{ each.pk }}">{{ each.original.time }}</div>
+                    <div class="row my-context-menu" name="{{ each.pk }}">
+                        <div class="col-md-4 my-context-menu"
+                             name="{{ each.pk }}">{{ each.original.branch_subject.subject.short_form }}</div>
+                        <div class="col-md-4 my-context-menu"
+                             name="{{ each.pk }}">{{ each.original.room.room_number }}</div>
+                        <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                            {{ each.original.division.year_branch.branch }}<br/>
+                            {{ each.original.division.year_branch.year }}
+                            {{ each.original.division.division }}
+                            {% if each.original.is_practical %}
+                                {{ each.original.batch.batch_name }}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    <form method="post" action="{% url 'dashboard:take_extra_lecture' %}">
+        <input type="hidden" name="branch" value="{{ selected_branch }}">
+        <input type="hidden" name="year" value="{{ selected_year }}">
+        <input type="hidden" name="division" value="{{ selected_division }}">
+        <input type="hidden" name="date" value="{{ selected_date }}">
+        <input type="hidden" name="subject_type" id="subject_type" value="">
+        <div class="col-md-4" id="lecture_form" style="display: none;">
+            <div class="form-element">
+                <label for="time">Select time slot</label>
+                <select class="form-control" id="time" name="time">
+                    {% if time_slots %}
+                        {% for time in time_slots %}
+                            <option value="{{ time.pk }}">{{ time }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            {% if subjects %}
+                <div class="form-element">
+                    <label for="subject">Subject</label>
+
+                    <select class="form-control" id="subject" name="subject" onload="fillRooms()" ,
+                            onchange="fillRooms()">
+                        {% for sub in subjects %}
+                            <option value="{{ sub }}">{{ sub }}</option>
+                        {% endfor %}
+                    </select>
+
+                </div>
+            {% else %}
+                <p>You don't teach any lecture in this division</p>
+            {% endif %}
+
+            <div class="form-element">
+                <label for="room">Room</label>
+                <select class="form-control" id="room" name="room"></select>
+            </div>
+            <input class="btn btn-primary" value="Take lecture" type="submit" name="take_lecture">
+        </div>
+    </form>
+{% endblock content %}
+{% block on_ready %}
+
+    $('#date').datepicker({
+    format: 'yyyy-mm-dd',
+    });
+    loadBranch();
+{% endblock on_ready %}
+{% block html %}
+    <script>
+        var data = {{ data| safe }};
+        var subject_categories = null;
+        var rooms = null;
+        {#console.log({{ selected_branch }});#}
+        let selected_branch = null;
+        let selected_year = null;
+        let selected_division = null;
+        let selected_date = null;
+        {% if selected_branch %}
+            selected_branch = "{{ selected_branch }}";
+        {% endif %}
+        {% if selected_year %}
+            selected_year = "{{ selected_year }}";
+        {% endif %}
+        {% if selected_division %}
+            selected_division = "{{ selected_division }}";
+        {% endif %}
+        {% if selected_date %}
+            selected_date = "{{ selected_date|date:"Y-m-d" }}";
+            document.getElementById('date').value = selected_date;
+        {% endif %}
+        {% if subject_category %}
+            subject_categories = {{ subject_category|safe }};
+        {% endif %}
+        {% if rooms %}
+            rooms = {{ rooms |safe }};
+        {% endif %}
+        {#console.log({{ selected_year }});#}
+
+        function loadBranch() {
+            let branch_combo = document.getElementById('branch');
+            for (let branch in data) {
+                let option = document.createElement('option');
+                option.text = branch;
+                option.value = branch;
+                branch_combo.appendChild(option);
+            }
+
+            if (selected_branch) {
+                let to_be_selected = branch_combo.querySelector("option[value='" + selected_branch + "']");
+                to_be_selected.setAttribute("selected", "true");
+            }
+
+            loadYear();
+        }
+
+        function loadYear() {
+            let selected_branch = document.getElementById('branch').value;
+            let year_combo = document.getElementById('year');
+
+            while (year_combo.hasChildNodes()) {
+                year_combo.removeChild(year_combo.childNodes[0]);
+            }
+
+            for (let year in data[selected_branch]) {
+                let option = document.createElement('option');
+                option.text = year;
+                option.value = year;
+                year_combo.appendChild(option);
+            }
+
+            if (selected_year) {
+                let to_be_selected = year_combo.querySelector("option[value='" + selected_year + "']");
+                to_be_selected.setAttribute("selected", "true");
+            }
+            loadDivision();
+        }
+
+        function loadDivision() {
+            let selected_branch = document.getElementById('branch').value;
+            let selected_year = document.getElementById('year').value;
+            let division_combo = document.getElementById('division');
+
+            while (division_combo.hasChildNodes()) {
+                division_combo.removeChild(division_combo.childNodes[0]);
+            }
+
+            for (let division in data[selected_branch][selected_year]) {
+                let option = document.createElement('option');
+                option.text = data[selected_branch][selected_year][division];
+                option.value = data[selected_branch][selected_year][division];
+                division_combo.appendChild(option);
+            }
+            if (selected_division) {
+                let to_be_selected = division_combo.querySelector("option[value='" + selected_division + "']");
+                to_be_selected.setAttribute("selected", "true");
+            }
+        }
+
+        function showLectureForm() {
+            document.getElementById('lecture_form').style.display = "inline-block";
+            fillRooms();
+        }
+
+        function showSubjectForm(button) {
+            let time = button.value;
+            let time_combo = document.getElementById('time');
+            let option = $('#time option:contains("8:00-9:00")');
+            option.selected = true;
+            document.getElementById('lecture_form').style.display = "inline-block";
+            fillRooms();
+        }
+
+        function fillRooms() {
+            let selected_subject = document.getElementById('subject').value;
+            let time_combo = document.getElementById('time');
+            let selected_time = time_combo.querySelector("option[value='" + time_combo.value + "']").innerText;
+
+            alert(selected_time);
+            let room_combo = document.getElementById('room');
+
+            while (room_combo.hasChildNodes()) {
+                room_combo.removeChild(room_combo.childNodes[0]);
+            }
+
+            if (subject_categories['theory'].includes(selected_subject)) {
+                document.getElementById('subject_type').value = "theory";
+                for (let room in rooms[selected_time]['theory']) {
+                    let option = document.createElement('option');
+                    option.text = rooms[selected_time]['theory'][room];
+                    option.value = rooms[selected_time]['theory'][room];
+                    room_combo.appendChild(option);
+                }
+            } else {
+                document.getElementById('subject_type').value = "practical";
+                for (let room in rooms[selected_time]['practical']) {
+                    let option = document.createElement('option');
+                    option.text = rooms[selected_time]['practical'][room];
+                    option.value = rooms[selected_time]['practical'][room];
+                    room_combo.appendChild(option);
+                }
+            }
+        }
+
+    </script>
+{% endblock html %}

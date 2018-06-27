@@ -42,4 +42,6 @@ urlpatterns = [
 
     url(r'^read_all_notification/$', views.read_all_notification, name='read_all_notification'),
 
+    url(r'^extra_lecture/$', views.take_extra_lecture, name='take_extra_lecture'),
+
 ]

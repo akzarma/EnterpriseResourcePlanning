@@ -17,10 +17,11 @@ from django.views.decorators.csrf import csrf_exempt
 from Attendance.models import StudentAttendance
 from Dashboard.models import SpecificNotification, GeneralStudentNotification, GeneralFacultyNotification
 from EnterpriseResourcePlanning.settings import NOTIFICATION_LONG_LIMIT, NOTIFICATION_SMALL_LIMIT
-from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject
+from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject, YearBranch, \
+    ElectiveDivision
 from General.views import notify_users
 from Registration.forms import StudentForm, FacultyForm
-from Registration.models import Student, Branch, Faculty
+from Registration.models import Student, Branch, Faculty, ElectiveSubject, Subject
 import datetime
 
 # Student dashboard
@@ -203,8 +204,9 @@ def show_dashboard(request):
 
                     else:
                         attendance = StudentAttendance.objects.filter(timetable=selected_class_obj)
-                        present_roll = sorted([StudentDetail.objects.get(student=each.student,is_active=True).roll_number
-                                               for each in attendance if each.attended is True])
+                        present_roll = sorted(
+                            [StudentDetail.objects.get(student=each.student, is_active=True).roll_number
+                             for each in attendance if each.attended is True])
 
                         all_students = StudentDetail.objects.filter(
                             batch__division=selected_class_obj.original.division, is_active=True) \
@@ -534,7 +536,7 @@ def set_substitute(request, key):
                 else:
                     return HttpResponse("Sorry, this lecture is not available to be taken! ")
             return HttpResponse("You don't have enough priviledges to use this function")
-    return
+    return redirect('/login/')
 
 
 def get_subjects(request):
@@ -669,3 +671,217 @@ def read_all_notification(request):
         notification.has_read = True
         notification.save()
     return HttpResponse("Done")
+
+
+def take_extra_lecture(request):
+    user = request.user
+    if not user.is_anonymous:
+        is_faculty = has_role(user, 'faculty')
+        if is_faculty:
+            faculty = user.faculty
+            data = {}
+            year_branch = [i.division.year_branch for i in
+                           FacultySubject.objects.filter(faculty=faculty, subject__is_elective_group=False)]
+
+            for each in year_branch:
+                if not each.branch.branch in data:
+                    data[each.branch.branch] = {}
+                if not each.year.year in data[each.branch.branch]:
+                    data[each.branch.branch][each.year.year] = []
+
+                data[each.branch.branch][each.year.year] = list(Division.objects.filter(year_branch=each,
+                                                                                        is_active=True).values_list(
+                    'division',
+                    flat=True).distinct())
+
+            for i in FacultySubject.objects.filter(faculty=faculty, subject__is_elective_group=True):
+                if i.elective_division is not None:
+                    elective_year_branch = BranchSubject.objects.get(subject=i.subject, is_active=True).year_branch
+
+                    if not elective_year_branch.branch.branch in data:
+                        data[elective_year_branch.branch.branch] = {}
+                    if not elective_year_branch.year.year in data[elective_year_branch.branch.branch]:
+                        data[elective_year_branch.branch.branch][elective_year_branch.year.year] = []
+
+                    data[elective_year_branch.branch.branch][elective_year_branch.year.year] += [
+                        i.subject.short_form + "--" + i.elective_division.elective_subject.short_form + "--" + str(
+                            i.elective_division.division)]
+
+            if request.method == "GET":
+                return render(request, 'extra_lecture.html', {
+                    'data': data
+                })
+
+            else:
+                if request.POST.__contains__('date_form'):
+                    branch = request.POST.get('branch')
+                    year = request.POST.get('year')
+                    division = request.POST.get('division')
+                    selected_date = parse_date(request.POST.get('selected_date'))
+                    year_branch_object = YearBranch.objects.get(year__year=year, branch__branch=branch)
+
+                    all_timetable = list(DateTimetable.objects.filter(date=selected_date))
+
+                    all_rooms_theory = set(
+                        Room.objects.filter(branch=year_branch_object.branch, lab=False).values_list('room_number',
+                                                                                                     flat=True))
+
+                    all_rooms_practical = set(
+                        Room.objects.filter(branch=year_branch_object.branch, lab=True).values_list('room_number',
+                                                                                                    flat=True))
+
+                    room_dict = {}
+
+                    for each_tt in all_timetable:
+                        if each_tt.not_available:
+                            if each_tt.is_substituted:
+
+                                if each_tt.substitute.time.__str__() in room_dict:
+                                    if each_tt.substitute.room.lab:
+                                        room_dict[each_tt.substitute.time.__str__()]['practical'].append(
+                                            each_tt.substitute.room.room_number)
+                                    else:
+                                        room_dict[each_tt.substitute.time.__str__()]['theory'].append(
+                                            each_tt.substitute.room.room_number)
+                                else:
+                                    room_dict[each_tt.substitute.time.__str__()] = {
+                                        'theory': [],
+                                        'practical': []
+                                    }
+                                    if each_tt.substitute.room.lab:
+                                        room_dict[each_tt.substitute.time.__str__()]['practical'] = [
+                                            each_tt.substitute.room.room_number]
+                                    else:
+                                        room_dict[each_tt.substitute.time.__str__()]['theory'] = [
+                                            each_tt.substitute.room.room_number]
+                                # used_rooms.append(each_tt.substitute.room.room_number)
+                        else:
+                            if each_tt.original.time.__str__() in room_dict:
+                                if each_tt.original.room.lab:
+                                    room_dict[each_tt.original.time.__str__()]['practical'].append(
+                                        each_tt.original.room.room_number)
+                                else:
+                                    room_dict[each_tt.original.time.__str__()]['theory'].append(
+                                        each_tt.original.room.room_number)
+                            else:
+                                room_dict[each_tt.original.time.__str__()] = {
+                                    'theory': [],
+                                    'practical': []
+                                }
+                                if each_tt.original.room.lab:
+                                    room_dict[each_tt.original.time.__str__()]['practical'] = [
+                                        each_tt.original.room.room_number]
+                                else:
+                                    room_dict[each_tt.original.time.__str__()]['theory'] = [
+                                        each_tt.original.room.room_number]
+
+                    for slot, rooms in room_dict.items():
+                        room_dict[slot]['theory'] = list(all_rooms_theory.difference(set(room_dict[slot]['theory'])))
+                        room_dict[slot]['practical'] = list(
+                            all_rooms_practical.difference(set(room_dict[slot]['practical'])))
+
+                    if '--' not in division:
+                        division_object = Division.objects.get(year_branch=year_branch_object,
+                                                               division=division,
+                                                               is_active=True)
+                        timetable = sorted(
+                            DateTimetable.objects.filter(Q(date=selected_date),
+                                                         Q(original__division=division_object) | Q(
+                                                             substitute__division=division_object),
+                                                         is_active=True),
+                            key=lambda x: (x.date, x.original.time.starting_time))
+
+                        subjects = FacultySubject.objects.filter(faculty=user.faculty, subject__is_elective_group=False,
+                                                                 elective_division=None,
+                                                                 elective_subject=None, division=division_object,
+                                                                 is_active=True)
+
+                        subject_category = {'theory': [], 'practical': []}
+                        for sub in subjects:
+                            if sub.subject.is_practical is True:
+                                subject_category['practical'] += [sub.subject.short_form]
+                            else:
+                                subject_category['theory'] += [sub.subject.short_form]
+
+                        subjects = subjects.values_list('subject__short_form', flat=True).distinct()
+
+                    else:
+                        # elective division
+                        splitted = division.split('--')
+                        subject_selected = BranchSubject.objects.get(year_branch=year_branch_object,
+                                                                     subject__is_elective_group=True,
+                                                                     subject__short_form=splitted[
+                                                                         0]).subject  # semester se bhi filter krna hai
+                        elective_subject = ElectiveSubject.objects.get(short_form=splitted[1], subject=subject_selected)
+                        elective_division = ElectiveDivision.objects.get(elective_subject=elective_subject,
+                                                                         division=splitted[2])
+
+                        timetable = sorted(
+                            DateTimetable.objects.filter(Q(date=selected_date),
+                                                         (Q(original__elective_division=elective_division),
+                                                          Q(original__elective_subject=elective_subject)) | (Q(
+                                                             substitute__elective_division=elective_division), Q(
+                                                             substitute__elective_subject=elective_subject)),
+                                                         is_active=True),
+                            key=lambda x: (x.date, x.original.time.starting_time))
+
+                    time_slots = Time.objects.all()
+
+                    return render(request, 'extra_lecture.html', {
+                        'data': data,
+                        'timetable': timetable,
+                        'time_slots': time_slots,
+                        'subjects': subjects,
+                        'rooms': room_dict,
+                        'subject_category': json.dumps(subject_category),
+                        'selected_date': selected_date,
+                        'selected_branch': branch,
+                        'selected_year': year,
+                        'selected_division': division
+                    })
+
+                else:
+                    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                    room = request.POST.get('room')
+                    type = request.POST.get('subject_type')
+                    subject = request.POST.get('subject')
+                    time = request.POST.get('time')
+                    branch = request.POST.get('branch')
+                    year = request.POST.get('year')
+                    division = request.POST.get('division')
+                    selected_date = parse_date(request.POST.get('selected_date'))
+                    time_obj = Time.objects.get(pk=time)
+                    year_branch_object = YearBranch.objects.get(year__year=year, branch__branch=branch)
+
+                    if '--' not in division:
+                        if type == "theory":
+                            room = Room.objects.get(branch__branch=branch, room_number=room, lab=False)
+                            branch_subject = BranchSubject.objects.get(year_branch=year_branch_object,
+                                                                       subject__short_form=subject,
+                                                                       subject__is_active=True,
+                                                                       subject__is_elective_group=False,
+                                                                       subject__is_practical=False)
+                            division_object = Division.objects.get(year_branch=year_branch_object,
+                                                                   division=division,
+                                                                   is_active=True)
+
+                            timetable_obj = Timetable.objects.create(room=room, time=time_obj, day=days[selected_date.weekday()],
+                                                     branch_subject=branch_subject, faculty=faculty,
+                                                     division=division_object,
+                                                     is_practical=False)
+
+                            DateTimetable.objects.create(date=selected_date, original=timetable_obj)
+
+
+
+
+                        else:
+                            room = Room.objects.get(branch__branch=branch, room_number=room, lab=True)
+
+                    else:
+                        pass
+
+        else:
+            return redirect('/login/')
+    else:
+        return redirect('/login/')
