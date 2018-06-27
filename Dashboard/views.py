@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from Attendance.models import StudentAttendance
 from Dashboard.models import SpecificNotification, GeneralStudentNotification, GeneralFacultyNotification
 from EnterpriseResourcePlanning.settings import NOTIFICATION_LONG_LIMIT, NOTIFICATION_SMALL_LIMIT
-from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject
+from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject, YearBranch
 from General.views import notify_users
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student, Branch, Faculty
@@ -561,6 +561,7 @@ def get_subjects(request):
 def android_get_notifications(request):
     if request.method == "POST":
         user = User.objects.get(username=request.POST.get('username'))
+        print(request.POST.get('pk_specific'))
         pk_specific = int(request.POST.get('pk_specific'))
         pk_general = int(request.POST.get('pk_general'))
         specific_notification_objs = SpecificNotification.objects.filter(user=user, is_active=True, pk__gt=pk_specific)
@@ -670,3 +671,17 @@ def read_all_notification(request):
         notification.has_read = True
         notification.save()
     return HttpResponse("Done")
+
+
+def test_url(request):
+
+    # branch_obj = Branch.objects.get(branch='Mechanical')
+    # year_obj = CollegeYear.objects.get(year='TE')
+    # year_branch = YearBranch.objects.get(year=year_obj,branch=branch_obj,is_active=True)
+    # division_obj = Division.objects.filter(year_branch=year_branch)
+    # students = StudentDetail.objects.filter(batch__division__in=division_obj)
+    # batch_obj = Batch.objects.filter(division=division_obj.get(division='B'))
+    # for each_student in students:
+    #     each_student.batch = batch_obj[0]
+    #     each_student.save()
+    return HttpResponse('Done')

@@ -11,7 +11,7 @@ subject_list = Subject.objects.filter(is_active=True)
 
 faculty_list = Faculty.objects.all()
 
-division_list = Division.objects.filter(year_branch__branch=Branch.objects.get(branch='Computer'), is_active=True)
+division_list = Division.objects.filter(is_active=True)
 
 year_list = CollegeYear.objects.all()
 
