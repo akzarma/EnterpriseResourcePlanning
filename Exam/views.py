@@ -435,6 +435,6 @@ def android_types_of_exam(request):
 
     else:
         return HttpResponse('Not a POST request')
-
-@csrf_exempt
-def android_subject_for_exam(request)
+#
+# @csrf_exempt
+# def android_subject_for_exam(request)
