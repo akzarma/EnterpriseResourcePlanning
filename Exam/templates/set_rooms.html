@@ -79,6 +79,9 @@
                             swal("Sorry!", data['message'], "warning");
                         } else {
                             let main_container = document.getElementById('exam_schedule');
+                            while (main_container.hasChildNodes()) {
+                                main_container.removeChild(main_container.childNodes[0]);
+                            }
                             for (let branch in data) {
                                 if (branch != 'message' && branch != 'type') {
                                     for (let exam in data[branch]) {
@@ -100,18 +103,19 @@
                                             let table = document.createElement('table');
                                             table.setAttribute("class", "table table-responsive");
 
+
                                             for (let time in data[branch][exam][date]) {
                                                 for (let room in data[branch][exam][date][time]) {
 
                                                     let time_row = document.createElement('tr');
                                                     let td = document.createElement('td');
-                                                    td.innerHTML = "Location: " + room + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Subject:" + data[branch][exam][date][time][subject] + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time: " + time;
+                                                    td.innerHTML = "Location: " + room + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Subject:" + data[branch][exam][date][time][room]['subject'] + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time: " + time;
                                                     time_row.appendChild(td);
                                                     table.appendChild(time_row);
 
                                                     let seating_row = document.createElement('tr');
                                                     td = document.createElement('td');
-                                                    let roll_nos = data[branch][exam][date][time][room].sort();
+                                                    let roll_nos = data[branch][exam][date][time][room]['student'].sort();
 
                                                     let count = 0;
                                                     for (let i in roll_nos) {
