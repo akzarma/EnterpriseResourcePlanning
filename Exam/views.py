@@ -401,26 +401,26 @@ def check_availability(request):
                                     if 'student' in exam_json[branch][exam_name][date][time_slot][room]:
                                         exam_json[branch][exam_name][date][time_slot][room]['student'].append(student)
                                 else:
-                                    exam_json[branch][exam_name][date][time_slot][room]['student'] = [student]
+                                    exam_json[branch][exam_name][date][time_slot][room] = {'student': [student]}
                             else:
                                 exam_json[branch][exam_name][date][time_slot] = {}
-                                exam_json[branch][exam_name][date][time_slot][room]['student'] = [student]
+                                exam_json[branch][exam_name][date][time_slot][room] = {'student': [student]}
 
                         else:
                             exam_json[branch][exam_name][date] = {}
                             exam_json[branch][exam_name][date][time_slot] = {}
-                            exam_json[branch][exam_name][date][time_slot][room]['student'] = [student]
+                            exam_json[branch][exam_name][date][time_slot][room] = {'student': [student]}
                     else:
                         exam_json[branch][exam_name] = {}
                         exam_json[branch][exam_name][date] = {}
                         exam_json[branch][exam_name][date][time_slot] = {}
-                        exam_json[branch][exam_name][date][time_slot][room]['student'] = [student]
+                        exam_json[branch][exam_name][date][time_slot][room] = {'student': [student]}
                 else:
                     exam_json[branch] = {}
                     exam_json[branch][exam_name] = {}
                     exam_json[branch][exam_name][date] = {}
                     exam_json[branch][exam_name][date][time_slot] = {}
-                    exam_json[branch][exam_name][date][time_slot][room]['student'] = [student]
+                    exam_json[branch][exam_name][date][time_slot][room] = {'student': [student]}
 
             return HttpResponse(json.dumps(exam_json))
         else:
