@@ -42,7 +42,7 @@
            onclick="check_availability();">
 
 
-
+    <div id="exam_schedule"></div>
     <script>
         function check_availability() {
 
@@ -73,7 +73,88 @@
                     'exam': all_exams_id
                 },
                 success: function (data) {
+                    var data = JSON.parse(data);
+                    console.log(data);
+                    let main_container = document.getElementById('exam_schedule');
+                    for (let branch in data) {
+                        let branch_div = document.createElement('div');
+                        branch_div.style.alignContent = "center";
+                        branch_div.setAttribute("class", "row");
+                        let heading = document.createElement('h2');
+                        heading.innerHTML = branch;
+                        branch_div.appendChild(heading);
+                        main_container.appendChild(branch_div);
 
+                        for (let exam in data[branch]) {
+                            let exam_div = document.createElement('div');
+                            exam_div.style.alignContent = "center";
+                            exam_div.setAttribute("class", "row");
+                            let heading = document.createElement('h3');
+                            heading.innerHTML = exam;
+                            exam_div.appendChild(heading);
+                            main_container.appendChild(exam_div);
+
+
+                            for (let date in data[branch][exam]) {
+                                let row_div = document.createElement('div');
+                                row_div.setAttribute("class", "row");
+                                let date_div = document.createElement('div');
+                                date_div.setAttribute("class", "col-md-2");
+                                let time_div = document.createElement('div');
+                                time_div.setAttribute("class", "col-md-2");
+                                let room_div = document.createElement('div');
+                                room_div.setAttribute("class", "col-md-1");
+                                let roll_div = document.createElement('div');
+                                roll_div.setAttribute("class", "col-md-7");
+
+                                let heading = document.createElement('h3');
+                                heading.innerHTML = date;
+                                date_div.appendChild(heading);
+                                row_div.appendChild(date_div);
+
+                                for (let time in data[branch][exam][date]) {
+                                    let row = document.createElement('div');
+                                    row.setAttribute("class", "row");
+                                    let heading = document.createElement('h3');
+                                    heading.innerHTML = time;
+                                    row.appendChild(heading);
+                                    time_div.appendChild(row);
+
+                                    for (let room in data[branch][exam][date][time]) {
+                                        row = document.createElement('div');
+                                        row.setAttribute("class", "row");
+                                        let heading = document.createElement('h4');
+                                        heading.innerHTML = room;
+                                        row.appendChild(heading);
+                                        room_div.appendChild(row);
+
+                                        row = document.createElement('div');
+                                        row.setAttribute("class", "row");
+                                        let para = document.createElement('p');
+                                        let count = 0;
+                                        for (let i in data[branch][exam][date][time]) {
+                                            if (count === 7) {
+                                                para.innerHTML += data[branch][exam][date][time][i] + "<br/>";
+                                                count = 0;
+                                            } else {
+                                                para.innerHTML += data[branch][exam][date][time][i] + "&nbsp";
+                                                count = count + 1;
+                                            }
+                                        }
+                                        row.appendChild(para);
+                                        roll_div.appendChild(row);
+                                    }
+
+
+                                }
+                                row_div.appendChild(time_div);
+                                row_div.appendChild(room_div);
+                                row_div.appendChild(roll_div);
+                                main_container.appendChild(row_div);
+
+                            }
+                        }
+                    }
                 }
             });
         }

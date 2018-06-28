@@ -379,7 +379,7 @@ def check_availability(request):
             for each in exam_subject_student_room_to_create:
                 branch = each.exam_subject_room.exam_subject.exam.year.branch.branch
                 exam_name = each.exam_subject_room.exam_subject.exam.exam.exam_name
-                date = each.exam_subject_room.exam_subject.start_datetime.strftime('%Y-%m-%d %H:%M')
+                date = each.exam_subject_room.exam_subject.start_datetime.strftime('%Y-%m-%d')
                 start_time = each.exam_subject_room.exam_subject.start_datetime.strftime('%H:%M')
                 end_time = each.exam_subject_room.exam_subject.start_datetime.strftime('%H:%M')
                 time_slot = start_time + '-' + end_time
@@ -414,9 +414,7 @@ def check_availability(request):
                     exam_json[branch][exam_name][date][time_slot] = {}
                     exam_json[branch][exam_name][date][time_slot][room] = [student]
 
-            return render(request, 'view_schedule.html', {
-                'all_objs': exam_subject_student_room_to_create
-            })
+            return HttpResponse(json.dumps(exam_json))
         else:
             print('cannot be done')
 
@@ -435,6 +433,3 @@ def android_types_of_exam(request):
 
     else:
         return HttpResponse('Not a POST request')
-
-@csrf_exempt
-def android_subject_for_exam(request)
