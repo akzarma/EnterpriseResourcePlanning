@@ -42,7 +42,7 @@
            onclick="check_availability();">
 
 
-    <div id="exam_schedule"></div>
+    <div id="exam_schedule" class="container-fluid"></div>
     <script>
         function check_availability() {
 
@@ -65,72 +65,84 @@
             }
 
             $.ajax({
-                type: "POST",
-                url: '{% url 'exam:check_availability' %}',
-                data: {
-                    'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    'room': all_room_number,
-                    'exam': all_exams_id
-                },
-                success: function (data) {
-                    var data = JSON.parse(data);
-                    console.log(data);
-                    let main_container = document.getElementById('exam_schedule');
+                    type: "POST",
+                    url: '{% url 'exam:check_availability' %}',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'room': all_room_number,
+                        'exam': all_exams_id
+                    },
+                    success: function (data) {
+                        var data = JSON.parse(data);
+                        console.log(data);
+                        if (data['type'] == "Failure") {
+                            swal("Sorry!", data['message'], "warning");
+                        } else {
+                            let main_container = document.getElementById('exam_schedule');
+                            for (let branch in data) {
+                                if (branch != 'message' && branch != 'type') {
+                                    for (let exam in data[branch]) {
 
-                    for (let branch in data) {
+                                        for (let date in data[branch][exam]) {
 
-                        for (let exam in data[branch]) {
+                                            let heading_div = document.createElement('div');
+                                            heading_div.setAttribute("class", "row");
+                                            heading_div.style.textAlign = "center";
 
-                            for (let date in data[branch][exam]) {
+                                            let heading = document.createElement('h4');
+                                            heading.innerHTML = branch + "&nbsp;-&nbsp;" + exam + "&nbsp;-&nbsp;" + date;
+                                            heading_div.appendChild(heading);
+                                            main_container.appendChild(heading_div);
 
-                                let heading_div = document.createElement('div');
-                                heading_div.setAttribute("class", "row");
-                                heading_div.style.textAlign = "center";
+                                            let schedule_div = document.createElement('div');
+                                            schedule_div.setAttribute("class", "row");
+                                            main_container.appendChild(schedule_div);
+                                            let table = document.createElement('table');
+                                            table.setAttribute("class", "table table-responsive");
 
-                                let heading = document.createElement('h4');
-                                heading.innerHTML = branch + "&nbsp;-&nbsp;" + exam + "&nbsp;-&nbsp;" + date;
-                                heading_div.appendChild(heading);
-                                main_container.appendChild(heading_div);
+                                            for (let time in data[branch][exam][date]) {
+                                                for (let room in data[branch][exam][date][time]) {
 
-                                let schedule_div = document.createElement('div');
-                                schedule_div.setAttribute("class", "row");
-                                main_container.appendChild(schedule_div);
-                                let table = document.createElement('table');
-                                table.setAttribute("class","table table-responsive");
+                                                    let time_row = document.createElement('tr');
+                                                    let td = document.createElement('td');
+                                                    td.innerHTML = "Location: " + room + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time: " + time;
+                                                    time_row.appendChild(td);
+                                                    table.appendChild(time_row);
 
-                                for (let time in data[branch][exam][date]) {
-                                    for (let room in data[branch][exam][date][time]) {
+                                                    let seating_row = document.createElement('tr');
+                                                    td = document.createElement('td');
+                                                    let roll_nos = data[branch][exam][date][time][room].sort();
 
-                                        let time_row = document.createElement('tr');
-                                        let td = document.createElement('td');
-                                        td.innerHTML = "Location: " + room + "&nbsp;&nbsp;&nbsp;&nbsp; Time: " + time;
-                                        time_row.appendChild(td);
-                                        table.appendChild(time_row);
+                                                    let count = 0;
+                                                    for (let i in roll_nos) {
+                                                        if (count == 7) {
+                                                            td.innerHTML += roll_nos[i] + "<br/>";
+                                                            count = 0;
+                                                        } else {
+                                                            td.innerHTML += roll_nos[i] + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                                                            count = count + 1;
+                                                        }
+                                                    }
 
-                                        let seating_row = document.createElement('tr');
-                                        td = document.createElement('td');
+                                                    seating_row.appendChild(td);
+                                                    table.appendChild(seating_row);
 
-                                        let count = 0;
-                                        for (let i in data[branch][exam][date][time]) {
-                                            if (count === 7) {
-                                                td.innerHTML += data[branch][exam][date][time][i] + "<br/>";
-                                                count = 0;
-                                            } else {
-                                                td.innerHTML += data[branch][exam][date][time][i] + "&nbsp;";
-                                                count = count + 1;
+                                                    td = document.createElement('td');
+                                                    td.innerHTML = "<br/><br/>";
+                                                    table.appendChild(td);
+
+                                                }
                                             }
+                                            main_container.appendChild(table);
                                         }
-
-                                        seating_row.appendChild(td);
-                                        table.appendChild(seating_row);
                                     }
                                 }
-                                main_container.appendChild(table);
                             }
                         }
+
                     }
                 }
-            });
+            );
         }
     </script>
 
