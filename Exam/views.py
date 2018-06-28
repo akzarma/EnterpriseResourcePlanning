@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from Exam.forms import ExamDetailForm
 from Exam.models import ExamMaster, ExamSubject, ExamDetail, ExamGroupDetail, ExamGroupRoom, ExamSubjectRoom, \
-    ExamSubjectStudentRoom
+    ExamSubjectStudentRoom, ExamGroup
 from General.models import Semester, BranchSubject, CollegeYear, YearBranch, FacultySubject, Division, StudentDetail, \
     StudentSubject
 from General.views import notify_users
@@ -243,6 +243,9 @@ def check_availability(request):
 
         can_be_done = True
 
+        # For displaying
+        exam_json = {}
+
         for each_date in daterange(min_start_date_obj.schedule_start_date, max_end_date_obj.schedule_end_date):
             current_date_subjects = []
             # Below for loop is to get subjects for this date
@@ -315,6 +318,9 @@ def check_availability(request):
 
                     print('Please select more rooms')
                     can_be_done = False
+                    exam_json = {'type': 'Failure',
+                                 'message': 'Please Select more rooms.'}
+                    return HttpResponse(json.dumps(exam_json))
                 elif single_capacity >= num_of_students:
 
                     # Schedule for all subjects in this slot
@@ -347,6 +353,8 @@ def check_availability(request):
 
         if can_be_done:
             print('can be done')
+            exam_json = {'type': 'Success',
+                         'message': 'Please view the schedule.'}
             for slot, values in final.items():
                 exam_subject_objs = final[slot]['exam_subject']
                 for room, students in final[slot].items():
@@ -369,9 +377,6 @@ def check_availability(request):
                                                            exam_subject_room=curr_exam_subject_room))
             # ExamSubjectRoom.objects.bulk_create(exam_subject_room_to_create)
             ExamSubjectStudentRoom.objects.bulk_create(exam_subject_student_room_to_create)
-
-            # For displaying
-            exam_json = {}
 
             # For sending notification
             student_subject_json = {}
@@ -417,6 +422,25 @@ def check_availability(request):
             return HttpResponse(json.dumps(exam_json))
         else:
             print('cannot be done')
+
+    elif request.method=='POST':
+        exam_group_pk = request.POST.get('exam_group')
+
+        exam_group_obj = ExamGroup.objects.filter(pk=exam_group_pk)
+
+        if exam_group_obj.__len__()<1:
+            return HttpResponse('Not Found')
+
+        exam_group_obj = exam_group_obj[0]
+
+        exam_group_detail_objs = exam_group_obj.examgroupdetail_set.all()
+        exam_detail_objs = [each.exam for each in exam_group_detail_objs]
+
+
+
+
+
+
 
 
 @csrf_exempt
