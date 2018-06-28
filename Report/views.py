@@ -27,7 +27,7 @@ import datetime
 from Research.models import Paper
 from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
-from UserModel.models import User, RoleMaster, RoleManager
+from UserModel.models import  RoleMaster, RoleManager
 
 
 def student_details(request):

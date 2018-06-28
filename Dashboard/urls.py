@@ -8,6 +8,9 @@ urlpatterns = [
     # /dashboard/
     url(r'^$', views.show_dashboard, name='dashboard'),
 
+    # /test_url/
+    url(r'^test_url/$', views.test_url, name='test_url'),
+
     # /dashboard/logout
     url(r'^logout/$', views.logout_user, name="logout"),
 

@@ -1,4 +1,6 @@
 import datetime
+
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from Internship.models import Internship
@@ -117,6 +119,10 @@ class BranchSubject(models.Model):
 
     def __str__(self):
         return str(self.year_branch) + " " + self.subject.name
+
+    def save(self, *args, **kwargs):
+
+        models.Model.save(self, *args, **kwargs)
 
 
 class ElectiveDivision(models.Model):
