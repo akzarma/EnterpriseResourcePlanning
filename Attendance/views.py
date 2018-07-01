@@ -19,7 +19,7 @@ from Registration.models import Student, Subject, Faculty
 from General.models import FacultySubject
 from Registration.models import Student, Subject
 from Timetable.models import Timetable, DateTimetable, Time, Room
-from UserModel.models import RoleManager
+from Roles.models import RoleManager
 from .models import StudentAttendance, TotalAttendance
 
 
