@@ -32,7 +32,7 @@ def exam_register(request):
 
     else:
         exam_name = request.POST.get('exam_name')
-        ExamMaster.objects.create(exam_name=exam_name, start_date=datetime.date.today())
+        ExamMaster.objects.create(name=exam_name, start_date=datetime.date.today())
         context = {'success': "Successfully registered"}
         return render(request, 'exam_register.html', context)
 
@@ -415,7 +415,7 @@ def check_availability(request, still_schedule='0'):
         exam_subject_student_room_to_create = []
 
         if can_be_done:
-            exam_group_obj = ExamGroup.objects.create(exam_name=exam_detail_objs[0].exam.exam_name)
+            exam_group_obj = ExamGroup.objects.create(name=exam_detail_objs[0].exam.exam_name)
             print('can be done')
             exam_json = {'type': 'Success',
                          'message': 'Please view the schedule.'}
