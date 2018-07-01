@@ -16,7 +16,7 @@ from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import StudentDetail, Division, FacultySubject
 from Registration.models import Faculty, Student, Branch
 from Timetable.models import Timetable
-from UserModel.models import  RoleManager
+from Roles.models import  RoleManager
 import json
 
 

@@ -30,7 +30,7 @@ from Registration.views import has_role
 from Research.models import Paper
 from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
-from UserModel.models import RoleMaster, RoleManager
+from Roles.models import  RoleMaster, RoleManager
 
 
 # def student(request):

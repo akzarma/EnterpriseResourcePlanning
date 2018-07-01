@@ -16,7 +16,7 @@ from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSu
 from General.views import notify_users
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject, ElectiveSubject
-from UserModel.models import User, RoleManager, RoleMaster
+from Roles.models import User, RoleManager, RoleMaster
 from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict, DateScheduleForm, \
     YearBranchSemForm
 from Configuration.stateConf import states

@@ -1,7 +1,7 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 
-from UserModel.models import  RoleManager
+from Roles.models import  RoleManager
 from .forms import StudentUpdateForm, FacultyUpdateForm
 from Registration.models import Student
 from Exam.models import ExamMaster

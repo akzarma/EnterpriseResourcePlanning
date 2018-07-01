@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from operator import attrgetter
 
 from django.db.models import Q
@@ -198,6 +199,8 @@ def set_rooms(request):
     if has_role(user, 'faculty'):
         if request.method == 'GET':
             all_exams = list(ExamDetail.objects.filter(is_active=True))
+            all_exam_groups = ExamGroup.objects.filter(is_active=True)
+            # used_exams = [each.examgroupdetail_set for each in all_exam_groups]
             done_exams = set([each.exam for each in ExamGroupDetail.objects.filter(is_active=True)])
             remaining = list(set(all_exams) - done_exams)
             print(remaining)
@@ -222,14 +225,15 @@ def set_rooms(request):
 
 
 def daterange(start_date, end_date):
-    for n in range(int((end_date - start_date).days)):
+    for n in range(int((end_date - start_date).days + 1)):
         yield start_date + datetime.timedelta(n)
 
 
-def check_availability(request):
+def check_availability(request, still_schedule='0'):
     if request.is_ajax():
         all_rooms = set(request.POST.getlist('room[]'))
         all_exams = request.POST.getlist('exam[]')
+        group_name = request.POST.get('group_name')
 
         print(all_exams)
         print(all_rooms)
@@ -352,12 +356,75 @@ def check_availability(request):
                     print('Can be generated sequentially')
                 else:
                     print('yet to write')
+
+                    counter = 0
+
+                    groups = defaultdict(list)
+
+                    for obj in grouped_students:
+                        groups[
+                            obj.subject.branchsubject_set.filter(is_active=True)[0].subject].append(
+                            obj)
+                    more = False
+                    for key, values in groups:
+                        if len(values) > single_capacity and still_schedule != '1':
+                            more = True
+                            message = {'type': 'Question',
+                                       'message': 'Due to current selection of the rooms, students from ' + key + ' will have to sit together.Is it ok?'}
+                            return HttpResponse(json.dumps(message))
+
+                    final[each_slot] = {'exam_subject': current_slot_subs}
+
+                    # Below no 2 students of same branch will sit together
+                    # So schedule twice
+                    # if more == False:
+                    print('more')
+                    print('generating tiwce')
+                    grouped_students.sort(key=lambda x: x.subject.branchsubject_set.filter(is_active=True)[
+                        0].subject)
+
+                    for each_room in all_available_rooms:
+                        room_obj = Room.objects.get(room_number=each_room)
+                        if each_room in room_block:
+                            room_block[each_room].append(each_slot)
+                        else:
+                            room_block[each_room] = [each_slot]
+
+                        if counter + room_obj.capacity > len(grouped_students):
+                            final[each_slot][each_room] = grouped_students[counter:len(grouped_students)]
+                        else:
+                            final[each_slot][each_room] = grouped_students[counter:room_obj.capacity]
+                        counter += room_obj.capacity
+
+                        if counter > len(grouped_students):
+                            break
+
+                    for each_room in all_available_rooms:
+                        room_obj = Room.objects.get(room_number=each_room)
+                        if each_room in room_block:
+                            room_block[each_room].append(each_slot)
+                        else:
+                            room_block[each_room] = [each_slot]
+
+                        if counter + room_obj.capacity > len(grouped_students):
+                            final[each_slot][each_room] = grouped_students[counter:len(grouped_students)]
+                        else:
+                            final[each_slot][each_room] = grouped_students[counter:room_obj.capacity]
+                        counter += room_obj.capacity
+
+                        if counter > len(grouped_students):
+                            break
+
         exam_subject_student_room_to_create = []
 
         if can_be_done:
+            exam_group_obj = ExamGroup.objects.create(exam_name=exam_detail_objs[0].exam.exam_name)
             print('can be done')
             exam_json = {'type': 'Success',
                          'message': 'Please view the schedule.'}
+
+            rooms_objects_to_create = []
+
             for slot, values in final.items():
                 exam_subject_objs = final[slot]['exam_subject']
                 for room, students in final[slot].items():
@@ -368,11 +435,12 @@ def check_availability(request):
                                 return HttpResponse('Same exams are being scheduled at the same time.')
                             else:
                                 current_exam_subject = current_exam_subject[0]
+                                current_room_obj = Room.objects.get(
+                                        room_number=room)
                                 curr_exam_subject_room = ExamSubjectRoom.objects.create(
                                     exam_subject=current_exam_subject,
-                                    room=Room.objects.get(
-                                        room_number=room))
-
+                                    room=current_room_obj)
+                                rooms_objects_to_create.append(current_room_obj)
                                 # if curr_exam_subject_room not in exam_subject_room_to_create:
                                 #     exam_subject_room_to_create.append(curr_exam_subject_room)
                                 exam_subject_student_room_to_create.append(
@@ -380,6 +448,12 @@ def check_availability(request):
                                                            exam_subject_room=curr_exam_subject_room))
             # ExamSubjectRoom.objects.bulk_create(exam_subject_room_to_create)
             ExamSubjectStudentRoom.objects.bulk_create(exam_subject_student_room_to_create)
+            for each in rooms_objects_to_create:
+                ExamGroupRoom.objects.create(exam_group=exam_group_obj,room=each)
+
+            for each in exam_detail_objs:
+                ExamGroupDetail.objects.create(exam_group=exam_group_obj,exam=each)
+
 
             # For sending notification
             student_subject_json = {}

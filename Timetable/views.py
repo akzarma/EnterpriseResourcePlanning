@@ -20,7 +20,7 @@ from General.models import Division, BranchSubject, FacultySubject, CollegeYear,
     StudentDetail, Semester, YearBranch, YearSemester, ElectiveDivision, StudentSubject
 from Registration.models import Branch, Subject, Faculty, Student, ElectiveSubject
 from Registration.models import Branch, Subject
-from UserModel.models import RoleManager
+from Roles.models import RoleManager
 from .models import Time, Room, Timetable, DateTimetable
 # from Sync.function import write_to_firebase
 
