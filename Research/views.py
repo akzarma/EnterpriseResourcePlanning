@@ -4,7 +4,7 @@ from django.shortcuts import render
 # Create your views here.
 from Research.forms import PublicationForm
 from Research.models import Paper
-from UserModel.models import RoleManager
+from Roles.models import RoleManager
 
 
 def enter_paper(request):

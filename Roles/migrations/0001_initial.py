@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rolemanager',
             name='role',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='UserModel.RoleMaster'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Roles.RoleMaster'),
         ),
         migrations.AddField(
             model_name='rolemanager',
