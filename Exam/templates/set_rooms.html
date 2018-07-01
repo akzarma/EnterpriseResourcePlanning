@@ -65,89 +65,129 @@
             }
 
             $.ajax({
-                    type: "POST",
-                    url: '{% url 'exam:check_availability' %}',
-                    data: {
-                        'csrfmiddlewaretoken': '{{ csrf_token }}',
-                        'room': all_room_number,
-                        'exam': all_exams_id
-                    },
-                    success: function (data) {
-                        var data = JSON.parse(data);
-                        console.log(data);
-                        if (data['type'] == "Failure") {
-                            swal("Sorry!", data['message'], "warning");
-                        } else {
-                            let main_container = document.getElementById('exam_schedule');
-                            while (main_container.hasChildNodes()) {
-                                main_container.removeChild(main_container.childNodes[0]);
-                            }
-                            for (let branch in data) {
-                                if (branch != 'message' && branch != 'type') {
-                                    for (let exam in data[branch]) {
-
-                                        for (let date in data[branch][exam]) {
-
-                                            let heading_div = document.createElement('div');
-                                            heading_div.setAttribute("class", "row");
-                                            heading_div.style.textAlign = "center";
-
-                                            let heading = document.createElement('h4');
-                                            heading.innerHTML = branch + "&nbsp;-&nbsp;" + exam + "&nbsp;-&nbsp;" + date;
-                                            heading_div.appendChild(heading);
-                                            main_container.appendChild(heading_div);
-
-                                            let schedule_div = document.createElement('div');
-                                            schedule_div.setAttribute("class", "row");
-                                            main_container.appendChild(schedule_div);
-                                            let table = document.createElement('table');
-                                            table.setAttribute("class", "table table-responsive");
-
-
-                                            for (let time in data[branch][exam][date]) {
-                                                for (let room in data[branch][exam][date][time]) {
-
-                                                    let time_row = document.createElement('tr');
-                                                    let td = document.createElement('td');
-                                                    td.innerHTML = "Location: " + room + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Subject:" + data[branch][exam][date][time][room]['subject'] + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time: " + time;
-                                                    time_row.appendChild(td);
-                                                    table.appendChild(time_row);
-
-                                                    let seating_row = document.createElement('tr');
-                                                    td = document.createElement('td');
-                                                    let roll_nos = data[branch][exam][date][time][room]['student'].sort();
-
-                                                    let count = 0;
-                                                    for (let i in roll_nos) {
-                                                        if (count == 7) {
-                                                            td.innerHTML += roll_nos[i] + "<br/>";
-                                                            count = 0;
-                                                        } else {
-                                                            td.innerHTML += roll_nos[i] + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-                                                            count = count + 1;
-                                                        }
-                                                    }
-
-                                                    seating_row.appendChild(td);
-                                                    table.appendChild(seating_row);
-
-                                                    td = document.createElement('td');
-                                                    td.innerHTML = "<br/><br/>";
-                                                    table.appendChild(td);
-
-                                                }
+                type: "POST",
+                url: '{% url 'exam:check_availability' %}',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'room': all_room_number,
+                    'exam': all_exams_id
+                },
+                success: function (data) {
+                    var data = JSON.parse(data);
+                    console.log(data);
+                    if (data['type'] == "Failure") {
+                        swal("Sorry!", data['message'], "warning");
+                    }
+                    else if (data['type'] == "Question") {
+                        swal({
+                            text: data['message'],
+                            icon: "info",
+                            buttons: true,
+                            dangerMode: true
+                        })
+                            .then((willDelete) => {
+                                if (willDelete) {
+                                    $.ajax({
+                                        type: "POST",
+                                        url: '{% url 'exam:check_availability' 1 %}',
+                                        data: {
+                                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                            'room': all_room_number,
+                                            'exam': all_exams_id
+                                        },
+                                        success: function (data) {
+                                            console.log(data);
+                                            let parsed_data = JSON.parse(data);
+                                            if (parsed_data['type'] == "Failure") {
+                                                swal("Sorry!", parsed_data['message'], "warning");
+                                            } else {
+                                                swal("Yeah!", parsed_data['message'], "success");
+                                                showSchedule(parsed_data);
                                             }
-                                            main_container.appendChild(table);
                                         }
-                                    }
-                                }
-                            }
-                        }
 
+                                    });
+                                } else {
+                                    swal("Sorry!", "Exam could not be scheduled!", "error");
+                                }
+                            })
+                        ;
+                    }
+                    else {
+                        swal("Yeah!", data['message'], "success");
+                        showSchedule(data);
                     }
                 }
-            );
+            });
         }
+
+        function showSchedule(data) {
+            let main_container = document.getElementById('exam_schedule');
+            while (main_container.hasChildNodes()) {
+                main_container.removeChild(main_container.childNodes[0]);
+            }
+            for (let branch in data) {
+                if (branch != 'message' && branch != 'type') {
+                    for (let exam in data[branch]) {
+
+                        for (let date in data[branch][exam]) {
+
+                            let heading_div = document.createElement('div');
+                            heading_div.setAttribute("class", "row");
+                            heading_div.style.textAlign = "center";
+
+                            let heading = document.createElement('h4');
+                            heading.innerHTML = branch + "&nbsp;-&nbsp;" + exam + "&nbsp;-&nbsp;" + date;
+                            heading_div.appendChild(heading);
+                            main_container.appendChild(heading_div);
+
+                            let schedule_div = document.createElement('div');
+                            schedule_div.setAttribute("class", "row");
+                            main_container.appendChild(schedule_div);
+                            let table = document.createElement('table');
+                            table.setAttribute("class", "table table-responsive");
+
+
+                            for (let time in data[branch][exam][date]) {
+                                for (let room in data[branch][exam][date][time]) {
+
+                                    let time_row = document.createElement('tr');
+                                    let td = document.createElement('td');
+                                    td.innerHTML = "Location: " + room + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Subject:" + data[branch][exam][date][time][room]['subject'] + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time: " + time;
+                                    time_row.appendChild(td);
+                                    table.appendChild(time_row);
+
+                                    let seating_row = document.createElement('tr');
+                                    td = document.createElement('td');
+                                    let roll_nos = data[branch][exam][date][time][room]['student'].sort();
+
+                                    let count = 0;
+                                    for (let i in roll_nos) {
+                                        if (count == 7) {
+                                            td.innerHTML += roll_nos[i] + "<br/>";
+                                            count = 0;
+                                        } else {
+                                            td.innerHTML += roll_nos[i] + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                                            count = count + 1;
+                                        }
+                                    }
+
+                                    seating_row.appendChild(td);
+                                    table.appendChild(seating_row);
+
+                                    td = document.createElement('td');
+                                    td.innerHTML = "<br/><br/>";
+                                    table.appendChild(td);
+
+                                }
+                            }
+                            main_container.appendChild(table);
+                        }
+                    }
+                }
+            }
+        }
+
     </script>
 
 {% endblock content %}

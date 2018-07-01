@@ -7,13 +7,7 @@
 
 {% block content %}
     <div>
-        {% for key,values in data.items %}
-            <h2>{{ key.name }}</h2>
-            {% for value in values.items %}
-                {{ value.exam.exam }}
-                {{ value.exam.year }}
-            {% endfor %}
-        {% endfor %}
+        {% for each in  %}
     </div>
 
 {% endblock content %}
