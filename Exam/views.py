@@ -162,15 +162,18 @@ def get_subjects(request):
 
 def view_exam(request):
     user = request.user
-    if has_role(user, 'student'):
-        student_obj = user.student
-        student_detail_obj = StudentDetail.objects.get(student=student_obj, is_active=True)
-        year_branch_obj = student_detail_obj.batch.division.year_branch
-        exam_objs = ExamDetail.objects.filter(is_active=True, year=year_branch_obj)
-        exam_subjects = [list(each.examsubject_set.values_list('subject__short_form', flat=True)) for each in exam_objs]
+    if has_role(user, 'faculty'):
+        faculty = user.faculty
+        data = {}
+        all_exam_groups = ExamGroup.objects.filter(is_active=True)
+        for each in all_exam_groups:
+            # exam_group_detail_set = each.examgroupdetail_set.filter(is_active=True)
+            # for each_group in exam_group_detail_set:
+
+            data[each] = each.examgroupdetail_set.filter(is_active=True)
+
         return render(request, 'view_exam.html', {
-            'exams': exam_objs,
-            'exam_subjects': exam_subjects
+            'data': data,
         })
 
 

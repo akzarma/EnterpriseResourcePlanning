@@ -39,7 +39,6 @@
             <legend>Lectures on {{ selected_date }}</legend>
             <p>Click on the lecture to request corresponding faculty</p>
             <p onclick="showLectureForm();">Select different time slot</p>
-            <input type="hidden" name="selected_date" id="hidden_date" value="{{ selected_date }}">
             <div class="row" id="timetable">
                 {% for each in timetable %}
                     {% if each.is_substituted is True %}
@@ -52,7 +51,6 @@
                                 value="{{ each.original.time }}" onclick="showSubjectForm(this);">
                     {% endif %}
                 {% if each.not_available == True %}
-
                     <div id="{{ each.pk }}" style="display: block !important;"
                          name="{{ each.pk }}" class="not-available my-context-menu">
                         {% if each.is_substituted is True %}
@@ -63,6 +61,9 @@
                     </div>
                 {% endif %}
                 {% if each.is_substituted is True %}
+                    {% if each.substitute.is_practical %}
+                        <input type="hidden" name="practical_batch" value="{{ each.substitute.batch }}">
+                    {% endif %}
                     <div class="card-header my-context-menu"
                          style="border-bottom: 2px solid white;"
                          name="{{ each.pk }}">{{ each.substitute.time }}</div>
@@ -81,6 +82,9 @@
                         </div>
                     </div>
                 {% else %}
+                    {% if each.original.is_practical %}
+                        <input type="hidden" name="practical_batch" value="{{ each.original.batch }}">
+                    {% endif %}
                     <div class="card-header my-context-menu"
                          style="border-bottom: 2px solid white;"
                          name="{{ each.pk }}">{{ each.original.time }}</div>
@@ -162,6 +166,7 @@
         let selected_year = null;
         let selected_division = null;
         let selected_date = null;
+        let batches = null;
         {% if selected_branch %}
             selected_branch = "{{ selected_branch }}";
         {% endif %}
@@ -180,6 +185,9 @@
         {% endif %}
         {% if rooms %}
             rooms = {{ rooms |safe }};
+        {% endif %}
+        {% if batches %}
+            batches = {{ batches |safe }};
         {% endif %}
         {#console.log({{ selected_year }});#}
 
@@ -251,9 +259,32 @@
         function showSubjectForm(button) {
             let time = button.value;
             let time_combo = document.getElementById('time');
-            let option = $('#time option:contains("8:00-9:00")');
-            option.selected = true;
-            document.getElementById('lecture_form').style.display = "inline-block";
+            $('#time option').each(function () {
+                if (this.innerHTML = time) {
+                    this.selected = true;
+                } else {
+                    this.removeAttribute("selected");
+                }
+            });
+
+            let lecture_form = document.getElementById('lecture_form');
+
+            if (button.querySelector('input[name="practical_batch"').length) {
+                let label = document.createElement('label');
+                label.innerHTML = "Batch";
+                label.setAttribute("for", "batch");
+                label.setAttribute("id", "batch_label");
+                lecture_form.appendChild(label);
+
+                let input = document.createElement('input');
+                input.setAttribute('type', 'text');
+                input.setAttribute('readonly', 'true');
+                input.setAttribute('name', 'practical_batch');
+                input.setAttribute('id', 'batch');
+                input.value = button.querySelector('input[name="practical_batch"').value;
+                lecture_form.appendChild(input);
+            }
+            lecture_form.style.display = "inline-block";
             fillRooms();
         }
 
@@ -262,7 +293,6 @@
             let time_combo = document.getElementById('time');
             let selected_time = time_combo.querySelector("option[value='" + time_combo.value + "']").innerText;
 
-            alert(selected_time);
             let room_combo = document.getElementById('room');
 
             while (room_combo.hasChildNodes()) {
@@ -271,6 +301,16 @@
 
             if (subject_categories['theory'].includes(selected_subject)) {
                 document.getElementById('subject_type').value = "theory";
+
+                let label = document.getElementById('batch_label');
+                let input = document.getElementById('batch');
+                if (label) {
+                    label.parentElement.removeChild(label);
+                }
+                if (input) {
+                    input.parentElement.removeChild(input);
+                }
+
                 for (let room in rooms[selected_time]['theory']) {
                     let option = document.createElement('option');
                     option.text = rooms[selected_time]['theory'][room];
@@ -279,6 +319,26 @@
                 }
             } else {
                 document.getElementById('subject_type').value = "practical";
+                let lecture_form = document.getElementById('lecture_form');
+
+                let label = document.createElement('label');
+                label.innerHTML = "Batch";
+                label.setAttribute("for", "batch");
+                label.setAttribute("id", "batch_label");
+                lecture_form.appendChild(label);
+
+                let input = document.createElement('select');
+                input.setAttribute('name', 'practical_batch');
+                input.setAttribute('id', 'batch');
+                for (let batch in batches) {
+                    let op = document.createElement('option');
+                    op.text = batch;
+                    op.value = batch;
+                    input.appendChild(op);
+                }
+                lecture_form.appendChild(input);
+
+
                 for (let room in rooms[selected_time]['practical']) {
                     let option = document.createElement('option');
                     option.text = rooms[selected_time]['practical'][room];

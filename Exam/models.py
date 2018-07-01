@@ -74,3 +74,6 @@ class ExamSubjectRoom(models.Model):
 class ExamSubjectStudentRoom(models.Model):
     exam_subject_room = models.ForeignKey(ExamSubjectRoom, on_delete=models.CASCADE)
     student_subject = models.ForeignKey(StudentSubject, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.exam_subject_room.exam_subject.exam.exam.exam_name + self.exam_subject_room.exam_subject.subject.short_form
