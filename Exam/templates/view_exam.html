@@ -1,4 +1,6 @@
-{% extends 'dashboard_student.html' %}
+{% extends 'dashboard_faculty.html' %}
+{% load exam_extra %}
+
 {% block title %}
     Exam-Schedule | ERP
 {% endblock title %}
@@ -6,28 +8,64 @@
 
 
 {% block content %}
+    <div>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Sr no.</th>
-            <th>Exam</th>
-            <th>Schedule</th>
-            <th>Subjects</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for each_exam in exams %}
-            <td>{{ forloop.counter }}</td>
-            <td>{{ each_exam.exam.exam_name }}</td>
-            <td>{{ each_exam.schedule_start_date }}</td>
-            <td>
-                {% for each_subject in each_exam.examsubject_set.all %}
-                    {{ each_subject.subject.short_form }}
-                {% endfor %}
-            </td>
+        {% for each_exam in exam_group_detail|get_at_index:forloop.counter0 %}
+            <h3>{{ each_exam.exam.year.branch.branch }}&nbsp; - {{ each_exam.exam.year.year }}&nbsp;
+                - {{ each_exam.exam.exam.exam_name }}</h3>
+            {% for each_subject in subjects|get_at_index:forloop.counter0 %}
+                {{ each_subject.subject }}
+            {% endfor %}
         {% endfor %}
-        </tbody>
-    </table>
+
+    </div>
+    <div id="accordion">
+        {% for each in exam_group %}
+            <div class="card">
+                <div class="card-header" id="heading_{{ forloop.counter0 }}">
+                    <h5 class="mb-{{ forloop.counter0 }}">
+                        <button class="btn btn-link" data-toggle="collapse"
+                                data-target="#collapse_{{ forloop.counter0 }}"
+                                aria-expanded="true"
+                                aria-controls="collapse_{{ forloop.counter0 }}">
+                            <h4>{{ each.name }}</h4>
+                        </button>
+                        <button class="btn btn-info" onclick="showSchedule({{ each.pk }})">View Schedule</button>
+                    </h5>
+                </div>
+
+                <div id="collapse_{{ forloop.counter0 }}" class="collapse show"
+                     aria-labelledby="heading_{{ forloop.counter0 }}" data-parent="#accordion">
+                    <div class="card-body">
+                        {% for each_exam in exam_group_detail|get_at_index:forloop.counter0 %}
+                            <h6>{{ each_exam.exam.year.branch.branch }}&nbsp; - {{ each_exam.exam.year.year }}&nbsp;
+                                - {{ each_exam.exam.exam.exam_name }}</h6>
+                            {% for each_subject in subjects|get_at_index:forloop.counter0 %}
+                                {{ each_subject.subject }}<br/>
+                            {% endfor %}<br/><br/>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
 
 {% endblock content %}
+{% block html %}
+    <script>
+        function showSchedule(id) {
+            $.ajax({
+                type: "POST",
+                url: '{% url 'exam:view_schedule' %}',
+                data:{
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'exam_group' : id
+                },
+                success: function (data) {
+                    
+                }
+            });
+        }
+    </script>
+{% endblock html %}
