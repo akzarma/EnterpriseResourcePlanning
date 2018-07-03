@@ -32,7 +32,7 @@ def exam_register(request):
 
     else:
         exam_name = request.POST.get('exam_name')
-        ExamMaster.objects.create(exam_name=exam_name, start_date=datetime.date.today())
+        ExamMaster.objects.create(name=exam_name, start_date=datetime.date.today())
         context = {'success': "Successfully registered"}
         return render(request, 'exam_register.html', context)
 
