@@ -16,11 +16,44 @@
     color: #0379C4;
     }
 
+
+
+    @media (min-width: 768px){
+    .seven-cols .col-md-1,
+    .seven-cols .col-sm-1,
+    .seven-cols .col-lg-1  {
+    width: 100%;
+    *width: 100%;
+    }
+    }
+
+    @media (min-width: 992px) {
+    .seven-cols .col-md-1,
+    .seven-cols .col-sm-1,
+    .seven-cols .col-lg-1 {
+    width: 14.285714285714285714285714285714%;
+    *width: 14.285714285714285714285714285714%;
+    }
+    }
+
+    /**
+    *  The following is not really needed in this case
+    *  Only to demonstrate the usage of @media for large screens
+    */
+    @media (min-width: 1200px) {
+    .seven-cols .col-md-1,
+    .seven-cols .col-sm-1,
+    .seven-cols .col-lg-1 {
+    width: 14.285714285714285714285714285714%;
+    *width: 14.285714285714285714285714285714%;
+    }
+    }
+
 {% endblock extra_style %}
 
 {% block content %}
     <div class="container">
-    <legend>Exam Selection</legend>
+        <legend>Exam Selection</legend>
         <table class="table">
             <thead>
             <tr>
@@ -86,6 +119,28 @@
 
 
     <div id="exam_schedule" class="container-fluid"></div>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div id="better_exam_schedule"></div>
     <script>
         function check_availability() {
 
@@ -146,6 +201,7 @@
                                             } else {
                                                 swal("Yeah!", parsed_data['message'], "success");
                                                 showSchedule(parsed_data);
+                                                bettershowSchedule(parsed_data);
                                             }
                                         }
 
@@ -159,6 +215,7 @@
                     else {
                         swal("Yeah!", data['message'], "success");
                         showSchedule(data);
+                        bettershowSchedule(data);
                     }
                 }
             });
@@ -196,7 +253,7 @@
 
                                     let time_row = document.createElement('tr');
                                     let td = document.createElement('td');
-                                    td.innerHTML = "Location: " + room + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Subject:" + data[branch][exam][date][time][room]['subject'] + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time: " + time;
+                                    td.innerHTML = "Location: " + room + "Subject:" + data[branch][exam][date][time][room]['subject'] + "Time: " + time;
                                     time_row.appendChild(td);
                                     table.appendChild(time_row);
 
@@ -210,7 +267,7 @@
                                             td.innerHTML += roll_nos[i] + "<br/>";
                                             count = 0;
                                         } else {
-                                            td.innerHTML += roll_nos[i] + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                                            td.innerHTML += roll_nos[i] + "";
                                             count = count + 1;
                                         }
                                     }
@@ -225,6 +282,65 @@
                                 }
                             }
                             main_container.appendChild(table);
+                        }
+                    }
+                }
+            }
+        }
+
+        function bettershowSchedule(data) {
+            let main_container = document.getElementById('better_exam_schedule');
+
+            while (main_container.hasChildNodes()) {
+                main_container.removeChild(main_container.childNodes[0]);
+            }
+
+
+            for (let branch in data) {
+                if (branch != 'message' && branch != 'type') {
+
+                    for (let exam in data[branch]) {
+
+                        for (let date in data[branch][exam]) {
+
+                            let item = document.createElement("div");
+                            item.setAttribute("class", "item-schedule");
+
+                            let title = document.createElement("div");
+                            title.setAttribute("class", "title-schedule");
+                            title.innerHTML = branch + ":" + exam + ":" + date;
+                            item.appendChild(title);
+
+
+                            for (let time in data[branch][exam][date]) {
+                                for (let room in data[branch][exam][date][time]) {
+
+                                    let room_div = document.createElement('div');
+                                    room_div.setAttribute("class", "classroom-schedule");
+                                    item.appendChild(room_div);
+
+                                    let subtitle = document.createElement("div");
+                                    subtitle.setAttribute("class", "subtitle-schedule");
+                                    subtitle.innerHTML = room + data[branch][exam][date][time][room]['subject'] + time;
+                                    room_div.appendChild(subtitle);
+
+                                    let student_outer_div = document.createElement('div');
+                                    student_outer_div.setAttribute("class", "row");
+                                    room_div.appendChild(student_outer_div);
+
+                                    let roll_nos = data[branch][exam][date][time][room]['student'].sort();
+
+                                    let count = 0;
+                                    for (let i in roll_nos) {
+                                        let student_div = document.createElement('div');
+                                        student_div.setAttribute('class', 'col-md-1');
+                                        student_div.innerHTML = roll_nos[i];
+                                        student_outer_div.appendChild(student_div);
+                                    }
+
+                                }
+                            }
+                            main_container.appendChild(item);
                         }
                     }
                 }
