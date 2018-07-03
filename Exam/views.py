@@ -536,34 +536,37 @@ def check_availability(request, still_schedule='0'):
             time_slot = start_time + '-' + end_time
             student = each.student_subject.student.gr_number
             room = each.exam_subject_room.room.room_number
+            subject = each.exam_subject_room.exam_subject.subject.short_form
 
             if branch in exam_json:
                 if exam_name in exam_json[branch]:
                     if date in exam_json[branch][exam_name]:
                         if time_slot in exam_json[branch][exam_name][date]:
                             if room in exam_json[branch][exam_name][date][time_slot]:
-                                exam_json[branch][exam_name][date][time_slot][room].append(student)
+                                exam_json[branch][exam_name][date][time_slot][room]['subject'] = subject
+                                if 'student' in exam_json[branch][exam_name][date][time_slot][room]:
+                                    exam_json[branch][exam_name][date][time_slot][room]['student'].append(student)
                             else:
-                                exam_json[branch][exam_name][date][time_slot][room] = [student]
+                                exam_json[branch][exam_name][date][time_slot][room] = {'student': [student]}
                         else:
                             exam_json[branch][exam_name][date][time_slot] = {}
-                            exam_json[branch][exam_name][date][time_slot][room] = [student]
+                            exam_json[branch][exam_name][date][time_slot][room] = {'student': [student]}
 
                     else:
                         exam_json[branch][exam_name][date] = {}
                         exam_json[branch][exam_name][date][time_slot] = {}
-                        exam_json[branch][exam_name][date][time_slot][room] = [student]
+                        exam_json[branch][exam_name][date][time_slot][room] = {'student': [student]}
                 else:
                     exam_json[branch][exam_name] = {}
                     exam_json[branch][exam_name][date] = {}
                     exam_json[branch][exam_name][date][time_slot] = {}
-                    exam_json[branch][exam_name][date][time_slot][room] = [student]
+                    exam_json[branch][exam_name][date][time_slot][room] = {'student': [student]}
             else:
                 exam_json[branch] = {}
                 exam_json[branch][exam_name] = {}
                 exam_json[branch][exam_name][date] = {}
                 exam_json[branch][exam_name][date][time_slot] = {}
-                exam_json[branch][exam_name][date][time_slot][room] = [student]
+                exam_json[branch][exam_name][date][time_slot][room] = {'student': [student]}
 
 
 @csrf_exempt

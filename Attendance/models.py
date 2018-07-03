@@ -35,12 +35,3 @@ class FacultyAttendance(models.Model):
     in_time = models.TimeField()
     out_time = models.TimeField()
 
-
-class TotalAttendance(models.Model):
-    student = models.ForeignKey(Student,on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subject,on_delete=models.CASCADE)
-    total_lectures = models.PositiveIntegerField()
-    attended_lectures = models.PositiveIntegerField()
-
-    def __str__(self):
-        return self.student.first_name + self.student.gr_number + self.subject.name
