@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from .models import StudentAttendance, TotalAttendance
+from .models import StudentAttendance, FacultyAttendance
 
 # Register your models here.
 
 admin.site.register(StudentAttendance)
-admin.site.register(TotalAttendance)
+admin.site.register(FacultyAttendance)

@@ -21,7 +21,7 @@ from Exam.models import *
 from Timetable.models import *
 from General.models import *
 from Registration.models import *
-from Attendance.models import FacultyAttendance, StudentAttendance, TotalAttendance
+from Attendance.models import FacultyAttendance, StudentAttendance
 from Dashboard.models import GeneralStudentNotification, SpecificNotification, GeneralFacultyNotification
 from Exam.models import ExamMaster, ExamDetail, ExamSubject, Mark, MarksType
 from General.models import BranchSubject, Batch, StudentDetail, StudentSubject, YearBranch, Shift, Semester, Schedule, \
@@ -31,7 +31,7 @@ from Timetable.models import Timetable, DateTimetable, Room, Time
 
 RESTORE = [Subject, Student, Faculty, Branch, CollegeYear, Shift, YearBranch, Division, Semester, YearSemester, Batch,
            BranchSubject, FacultySubject, StudentDetail, StudentSubject, Schedulable, Schedule,
-           TotalAttendance, Room, Time, Timetable, DateTimetable, FacultyAttendance,
+           Room, Time, Timetable, DateTimetable, FacultyAttendance,
            GeneralFacultyNotification, GeneralStudentNotification, SpecificNotification, ExamMaster, ExamDetail,
            ExamSubject, Mark, MarksType, StudentAttendance]
 
@@ -57,7 +57,7 @@ def backup(request, page=1):
             if pages == 0:
                 pages = 1
             return render(request, 'backup.html', {
-                'class_active':class_active,
+                'class_active': class_active,
                 'current_version': current_version,
                 'all_backup': all_backup,
                 'pages': range(1, pages + 1),
