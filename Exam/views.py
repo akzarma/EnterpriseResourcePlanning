@@ -163,15 +163,25 @@ def get_subjects(request):
 
 def view_exam(request):
     user = request.user
-    if has_role(user, 'student'):
-        student_obj = user.student
-        student_detail_obj = StudentDetail.objects.get(student=student_obj, is_active=True)
-        year_branch_obj = student_detail_obj.batch.division.year_branch
-        exam_objs = ExamDetail.objects.filter(is_active=True, year=year_branch_obj)
-        exam_subjects = [list(each.examsubject_set.values_list('subject__short_form', flat=True)) for each in exam_objs]
+    if has_role(user, 'faculty'):
+        faculty = user.faculty
+        # data = {}
+        exam = []
+        subjects = []
+        all_exam_groups = ExamGroup.objects.filter(is_active=True)
+        for each in all_exam_groups:
+            # exam_group_detail_set = each.examgroupdetail_set.filter(is_active=True)
+            # for each_group in exam_group_detail_set:
+            exam_objs = each.examgroupdetail_set.filter(is_active=True)
+            exam.append(exam_objs)
+
+            for each_exam in exam_objs:
+                subjects.append(each_exam.exam.examsubject_set.filter(is_active=True))
+
         return render(request, 'view_exam.html', {
-            'exams': exam_objs,
-            'exam_subjects': exam_subjects
+            'exam_group': all_exam_groups,
+            'exam_group_detail': exam,
+            'subjects': subjects
         })
 
 
@@ -360,10 +370,10 @@ def check_availability(request, still_schedule='0'):
 
                     for obj in grouped_students:
                         groups[
-                            obj.subject.branchsubject_set.filter(is_active=True)[0].subject].append(
+                            obj.subject.branchsubject_set.filter(is_active=True)[0].subject.short_form].append(
                             obj)
                     more = False
-                    for key, values in groups:
+                    for key, values in groups.items():
                         if len(values) > single_capacity and still_schedule != '1':
                             more = True
                             message = {'type': 'Question',
@@ -378,7 +388,8 @@ def check_availability(request, still_schedule='0'):
                     print('more')
                     print('generating tiwce')
                     grouped_students.sort(key=lambda x: x.subject.branchsubject_set.filter(is_active=True)[
-                        0].subject)
+                        0].subject.short_form
+                                          )
 
                     for each_room in all_available_rooms:
                         room_obj = Room.objects.get(room_number=each_room)
@@ -404,9 +415,9 @@ def check_availability(request, still_schedule='0'):
                             room_block[each_room] = [each_slot]
 
                         if counter + room_obj.capacity > len(grouped_students):
-                            final[each_slot][each_room] = grouped_students[counter:len(grouped_students)]
+                            final[each_slot][each_room].extend(grouped_students[counter:len(grouped_students)])
                         else:
-                            final[each_slot][each_room] = grouped_students[counter:room_obj.capacity]
+                            final[each_slot][each_room].extend(grouped_students[counter:room_obj.capacity])
                         counter += room_obj.capacity
 
                         if counter > len(grouped_students):
@@ -433,7 +444,7 @@ def check_availability(request, still_schedule='0'):
                             else:
                                 current_exam_subject = current_exam_subject[0]
                                 current_room_obj = Room.objects.get(
-                                        room_number=room)
+                                    room_number=room)
                                 curr_exam_subject_room = ExamSubjectRoom.objects.create(
                                     exam_subject=current_exam_subject,
                                     room=current_room_obj)
@@ -446,11 +457,10 @@ def check_availability(request, still_schedule='0'):
             # ExamSubjectRoom.objects.bulk_create(exam_subject_room_to_create)
             ExamSubjectStudentRoom.objects.bulk_create(exam_subject_student_room_to_create)
             for each in rooms_objects_to_create:
-                ExamGroupRoom.objects.create(exam_group=exam_group_obj,room=each)
+                ExamGroupRoom.objects.create(exam_group=exam_group_obj, room=each)
 
             for each in exam_detail_objs:
-                ExamGroupDetail.objects.create(exam_group=exam_group_obj,exam=each)
-
+                ExamGroupDetail.objects.create(exam_group=exam_group_obj, exam=each)
 
             # For sending notification
             student_subject_json = {}

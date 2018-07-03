@@ -18,7 +18,8 @@ from django.views.decorators.csrf import csrf_exempt
 from Attendance.models import StudentAttendance
 from Dashboard.models import SpecificNotification, GeneralStudentNotification, GeneralFacultyNotification
 from EnterpriseResourcePlanning.settings import NOTIFICATION_LONG_LIMIT, NOTIFICATION_SMALL_LIMIT
-from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject, YearBranch
+from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject, YearBranch, \
+    ElectiveDivision
 from General.views import notify_users
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student, Branch, Faculty, ElectiveSubject, Subject
@@ -677,8 +678,7 @@ def read_all_notification(request):
 def take_extra_lecture(request):
     user = request.user
     if not user.is_anonymous:
-        is_faculty = has_role(user, 'faculty')
-        if is_faculty:
+        if has_role(user, 'faculty'):
             faculty = user.faculty
             data = {}
             year_branch = [i.division.year_branch for i in
@@ -785,6 +785,8 @@ def take_extra_lecture(request):
                         division_object = Division.objects.get(year_branch=year_branch_object,
                                                                division=division,
                                                                is_active=True)
+                        batches = division_object.batch_set.all()
+
                         timetable = sorted(
                             DateTimetable.objects.filter(Q(date=selected_date),
                                                          Q(original__division=division_object) | Q(
@@ -833,6 +835,7 @@ def take_extra_lecture(request):
                         'timetable': timetable,
                         'time_slots': time_slots,
                         'subjects': subjects,
+                        'batches': batches,
                         'rooms': room_dict,
                         'subject_category': json.dumps(subject_category),
                         'selected_date': selected_date,
@@ -866,18 +869,87 @@ def take_extra_lecture(request):
                                                                    division=division,
                                                                    is_active=True)
 
-                            timetable_obj = Timetable.objects.create(room=room, time=time_obj, day=days[selected_date.weekday()],
-                                                     branch_subject=branch_subject, faculty=faculty,
-                                                     division=division_object,
-                                                     is_practical=False)
+                            existing = DateTimetable.objects.filter(Q(date=selected_date), Q(is_active=True),
+                                                                    (Q(original__time=time_obj) | Q(
+                                                                        substitute__time=time_obj)),
+                                                                    (Q(original__day=days[selected_date.weekday()]) | Q(
+                                                                        substitute__time=days[
+                                                                            selected_date.weekday()])),
+                                                                    (Q(original__division=division_object) | Q(
+                                                                        substitute__division=division_object)))
 
-                            DateTimetable.objects.create(date=selected_date, original=timetable_obj)
+                            if existing.__len__() == 0:
+                                new_tt = Timetable.objects.create(room=room, time=time_obj,
+                                                                  day=days[selected_date.weekday()],
+                                                                  branch_subject=branch_subject, faculty=faculty,
+                                                                  division=division_object,
+                                                                  is_practical=False)
 
+                                DateTimetable.objects.create(date=selected_date, original=new_tt)
 
+                                # notify students
+                                return render(request, 'extra_lecture.html', {
+                                    'data': data,
+                                    'success': 'Lecture has been scheduled and students of that division have been notified.',
+                                })
 
+                            elif existing.__len__() > 1:
+                                return HttpResponse('Something\' wrong! Should never go here!')
+
+                            else:
+                                # notify existing[0].faculty
+                                return render(request, 'extra_lecture.html', {
+                                    'data': data,
+                                    'info': 'The faculty teaching from ' + time_obj + 'to ' + division + ' division have been notified about your request',
+                                })
 
                         else:
                             room = Room.objects.get(branch__branch=branch, room_number=room, lab=True)
+                            branch_subject = BranchSubject.objects.get(year_branch=year_branch_object,
+                                                                       subject__short_form=subject,
+                                                                       subject__is_active=True,
+                                                                       subject__is_elective_group=False,
+                                                                       subject__is_practical=False)
+                            division_object = Division.objects.get(year_branch=year_branch_object,
+                                                                   division=division,
+                                                                   is_active=True)
+                            batch = Batch.objects.get(division=division_object, batch_name=request.POST.get('batch'))
+
+                            existing = DateTimetable.objects.filter(Q(date=selected_date), Q(is_active=True),
+                                                                    (Q(original__time=time_obj) | Q(
+                                                                        substitute__time=time_obj)),
+                                                                    (Q(original__batch=batch) | Q(
+                                                                        substitute__batch=batch)),
+                                                                    (Q(original__day=days[selected_date.weekday()]) | Q(
+                                                                        substitute__time=days[
+                                                                            selected_date.weekday()])),
+                                                                    (Q(original__division=division_object) | Q(
+                                                                        substitute__division=division_object)))
+
+                            if existing.__len__() == 0:
+                                new_tt = Timetable.objects.create(room=room, time=time_obj,
+                                                                  day=days[selected_date.weekday()],
+                                                                  branch_subject=branch_subject, faculty=faculty,
+                                                                  division=division_object,
+                                                                  is_practical=True, batch=batch)
+
+                                DateTimetable.objects.create(date=selected_date, original=new_tt)
+
+                                # notify students
+                                return render(request, 'extra_lecture.html', {
+                                    'data': data,
+                                    'success': 'Practical has been scheduled and students of that division have been notified.',
+                                })
+
+                            elif existing.__len__() > 1:
+                                return HttpResponse('Something\' wrong! Should never go here!')
+
+                            else:
+                                # notify existing[0].faculty
+                                return render(request, 'extra_lecture.html', {
+                                    'data': data,
+                                    'info': 'The faculty teaching from ' + time_obj + 'to ' + division + ' division have been notified about your request',
+                                })
 
                     else:
                         pass
@@ -889,7 +961,6 @@ def take_extra_lecture(request):
 
 
 def test_url(request):
-
     # branch_obj = Branch.objects.get(branch='Mechanical')
     # year_obj = CollegeYear.objects.get(year='TE')
     # year_branch = YearBranch.objects.get(year=year_obj,branch=branch_obj,is_active=True)
