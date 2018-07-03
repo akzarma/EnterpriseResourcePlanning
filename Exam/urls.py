@@ -18,6 +18,8 @@ urlpatterns = [
     url(r'^set_rooms/$', views.set_rooms, name='set_rooms'),
     # /exam/ste_exam_time
     url(r'^set_exam_time/$', views.set_exam_time, name='set_exam_time'),
+
+    url(r'^view_schedule/$', views.view_schedule, name='view_schedule'),
     # /exam/check_availability
     url(r'^check_availability/$', views.check_availability, name='check_availability'),
     # /exam/check_availability/exam_group

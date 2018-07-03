@@ -65,6 +65,7 @@ def exam_detail(request):
                 'subjects': subjects,
                 'exam_name': exam_detail_obj.exam.exam_name,
                 'branch': exam_detail_obj.year.branch.branch,
+                'year': exam_detail_obj.year.year,
                 'exam_pk': exam_detail_obj.id,
             })
         else:
@@ -163,26 +164,29 @@ def get_subjects(request):
 
 def view_exam(request):
     user = request.user
-    if has_role(user, 'faculty'):
-        faculty = user.faculty
-        # data = {}
-        exam = []
-        subjects = []
-        all_exam_groups = ExamGroup.objects.filter(is_active=True)
-        for each in all_exam_groups:
-            # exam_group_detail_set = each.examgroupdetail_set.filter(is_active=True)
-            # for each_group in exam_group_detail_set:
-            exam_objs = each.examgroupdetail_set.filter(is_active=True)
-            exam.append(exam_objs)
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            faculty = user.faculty
+            # data = {}
+            exam = []
+            subjects = []
+            all_exam_groups = ExamGroup.objects.filter(is_active=True)
+            for each in all_exam_groups:
+                exam_objs = each.examgroupdetail_set.filter(is_active=True)
+                exam.append(exam_objs)
 
-            for each_exam in exam_objs:
-                subjects.append(each_exam.exam.examsubject_set.filter(is_active=True))
+                for each_exam in exam_objs:
+                    subjects.append(each_exam.exam.examsubject_set.filter(is_active=True))
 
-        return render(request, 'view_exam.html', {
-            'exam_group': all_exam_groups,
-            'exam_group_detail': exam,
-            'subjects': subjects
-        })
+            return render(request, 'view_exam.html', {
+                'exam_group': all_exam_groups,
+                'exam_group_detail': exam,
+                'subjects': subjects
+            })
+        else:
+            return redirect('/login/')
+    else:
+        return redirect('/login/')
 
 
 def manage_exam(request):
@@ -590,3 +594,7 @@ def android_types_of_exam(request):
 
     else:
         return HttpResponse('Not a POST request')
+
+
+def view_schedule(request):
+    return None
