@@ -1156,7 +1156,7 @@ def register_year(request):
                 except:
                     sem_obj = Semester.objects.create(semester=i + 1)
                     # print(i+1, 'except')
-                year_branch_obj = YearBranch.objects.get_or_create(year=year_obj, branch=branch_obj, is_active=True)
+                year_branch_obj = YearBranch.objects.get_or_create(year=year_obj[0], branch=branch_obj, is_active=True)
                 YearSemester.objects.create(semester=sem_obj, year_branch=year_branch_obj[0])
             return render(request, 'register_year.html', {
                 'class_active': class_active,
