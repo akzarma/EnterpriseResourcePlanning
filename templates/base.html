@@ -348,8 +348,9 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title" id="modal-title">Modal Header</h4>
             </div>
-            <div class="modal-body" id="modal-body">
-                <p id="modal-body-text">Some text in the modal.</p>
+            <div class="modal-body">
+                <p id="modal-body-text"></p>
+                <div id="modal-body-div"></div>
             </div>
             <div class="modal-footer" id="modal-footer">
             </div>
@@ -443,6 +444,11 @@
 
         let modalTitle = document.getElementById("modal-title");
         let modalBodyText = document.getElementById("modal-body-text");
+        let modalBodyDiv = document.getElementById("modal-body-div");
+
+        while(modalBodyDiv.hasChildNodes()) {
+            modalBodyDiv.removeChild(modalBodyDiv.childNodes[0]);
+        }
 
         modalTitle.innerHTML = temp_json["fields"]["heading"];
         modalBodyText.innerText = temp_json["fields"]["notification"];

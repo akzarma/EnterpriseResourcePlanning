@@ -1132,8 +1132,8 @@ def register_year(request):
     class_active = 'register'
     user = request.user
     if not user.is_anonymous:
+        branches = Branch.objects.all()
         if request.method == 'GET':
-            branches = Branch.objects.all()
             return render(request, 'register_year.html', {
                 'class_active': class_active,
                 'branches': branches,
@@ -1160,6 +1160,7 @@ def register_year(request):
                 YearSemester.objects.create(semester=sem_obj, year_branch=year_branch_obj[0])
             return render(request, 'register_year.html', {
                 'class_active': class_active,
+                'branches': branches,
                 'success': 'Year ' + year + ' Saved!'
             })
         return HttpResponse('Something is wrong!')
@@ -1377,5 +1378,24 @@ def student_subject_division(request):
             'success': 'elective divisions are assigned successfully.'})
 
 
-def register_elective(request):
-    return None
+def register_branch(request):
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            if request.method == "GET":
+                return render(request, 'register_branch.html')
+
+            elif request.method == "POST":
+                branch = request.POST.get('branch')
+                branch = branch.title()
+                if len(Branch.objects.filter(branch=branch)) > 0:
+                    return render(request, 'register_branch.html', {
+                        'error': branch + ' is already registered.'
+                    })
+                Branch.objects.create(branch=branch)
+                return render(request, 'register_branch.html', {
+                    'success': 'Successfully registered ' + branch + ' branch',
+                })
+
+        return redirect('/login/')
+    return redirect('/login/')

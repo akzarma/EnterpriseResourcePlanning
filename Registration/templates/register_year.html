@@ -1,27 +1,30 @@
 {% extends "dashboard_faculty.html" %}
 {% block content %}
-    <form method="POST" action="{% url 'registration:register_year' %}">
-        {% csrf_token %}
+    <div class="col-md-4">
+        <form method="POST" action="{% url 'registration:register_year' %}">
+            {% csrf_token %}
+            <div class="form-element">
+                <label>Branch</label>
+                <select name="branch" id="branch" class="form-control">
+                    {% for branch in branches %}
+                        <option value="{{ branch.branch }}">{{ branch.branch }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-element">
+                <label>Year</label>
+                <input name="year" type="text" class="form-control">
+            </div>
+            <div class="form-element">
+                <label>Year Number</label>
+                <input name="year_number" type="text" class="form-control">
+            </div>
+            <div class="form-element">
+                <label>Number of semsters in a year</label>
+                <input name="no_of_sem" type="text" class="form-control">
+            </div>
 
-        <div class="form-element">
-            <label>Year</label>
-            <input name="year" type="text">
-            <label>Year Number</label>
-            <input name="year_number" type="text">
-            <label>Branch</label>
-            <select name="branch" id="branch">
-                {% for branch in branches %}
-                    <option value="{{ branch.branch }}">{{ branch.branch }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-element">
-            <label>Number of semsters in a year</label>
-            <input name="no_of_sem" type="text">
-        </div>
-
-        <input type="submit">
-
-
-    </form>
+            <input type="submit" class="btn btn-primary">
+        </form>
+    </div>
 {% endblock content %}

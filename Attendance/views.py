@@ -616,5 +616,6 @@ def subject_attendance(request):
             return render(request, )
 
         elif request.method=='POST':
+            pass
 
 

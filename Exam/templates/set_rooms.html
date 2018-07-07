@@ -200,7 +200,7 @@
                                                 swal("Sorry!", parsed_data['message'], "warning");
                                             } else {
                                                 swal("Yeah!", parsed_data['message'], "success");
-                                                showSchedule(parsed_data);
+                                                {#showSchedule(parsed_data);#}
                                                 bettershowSchedule(parsed_data);
                                             }
                                         }
@@ -214,7 +214,7 @@
                     }
                     else {
                         swal("Yeah!", data['message'], "success");
-                        showSchedule(data);
+                        {#showSchedule(data);#}
                         bettershowSchedule(data);
                     }
                 }

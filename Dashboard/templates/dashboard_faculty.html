@@ -342,8 +342,9 @@
                 <li id="register">
                     <a href="#registermenu" data-toggle="collapse" aria-expanded="false">Register</a>
                     <ul class="collapse list-unstyled" id="registermenu">
+                        <li><a href="{% url 'registration:register_branch' %}">Branch</a></li>
+                        <li><a href="{% url 'registration:register_year' %}">Year</a></li>
                         <li><a href="{% url 'registration:register_subject' %}">Subject</a></li>
-                        <li><a href="{% url 'registration:register_year' %}">New Year</a></li>
                         <li><a href="{% url 'registration:register_year_detail' %}">Set Semester Details</a></li>
                         <li><a href="{% url 'registration:register_faculty_subject' %}">Bind faculty with subject</a>
                         </li>
@@ -358,6 +359,7 @@
                         <li><a href="{% url 'exam:exam_detail' %}">Set exam</a>
                         <li><a href="{% url 'exam:exam_register' %}">Add new exam</a>
                         <li><a href="{% url 'exam:set_rooms' %}">Set Rooms</a>
+                        <li><a href="{% url 'exam:view_exam' %}">View Exam Schedule</a>
                         </li>
                     </ul>
                 </li>

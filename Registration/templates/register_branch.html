@@ -1,0 +1,25 @@
+{% extends "./dashboard_faculty.html" %}
+
+{% block title %}Branch Registration {% endblock title %}
+
+{% block content %}
+    <div class="col-md-4">
+        <form method="post" action="{% url 'registration:register_branch' %}">
+            {% csrf_token %}
+            <fieldset>
+                <legend>Register new branch</legend>
+                <div class="form-element">
+                    <label for="branch">Enter branch name</label>
+                    <input class="form-control" id="branch" name="branch"/>
+                </div>
+            </fieldset>
+            <div class="form-element">
+                <input type="submit" class="btn btn-primary">
+            </div>
+        </form>
+    </div>
+{% endblock content %}
+
+{% block html %}
+
+{% endblock html %}
