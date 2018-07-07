@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
-from General.models import CollegeYear, StudentDetail, BranchSubject, Batch, Division
+from General.models import CollegeYear, StudentDetail, BranchSubject, Batch, Division, StudentSubject
 from Registration.forms import gr_roll_dict
 from Registration.models import Student, Subject, Branch
 from General.models import FacultySubject, StudentDetail
@@ -617,5 +617,10 @@ def subject_attendance(request):
 
         elif request.method=='POST':
             pass
+
+            subjects = request.POST.getlist('subject')
+            for each_subject in subjects:
+                subject_obj = Subject.objects.get(is_active=True,short_form=each_subject)
+                StudentSubject.objects.filter(subject)
 
 

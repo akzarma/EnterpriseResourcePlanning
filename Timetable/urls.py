@@ -10,7 +10,7 @@ urlpatterns = [
     #
     url(r'^save/$', views.save_timetable, name='save_timetable'),
 
-    url(r'^to_json/$', views.to_json, name='to_json'),
+    # url(r'^to_json/$', views.to_json, name='to_json'),
 
     url(r'^android_timetable_json/$', views.android_timetable_json, name='android_timetable_json'),
 

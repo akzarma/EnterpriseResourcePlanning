@@ -304,10 +304,24 @@
         <select id="id_semester" name="current_semester" onchange="changeSemester()"
                 onfocus="set_previous_semester(this)">
         </select>
+        <label for="current_branch">Branch: </label>
+        <select id="current_branch" name="current_branch" onchange="document.semester_form.submit();">
+            {% for each_branch in all_branch %}
+                {% ifequal each_branch branch %}
+                    <option selected="selected">{{ each_branch }}</option>
+                {% else %}
+
+                    <option>{{ each_branch }}</option>
+                {% endifequal %}
+
+            {% endfor %}
+        </select>
+
     </form>
     <form method="post" id="timetable_form" action="{% url 'Timetable:save_timetable' %}">
         {% csrf_token %}
         <input type="hidden" name="current_semester" value="{{ current_semester }}">
+        <input type="hidden" name="current_branch" value="{{ branch }}">
         <label for="id_year">Year: </label>
         <select id="id_year" onchange="set_subject(); set_semester();">
             {% for yr in year %}
@@ -421,7 +435,7 @@
         function changeSemester() {
             swal({
                 title: "Are you sure?",
-                text: "All the changes till this point will be lost . To save the changes, press submit.",
+                text: "All the changes till this point will be lost. To save the changes, press submit.",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true
@@ -1007,7 +1021,7 @@
                             let third_td = document.getElementById("id_room_" + time + "_C_" + day + "_" + year + "_cbx").parentElement;
                             second_td.parentElement.removeChild(second_td);
                             third_td.parentElement.removeChild(third_td);
-                            while(first_td.hasChildNodes()){
+                            while (first_td.hasChildNodes()) {
                                 first_td.removeChild(first_td.childNodes[0]);
                             }
                             first_td.setAttribute("rowspan", "3");
@@ -1015,8 +1029,8 @@
                             checkbox_object.setAttribute("type", "checkbox");
                             checkbox_object.classList.add("practical-cbx");
                             checkbox_object.id = id;
-                            let name = id.replace("_cbx","");
-                            name = id.replace("room","cbx");
+                            let name = id.replace("_cbx", "");
+                            name = id.replace("room", "cbx");
                             checkbox_object.setAttribute("name", name);
                             checkbox_object.checked = true;
                             first_td.appendChild(checkbox_object);

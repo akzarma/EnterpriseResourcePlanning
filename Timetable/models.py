@@ -39,6 +39,7 @@ class Room(models.Model):
     room_number = models.CharField(max_length=10)
     lab = models.BooleanField(default=False)
     capacity = models.PositiveIntegerField(default=28)
+    is_active=models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.branch) + str(self.room_number)

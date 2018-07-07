@@ -5,7 +5,7 @@ from datetime import datetime
 
 from django.db import models
 
-from General.models import FacultySubject
+from General.models import FacultySubject, StudentDetail
 from Registration.models import Student, Subject, Faculty
 
 # Contains
@@ -18,10 +18,21 @@ class StudentAttendance(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     timetable = models.ForeignKey(DateTimetable, on_delete=models.CASCADE, null=True)  # Should not be null
     attended = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.student.first_name + self.student.gr_number
 
+
+class SubjectLectures(models.Model):
+    faculty_subject = models.ForeignKey(FacultySubject,on_delete=models.CASCADE)
+    conducted_lectures = models.IntegerField(default=0)
+
+
+class StudentSubjectTotalAttendance(models.Model):
+    student =models.ForeignKey(Student,on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject,on_delete=models.CASCADE)
+    attended = models.IntegerField(default=0)
 
 # class DailyAttendance(models.Model):
 #     date = models.DateTimeField()

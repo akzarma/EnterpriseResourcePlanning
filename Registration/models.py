@@ -19,7 +19,7 @@ def faculty_directory_path(instance, filename):
 
 # Create your models here.
 class Faculty(models.Model):
-    initials = models.CharField(max_length=10, blank=True, null=True)
+    initials = models.CharField(max_length=10, blank=True, null=True,unique=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
@@ -185,7 +185,7 @@ class Subject(models.Model):
 
 
 class ElectiveSubject(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100,unique=True)
     short_form = models.CharField(max_length=10)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
