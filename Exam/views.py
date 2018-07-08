@@ -215,8 +215,8 @@ def set_rooms(request):
             done_exams = set([each.exam for each in ExamGroupDetail.objects.filter(is_active=True)])
             remaining = list(set(all_exams) - done_exams)
             print(remaining)
-            branch_obj = Branch.objects.get(branch='Computer')
-            available_rooms = Room.objects.filter(branch=branch_obj)
+            # branch_obj = Branch.objects.get(branch='Computer')
+            available_rooms = Room.objects.filter(is_active=True)
             return render(request, 'set_rooms.html', {
                 'exams': remaining,
                 'available_rooms': available_rooms

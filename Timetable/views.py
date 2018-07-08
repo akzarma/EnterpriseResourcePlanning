@@ -34,14 +34,17 @@ def fill_timetable(request):
     if not user.is_anonymous:
         is_faculty = RoleManager.objects.filter()
         if is_faculty:
+            # Default branch Computer and default semester 2
             current_semester = 2
+            current_branch = 'Computer'
             if request.method == "POST":
                 current_semester = int(request.POST.get('current_semester'))
+                current_branch = request.POST.get('current_branch')
+            branch_obj = Branch.objects.get(branch=current_branch)
             semester_obj = Semester.objects.get(semester=current_semester, is_active=True)
             times = []
             years = []
-            # branch = Branch.objects.all()
-            branch_obj = Branch.objects.get(branch='Computer')
+            all_branch = Branch.objects.all().values_list('branch',flat=True)
             year_branch_obj = YearBranch.objects.filter(branch=branch_obj)
             branch = branch_obj.branch
             for i in Time.objects.all().order_by('starting_time'):
@@ -266,21 +269,22 @@ def fill_timetable(request):
                 'subject_teacher_json': json.dumps(subject_teacher_json),
                 'timetable_instance_theory': timetable_instance,
                 'timetable_instance_practical': timetable_instance_practical,
-                'elective_subject_teacher_json': elective_subject_teacher_json
+                'elective_subject_teacher_json': elective_subject_teacher_json,
+                'all_branch':all_branch,
             }
             return render(request, 'test_timetable.html', context)
         return HttpResponseRedirect('/login/')
     return HttpResponseRedirect('/login/')
 
 
-def fill_date_timetable(new_date_timetable, current_semester):
+def fill_date_timetable(new_date_timetable, current_semester,current_branch):
     creation_list = []
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     # Should always return 1 object
     DateTimetable.objects.all().update(is_active=False)
-    branch_obj = Branch.objects.get(branch='Computer')
+    branch_obj = Branch.objects.get(branch=current_branch)
     all_semester = Semester.objects.filter(semester=current_semester)
-    all_years = set(CollegeYear.objects.all()) - set(CollegeYear.objects.filter(year='FE'))        #FE ka dekhna hai
+    all_years = set(CollegeYear.objects.all()) - set(CollegeYear.objects.filter(year='FE'))  # FE ka dekhna hai
     for current_semester in all_semester:
         for year in all_years:
             print(branch_obj, year)
@@ -302,8 +306,8 @@ def fill_date_timetable(new_date_timetable, current_semester):
 def save_timetable(request):
     if request.method == "POST":
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-        branch = Branch.objects.get(branch='Computer')
+        current_branch = request.POST.get('current_branch')
+        branch = Branch.objects.get(branch=current_branch)
         full_timetable = list(Timetable.objects.filter(branch_subject__year_branch__branch=branch))
         new_timetable = []
         for i in request.POST:
@@ -373,12 +377,10 @@ def save_timetable(request):
 
                     cbx_id = i + '_elective_cbx'
 
-
-
-
                     elective_subject = ElectiveSubject.objects.get()
-                    elective_division = ElectiveDivision.objects.get(division=division, year_branch=branch_subject.year_branch,
-                                                            is_active=True)
+                    elective_division = ElectiveDivision.objects.get(division=division,
+                                                                     year_branch=branch_subject.year_branch,
+                                                                     is_active=True)
 
                     timetable = Timetable.objects.filter(time=time, day=day, elective_division=elective_division,
                                                          is_practical=False)
@@ -423,121 +425,121 @@ def save_timetable(request):
 
         # Timetable.objects.filter(id__in=[i.id for i in full_timetable]).delete()
 
-        to_json()
-        fill_date_timetable(Timetable.objects.all(), request.POST.get('current_semester'))
+        # to_json()
+        fill_date_timetable(Timetable.objects.all(), request.POST.get('current_semester'),current_branch)
         # get_excel(request)
         return HttpResponseRedirect('/timetable/enter/')
     else:
         return HttpResponse("Not Post")
 
 
-def to_json():
-    branch_obj = Branch.objects.get(branch='Computer')
-    full_timetable = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj)
-
-    answer = {}
-    faculty_json = {}
-    for each in full_timetable:
-        year = each.branch_subject.year_branch.year.year
-        branch = each.branch_subject.year_branch.branch.branch
-
-        division = each.division.division
-
-        day = each.day
-
-        time = each.time.format_for_json()
-
-        faculty = each.faculty.initials
-
-        room = each.room.room_number
-        subject = each.branch_subject.subject.short_form
-
-        if year in answer:
-            if branch in answer[year]:
-                if division in answer[year][branch]:
-                    if day in answer[year][branch][division]:
-                        if time in answer[year][branch][division][day]:
-                            var = {}
-                        else:
-                            answer[year][branch][division][day][time] = {}
-                    else:
-                        answer[year][branch][division][day] = {}
-                        answer[year][branch][division][day][time] = {}
-
-                else:
-                    answer[year][branch][division] = {}
-                    answer[year][branch][division][day] = {}
-                    answer[year][branch][division][day][time] = {}
-
-            else:
-                answer[year][branch] = {}
-                answer[year][branch][division] = {}
-                answer[year][branch][division][day] = {}
-                answer[year][branch][division][day][time] = {}
-        else:
-            answer[year] = {}
-            answer[year][branch] = {}
-            answer[year][branch][division] = {}
-            answer[year][branch][division][day] = {}
-            answer[year][branch][division][day][time] = {}
-
-        if faculty in faculty_json:
-            if day in faculty_json[faculty]:
-                if time in faculty_json[faculty][day]:
-                    var = {}
-                else:
-                    faculty_json[faculty][day][time] = {}
-
-            else:
-                faculty_json[faculty][day] = {}
-                faculty_json[faculty][day][time] = {}
-
-        else:
-            faculty_json[faculty] = {}
-            faculty_json[faculty][day] = {}
-            faculty_json[faculty][day][time] = {}
-
-        is_practical = each.is_practical
-
-        if is_practical:
-            batch = each.batch.batch_name
-            if 'is_practical' in answer[year][branch][division][day][time]:
-                {}
-            else:
-                answer[year][branch][division][day][time] = {
-                    'is_practical': is_practical
-                }
-            answer[year][branch][division][day][time][batch] = {
-                'faculty': faculty,
-                'room': room,
-                'subject': subject,
-            }
-            faculty_json[faculty][day][time] = {
-                'branch': branch,
-                'division': division,
-                'room': room,
-                'subject': subject,
-                'year': year,
-                'batch': batch
-            }
-        else:
-            answer[year][branch][division][day][time] = {
-                'faculty': faculty,
-                'room': room,
-                'subject': subject,
-                'is_practical': is_practical
-            }
-
-            faculty_json[faculty][day][time] = {
-                'branch': branch,
-                'division': division,
-                'room': room,
-                'subject': subject,
-                'year': year
-            }
-
-    # write_to_firebase(answer, 'Student')
-    # write_to_firebase(faculty_json, 'Faculty')
+# def to_json():
+#     branch_obj = Branch.objects.get(branch='Computer')
+#     full_timetable = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj)
+#
+#     answer = {}
+#     faculty_json = {}
+#     for each in full_timetable:
+#         year = each.branch_subject.year_branch.year.year
+#         branch = each.branch_subject.year_branch.branch.branch
+#
+#         division = each.division.division
+#
+#         day = each.day
+#
+#         time = each.time.format_for_json()
+#
+#         faculty = each.faculty.initials
+#
+#         room = each.room.room_number
+#         subject = each.branch_subject.subject.short_form
+#
+#         if year in answer:
+#             if branch in answer[year]:
+#                 if division in answer[year][branch]:
+#                     if day in answer[year][branch][division]:
+#                         if time in answer[year][branch][division][day]:
+#                             var = {}
+#                         else:
+#                             answer[year][branch][division][day][time] = {}
+#                     else:
+#                         answer[year][branch][division][day] = {}
+#                         answer[year][branch][division][day][time] = {}
+#
+#                 else:
+#                     answer[year][branch][division] = {}
+#                     answer[year][branch][division][day] = {}
+#                     answer[year][branch][division][day][time] = {}
+#
+#             else:
+#                 answer[year][branch] = {}
+#                 answer[year][branch][division] = {}
+#                 answer[year][branch][division][day] = {}
+#                 answer[year][branch][division][day][time] = {}
+#         else:
+#             answer[year] = {}
+#             answer[year][branch] = {}
+#             answer[year][branch][division] = {}
+#             answer[year][branch][division][day] = {}
+#             answer[year][branch][division][day][time] = {}
+#
+#         if faculty in faculty_json:
+#             if day in faculty_json[faculty]:
+#                 if time in faculty_json[faculty][day]:
+#                     var = {}
+#                 else:
+#                     faculty_json[faculty][day][time] = {}
+#
+#             else:
+#                 faculty_json[faculty][day] = {}
+#                 faculty_json[faculty][day][time] = {}
+#
+#         else:
+#             faculty_json[faculty] = {}
+#             faculty_json[faculty][day] = {}
+#             faculty_json[faculty][day][time] = {}
+#
+#         is_practical = each.is_practical
+#
+#         if is_practical:
+#             batch = each.batch.batch_name
+#             if 'is_practical' in answer[year][branch][division][day][time]:
+#                 {}
+#             else:
+#                 answer[year][branch][division][day][time] = {
+#                     'is_practical': is_practical
+#                 }
+#             answer[year][branch][division][day][time][batch] = {
+#                 'faculty': faculty,
+#                 'room': room,
+#                 'subject': subject,
+#             }
+#             faculty_json[faculty][day][time] = {
+#                 'branch': branch,
+#                 'division': division,
+#                 'room': room,
+#                 'subject': subject,
+#                 'year': year,
+#                 'batch': batch
+#             }
+#         else:
+#             answer[year][branch][division][day][time] = {
+#                 'faculty': faculty,
+#                 'room': room,
+#                 'subject': subject,
+#                 'is_practical': is_practical
+#             }
+#
+#             faculty_json[faculty][day][time] = {
+#                 'branch': branch,
+#                 'division': division,
+#                 'room': room,
+#                 'subject': subject,
+#                 'year': year
+#             }
+#
+#     # write_to_firebase(answer, 'Student')
+#     # write_to_firebase(faculty_json, 'Faculty')
 
 
 def get_excel(request):
@@ -729,9 +731,11 @@ def android_timetable_json(request):
             if not gr_number:
                 return HttpResponse('Error!')
 
-            student = Student.objects.filter(gr_number=gr_number)
+            student = Student.objects.get(gr_number=gr_number)
 
-            branch_obj = Branch.objects.get(branch='Computer')
+            student_detail_obj = student.studentdetail_set.filter(is_active=True)
+
+            branch_obj = student.branch
 
             college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
 
@@ -885,7 +889,6 @@ def android_timetable_json(request):
 
     else:
         return HttpResponse('Error')
-
 
 # def bg_task(request):
 #     celery_app.send_task("Timetable.tasks.bg_task", [])
