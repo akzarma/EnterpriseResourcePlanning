@@ -1,0 +1,23 @@
+{% extends "dashboard_faculty.html" %}
+{% block content %}
+    <div class="col-md-4">
+        <form method="POST" action="{% url 'timetable:register_time_slot' %}">
+            {% csrf_token %}
+            <legend>Time Slot</legend>
+            <div class="form-element">
+                <label>Start Time</label>
+                <input type="time" data-time-format="H:i" name="start_time" class="timepicker">
+            </div>
+            <div class="form-element">
+                <label>End Time</label>
+                <input type="time" name="end_time" class="timepicker">
+            </div>
+
+            <input type="submit" class="btn btn-primary">
+        </form>
+    </div>
+{% endblock content %}
+{% block html %}
+    <script>
+    </script>
+{% endblock html %}

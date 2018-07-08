@@ -335,9 +335,12 @@
                 <li id="backup">
                     <a href="{% url 'BackupRestore:backup' %}">Backup</a>
                 </li>
-                <li id="fill_timetable">
-                    <a href="{% url 'Timetable:fill_timetable' %}">Fill Timetable</a>
-
+                <li id="register">
+                    <a href="#fill_timetable" data-toggle="collapse" aria-expanded="false">Timetable</a>
+                    <ul class="collapse list-unstyled" id="fill_timetable">
+                        <li><a href="{% url 'timetable:fill_timetable' %}">Fill Timetable</a></li>
+                        <li><a href="{% url 'timetable:register_time_slot' %}">Register time slot</a></li>
+                    </ul>
                 </li>
                 <li id="register">
                     <a href="#registermenu" data-toggle="collapse" aria-expanded="false">Register</a>

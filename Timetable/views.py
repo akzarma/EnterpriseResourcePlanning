@@ -13,13 +13,14 @@ from django.views.decorators.csrf import csrf_exempt
 # from firebase_admin import credentials, db
 
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 
 from General.models import Division, BranchSubject, FacultySubject, CollegeYear, Batch, \
     StudentDetail, Semester, YearBranch, YearSemester, ElectiveDivision, StudentSubject
 from Registration.models import Branch, Subject, Faculty, Student, ElectiveSubject
 from Registration.models import Branch, Subject
+from Registration.views import has_role
 from Roles.models import RoleManager
 from .models import Time, Room, Timetable, DateTimetable
 # from Sync.function import write_to_firebase
@@ -44,7 +45,7 @@ def fill_timetable(request):
             semester_obj = Semester.objects.get(semester=current_semester, is_active=True)
             times = []
             years = []
-            all_branch = Branch.objects.all().values_list('branch',flat=True)
+            all_branch = Branch.objects.all().values_list('branch', flat=True)
             year_branch_obj = YearBranch.objects.filter(branch=branch_obj)
             branch = branch_obj.branch
             for i in Time.objects.all().order_by('starting_time'):
@@ -270,14 +271,14 @@ def fill_timetable(request):
                 'timetable_instance_theory': timetable_instance,
                 'timetable_instance_practical': timetable_instance_practical,
                 'elective_subject_teacher_json': elective_subject_teacher_json,
-                'all_branch':all_branch,
+                'all_branch': all_branch,
             }
             return render(request, 'test_timetable.html', context)
         return HttpResponseRedirect('/login/')
     return HttpResponseRedirect('/login/')
 
 
-def fill_date_timetable(new_date_timetable, current_semester,current_branch):
+def fill_date_timetable(new_date_timetable, current_semester, current_branch):
     creation_list = []
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     # Should always return 1 object
@@ -426,7 +427,7 @@ def save_timetable(request):
         # Timetable.objects.filter(id__in=[i.id for i in full_timetable]).delete()
 
         # to_json()
-        fill_date_timetable(Timetable.objects.all(), request.POST.get('current_semester'),current_branch)
+        fill_date_timetable(Timetable.objects.all(), request.POST.get('current_semester'), current_branch)
         # get_excel(request)
         return HttpResponseRedirect('/timetable/enter/')
     else:
@@ -890,6 +891,32 @@ def android_timetable_json(request):
     else:
         return HttpResponse('Error')
 
+
 # def bg_task(request):
 #     celery_app.send_task("Timetable.tasks.bg_task", [])
 #     return HttpResponse('running in bg')
+def register_time_slot(request):
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            if request.method == "GET":
+                return render(request, 'register_time_slot.html')
+            else:
+                splitted_start_time = request.POST.get('start_time').split(':')
+                splitted_end_time = request.POST.get('end_time').split(':')
+
+                start_time = (int(splitted_start_time[0]) * 100) + int(splitted_start_time[1])
+                end_time = (int(splitted_end_time[0]) * 100) + int(splitted_end_time[1])
+
+                if len(Time.objects.filter(starting_time=start_time, ending_time=end_time)) > 0:
+                    return render(request, 'register_time_slot.html', {
+                        'error': 'Time slot already registered'
+                    })
+
+                Time.objects.create(starting_time=start_time, ending_time=end_time)
+                return render(request, 'register_time_slot.html', {
+                    'success': 'Time slot registered'
+                })
+
+        return redirect('/login/')
+    return redirect('/login/')
