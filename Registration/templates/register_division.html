@@ -22,6 +22,9 @@
             <div class="form-element">
                 <input type="button" class="btn btn-primary" value="GO" onclick="showDivisionNameInput()">
             </div>
+            <div class="form-element" id="division_names">
+
+            </div>
         </form>
     </div>
 {% endblock content %}
@@ -64,8 +67,13 @@
 
         function showDivisionNameInput() {
             let number_of_division = document.getElementById('number_of_division').value;
-            let form = document.getElementById('division_form');
-            form.appendChild(document.createTextNode('Enter division names'));
+            let division_div = document.getElementById('division_names');
+
+            while (division_div.hasChildNodes()) {
+                division_div.removeChild(division_div.childNodes[0]);
+            }
+
+            division_div.appendChild(document.createTextNode('Enter division names'));
             let div = document.createElement('div');
             div.setAttribute('class', 'form-element');
             for (let i = 0; i < number_of_division; i++) {
@@ -76,13 +84,13 @@
                 input.setAttribute('maxlength', '1');
                 div.appendChild(input);
             }
-            form.appendChild(div);
+            division_div.appendChild(div);
 
             let button = document.createElement('input');
             button.setAttribute('type', 'submit');
             button.setAttribute('class', 'btn btn-primary');
             button.setAttribute('value', 'Submit');
-            form.appendChild(button);
+            division_div.appendChild(button);
         }
 
     </script>
