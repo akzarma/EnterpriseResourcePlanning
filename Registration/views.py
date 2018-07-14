@@ -1399,3 +1399,30 @@ def register_branch(request):
 
         return redirect('/login/')
     return redirect('/login/')
+
+
+def register_division(request):
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            data = {}
+            year_branch = YearBranch.objects.filter(is_active=True)
+            for each in year_branch:
+                if each.branch.branch not in data:
+                    data[each.branch.branch] = []
+
+                data[each.branch.branch] += [each.year.year]
+
+
+            if request.method == "GET":
+                return render(request, 'register_division.html', {
+                    'data': data,
+                })
+            else:
+                print(request.POST)
+                branch = request.POST.get('branch')
+                year = request.POST.get('year')
+                divisions = request.POST.getlist('division')
+                pass
+        return redirect('/login/')
+    return redirect('/login/')

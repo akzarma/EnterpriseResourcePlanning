@@ -13,6 +13,8 @@ urlpatterns = [
 
     url(r'^branch/$', views.register_branch, name='register_branch'),
 
+    url(r'^division/$', views.register_division, name='register_division'),
+
     # /register/subject - Register Subject
     url(r'^subject/$', views.register_subject, name='register_subject'),
 

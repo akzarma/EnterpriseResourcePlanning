@@ -47,4 +47,9 @@ urlpatterns = [
 
     url(r'^extra_lecture/$', views.take_extra_lecture, name='take_extra_lecture'),
 
+    #setup/
+    url(r'^setup/branch/$', views.setup_branch, name='setup_branch'),
+
+    url(r'^setup/year/$', views.setup_year, name='setup_year'),
+
 ]

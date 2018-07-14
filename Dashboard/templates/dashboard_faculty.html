@@ -284,6 +284,16 @@
                 height: 100%;
                 background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
             }
+
+            .btn-circle {
+                width: 30px;
+                height: 30px;
+                text-align: center;
+                padding: 6px 0;
+                font-size: 12px;
+                line-height: 1.428571429;
+                border-radius: 15px;
+            }
         {% endblock extra_style %}
 
         .navbar-default .navbar-nav > li:hover {
@@ -302,6 +312,9 @@
         <!-- Sidebar Holder -->
         <nav id="sidebar">
             <ul class="list-unstyled components">
+                <li id="setup">
+                    <a href="{% url 'dashboard:setup_branch' %}">Getting Started</a>
+                </li>
                 <li id="dashboard">
                     <a href="{% url 'dashboard:dashboard' %}">Dashboard</a>
                 </li>
@@ -346,6 +359,7 @@
                     <a href="#registermenu" data-toggle="collapse" aria-expanded="false">Register</a>
                     <ul class="collapse list-unstyled" id="registermenu">
                         <li><a href="{% url 'registration:register_branch' %}">Branch</a></li>
+                        <li><a href="{% url 'registration:register_division' %}">Division</a></li>
                         <li><a href="{% url 'registration:register_year' %}">Year</a></li>
                         <li><a href="{% url 'registration:register_subject' %}">Subject</a></li>
                         <li><a href="{% url 'registration:register_year_detail' %}">Set Semester Details</a></li>
