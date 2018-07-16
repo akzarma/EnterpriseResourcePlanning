@@ -7,20 +7,21 @@ import json
 import os
 from django.db.models import Avg, Sum, Count
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
-from General.models import CollegeYear, StudentDetail, BranchSubject, Batch, Division
+from General.models import CollegeYear, StudentDetail, BranchSubject, Batch, Division, StudentSubject
 from Registration.forms import gr_roll_dict
 from Registration.models import Student, Subject, Branch
 from General.models import FacultySubject, StudentDetail
 from Registration.models import Student, Subject, Faculty
 from General.models import FacultySubject
 from Registration.models import Student, Subject
+from Registration.views import has_role
 from Timetable.models import Timetable, DateTimetable, Time, Room
-from UserModel.models import RoleManager
-from .models import StudentAttendance, TotalAttendance
+from Roles.models import RoleManager
+from .models import StudentAttendance
 
 
 # Create your views here.
@@ -583,3 +584,43 @@ def android_instance(request):
 
     else:
         return HttpResponse('ERROR')
+
+
+def subject_attendance(request):
+    user = request.user
+
+    if user.is_anonymous:
+        return redirect('/login/')
+    if has_role(user, 'faculty'):
+        faculty_obj = user.faculty
+
+        if request.method == 'GET':
+
+
+            subject_json = {}
+
+            subject_objs = [each.subject for each in FacultySubject.objects.filter(faculty=faculty_obj, is_active=True)]
+            for each_subject in subject_objs:
+                branch_subject = BranchSubject.objects.get(subject=each_subject, is_active=True)
+                year = branch_subject.year_branch.year.year
+                branch = branch_subject.year_branch.branch.branch
+
+                if branch in subject_json:
+                    if year in subject_json[branch]:
+                        subject_json[branch][year].append(each_subject)
+                    else:
+                        subject_json[branch][year] = []
+                else:
+                    subject_json[branch] = {}
+
+            return render(request, )
+
+        elif request.method=='POST':
+            pass
+
+            subjects = request.POST.getlist('subject')
+            for each_subject in subjects:
+                subject_obj = Subject.objects.get(is_active=True,short_form=each_subject)
+                StudentSubject.objects.filter(subject)
+
+

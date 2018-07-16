@@ -1,4 +1,6 @@
-{% extends 'dashboard_student.html' %}
+{% extends 'dashboard_faculty.html' %}
+{% load exam_extra %}
+
 {% block title %}
     Exam-Schedule | ERP
 {% endblock title %}
@@ -6,28 +8,145 @@
 
 
 {% block content %}
+    <div>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Sr no.</th>
-            <th>Exam</th>
-            <th>Schedule</th>
-            <th>Subjects</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for each_exam in exams %}
-            <td>{{ forloop.counter }}</td>
-            <td>{{ each_exam.exam.exam_name }}</td>
-            <td>{{ each_exam.schedule_start_date }}</td>
-            <td>
-                {% for each_subject in each_exam.examsubject_set.all %}
-                    {{ each_subject.subject.short_form }}
-                {% endfor %}
-            </td>
+        {% for each_exam in exam_group_detail|get_at_index:forloop.counter0 %}
+            <h3>{{ each_exam.exam.year.branch.branch }}&nbsp; - {{ each_exam.exam.year.year }}&nbsp;
+                - {{ each_exam.exam.exam.exam_name }}</h3>
+            {% for each_subject in subjects|get_at_index:forloop.counter0 %}
+                {{ each_subject.subject }}
+            {% endfor %}
         {% endfor %}
-        </tbody>
-    </table>
+
+    </div>
+
+    <div id="accordion" class="panel-group">
+        {% for each in exam_group %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <a class="panel-title" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapse_{{ forloop.counter0 }}"><h4>{{ each.name }}</h4></a>
+                    <button class="btn btn-info" onclick="showSchedule({{ each.pk }})">View Schedule</button>
+                </div>
+                <div id="collapse_{{ forloop.counter0 }}" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        {% for each_exam in exam_group_detail|get_at_index:forloop.counter0 %}
+                            <h5>{{ each_exam.exam.year.branch.branch }}&nbsp; - {{ each_exam.exam.year.year }}&nbsp;
+                                - {{ each_exam.exam.exam.exam_name }}</h5>
+                            {% for each_subject in subjects|get_at_index:forloop.counter0 %}
+                                {{ each_subject.subject }}<br/>
+                            {% endfor %}<br/><br/>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 
 {% endblock content %}
+{% block html %}
+    <script>
+        function showSchedule(id) {
+            $.ajax({
+                type: "POST",
+                url: '{% url 'exam:check_availability' %}',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'exam_group': id
+                },
+                success: function (data) {
+                    var data = JSON.parse(data);
+                    let modalTitle = document.getElementById("modal-title");
+                    modalTitle.innerText = "Schedule";
+
+                    let modal_p = document.getElementById('modal-body-text');
+
+                    while (modal_p.hasChildNodes()) {
+                        modal_p.removeChild(modal_p.childNodes[0]);
+                    }
+
+                    let main_container = document.getElementById('modal-body-div');
+
+                    while (main_container.hasChildNodes()) {
+                        main_container.removeChild(main_container.childNodes[0]);
+                    }
+
+                    console.log(data);
+                    for (let branch in data) {
+                        if (branch != 'message' && branch != 'type') {
+
+                            for (let exam in data[branch]) {
+
+                                for (let date in data[branch][exam]) {
+
+                                    let item = document.createElement("div");
+                                    item.setAttribute("class", "item-schedule");
+
+                                    let title = document.createElement("div");
+                                    title.setAttribute("class", "title-schedule");
+                                    title.innerHTML = "Branch: " + branch + "&nbsp;&nbsp;&nbsp;Exam:" + exam + "&nbsp;&nbsp;&nbsp;Date:" + date;
+                                    item.appendChild(title);
+
+
+                                    for (let time in data[branch][exam][date]) {
+                                        for (let room in data[branch][exam][date][time]) {
+
+                                            let room_div = document.createElement('div');
+                                            room_div.setAttribute("class", "classroom-schedule");
+                                            item.appendChild(room_div);
+
+                                            let subtitle = document.createElement("div");
+                                            subtitle.setAttribute("class", "subtitle-schedule");
+                                            subtitle.innerHTML = "Location: " + room + "&nbsp;&nbsp;&nbsp;Subject:"+ data[branch][exam][date][time][room]['subject'] + "&nbsp;&nbsp;&nbsp;Time:" +time;
+                                            room_div.appendChild(subtitle);
+
+                                            let student_outer_div = document.createElement('div');
+                                            student_outer_div.setAttribute("class", "row");
+                                            room_div.appendChild(student_outer_div);
+                                            {#console.log(data[branch][exam][date][time][room]);#}
+
+                                            let roll_nos = data[branch][exam][date][time][room]['student'].sort();
+                                            let table = document.createElement('table');
+                                            let tr = document.createElement('tr');
+                                            let td = document.createElement('td');
+                                            let count = 0;
+                                            for (let i in roll_nos) {
+                                                if (count == 7) {
+                                                    td.innerHTML += roll_nos[i] + "<br/>";
+                                                    count = 0;
+                                                } else {
+                                                    td.innerHTML += roll_nos[i] + "&nbsp;&nbsp;";
+                                                    count = count + 1;
+                                                }
+                                            }
+                                            tr.appendChild(td);
+                                            table.appendChild(tr);
+                                            student_outer_div.appendChild(table);
+
+                                        }
+                                    }
+                                    main_container.appendChild(item);
+                                }
+                            }
+                        }
+                    }
+                    let text = document.getElementById('modal-footer');
+                    while (text.firstChild) {
+                        text.removeChild(text.firstChild);
+                    }
+                    let button = document.createElement('button');
+                    button.innerHTML = "OK";
+                    button.setAttribute("class", "btn btn-info");
+                    button.setAttribute("data-dismiss", "modal");
+                    text.appendChild(button);
+                    $('#myModal').modal({
+                        show: true,
+                        closeOnEscape: true
+                    });
+
+
+                }
+            });
+        }
+    </script>
+{% endblock html %}

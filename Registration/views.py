@@ -2,6 +2,8 @@
 from __future__ import unicode_literals
 
 import datetime, json
+
+# from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse, redirect
@@ -14,7 +16,7 @@ from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSu
 from General.views import notify_users
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject, ElectiveSubject
-from UserModel.models import User, RoleManager, RoleMaster
+from Roles.models import User, RoleManager, RoleMaster
 from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict, DateScheduleForm, \
     YearBranchSemForm
 from Configuration.stateConf import states
@@ -269,6 +271,7 @@ def register_faculty(request):
 
             request.session['user_id'] = faculty.pk
             faculty.user = new_user
+
             faculty.save()
             return HttpResponseRedirect('/register/faculty/success/')
             # return HttpResponse(form.errors)
@@ -417,6 +420,7 @@ def register_subject(request):
                     })
 
             else:
+                print(subject_form.errors)
                 return render(request, 'test_register_subject.html', {
                     'class_active': class_active,
                     'form': subject_form,
@@ -629,16 +633,25 @@ def set_schedule_date(request):
 #         user = request.user
 #         is_student = RoleManager.objects.filter(user=user, role__role='student')
 #         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
-#         i = 1
-#         while (i < 45):
+#         students = StudentDetail.objects.filter(batch__division__year_branch__branch__branch='Computer', is_active=True ).values_list('student', flat=True).distinct()
+#         for student in students:
 #
 #             # if i != 11 and i != 12:
 #             if is_student:
 #                 student_new_detail = 0
 #                 try:
 #
-#                     student = Student.objects.get(gr_number='ENTC'+str(i))
+#                     student = Student.objects.get(gr_number=str(student))
 #                     student_detail = StudentDetail.objects.get(student=student, is_active=True)
+#
+#                     branch_obj = Branch.objects.get(branch='Computer')
+#                     year_obj = CollegeYear.objects.get(year='TE')
+#                     year_branch = YearBranch.objects.get(year=year_obj, branch=branch_obj, is_active=True)
+#                     division_obj = Division.objects.get(year_branch=year_branch, division='B', is_active=True)
+#                     batch_obj = Batch.objects.get(division=division_obj, batch_name='B1')
+#                     student_detail.batch = batch_obj
+#                     student_detail.semester = Semester.objects.get(semester=1, is_active=True)
+#                     student_detail.save()
 #
 #                     subjects = BranchSubject.objects.filter(year_branch=student_detail.batch.division.year_branch,
 #                                                             is_active=True)
@@ -766,7 +779,7 @@ def set_schedule_date(request):
 #                                                                                 subject__is_elective_group=True)]
 #                     # return render(request, 'show_student_subject.html', context={'subjects': subjects,
 #                     #                                                              'success': 'Subjects registered successfully'})
-#                     print('DONE SUBJECT ENTC'+str(i))
+#                     print('DONE SUBJECT COMP')
 #                 except Exception as e:
 #                     if student_new_detail != 0:
 #                         student_new_detail.is_active = False
@@ -776,7 +789,7 @@ def set_schedule_date(request):
 #                         'info': 'Please go to Subject registration again!'})
 #             if is_faculty:
 #                 return HttpResponse('Faculty')
-#             i+=1
+#
 #     elif request.method == 'GET':
 #         user = request.user
 #         is_student = RoleManager.objects.filter(user=user, role__role='student')
@@ -1119,8 +1132,8 @@ def register_year(request):
     class_active = 'register'
     user = request.user
     if not user.is_anonymous:
+        branches = Branch.objects.all()
         if request.method == 'GET':
-            branches = Branch.objects.all()
             return render(request, 'register_year.html', {
                 'class_active': class_active,
                 'branches': branches,
@@ -1143,10 +1156,11 @@ def register_year(request):
                 except:
                     sem_obj = Semester.objects.create(semester=i + 1)
                     # print(i+1, 'except')
-                year_branch_obj = YearBranch.objects.get_or_create(year=year_obj, branch=branch_obj, is_active=True)
+                year_branch_obj = YearBranch.objects.get_or_create(year=year_obj[0], branch=branch_obj, is_active=True)
                 YearSemester.objects.create(semester=sem_obj, year_branch=year_branch_obj[0])
             return render(request, 'register_year.html', {
                 'class_active': class_active,
+                'branches': branches,
                 'success': 'Year ' + year + ' Saved!'
             })
         return HttpResponse('Something is wrong!')
@@ -1364,5 +1378,51 @@ def student_subject_division(request):
             'success': 'elective divisions are assigned successfully.'})
 
 
-def register_elective(request):
-    return None
+def register_branch(request):
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            if request.method == "GET":
+                return render(request, 'register_branch.html')
+
+            elif request.method == "POST":
+                branch = request.POST.get('branch')
+                branch = branch.title()
+                if len(Branch.objects.filter(branch=branch)) > 0:
+                    return render(request, 'register_branch.html', {
+                        'error': branch + ' is already registered.'
+                    })
+                Branch.objects.create(branch=branch)
+                return render(request, 'register_branch.html', {
+                    'success': 'Successfully registered ' + branch + ' branch',
+                })
+
+        return redirect('/login/')
+    return redirect('/login/')
+
+
+def register_division(request):
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            data = {}
+            year_branch = YearBranch.objects.filter(is_active=True)
+            for each in year_branch:
+                if each.branch.branch not in data:
+                    data[each.branch.branch] = []
+
+                data[each.branch.branch] += [each.year.year]
+
+
+            if request.method == "GET":
+                return render(request, 'register_division.html', {
+                    'data': data,
+                })
+            else:
+                print(request.POST)
+                branch = request.POST.get('branch')
+                year = request.POST.get('year')
+                divisions = request.POST.getlist('division')
+                pass
+        return redirect('/login/')
+    return redirect('/login/')

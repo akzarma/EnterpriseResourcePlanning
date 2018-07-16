@@ -18,7 +18,7 @@ class ExamMaster(models.Model):
 
 
 class ExamDetail(models.Model):
-    exam = models.ForeignKey(ExamMaster,on_delete=models.CASCADE)
+    exam = models.ForeignKey(ExamMaster, on_delete=models.CASCADE)
     year = models.ForeignKey(YearBranch, on_delete=models.CASCADE)
     semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     schedule_start_date = models.DateField()
@@ -64,3 +64,16 @@ class MarksType(models.Model):
     marks_obtained = models.IntegerField()
     max_marks = models.PositiveIntegerField()
     cut_off_marks = models.IntegerField(default=0)
+
+
+class ExamSubjectRoom(models.Model):
+    exam_subject = models.ForeignKey(ExamSubject, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+
+
+class ExamSubjectStudentRoom(models.Model):
+    exam_subject_room = models.ForeignKey(ExamSubjectRoom, on_delete=models.CASCADE)
+    student_subject = models.ForeignKey(StudentSubject, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.exam_subject_room.exam_subject.exam.exam.exam_name + self.exam_subject_room.exam_subject.subject.short_form

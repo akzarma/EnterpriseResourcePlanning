@@ -10,15 +10,17 @@
 
     <link href="https://fonts.googleapis.com/css?family=Merriweather:900" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-{#    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>#}
-    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.min.css">
+    {#    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>#}
+    <link rel="stylesheet"
+          href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.min.css">
     <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet"
           type="text/css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.css">
 
 
     {#    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
@@ -39,6 +41,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+
 
     <style>
         html, body {
@@ -347,7 +352,8 @@
                 <h4 class="modal-title" id="modal-title">Modal Header</h4>
             </div>
             <div class="modal-body">
-                <p id="modal-body-text">Some text in the modal.</p>
+                <p id="modal-body-text"></p>
+                <div id="modal-body-div"></div>
             </div>
             <div class="modal-footer" id="modal-footer">
             </div>
@@ -374,7 +380,7 @@
 
             url: '{% url 'dashboard:get_notifications' %}',
             type: 'POST',
-            async:false,
+            async: false,
             data: {
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             },
@@ -441,6 +447,11 @@
 
         let modalTitle = document.getElementById("modal-title");
         let modalBodyText = document.getElementById("modal-body-text");
+        let modalBodyDiv = document.getElementById("modal-body-div");
+
+        while (modalBodyDiv.hasChildNodes()) {
+            modalBodyDiv.removeChild(modalBodyDiv.childNodes[0]);
+        }
 
         modalTitle.innerHTML = temp_json["fields"]["heading"];
         modalBodyText.innerText = temp_json["fields"]["notification"];
@@ -491,7 +502,8 @@
                     'model': temp_json['model']
                 }, success: function (data) {
                     let notification_num_obj = document.getElementById('notification_count');
-                    notification_num_obj.innerHTML = (parseInt(notification_num_obj.innerHTML) - 1);
+                    let count = parseInt(notification_num_obj.innerHTML);
+                    notification_num_obj.innerHTML = (count - 1) < 0 ? 0 : (count - 1);
                 }
             });
         }

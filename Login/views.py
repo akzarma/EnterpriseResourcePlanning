@@ -4,6 +4,7 @@ import hashlib
 import json
 
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
@@ -15,7 +16,7 @@ from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import StudentDetail, Division, FacultySubject
 from Registration.models import Faculty, Student, Branch
 from Timetable.models import Timetable
-from UserModel.models import User, RoleManager
+from Roles.models import  RoleManager
 import json
 
 

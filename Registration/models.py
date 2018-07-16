@@ -3,13 +3,14 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from django.db import models
 
 # Contains
 # Faculty (Entity)
 # Student (Entity)
 # Subject (Entity)
-from UserModel.models import User
+
 
 
 def faculty_directory_path(instance, filename):
@@ -18,7 +19,7 @@ def faculty_directory_path(instance, filename):
 
 # Create your models here.
 class Faculty(models.Model):
-    initials = models.CharField(max_length=10, blank=True, null=True)
+    initials = models.CharField(max_length=10, blank=True, null=True,unique=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
@@ -170,7 +171,7 @@ class Student(models.Model):
 class Subject(models.Model):
     code = models.CharField(max_length=20, primary_key=True, blank=True)
     name = models.CharField(max_length=100)
-    short_form = models.CharField(max_length=10,unique=True)
+    short_form = models.CharField(max_length=10)
     is_practical = models.BooleanField(default=False)
     # semester = models.IntegerField(default=1)
     credits = models.IntegerField(default=0, blank=True)
@@ -184,7 +185,7 @@ class Subject(models.Model):
 
 
 class ElectiveSubject(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100,unique=True)
     short_form = models.CharField(max_length=10)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)

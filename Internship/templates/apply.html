@@ -197,26 +197,26 @@
             <div class="form-group">
                 {{ form.internship.label_tag }}
                 {{ form.internship }}
-                {{ form.internship.with_errors }}
+                {{ form.internship.errors }}
             </div>
 
 
             <div class="form-group">
                 {{ form.start_date.label_tag }}
                 {{ form.start_date }}
-                {{ form.start_date.with_errors }}
+                {{ form.start_date.errors }}
             </div>
 
             <div class="form-group">
                 {{ form.end_date.label_tag }}
                 {{ form.end_date }}
-                {{ form.end_date.with_errors }}
+                {{ form.end_date.errors }}
             </div>
 
             <div class="checkbox checkbox-primary">
                 {{ form.work_from_home }}
                 {{ form.work_from_home.label_tag }}
-                {{ form.work_from_home.with_errors }}
+                {{ form.work_from_home.errors }}
             </div>
 
             <button class="btn btn-primary" name="apply_button" value="true">Apply</button>
