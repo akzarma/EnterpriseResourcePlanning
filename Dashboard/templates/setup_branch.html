@@ -1,10 +1,11 @@
 {% extends "./dashboard_faculty.html" %}
 
-{% block title %}Branch Registration {% endblock title %}
+{% block title %}Getting Started | ERP {% endblock title %}
 
 {% block content %}
+
     <div class="col-md-4">
-        <form method="post" action="{% url 'registration:register_branch' %}">
+        <form method="post" action="{% url 'dashboard:setup_branch' %}">
             {% csrf_token %}
             <fieldset>
                 <legend>Register new branch</legend>
@@ -17,6 +18,12 @@
                 <input type="submit" class="btn btn-primary">
             </div>
         </form>
+        <br/>
+        <br/>
+        <label>Already registered branches</label>
+        {% for branch in all_branches %}
+            <p>{{ branch.branch }}</p>
+        {% endfor %}
     </div>
     <div class="col-md-3 col-md-offset-5">
         <div class="row">

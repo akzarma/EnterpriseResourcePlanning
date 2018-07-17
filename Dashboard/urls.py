@@ -52,4 +52,6 @@ urlpatterns = [
 
     url(r'^setup/year/$', views.setup_year, name='setup_year'),
 
+    url(r'^setup/division/$', views.setup_division, name='setup_division'),
+
 ]

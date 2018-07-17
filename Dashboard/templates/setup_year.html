@@ -1,16 +1,20 @@
 {% extends "dashboard_faculty.html" %}
+
+{% block title %}Getting Started | ERP {% endblock title %}
+
 {% block content %}
     <div class="col-md-3">
         <div class="row">
-            <a class="btn btn-link" href="{% url 'dashboard:setup_branch' %}">Previous Step: Branch Registration</a>
-
             <a class="btn btn-default btn-circle" href="{% url 'dashboard:setup_branch' %}"><i
                     class="glyphicon glyphicon-chevron-left"></i></a>
+            <a class="btn btn-link" href="{% url 'dashboard:setup_branch' %}">Previous Step: Branch Registration</a>
+
+
         </div>
     </div>
     <div class="col-md-4 col-md-offset-1 text-center">
         <legend>Register a Year</legend>
-        <form method="POST" action="{% url 'registration:register_year' %}">
+        <form method="POST" action="{% url 'dashboard:setup_year' %}">
             {% csrf_token %}
             <div class="form-element">
                 <label>Branch</label>
@@ -47,9 +51,9 @@
                    disabled="disabled"><i
                         class="glyphicon glyphicon-chevron-right"></i></a>
             {% else %}
-                <a class="btn btn-link" href="{% url 'dashboard:setup_year' %}">Next Step: Division Registration</a>
+                <a class="btn btn-link" href="{% url 'dashboard:setup_division' %}">Next Step: Division Registration</a>
 
-                <a class="btn btn-success btn-circle" href="{% url 'dashboard:setup_year' %}"><i
+                <a class="btn btn-success btn-circle" href="{% url 'dashboard:setup_division' %}"><i
                         class="glyphicon glyphicon-chevron-right"></i></a>
             {% endif %}
         </div>

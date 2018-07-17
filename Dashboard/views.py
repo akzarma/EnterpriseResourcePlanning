@@ -19,7 +19,7 @@ from Attendance.models import StudentAttendance
 from Dashboard.models import SpecificNotification, GeneralStudentNotification, GeneralFacultyNotification
 from EnterpriseResourcePlanning.settings import NOTIFICATION_LONG_LIMIT, NOTIFICATION_SMALL_LIMIT
 from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject, YearBranch, \
-    ElectiveDivision, Semester, YearSemester
+    ElectiveDivision, Semester, YearSemester, Shift
 from General.views import notify_users
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student, Branch, Faculty, ElectiveSubject, Subject
@@ -978,10 +978,11 @@ def setup_branch(request):
     user = request.user
     if not user.is_anonymous:
         if has_role(user, 'faculty'):
-            number_of_branch = Branch.objects.all().count()
+            number_of_branch = Branch.objects.count()
             if request.method == "GET":
                 return render(request, 'setup_branch.html', {
                     'number_of_branch': number_of_branch,
+                    'all_branches': Branch.objects.all(),
                     'class_active': class_active,
 
                 })
@@ -992,6 +993,7 @@ def setup_branch(request):
                 if len(Branch.objects.filter(branch=branch)) > 0:
                     return render(request, 'setup_branch.html', {
                         'error': branch + ' is already registered.',
+                        'all_branches': Branch.objects.all(),
                         'number_of_branch': number_of_branch,
                         'class_active': class_active,
 
@@ -999,6 +1001,7 @@ def setup_branch(request):
                 Branch.objects.create(branch=branch)
                 return render(request, 'setup_branch.html', {
                     'success': 'Successfully registered ' + branch + ' branch',
+                    'all_branches': Branch.objects.all(),
                     'number_of_branch': number_of_branch,
                     'class_active': class_active,
 
@@ -1018,7 +1021,7 @@ def setup_year(request):
             return render(request, 'setup_year.html', {
                 'class_active': class_active,
                 'branches': branches,
-                'number_of_year_branch' :number_of_year_branch
+                'number_of_year_branch': number_of_year_branch
             })
         elif request.method == 'POST':
             year = request.POST.get('year')
@@ -1044,7 +1047,49 @@ def setup_year(request):
                 'class_active': class_active,
                 'branches': branches,
                 'success': 'Year ' + year + ' Saved!',
-                'number_of_year_branch':number_of_year_branch
+                'number_of_year_branch': number_of_year_branch
             })
+        return HttpResponse('Something is wrong!')
+    return HttpResponseRedirect('/login/')
+
+
+def setup_division(request):
+    class_active = 'setup'
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            data = {}
+            year_branch = YearBranch.objects.filter(is_active=True)
+            for each in year_branch:
+                if each.branch.branch not in data:
+                    data[each.branch.branch] = {}
+
+                data[each.branch.branch][each.year.year] = each.shift_set.count()
+
+            if request.method == "GET":
+                return render(request, 'setup_division.html', {
+                    'data': data,
+                })
+            else:
+                print(request.POST)
+                branch = Branch.objects.get(branch=request.POST.get('branch'))
+                year = CollegeYear.objects.get(year=request.POST.get('year'))
+                year_branch_obj = YearBranch.objects.get(branch=branch, year=year)
+                divisions = request.POST.getlist('division')
+                shifts = request.POST.getlist('shift')
+                division_obj_list = []
+
+                for index, value in enumerate(divisions):
+                    division_obj_list += [Division(year_branch=year_branch_obj, division=value,
+                                                   shift=Shift.objects.get(year_branch=year_branch_obj,
+                                                                           shift=shifts[index]))]
+
+                Division.objects.bulk_create(division_obj_list)
+
+            return render(request, 'setup_division.html', {
+                'success': divisions + 'registered',
+                'data': data,
+            })
+
         return HttpResponse('Something is wrong!')
     return HttpResponseRedirect('/login/')

@@ -131,7 +131,7 @@ def auto_register_student(request):
                         branch_obj = Branch.objects.get(branch=branch)
                     year_obj = CollegeYear.objects.get(year=year)
                     year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
-                    shift_obj = Shift.objects.get(shift=shift)
+                    shift_obj = Shift.objects.get(year_branch=year_branch_obj, shift=shift)
                     division_obj = Division.objects.get_or_create(year_branch=year_branch_obj,
                                                                   division=division, shift=shift_obj)[0]
                     batch_obj = Batch.objects.get_or_create(division=division_obj, batch_name=batch)[0]
@@ -211,7 +211,7 @@ def register_student(request):
                     branch_obj = Branch.objects.get(branch=branch)
                 year_obj = CollegeYear.objects.get(year=year)
                 year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
-                shift_obj = Shift.objects.get(shift=shift)
+                shift_obj = Shift.objects.get(year_branch=year_branch_obj, shift=shift)
                 division_obj = Division.objects.get_or_create(year_branch=year_branch_obj,
                                                               division=division, shift=shift_obj)[0]
                 batch_obj = Batch.objects.get_or_create(division=division_obj, batch_name=batch)[0]
@@ -1409,10 +1409,9 @@ def register_division(request):
             year_branch = YearBranch.objects.filter(is_active=True)
             for each in year_branch:
                 if each.branch.branch not in data:
-                    data[each.branch.branch] = []
+                    data[each.branch.branch] = {}
 
-                data[each.branch.branch] += [each.year.year]
-
+                data[each.branch.branch][each.year.year] = each.shift_set.count()
 
             if request.method == "GET":
                 return render(request, 'register_division.html', {
@@ -1420,9 +1419,24 @@ def register_division(request):
                 })
             else:
                 print(request.POST)
-                branch = request.POST.get('branch')
-                year = request.POST.get('year')
+                branch = Branch.objects.get(branch=request.POST.get('branch'))
+                year = CollegeYear.objects.get(year=request.POST.get('year'))
+                year_branch_obj = YearBranch.objects.get(branch=branch, year=year)
                 divisions = request.POST.getlist('division')
-                pass
+                shifts = request.POST.getlist('shift')
+                division_obj_list = []
+
+                for index, value in enumerate(divisions):
+                    division_obj_list += [Division(year_branch=year_branch_obj, division=value,
+                                                   shift=Shift.objects.get(year_branch=year_branch_obj,
+                                                                           shift=shifts[index]))]
+
+                Division.objects.bulk_create(division_obj_list)
+
+            return render(request, 'register_division.html', {
+                    'success': divisions + 'registered',
+                    'data': data,
+                })
+
         return redirect('/login/')
     return redirect('/login/')
