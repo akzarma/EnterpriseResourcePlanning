@@ -1043,6 +1043,8 @@ def setup_year(request):
                     # print(i+1, 'except')
                 year_branch_obj = YearBranch.objects.get_or_create(year=year_obj[0], branch=branch_obj, is_active=True)
                 YearSemester.objects.create(semester=sem_obj, year_branch=year_branch_obj[0])
+                Shift.objects.get_or_create(year_branch=year_branch_obj, shift=request.POST.get('no_of_shift'))
+
             return render(request, 'setup_year.html', {
                 'class_active': class_active,
                 'branches': branches,

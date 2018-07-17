@@ -1158,6 +1158,8 @@ def register_year(request):
                     # print(i+1, 'except')
                 year_branch_obj = YearBranch.objects.get_or_create(year=year_obj[0], branch=branch_obj, is_active=True)
                 YearSemester.objects.create(semester=sem_obj, year_branch=year_branch_obj[0])
+                Shift.objects.get_or_create(year_branch=year_branch_obj, shift=request.POST.get('no_of_shift'))
+
             return render(request, 'register_year.html', {
                 'class_active': class_active,
                 'branches': branches,
@@ -1434,9 +1436,9 @@ def register_division(request):
                 Division.objects.bulk_create(division_obj_list)
 
             return render(request, 'register_division.html', {
-                    'success': divisions + 'registered',
-                    'data': data,
-                })
+                'success': divisions + 'registered',
+                'data': data,
+            })
 
         return redirect('/login/')
     return redirect('/login/')
