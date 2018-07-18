@@ -17,6 +17,7 @@ from General.views import notify_users
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject, ElectiveSubject
 from Roles.models import User, RoleManager, RoleMaster
+from Timetable.models import Room
 from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict, DateScheduleForm, \
     YearBranchSemForm
 from Configuration.stateConf import states
@@ -1435,4 +1436,33 @@ def register_division(request):
             })
 
         return redirect('/login/')
+    return redirect('/login/')
+
+
+def register_room(request):
+    class_active = "register"
+    user = request.user
+    if not user.is_anonymous:
+        if request.method == "GET":
+            return render(request, 'register_room.html',{
+                'branches': Branch.objects.all()
+            })
+        elif request.method == "POST":
+            branch = Branch.objects.get(branch=request.POST.get('branch'))
+            room = request.POST.get('room_number')
+            if request.POST.get('lab'):
+                lab = True
+            else:
+                lab=False
+
+            if len(Room.objects.filter(branch=branch, room_number=room, lab=lab)) > 0:
+                return render(request, 'register_room.html', {
+                    'error': 'Room already registered'
+                })
+            else:
+                Room.objects.create(branch=branch, room_number=room, lab=lab)
+                return render(request, 'register_room.html',{
+                    'success': 'Room registered!'
+                })
+
     return redirect('/login/')
