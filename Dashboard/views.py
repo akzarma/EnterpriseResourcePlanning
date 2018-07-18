@@ -978,10 +978,9 @@ def setup_branch(request):
     user = request.user
     if not user.is_anonymous:
         if has_role(user, 'faculty'):
-            number_of_branch = Branch.objects.count()
             if request.method == "GET":
                 return render(request, 'setup_branch.html', {
-                    'number_of_branch': number_of_branch,
+                    'number_of_branch': Branch.objects.count(),
                     'all_branches': Branch.objects.all(),
                     'class_active': class_active,
 
@@ -994,7 +993,7 @@ def setup_branch(request):
                     return render(request, 'setup_branch.html', {
                         'error': branch + ' is already registered.',
                         'all_branches': Branch.objects.all(),
-                        'number_of_branch': number_of_branch,
+                        'number_of_branch': Branch.objects.count(),
                         'class_active': class_active,
 
                     })
@@ -1002,7 +1001,7 @@ def setup_branch(request):
                 return render(request, 'setup_branch.html', {
                     'success': 'Successfully registered ' + branch + ' branch',
                     'all_branches': Branch.objects.all(),
-                    'number_of_branch': number_of_branch,
+                    'number_of_branch': Branch.objects.count(),
                     'class_active': class_active,
 
                 })
