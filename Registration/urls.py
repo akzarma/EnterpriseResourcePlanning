@@ -54,6 +54,8 @@ urlpatterns = [
 
     url(r'year/$', views.register_year, name='register_year'),
 
+    url(r'room/$', views.register_room, name='register_room'),
+
     url(r'^verification/email/(?P<key>[\w]+)/(?P<username>[\w]+)', views.verification_process,
         name="verification_process"),
 

@@ -1015,12 +1015,11 @@ def setup_year(request):
     user = request.user
     if not user.is_anonymous:
         branches = Branch.objects.all()
-        number_of_year_branch = YearBranch.objects.count()
         if request.method == 'GET':
             return render(request, 'setup_year.html', {
                 'class_active': class_active,
                 'branches': branches,
-                'number_of_year_branch': number_of_year_branch
+                'number_of_year_branch': YearBranch.objects.count()
             })
         elif request.method == 'POST':
             year = request.POST.get('year')
@@ -1048,7 +1047,7 @@ def setup_year(request):
                 'class_active': class_active,
                 'branches': branches,
                 'success': 'Year ' + year + ' Saved!',
-                'number_of_year_branch': number_of_year_branch
+                'number_of_year_branch': YearBranch.objects.count()
             })
         return HttpResponse('Something is wrong!')
     return HttpResponseRedirect('/login/')
