@@ -1157,8 +1157,8 @@ def register_year(request):
                     sem_obj = Semester.objects.create(semester=i + 1)
                     # print(i+1, 'except')
                 year_branch_obj = YearBranch.objects.get_or_create(year=year_obj[0], branch=branch_obj, is_active=True)
-                YearSemester.objects.create(semester=sem_obj, year_branch=year_branch_obj[0])
-                Shift.objects.get_or_create(year_branch=year_branch_obj, shift=request.POST.get('no_of_shift'))
+                YearSemester.objects.get_or_create(semester=sem_obj, year_branch=year_branch_obj[0])
+                Shift.objects.get_or_create(year_branch=year_branch_obj[0], shift=request.POST.get('no_of_shift'))
 
             return render(request, 'register_year.html', {
                 'class_active': class_active,
@@ -1426,14 +1426,11 @@ def register_division(request):
                 year_branch_obj = YearBranch.objects.get(branch=branch, year=year)
                 divisions = request.POST.getlist('division')
                 shifts = request.POST.getlist('shift')
-                division_obj_list = []
 
                 for index, value in enumerate(divisions):
-                    division_obj_list += [Division(year_branch=year_branch_obj, division=value,
+                    Division.objects.get_or_create(year_branch=year_branch_obj, division=value,
                                                    shift=Shift.objects.get(year_branch=year_branch_obj,
-                                                                           shift=shifts[index]))]
-
-                Division.objects.bulk_create(division_obj_list)
+                                                                           shift=shifts[index]))
 
             return render(request, 'register_division.html', {
                 'success': divisions + 'registered',
