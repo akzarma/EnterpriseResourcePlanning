@@ -64,23 +64,23 @@ def show_dashboard(request):
         if is_student:
             student = user.student
             attendance = {}
-            attended = 0
-            total = 0
-            total_attendance = student.totalattendance_set.all()
+       #     attended = 0
+        #    total = 0
+      #     total_attendance = student.totalattendance_set.all()
 
-            for each in total_attendance:
-                total += each.total_lectures
-                attended += each.attended_lectures
-                if each.total_lectures is not 0:
-                    subject_attendance = round(100 * each.attended_lectures / each.total_lectures, 2)
-                else:
-                    subject_attendance = 0
-                attendance[each.subject.short_form] = {
-                    'total': each.total_lectures,
-                    'attended': each.attended_lectures,
-                    'attendance': subject_attendance,
-                }
-            total_percent = round(100 * attended / total, 2) if total is not 0 else 0
+      #      for each in total_attendance:
+      #         total += each.total_lectures
+      #         attended += each.attended_lectures
+      #          if each.total_lectures is not 0:
+      #              subject_attendance = round(100 * each.attended_lectures / each.total_lectures, 2)
+      #          else:
+      #              subject_attendance = 0
+     #           attendance[each.subject.short_form] = {
+    #                'total': each.total_lectures,
+   #                 'attended': each.attended_lectures,
+  #                  'attendance': subject_attendance,
+ #               }
+#            total_percent = round(100 * attended / total, 2) if total is not 0 else 0
 
             college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
             if request.method == "GET":
@@ -91,8 +91,6 @@ def show_dashboard(request):
 
                 return render(request, 'dashboard_student.html', {
                     'timetable': timetable,
-                    'total_attendance': total_percent,
-                    'attendance': attendance,
                     'selected_date': datetime.date.today().strftime('%d-%m-%Y'),
                 })
             else:
@@ -105,8 +103,6 @@ def show_dashboard(request):
 
                     return render(request, 'dashboard_student.html', {
                         'timetable': timetable,
-                        'total_attendance': total_percent,
-                        'attendance': attendance,
                         'selected_date': selected_date.strftime('%d-%m-%Y'),
                     })
 
@@ -125,8 +121,6 @@ def show_dashboard(request):
 
                     return render(request, 'dashboard_student.html', {
                         'timetable': timetable,
-                        'total_attendance': total_percent,
-                        'attendance': attendance,
                         'selected_date': selected_date.strftime('%d-%m-%Y'),
                     })
 
@@ -1015,12 +1009,11 @@ def setup_year(request):
     user = request.user
     if not user.is_anonymous:
         branches = Branch.objects.all()
-        number_of_year_branch = YearBranch.objects.count()
         if request.method == 'GET':
             return render(request, 'setup_year.html', {
                 'class_active': class_active,
                 'branches': branches,
-                'number_of_year_branch': number_of_year_branch
+                'number_of_year_branch': YearBranch.objects.count()
             })
         elif request.method == 'POST':
             year = request.POST.get('year')
@@ -1048,7 +1041,7 @@ def setup_year(request):
                 'class_active': class_active,
                 'branches': branches,
                 'success': 'Year ' + year + ' Saved!',
-                'number_of_year_branch': number_of_year_branch
+                'number_of_year_branch': YearBranch.objects.count()
             })
         return HttpResponse('Something is wrong!')
     return HttpResponseRedirect('/login/')

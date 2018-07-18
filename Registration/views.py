@@ -204,11 +204,8 @@ def register_student(request):
 
                 student.save()
 
-                roll_number = gr_roll_dict[student.gr_number]
-                if year == 'FE':
-                    branch_obj = Branch.objects.get(branch='E&AS')
-                else:
-                    branch_obj = Branch.objects.get(branch=branch)
+                #roll_number = gr_roll_dict[student.gr_number]
+                branch_obj = Branch.objects.get(branch=branch)
                 year_obj = CollegeYear.objects.get(year=year)
                 year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
                 shift_obj = Shift.objects.get(year_branch=year_branch_obj, shift=shift)
@@ -216,7 +213,7 @@ def register_student(request):
                                                               division=division, shift=shift_obj)[0]
                 batch_obj = Batch.objects.get_or_create(division=division_obj, batch_name=batch)[0]
                 sem_obj = Semester.objects.get(semester=1, is_active=True)
-                StudentDetail.objects.get_or_create(student=student, batch=batch_obj, roll_number=roll_number,
+                StudentDetail.objects.get_or_create(student=student, batch=batch_obj,
                                                     semester=sem_obj)
 
                 # college_year_obj = CollegeYear.objects.get(year=year)

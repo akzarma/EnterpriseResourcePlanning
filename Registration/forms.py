@@ -691,7 +691,7 @@ class StudentForm(forms.ModelForm):
     }
     # Setting branch only as Comp and Mech for VU
     branch = forms.ChoiceField(
-        choices=[(i, i) for i in branch_list]
+        choices=[(i.branch, i.branch) for i in branch_list]
     )
     programme = forms.ChoiceField(choices=[('B.Tech', 'B.Tech'),
                                            ('M.Tech', 'M.Tech')])
@@ -703,14 +703,14 @@ class StudentForm(forms.ModelForm):
                  ('Institute Level', 'Institute Level')]
     )
     shift = forms.ChoiceField(
-        choices=[(i, i) for i in shift_list]
+        choices=[(i.shift, i.shift) for i in shift_list]
     )
 
     division = forms.CharField(
         widget=forms.TextInput(attrs={'placeholder': 'Eg: A'})
     )
     year = forms.ChoiceField(
-        choices=[(i, i) for i in year_list]
+        choices=[(i.year, i.year) for i in year_list]
     )
 
     batch = forms.CharField(
