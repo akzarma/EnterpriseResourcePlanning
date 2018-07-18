@@ -285,7 +285,7 @@ def fill_date_timetable(new_date_timetable, current_semester, current_branch):
     DateTimetable.objects.all().update(is_active=False)
     branch_obj = Branch.objects.get(branch=current_branch)
     all_semester = Semester.objects.filter(semester=current_semester)
-    all_years = set(CollegeYear.objects.all()) - set(CollegeYear.objects.filter(year='FE'))  # FE ka dekhna hai
+    all_years = CollegeYear.objects.all()  # FE ka dekhna hai
     for current_semester in all_semester:
         for year in all_years:
             print(branch_obj, year)

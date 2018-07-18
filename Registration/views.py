@@ -1457,11 +1457,13 @@ def register_room(request):
 
             if len(Room.objects.filter(branch=branch, room_number=room, lab=lab)) > 0:
                 return render(request, 'register_room.html', {
+                    'branches': Branch.objects.all(),
                     'error': 'Room already registered'
                 })
             else:
                 Room.objects.create(branch=branch, room_number=room, lab=lab)
                 return render(request, 'register_room.html',{
+                    'branches': Branch.objects.all(),
                     'success': 'Room registered!'
                 })
 
