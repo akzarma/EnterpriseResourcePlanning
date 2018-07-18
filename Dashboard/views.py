@@ -1070,6 +1070,7 @@ def setup_division(request):
 
             if request.method == "GET":
                 return render(request, 'setup_division.html', {
+                    'class_active': class_active,
                     'data': data,
                 })
             else:
@@ -1090,6 +1091,7 @@ def setup_division(request):
 
             return render(request, 'setup_division.html', {
                 'success': divisions + 'registered',
+                'class_active': class_active,
                 'data': data,
             })
 
