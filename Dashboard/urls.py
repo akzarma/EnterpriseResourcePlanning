@@ -54,4 +54,6 @@ urlpatterns = [
 
     url(r'^setup/division/$', views.setup_division, name='setup_division'),
 
+    url(r'^setup/time/$', views.setup_time, name='setup_time'),
+
 ]

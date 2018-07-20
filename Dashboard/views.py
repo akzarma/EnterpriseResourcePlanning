@@ -64,23 +64,23 @@ def show_dashboard(request):
         if is_student:
             student = user.student
             attendance = {}
-       #     attended = 0
-        #    total = 0
-      #     total_attendance = student.totalattendance_set.all()
+            #     attended = 0
+            #    total = 0
+            #     total_attendance = student.totalattendance_set.all()
 
-      #      for each in total_attendance:
-      #         total += each.total_lectures
-      #         attended += each.attended_lectures
-      #          if each.total_lectures is not 0:
-      #              subject_attendance = round(100 * each.attended_lectures / each.total_lectures, 2)
-      #          else:
-      #              subject_attendance = 0
-     #           attendance[each.subject.short_form] = {
-    #                'total': each.total_lectures,
-   #                 'attended': each.attended_lectures,
-  #                  'attendance': subject_attendance,
- #               }
-#            total_percent = round(100 * attended / total, 2) if total is not 0 else 0
+            #      for each in total_attendance:
+            #         total += each.total_lectures
+            #         attended += each.attended_lectures
+            #          if each.total_lectures is not 0:
+            #              subject_attendance = round(100 * each.attended_lectures / each.total_lectures, 2)
+            #          else:
+            #              subject_attendance = 0
+            #           attendance[each.subject.short_form] = {
+            #                'total': each.total_lectures,
+            #                 'attended': each.attended_lectures,
+            #                  'attendance': subject_attendance,
+            #               }
+            #            total_percent = round(100 * attended / total, 2) if total is not 0 else 0
 
             college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
             if request.method == "GET":
@@ -1035,7 +1035,9 @@ def setup_year(request):
                     # print(i+1, 'except')
                 year_branch_obj = YearBranch.objects.get_or_create(year=year_obj[0], branch=branch_obj, is_active=True)
                 YearSemester.objects.get_or_create(semester=sem_obj, year_branch=year_branch_obj[0])
-                Shift.objects.get_or_create(year_branch=year_branch_obj[0], shift=request.POST.get('no_of_shift'))
+
+                for i in range(int(request.POST.get('no_of_shift'))):
+                    Shift.objects.get_or_create(year_branch=year_branch_obj[0], shift=(i + 1))
 
             return render(request, 'setup_year.html', {
                 'class_active': class_active,
@@ -1086,3 +1088,34 @@ def setup_division(request):
 
         return HttpResponse('Something is wrong!')
     return HttpResponseRedirect('/login/')
+
+
+def setup_time(request):
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            if request.method == "GET":
+                return render(request, 'setup_time.html', {
+                    'time_slots': Time.objects.all()
+                })
+            else:
+                splitted_start_time = request.POST.get('start_time').split(':')
+                splitted_end_time = request.POST.get('end_time').split(':')
+
+                start_time = (int(splitted_start_time[0]) * 100) + int(splitted_start_time[1])
+                end_time = (int(splitted_end_time[0]) * 100) + int(splitted_end_time[1])
+
+                if len(Time.objects.filter(starting_time=start_time, ending_time=end_time)) > 0:
+                    return render(request, 'setup_time.html', {
+                        'error': 'Time slot already registered',
+                        'time_slots': Time.objects.all()
+                    })
+
+                Time.objects.create(starting_time=start_time, ending_time=end_time)
+                return render(request, 'setup_time.html', {
+                    'success': 'Time slot registered',
+                    'time_slots': Time.objects.all()
+                })
+
+        return redirect('/login/')
+    return redirect('/login/')

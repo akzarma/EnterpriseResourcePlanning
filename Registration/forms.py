@@ -2,20 +2,21 @@ from django import forms
 
 from Configuration.countryConf import countries
 from Configuration.stateConf import states
-from General.models import CollegeYear, Shift, Semester, FacultySubject, Batch, Division, Schedule, Schedulable
-from .models import Faculty, Subject, Student, Branch
+from General.models import CollegeYear, Semester, FacultySubject, Batch, Schedule, Branch, Schedulable, Division, Shift
+from .models import Faculty, Subject, Student
 
-branch_list = Branch.objects.all()
+# subject_list = []
+# subject_list = Subject.objects.filter(is_active=True)
 
-subject_list = Subject.objects.filter(is_active=True)
+# faculty_list = []
+# faculty_list = Faculty.objects.all()
 
-faculty_list = Faculty.objects.all()
+# division_list = abcdef.objects.filter(is_active=True)
+# division_list = []
+# year_list = CollegeYear.objects.all()
 
-division_list = Division.objects.filter(is_active=True)
-
-year_list = CollegeYear.objects.all()
-
-shift_list = Shift.objects.all()
+# shift_list = []
+# shift_list = Shift.objects.all()
 
 gr_roll = '''student2	1
 student	1
@@ -647,21 +648,21 @@ class FacultySubjectForm(forms.ModelForm):
     )
 
     division = forms.ChoiceField(
-        choices=[(i.pk, i) for i in division_list]
+        choices=[]
     )
 
     def __init__(self, *args, **kwargs):
         super(FacultySubjectForm, self).__init__(*args, **kwargs)
         self.fields['faculty'] = forms.ChoiceField(
-            choices=[(i.pk, i.initials) for i in faculty_list]
+            choices=[(i.pk, i.initials) for i in Faculty.objects.all()]
         )
 
         self.fields['subject'] = forms.ChoiceField(
-            choices=[(i.pk, i.short_form) for i in subject_list]
+            choices=[(i.pk, i.short_form) for i in Subject.objects.filter(is_active=True)]
         )
 
         self.fields['division'] = forms.ChoiceField(
-            choices=[(i.pk, i) for i in division_list]
+            choices=[(i.pk, i) for i in Division.objects.filter(is_active=True)]
         )
 
         for field in self.fields:
@@ -690,9 +691,6 @@ class StudentForm(forms.ModelForm):
         'DOB': forms.DateInput(attrs={'class': 'datepicker'})
     }
     # Setting branch only as Comp and Mech for VU
-    branch = forms.ChoiceField(
-        choices=[(i.branch, i.branch) for i in branch_list]
-    )
     programme = forms.ChoiceField(choices=[('B.Tech', 'B.Tech'),
                                            ('M.Tech', 'M.Tech')])
     # branch = forms.ChoiceField(
@@ -702,15 +700,9 @@ class StudentForm(forms.ModelForm):
         choices=[('CAP-I', 'CAP-I'), ('CAP-II', 'CAP-II'), ('CAP-III', 'CAP-III'), ('CAPIV', 'CAPIV'),
                  ('Institute Level', 'Institute Level')]
     )
-    shift = forms.ChoiceField(
-        choices=[(i.shift, i.shift) for i in shift_list]
-    )
 
     division = forms.CharField(
         widget=forms.TextInput(attrs={'placeholder': 'Eg: A'})
-    )
-    year = forms.ChoiceField(
-        choices=[(i.year, i.year) for i in year_list]
     )
 
     batch = forms.CharField(
@@ -722,6 +714,17 @@ class StudentForm(forms.ModelForm):
         for field in self.fields:
             if field not in ['DOB', 'handicapped']:
                 self.fields[field].widget.attrs.update({'class': 'form-control', })
+
+        self.fields['year'] = forms.ChoiceField(
+            choices=[(i.year, i.year) for i in CollegeYear.objects.all()]
+        )
+
+        self.fields['branch'] = forms.ChoiceField(
+            choices=[(i.branch, i.branch) for i in Branch.objects.all()]
+        )
+        self.fields['shift'] = forms.ChoiceField(
+            choices=[(i.shift, i.shift) for i in Shift.objects.all()]
+        )
 
     class Meta:
         model = Student
@@ -766,15 +769,15 @@ class FacultyForm(forms.ModelForm):
 
 
 class SubjectForm(forms.ModelForm):
-    branch = forms.ChoiceField(
-        choices=[(i.branch, i.branch) for i in branch_list])
-    year = forms.ChoiceField(
-        choices=[(i.year, i.year) for i in year_list]
-    )
-
-    semester = forms.ChoiceField(
-        choices=[(i.semester, i.semester) for i in Semester.objects.all()]
-    )
+    # branch = forms.ChoiceField(
+    #     choices=[(i.branch, i.branch) for i in Branch.objects.all()])
+    # year = forms.ChoiceField(
+    #     choices=[(i.year, i.year) for i in year_list]
+    # )
+    #
+    # semester = forms.ChoiceField(
+    #     choices=[(i.semester, i.semester) for i in Semester.objects.all()]
+    # )
     #
     # type = forms.ChoiceField(
     #     choices=[('Regular', 'Regular'), ('Elective', 'Elective')],
@@ -788,6 +791,16 @@ class SubjectForm(forms.ModelForm):
             if field in ['type']:
                 self.fields[field].widget.attrs.update({'onchange': 'showElectiveGroup()'})
             self.fields[field].widget.attrs.update({'class': 'form-control'})
+        self.fields['year'] = forms.ChoiceField(
+            choices=[(i.year, i.year) for i in CollegeYear.objects.all()]
+        )
+
+        self.fields['semester'] = forms.ChoiceField(
+            choices=[(i.semester, i.semester) for i in Semester.objects.all()]
+        )
+        self.fields['branch'] = forms.ChoiceField(
+            choices=[(i.branch, i.branch) for i in Branch.objects.all()]
+        )
 
     class Meta:
         model = Subject
@@ -817,18 +830,29 @@ class DateScheduleForm(forms.ModelForm):
 
 
 class YearBranchSemForm(forms.Form):
-    branch = forms.ChoiceField(
-        choices=[(i.pk, i.branch) for i in branch_list])
-    year = forms.ChoiceField(
-        choices=[(i.pk, i.year) for i in year_list]
-    )
+    # branch = forms.ChoiceField(
+    #     choices=[(i.pk, i.branch) for i in Branch.objects.all()])
 
-    semester = forms.ChoiceField(
-        choices=[(i.pk, i.semester) for i in Semester.objects.all()]
-    )
+    # year = forms.ChoiceField(
+    #     choices=[(i.pk, i.year) for i in year_list]
+    # )
+
+    # semester = forms.ChoiceField(
+    #     choices=[(i.pk, i.semester) for i in Semester.objects.all()]
+    # )
 
     def __init__(self, *args, **kwargs):
         super(YearBranchSemForm, self).__init__(*args, **kwargs)
         for field in self.fields:
             if field not in ['start_date', 'end_date']:
                 self.fields[field].widget.attrs.update({'class': 'form-control'})
+
+        self.fields['year'] = forms.ChoiceField(
+            choices=[(i.pk, i.year) for i in CollegeYear.objects.all()]
+        )
+
+        self.fields['semester'] = forms.ChoiceField(
+            choices=[(i.pk, i.semester) for i in Semester.objects.all()])
+        self.fields['branch'] = forms.ChoiceField(
+            choices=[(i.branch, i.branch) for i in Branch.objects.all()]
+        )
