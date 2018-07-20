@@ -1,0 +1,44 @@
+{% extends 'dashboard_student.html' %}
+
+{% block content %}
+    {% if all_questions %}
+        <form action="{% url 'Feedback:self_concept' %}" method="post">
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Question</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+
+
+                {% csrf_token %}
+
+                {% for each_question in all_questions %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ each_question.question }}</td>
+                        {% for each_answer in form_answers %}
+                            <td><label><input type="radio" name="option_{{ each_question.pk }}"
+                                              value="{{ each_answer.answer.pk }}"
+                                              required> {{ each_answer.answer.answer }}</label></td>
+                        {% endfor %}
+
+                    </tr>
+                {% endfor %}
+
+
+                </tbody>
+            </table>
+            <div class="col-md-2 col-md-offset-5">
+                <input type="submit" class="btn btn-danger" value="Submit">
+            </div>
+        </form>
+    {% endif %}
+{% endblock content %}

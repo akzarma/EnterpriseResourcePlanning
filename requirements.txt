@@ -1,0 +1,9 @@
+xlsxwriter
+django-widget-tweaks
+Pillow
+firebase_admin
+django
+celery
+python-dateutil
+whitenoise
+gunicorn

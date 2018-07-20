@@ -1,0 +1,58 @@
+{% extends 'dashboard_faculty.html' %}
+{% block title %}
+    Exam-Schedule | ERP
+{% endblock title %}
+
+
+{% block content %}
+
+
+    <form method="post" action="{% url 'exam:set_exam_time' %}">
+    {% csrf_token %}
+        Branch:{{ branch }}
+        Year:{{ year }}
+        Exam:{{ exam_name }}
+        <input type="hidden" value="{{ exam_pk }}" name="exam_pk">
+        <table>
+            <thead>
+            <tr>
+                <th>Sr No</th>
+                <th>Subject</th>
+                <th>Start Time</th>
+            </tr>
+            </thead>
+            {% for each_subject in subjects %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><input type="text" readonly value="{{ each_subject }}"
+                               id="{{ each_subject }}" name="subject"></td>
+                    <td>
+                        <div class="form-group">
+                            <div class="input-append date">
+                                <input size="16" class="form_datetime" name="start_{{ each_subject }}">
+                                <input size="16" class="form_datetime" name="end_{{ each_subject }}">
+                                <span class="add-on"><i class="icon-calendar"></i></span>
+                            </div>
+                        </div>
+                    </td>
+
+                </tr>
+            {% endfor %}
+        </table>
+        <input type="submit" value="Submit">
+    </form>
+
+
+{% endblock content %}
+
+{% block on_ready %}
+    $(".form_datetime").datetimepicker({
+    autoclose: true,
+    todayBtn: true,
+    startDate: notifications_json['today'] + " 10:00",
+    minuteStep: 10
+    });
+{% endblock on_ready %}
+
+
+

@@ -1,0 +1,173 @@
+{% extends 'dashboard_faculty.html' %}
+{% load humanize %}
+{% block title %}
+    All Notifications | ERP
+{% endblock title %}
+
+{% block extra_style %}
+    <style>
+        .notification_overlay_text h2 {
+            color: white !important;
+        }
+
+        .table-responsive {
+            overflow: hidden;
+        }
+
+        .white-text {
+            color: white !important;
+        }
+    </style>
+
+{% endblock extra_style %}
+
+
+{% block content %}
+    <legend>All Notifications</legend>
+    <div class="row">
+        <button class="btn" onclick="readNotification();">Mark all as read</button>
+        <div class="table-responsive">
+            <table class="table table-hover white" id="notification_table">
+                {% for each in notifications %}
+                    {% if each.has_read is False %}
+                        <tr class="info" id="{{ each.pk }}"
+                            onclick="this.classList.remove('info'); this.classList.add('active'); expandNotification('{{ each.pk }}')"
+                            data-target="#myModal" data-toggle="modal">
+                            <td>{{ each.datetime |naturaltime }}</td>
+                            <td>
+                                {{ each.heading }}<br/>
+                                {{ each.notification }}
+                            </td>
+                        </tr>{% else %}
+                        <tr class="active" id="{{ each.pk }}" onclick="expandNotification('{{ each.pk }}')"
+                            data-target="#myModal" data-toggle="modal">
+                            <td>{{ each.datetime |naturaltime }}</td>
+                            <td>
+                                <div class="row">{{ each.heading }}</div>
+                                <div class="row">{{ each.notification }}</div>
+                            </td>
+                        </tr>
+                    {% endif %}
+
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <div class="row" align="center">
+        <form action="{% url 'dashboard:show_all_notifications' %}" method="get">
+            <ul class="pagination">
+                <li><a href="#">&laquo;</a></li>
+                {% for page in pages %}
+                    {% if page == current_page %}
+                        <li class="active"><a href="{% url 'dashboard:show_all_notifications' page %}">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li><a href="{% url 'dashboard:show_all_notifications' page %}">{{ page }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                <li><a href="#">&raquo;</a></li>
+            </ul>
+        </form>
+    </div>
+
+
+    <script>
+
+        var json_notifications;
+        var notification_model = {{ notification_model | safe }};
+
+        function expandNotification(pk) {
+            $.ajax({
+                url: '{% url 'dashboard:view_notification' %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'pk': pk,
+                    'model': notification_model[pk],
+
+                },
+                success: function (data) {
+                    json_notifications = JSON.parse(data);
+                    temp_json = json_notifications;
+
+                    let modalTitle = document.getElementById("modal-title");
+                    let modalBodyText = document.getElementById("modal-body-text");
+                    let modalBodyDiv = document.getElementById("modal-body-div");
+
+                    while(modalBodyDiv.hasChildNodes()) {
+                        modalBodyDiv.removeChild(modalBodyDiv.childNodes[0]);
+                    }
+
+                    modalTitle.innerHTML = json_notifications["fields"]["heading"];
+                    modalBodyText.innerText = json_notifications["fields"]["notification"];
+
+
+                    let text = document.getElementById('modal-footer');
+                    while (text.firstChild) {
+                        text.removeChild(text.firstChild);
+                    }
+
+                    var split_action = json_notifications['fields']['action'].split('/');
+                    var id = split_action[split_action.length - 1];
+
+                    if (json_notifications["fields"]["type"] === "Decision") {
+                        let button = document.createElement('button');
+                        button.innerHTML = "YES";
+                        button.setAttribute("class", "btn btn-success");
+                        button.style.marginRight = "5%";
+                        button.setAttribute("onclick", "setSubstitute('" + json_notifications['fields']['action'] + "')");
+                        button.setAttribute("onclick", "getSubjects(" + id + ")");
+                        text.appendChild(button);
+                        button = document.createElement('button');
+                        button.innerHTML = "NO";
+                        button.setAttribute("class", "btn btn-danger");
+                        button.setAttribute("data-dismiss", "modal");
+                        text.appendChild(button);
+                    } else if (temp_json["fields"]["type"] === "forward") {
+                        let a = document.createElement('a');
+                        a.innerHTML = "Go To Subject Registration";
+                        a.setAttribute("class", "btn btn-success");
+                        a.setAttribute("href", json_notifications["fields"]["action"]);
+                        text.appendChild(a);
+                    } else {
+
+                        let button = document.createElement('button');
+                        button.innerHTML = "OK";
+                        button.setAttribute("class", "btn btn-info");
+                        button.setAttribute("data-dismiss", "modal");
+                        text.appendChild(button);
+                    }
+
+                    {#document.getElementById("notification_overlay").style.display = "block";#}
+                }
+
+            });
+        }
+
+        function overlay_off() {
+            document.getElementById("notification_overlay").style.display = "none";
+        }
+
+
+        function readNotification() {
+            var pk_list = [];
+            $('#notification_table tr[class="info"]').each(function () {
+                pk_list.push(this.id);
+                this.classList.remove('info');
+                this.classList.add('active');
+            });
+            if (pk_list.length > 0) {
+                $.ajax({
+                    url: '{% url 'dashboard:read_all_notification' %}',
+                    type: "POST",
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'pk': JSON.stringify(pk_list)
+                    },
+                    success: function () {
+                    }
+                });
+            }
+        }
+    </script>
+{% endblock content %}

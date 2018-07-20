@@ -1,0 +1,118 @@
+{% extends 'dashboard_student.html' %}
+
+{% block content %}
+    <div class="col-md-12">
+        <div class="table-responsive col-md-11">
+            {% if application_list %}
+                <legend>Active Applications</legend>
+                <table class="table table-bordered white">
+                    <thead class="thead-inverse">
+                    <tr>
+                        <th>Internship company</th>
+                        <th>Work from Home</th>
+                        <th>Internship Start date</th>
+                        <th>Internship End date</th>
+                        <th>Application Date</th>
+                        <th>Application Status</th>
+                        <th>Remarks</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <form method="post" action="{% url 'internship:status' %}">
+                        {% csrf_token %}
+                        {% for each in student_internship_objs %}
+                            {% if each.is_active %}
+                                <tr>
+                                    <td>{{ each.internship.company_name }}</td>
+
+                                    <td> {{ each.work_from_home }}</td>
+                                    <td> {{ each.start_date }}</td>
+
+                                    <td>{{ each.end_date }}</td>
+
+                                    <td>{{ each.application_date }}</td>
+
+                                    <td>
+                                        {% if each.is_reviewed %}
+                                            {% if each.is_accepted %}
+                                                Accepted
+                                            {% else %}
+                                                Rejected
+                                                <button class="btn btn-primary" name="reapply_button"
+                                                        value="{{ each.pk }}">
+                                                    Re-Apply
+                                                </button>
+                                            {% endif %}
+                                        {% else %}
+                                            Not Reviewed
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div style="max-height: 80px;overflow-y: auto">{{ each.remarks }}</div>
+
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </form>
+                    </tbody>
+                </table>
+
+            {% endif %}
+
+
+            <legend>Inactive Applications</legend>
+            <table class="table table-bordered white">
+                <thead class="thead-inverse">
+                <tr>
+                    <th>Internship company</th>
+                    <th>Work from Home</th>
+                    <th>Internship Start date</th>
+                    <th>Internship End date</th>
+                    <th>Application Date</th>
+                    <th>Application Status</th>
+                    <th>Remarks</th>
+                </tr>
+                </thead>
+                <tbody>
+                <form method="post" action="{% url 'internship:status' %}">
+                    {% csrf_token %}
+                    {% for each in student_internship_objs %}
+                        {% if not each.is_active %}
+                            <tr>
+                                <td>{{ each.internship.company_name }}</td>
+
+                                <td> {{ each.work_from_home }}</td>
+                                <td> {{ each.start_date }}</td>
+
+                                <td>{{ each.end_date }}</td>
+
+                                <td>{{ each.application_date }}</td>
+
+                                <td>
+                                    {% if each.is_reviewed %}
+                                        {% if each.is_accepted %}
+                                            Accepted
+                                        {% else %}
+                                            Rejected
+                                        {% endif %}
+                                    {% else %}
+                                        Not Reviewed
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <textarea class="form-control" disabled>{{ each.remarks }}</textarea>
+
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </form>
+                </tbody>
+            </table>
+
+
+        </div>
+    </div>
+
+{% endblock content %}

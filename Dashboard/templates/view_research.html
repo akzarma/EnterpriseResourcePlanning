@@ -1,0 +1,8 @@
+{% extends "./dashboard_faculty.html" %}
+{% block title %}
+    Research
+{% endblock title %}
+{% block content %}
+    <a href="{% url 'Research:enter_paper' %}" class="btn btn-default btn-primary"><span
+            class="glyphicon glyphicon-plus"></span>Add research</a>
+{% endblock content %}

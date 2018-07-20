@@ -1,0 +1,290 @@
+{% extends './dashboard_faculty.html' %}
+{% block extra_style %}
+    fieldset ul {
+    list-style: none
+    }
+
+    ul#id_conference_attended li, ul#id_distribution li, ul#id_peer_reviewed li, ul#id_first_author li {
+    display: inline;
+    margin-right: 5px;
+    }
+    legend {
+    text-align: center;
+    }
+{% endblock extra_style %}
+{% block content %}
+    <br>
+    <br>
+    <form method="post" action="{% url 'Research:enter_paper' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="container">
+            <div class="row">
+                <fieldset class="col-lg-12">
+                    <div class="col-lg-12 row">
+                        <div class="col-lg-3"></div>
+                        <div class="col-lg-6 center">
+                            <legend>Publication Details</legend>
+                        </div>
+                    </div>
+                    <div class="row">
+                        {#                    <div class="col-lg-6 col-lg-offset-3">#}
+                        {#                        <div class="form-element">#}
+                        {#                            <span class="error">{{ form.faculty.errors }}</span>#}
+                        {#                            <div class="col-lg-4">#}
+                        {#                                {{ form.faculty.label_tag }}#}
+                        {#                            </div>#}
+                        {#                            <div class="col-lg-8">#}
+                        {#                                {{ form.faculty }}{{ user.faculty.first_name }}#}
+                        {#                            </div>#}
+                        {#                        </div>#}
+                        {#                    </div>#}
+                        <div class="col-lg-6 col-lg-offset-3">
+                            <div class="form-element">
+                                <span class="error">{{ form.title.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.title.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.title }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.year.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.year.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.year }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.date.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.date.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.date }}
+                                </div>
+                            </div>
+                        </div>
+                        <!--<div class="row">-->
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.medium.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.medium.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.medium }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.medium_name.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.medium_name.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.medium_name }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12"></div>
+                        <div class="col-lg-6 col-lg-offset-3" id="conference_attended" style="display: none">
+                            <div class="form-element">
+                                <span class="error">{{ form.conference_attended.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.conference_attended.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.conference_attended }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.level.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.level.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.level }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.type.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.type.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.type }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.distribution.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.distribution.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.distribution }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.peer_reviewed.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.peer_reviewed.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.peer_reviewed }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.isbn.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.isbn.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.isbn }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.impact_factor.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.impact_factor.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.impact_factor }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.volume.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.volume.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.volume }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.domain.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.domain.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.domain }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.paper_with.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.paper_with.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.paper_with }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.first_author.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.first_author.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.first_author }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.funds_from_college.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.funds_from_college.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.funds_from_college }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.other_info.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.other_info.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.other_info }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-element">
+                                <span class="error">{{ form.files.errors }}</span>
+                                <div class="col-lg-4">
+                                    {{ form.files.label_tag }}
+                                </div>
+                                <div class="col-lg-8">
+                                    {{ form.files }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+
+        </div>
+        <br>
+        <div class="container ">
+            <input class="col-md-2 col-md-offset-5 btn btn-primary" type="submit">
+        </div>
+    </form>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    </body>
+    <script>
+        $(document).ready(function () {
+
+            var mediumObj = document.getElementById('id_medium_0');
+            mediumObj.setAttribute('onchange', 'showConferenceAttended(this)');
+            mediumObj = document.getElementById('id_medium_1');
+            mediumObj.setAttribute('onchange', 'showConferenceAttended(this)');
+
+        });
+
+        function showConferenceAttended(obj) {
+            if (obj.value == 'Conference') {
+                document.getElementById('conference_attended').style.display = "inline";
+            }
+            else {
+                document.getElementById('conference_attended').style.display = "none";
+            }
+        }
+    </script>
+{% endblock content %}

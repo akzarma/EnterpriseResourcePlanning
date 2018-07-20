@@ -1,0 +1,36 @@
+{% extends "./dashboard_student.html" %}
+{% block title %}Student Subject Registration {% endblock %}
+
+{% block content %}
+        {% csrf_token %}
+        <div class="panel panel-default">
+
+            <!-- Default panel contents -->
+            {#                    <div class="panel-heading">Heading</div>#}
+
+            <!-- Table -->
+            <table class="table">
+                <th>Sr. No</th>
+                <th>Subject</th>
+                {% for branch_subject in subjects %}
+                    {% if not branch_subject.subject.is_elective_group %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ branch_subject.subject.name }}</td>
+                        </tr>
+                    {% endif %}
+
+                {% endfor %}
+                {% for each_elective in elective_subjects %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>Elective Group {{ each_elective.subject.name }} - {{ each_elective.name }}
+                        </td>
+                    </tr>
+                {% endfor    %}
+
+            </table>
+
+        </div>
+
+{% endblock content %}

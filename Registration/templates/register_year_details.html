@@ -1,0 +1,67 @@
+{% extends "dashboard_faculty.html" %}
+{% block content %}
+    <legend>Enter Year and Semester Details</legend>
+    <form action="{% url 'registration:register_year_detail' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Branch</label>
+            <select name="branch" id="branch">
+                {% for branch in branches %}
+                    <option value="{{ branch.branch }}">{{ branch.branch }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Year</label>
+            <select name="year" onchange="fillSemester()" id="year">
+                <option></option>
+                {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Semester</label>
+            <select id="semester_div" name="semester"></select>
+        </div>
+        <div class="form-group">
+            <label>Semester start date</label>
+            <input type="date" class="datepicker" name="semester_start_date">
+        </div>
+        <div class="form-group">
+            <label>Semester end date</label>
+            <input type="date" class="datepicker" name="semester_end_date">
+        </div>
+        <div class="form-group">
+            <label>Lecture start date</label>
+            <input type="date" class="datepicker" name="lecture_start_date">
+        </div>
+        <div class="form-group">
+            <label>Lecture end date</label>
+            <input type="date" class="datepicker" name="lecture_end_date">
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Submit">
+        </div>
+
+    </form>
+    <script>
+        function fillSemester() {
+            let branch = document.getElementById('branch');
+            let year = document.getElementById('year');
+            let year_semester_json = {{ year_semester | safe }};
+            let semesters = year_semester_json[branch.value][year.value];
+            var semester_div = document.getElementById('semester_div');
+            while (semester_div.firstChild) {
+                semester_div.removeChild(semester_div.firstChild);
+            }
+            for (var sem in semesters) {
+                var opt = document.createElement('option');
+                opt.value = semesters[sem];
+                opt.text = semesters[sem];
+                semester_div.appendChild(opt);
+            }
+
+        }
+    </script>
+{% endblock content %}

@@ -1,0 +1,578 @@
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/templates/loading.css">
+
+    {{ form.non_field_label_tag }}
+
+    <link href="https://fonts.googleapis.com/css?family=Merriweather:900" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    {#    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>#}
+    <link rel="stylesheet"
+          href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.min.css">
+    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.css" rel="stylesheet"
+          type="text/css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.css">
+
+
+    {#    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
+    {#    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">#}
+    {##}
+    <link rel="stylesheet" href="/templates/loading.css">
+    {##}
+    <meta http-equiv="X-UA-Compatible " content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}ERP{% endblock %}</title>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
+    <!---Context Menu Libraries -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.6.4/jquery.contextMenu.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.6.4/jquery.contextMenu.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.6.4/jquery.ui.position.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.0/sweetalert.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+
+
+    <style>
+        html, body {
+            background: #fff;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        legend {
+            color: #0379C4;
+        }
+
+        .navbar {
+            box-shadow: 0 0 40px 0 rgba(0, 0, 0, 0.1);
+            background: white;
+            font-family: 'Roboto', sans-serif;
+            border-radius: 0;
+            padding: 6px;
+        }
+
+        .navbar-brand {
+            color: #0379C4 !important;
+            font-weight: bolder;
+        }
+
+        .navbar-default .navbar-nav > .active > a {
+
+        }
+
+        .navbar-default .navbar-nav > li {
+            font-weight: bold;
+        }
+
+        .navbar-default .navbar-nav > li:hover {
+            background-color: #cccccc;
+        }
+
+        .navbar-toggle {
+            border: none;
+        }
+
+        .navbar-toggle:active, .navbar-toggle:hover, .navbar-toggle:focus {
+            background: white !important;
+
+        }
+
+        .form-element {
+            margin: 15px 0;
+        }
+
+        .col-lg-6 {
+            height: 100%;
+        }
+
+        .row {
+            padding: 10px;
+        }
+
+        #myImg {
+            width: 140px;
+        }
+
+        #input-file {
+            padding-bottom: 15px;
+        }
+
+        #id_doc_profile_pic {
+            display: none;
+        }
+
+        .input-file {
+            padding-bottom: 15px;
+        }
+
+        .error {
+            color: #d9534f !important;
+        }
+
+        .navbar-nav > li > a {
+            height: 100%;
+        }
+
+        p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1em;
+            font-weight: 300;
+            line-height: 1.7em;
+            color: #999;
+        }
+
+        /*
+        Notification style
+
+        */
+        .badge-notify {
+            font-size: 10px;
+            background: red;
+            position: absolute;
+            top: 5px;
+            left: 25px;
+            border-radius: 50%;
+        }
+
+        /* The Overlay (background) */
+        .overlay {
+            /* Height & width depends on how you want to reveal the overlay (see JS below) */
+            display: none;
+            height: 100%;
+            width: 100%;
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            background-color: rgb(0, 0, 0); /* Black fallback color */
+            background-color: rgba(0, 0, 0, 0.9); /* Black w/opacity */
+            overflow-x: hidden; /* Disable horizontal scroll */
+            transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
+        }
+
+        /* Position the content inside the overlay */
+        .overlay-content {
+            position: relative;
+            top: 25%; /* 25% from the top */
+            width: 100%; /* 100% width */
+            text-align: center; /* Centered text/links */
+            margin-top: 30px; /* 30px top margin to avoid conflict with the close button on smaller screens */
+        }
+
+        /* The navigation links inside the overlay */
+        .overlay a {
+            padding: 8px;
+            text-decoration: none;
+            font-size: 36px;
+            color: #FFFFFF;
+            display: block; /* Display block instead of inline */
+            transition: 0.3s; /* Transition effects on hover (color) */
+        }
+
+        /* Position the close button (top right corner) */
+        .overlay .closebtn {
+            position: absolute;
+            top: 20px;
+            right: 45px;
+            font-size: 60px;
+        }
+
+        /*Adjust size of notification menu*/
+        .notify-item > p {
+            white-space: pre-line;
+
+        }
+
+        .notify-item {
+            width: 350px;
+            font-size: 0.8em;
+        }
+
+        .form-control {
+            border-radius: 0px;
+        }
+
+        .btn-primary {
+            border-radius: 0px;
+        }
+
+        .navbar {
+            padding: 0;
+        }
+
+        .glyphicon-bell:hover {
+            background-color: #CCCCCC;
+        }
+    </style>
+    {% block style %}
+
+    {% endblock style %}
+</head>
+<body>
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><i class="glyphicon glyphicon-flash"></i>ERP</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a href="#">About</a></li>
+                <li><a href="#">Support</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="bell-icon dropdown">
+                    <button class="btn btn-lg btn-link dropdown-toggle"
+                            style="font-size:20px;display: inline;" data-toggle="dropdown" role="button"
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        <span class="glyphicon glyphicon-bell"
+                              style="padding:2px;border-radius: 50%;   "></span>
+                    </button>
+                    <span class="badge badge-notify dropdown-toggle" id="notification_count" data-toggle="dropdown"
+                          role="button"
+                          aria-haspopup="true"
+                          aria-expanded="false"></span>
+                    <ul class="dropdown-menu" id="notification_dropdown"></ul>
+                </li>
+                <li class="dropdown">
+                    {% block navbar-right %}
+                        {% if user.is_authenticated %}
+
+
+                            {% if user.student %}
+
+                                <div href="#" class="" data-toggle="dropdown" role="button"
+                                     aria-haspopup="true" aria-expanded="false"
+                                     style="width:48px;height:48px;position:relative;top:5px;">
+                                    <div style="width: 42px;height: 42px">
+                                        <img src="https://ui-avatars.com/api/?name={{ user.student.first_name }} {{ user.student.last_name }}"
+                                             style="border-radius: 50%;width: 60%;margin: 15% 20%">
+                                    </div>
+                                </div>
+                                <ul class="dropdown-menu">
+                                    <li><a>Id : <span style="color: #0379C4;">{{ user.student.gr_number }}</span></a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="{% url 'dashboard:profile' %}"><span
+                                            class="glyphicon glyphicon-user"></span> <span style="color: #0379C4;">View Profile</span></a>
+                                    </li>
+                                    <li><a href="{% url 'dashboard:logout' %}"><span
+                                            class="glyphicon glyphicon-off"></span> <span
+                                            style="color: #0379C4;">Logout</span></a>
+                                    </li>
+                                </ul>
+                            {% else %}
+
+                                <div href="#" class="" data-toggle="dropdown" role="button"
+                                     aria-haspopup="true" aria-expanded="false" style="width: 48px;height: 48px">
+                                    <div style="width: 48px;height: 48px">
+                                        <img src="https://ui-avatars.com/api/?name={{ user.faculty.first_name }} {{ user.faculty.last_name }}"
+                                             style="border-radius: 50%;width: 60%;margin: 15% 20%">
+                                    </div>
+                                </div>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a>Id: {{ user.faculty.faculty_code }}</a>
+                                    </li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="{% url 'dashboard:profile' %}">View Profile</a></li>
+                                    <li><a href="{% url 'dashboard:logout' %}"><span
+                                            class="glyphicon glyphicon-off"></span> Logout</a>
+                                    </li>
+                                </ul>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'login:login' %}" class="dropdown-toggle" role="button">Sign In</a>
+                        {% endif %}
+                    {% endblock navbar-right %}
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+{% if error %}
+    <div class="alert alert-danger">
+        <strong>Error!</strong>
+        {% autoescape off %}{{ error }} {% endautoescape %}
+    </div>
+{% endif %}
+{% if info %}
+    <div class="alert alert-info">
+        {% autoescape off %}{{ info }} {% endautoescape %}
+    </div>
+{% endif %}
+{% if success %}
+    <div class="alert alert-success">
+        {% autoescape off %}{{ success }} {% endautoescape %}
+    </div>
+{% endif %}
+
+
+<!-- The overlay -->
+<div id="notification_overlay" class="overlay">
+
+    <!-- Button to close the overlay navigation -->
+    <a href="javascript:void(0)" class="closebtn" onclick="overlay_off()">&times;</a>
+
+    <!-- Overlay content -->
+    <div class="overlay-content" id="notification_overlay_text"></div>
+
+</div>
+
+
+<!--Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="modal-title">Modal Header</h4>
+            </div>
+            <div class="modal-body">
+                <p id="modal-body-text"></p>
+                <div id="modal-body-div"></div>
+            </div>
+            <div class="modal-footer" id="modal-footer">
+            </div>
+        </div>
+
+    </div>
+</div>
+<!---->
+{% block body %}
+{% endblock body %}
+
+</body>
+
+{% block html %}
+{% endblock html %}
+
+<script>
+    var current_date;
+    var notifications_json;
+    var temp_json;
+    $(document).ready(function () {
+        //Gets notification
+        $.ajax({
+
+            url: '{% url 'dashboard:get_notifications' %}',
+            type: 'POST',
+            async: false,
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (data) {
+                notifications_json = JSON.parse(data);
+                current_date = new Date(notifications_json['today']);
+
+                var notification_list = document.getElementById('notification_dropdown');
+
+                let notification_num_obj = document.getElementById('notification_count');
+
+                let num_of_notifications = 0;
+                for (var each in notifications_json) {
+                    if (each !== 'today') {
+                        num_of_notifications++;
+
+                        let li = document.createElement('li');
+                        let a = document.createElement('a');
+                        /*
+                        ** data-target="#myModal" data-toggle="modal"
+                        */
+                        a.setAttribute('data-target', '#myModal');
+                        a.setAttribute('data-toggle', 'modal');
+                        let temp_json = JSON.parse(notifications_json[each]);
+
+                        let heading = document.createElement('h5');
+                        heading.innerHTML = temp_json.fields.heading;
+                        a.appendChild(heading);
+                        let para = document.createElement('p');
+                        a.className = "notify-item";
+                        para.innerHTML = temp_json.fields.notification.substr(0, 100) + '...';
+                        a.appendChild(para);
+                        a.setAttribute("value", each);
+                        a.setAttribute("onclick", "showExpandedNotification('" + each + "')");
+                        li.appendChild(a);
+                        notification_list.appendChild(li);
+                        let seprator = document.createElement('li');
+                        seprator.setAttribute("class", "divider");
+                        notification_list.appendChild(seprator);
+                    }
+
+                }
+                let li = document.createElement('li');
+                let a = document.createElement('a');
+                a.style.textAlign = "center";
+                a.innerHTML = "Show all notifications";
+                a.href = '{% url 'dashboard:show_all_notifications' %}';
+                li.appendChild(a);
+                notification_list.appendChild(li);
+
+                notification_num_obj.innerHTML = num_of_notifications;
+
+            }
+
+        });
+
+        {% block on_ready %}
+        {% endblock on_ready %}
+    });
+
+    function showExpandedNotification(index) {
+
+        temp_json = JSON.parse(notifications_json[index]);
+
+        let modalTitle = document.getElementById("modal-title");
+        let modalBodyText = document.getElementById("modal-body-text");
+        let modalBodyDiv = document.getElementById("modal-body-div");
+
+        while (modalBodyDiv.hasChildNodes()) {
+            modalBodyDiv.removeChild(modalBodyDiv.childNodes[0]);
+        }
+
+        modalTitle.innerHTML = temp_json["fields"]["heading"];
+        modalBodyText.innerText = temp_json["fields"]["notification"];
+
+
+        let text = document.getElementById('modal-footer');
+        while (text.firstChild) {
+            text.removeChild(text.firstChild);
+        }
+
+        var split_action = temp_json['fields']['action'].split('/');
+        var id = split_action[split_action.length - 1];
+
+        if (temp_json["fields"]["type"] === "Decision") {
+            let button = document.createElement('button');
+            button.innerHTML = "YES";
+            button.setAttribute("class", "btn btn-success");
+            button.style.marginRight = "5%";
+            button.setAttribute("onclick", "setSubstitute('" + temp_json['fields']['action'] + "')");
+            button.setAttribute("onclick", "getSubjects(" + id + ")");
+            text.appendChild(button);
+            button = document.createElement('button');
+            button.innerHTML = "NO";
+            button.setAttribute("class", "btn btn-danger");
+            button.setAttribute("data-dismiss", "modal");
+            text.appendChild(button);
+        } else if (temp_json["fields"]["type"] === "forward") {
+            let a = document.createElement('a');
+            a.innerHTML = "Go To Subject Registration";
+            a.setAttribute("class", "btn btn-success");
+            a.setAttribute("href", temp_json["fields"]["action"]);
+            text.appendChild(a);
+        } else {
+            let button = document.createElement('button');
+            button.innerHTML = "OK";
+            button.setAttribute("class", "btn btn-info");
+            button.setAttribute("data-dismiss", "modal");
+            text.appendChild(button);
+        }
+
+        if (temp_json['model'].includes('general') === false) {
+            $.ajax({
+                url: '{% url 'dashboard:view_notification' %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'pk': temp_json['pk'],
+                    'model': temp_json['model']
+                }, success: function (data) {
+                    let notification_num_obj = document.getElementById('notification_count');
+                    let count = parseInt(notification_num_obj.innerHTML);
+                    notification_num_obj.innerHTML = (count - 1) < 0 ? 0 : (count - 1);
+                }
+            });
+        }
+
+
+    }
+
+    function getSubjects(id) {
+        $.ajax({
+            url: '{% url 'dashboard:get_subjects' %}',
+            type: "POST",
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'id': id,
+            },
+            success: function (data) {
+                var subjects = JSON.parse(data);
+                let text = document.getElementById('modal-footer');
+
+                while (text.firstChild) {
+                    text.removeChild(text.firstChild);
+                }
+                var para = document.createElement('h4');
+                para.innerHTML = "Which subject you're going to teach?&nbsp;";
+                var select = document.createElement('select');
+                select.id = "subject";
+                for (let sub in subjects) {
+                    var option = document.createElement('option');
+                    option.text = subjects[sub];
+                    option.value = subjects[sub];
+                    select.appendChild(option);
+                }
+                para.appendChild(select);
+                text.appendChild(para);
+
+                let button = document.createElement('button');
+                button.innerHTML = "Submit";
+                button.setAttribute("class", "btn btn-info");
+                button.setAttribute("onclick", "setSubstitute('" + temp_json['fields']['action'] + "')");
+                text.appendChild(button);
+
+
+            },
+            error: function () {
+                alert("Error getting subjects :( Try again!")
+            }
+        })
+    }
+
+    function setSubstitute(url) {
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'subject': document.getElementById('subject').value
+            },
+            success: function (data) {
+                alert(data);
+                overlay_off();
+            }
+        });
+    }
+
+    function overlay_off() {
+        document.getElementById("notification_overlay").style.display = "none";
+
+    }
+
+</script>
+
+</html>

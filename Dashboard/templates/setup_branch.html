@@ -1,0 +1,50 @@
+{% extends "./dashboard_faculty.html" %}
+
+{% block title %}Getting Started | ERP {% endblock title %}
+
+{% block content %}
+
+    <div class="col-md-4">
+        <form method="post" action="{% url 'dashboard:setup_branch' %}">
+            {% csrf_token %}
+            <fieldset>
+                <legend>Register new branch</legend>
+                <div class="form-element">
+                    <label for="branch">Enter branch name</label>
+                    <input class="form-control" id="branch" name="branch"/>
+                </div>
+            </fieldset>
+            <div class="form-element">
+                <input type="submit" class="btn btn-primary">
+            </div>
+        </form>
+        <br/>
+        <br/>
+        <label>Already registered branches</label>
+        {% for branch in all_branches %}
+            <p>{{ branch.branch }}</p>
+        {% endfor %}
+    </div>
+    <div class="col-md-3 col-md-offset-5">
+        <div class="row">
+            {% if number_of_branch == 0 %}
+                <a class="btn btn-link"
+                   onclick="swal('You can\'t go forward!', 'You need to fill atleast one branch to move to next step!', 'error');"
+                   disabled="disabled">Next Step: Year Registration</a>
+                <a class="btn btn-default btn-circle"
+                   onclick="swal('You can\'t go forward!', 'You need to fill atleast one branch to move to next step!', 'error');"
+                   disabled="disabled"><i
+                        class="glyphicon glyphicon-chevron-right"></i></a>
+            {% else %}
+                <a class="btn btn-link" href="{% url 'dashboard:setup_year' %}">Next Step: Year Registration</a>
+
+                <a class="btn btn-success btn-circle" href="{% url 'dashboard:setup_year' %}"><i
+                        class="glyphicon glyphicon-chevron-right"></i></a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}
+
+{% block html %}
+
+{% endblock html %}
