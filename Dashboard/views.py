@@ -1009,11 +1009,19 @@ def setup_year(request):
     user = request.user
     if not user.is_anonymous:
         branches = Branch.objects.all()
+        year_branch_json = {}
         if request.method == 'GET':
+
+            for each in YearBranch.objects.all():
+                if each.branch.branch not in year_branch_json:
+                    year_branch_json[each.branch.branch] = []
+                year_branch_json[each.branch.branch] += [each.year.year]
+
             return render(request, 'setup_year.html', {
                 'class_active': class_active,
                 'branches': branches,
-                'number_of_year_branch': YearBranch.objects.count()
+                'number_of_year_branch': YearBranch.objects.count(),
+                'year_branch_json': year_branch_json
             })
         elif request.method == 'POST':
             year = request.POST.get('year')
@@ -1039,11 +1047,17 @@ def setup_year(request):
                 for i in range(int(request.POST.get('no_of_shift'))):
                     Shift.objects.get_or_create(year_branch=year_branch_obj[0], shift=(i + 1))
 
+            for each in YearBranch.objects.all():
+                if each.branch.branch not in year_branch_json:
+                    year_branch_json[each.branch.branch] = []
+                year_branch_json[each.branch.branch] += [each.year.year]
+
             return render(request, 'setup_year.html', {
                 'class_active': class_active,
                 'branches': branches,
                 'success': 'Year ' + year + ' Saved!',
-                'number_of_year_branch': YearBranch.objects.count()
+                'number_of_year_branch': YearBranch.objects.count(),
+                'year_branch_json': year_branch_json
             })
         return HttpResponse('Something is wrong!')
     return HttpResponseRedirect('/login/')
@@ -1055,20 +1069,25 @@ def setup_division(request):
     if not user.is_anonymous:
         if has_role(user, 'faculty'):
             data = {}
-            year_branch = YearBranch.objects.filter(is_active=True)
-            for each in year_branch:
-                if each.branch.branch not in data:
-                    data[each.branch.branch] = {}
-
-                data[each.branch.branch][each.year.year] = each.shift_set.count()
 
             if request.method == "GET":
+
+                year_branch = YearBranch.objects.filter(is_active=True)
+                for each in year_branch:
+                    if each.branch.branch not in data:
+                        data[each.branch.branch] = {}
+
+                    data[each.branch.branch][each.year.year] = {
+                        'shift': each.shift_set.count(),
+                        'division': list(each.division_set.filter(is_active=True).values_list('division', flat=True))
+                    }
+
                 return render(request, 'setup_division.html', {
                     'class_active': class_active,
                     'data': data,
                 })
             else:
-                print(request.POST)
+
                 branch = Branch.objects.get(branch=request.POST.get('branch'))
                 year = CollegeYear.objects.get(year=request.POST.get('year'))
                 year_branch_obj = YearBranch.objects.get(branch=branch, year=year)
@@ -1079,6 +1098,16 @@ def setup_division(request):
                     Division.objects.get_or_create(year_branch=year_branch_obj, division=value,
                                                    shift=Shift.objects.get(year_branch=year_branch_obj,
                                                                            shift=shifts[index]))
+
+                year_branch = YearBranch.objects.filter(is_active=True)
+                for each in year_branch:
+                    if each.branch.branch not in data:
+                        data[each.branch.branch] = {}
+
+                    data[each.branch.branch][each.year.year] = {
+                        'shift': each.shift_set.count(),
+                        'division': list(each.division_set.filter(is_active=True).values_list('division', flat=True))
+                    }
 
             return render(request, 'setup_division.html', {
                 'success': str(divisions) + 'registered',
