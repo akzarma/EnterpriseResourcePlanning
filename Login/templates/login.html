@@ -1,0 +1,100 @@
+{% extends "./base.html" %}
+{% block style %}
+    <style>
+        .navbar-default {
+            display: none !important;
+        }
+
+        .login-form {
+            width: 25%;
+            border: 1px solid #d8dee2;
+            border-radius: 5px;
+            display: inline-block;
+            background: white;
+            text-align: center;
+            padding: 18px;
+        }
+
+        html, body {
+            background: #F9F9F9;
+        }
+
+        .navbar-brand {
+            display: inline-block;
+            font-size: 4em;
+            font-weight: bolder;
+            margin: 25px 0;
+            float: none;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        input {
+            border: 1px solid rgba(186, 186, 186, 0.35);
+            border-radius: 4px;
+            width: 94%;
+            padding: 5px;
+        }
+
+        .logo {
+            text-align: center;
+        }
+
+        .control-label {
+            margin-left: 10px;
+            float: left;
+            font-weight: 500;
+        }
+
+        .form-heading {
+            font-size: 2em;
+        }
+
+        #submit {
+            color: #fff;
+            background-color: #0379C4;
+            background-image: linear-gradient(-180deg, #0399ee 0%, #0379C4 90%);
+        }
+
+        @media only screen and (max-width: 767px) {
+            .login-form {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock style %}
+{% block body %}
+    <body>
+
+    <div class="logo">
+        <a class="navbar-brand" href="/"><i class="glyphicon glyphicon-flash"></i></a>
+
+        <p class="form-heading">Sign in to ERP</p>
+    </div>
+    <form method="post" action="{% url 'login:login' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="container">
+            <div class="login-form">
+                <div>
+                    <div class="form-element">
+                        <span class="error">{{ form.first_name.errors }}</span>
+                        <label class="control-label" style="display: block">Username</label>
+                        <input type="text" id="username" name="username">
+                    </div>
+                    <div class="form-element col-centered">
+                        <label class="control-label" style="display: block">Password</label>
+                        <input type="password" id="password" name="password">
+                    </div>
+                    <input class="btn" id="submit" type="submit" value="Sign in">
+
+                    <a class="btn" href="{% url 'registration:register_student' %}">Register as a new student</a><br/>
+
+                    <a href="{% url 'registration:forgot_password' %}">Forgot Password?</a>
+                </div>
+            </div>
+        </div>
+    </form>
+    </body>
+{% endblock body %}

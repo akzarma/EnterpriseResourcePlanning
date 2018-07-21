@@ -1,0 +1,368 @@
+{% extends "./dashboard_faculty.html" %}
+{% block title %}
+    Faculty Profile
+{% endblock title %}
+{% block content %}
+    <br><br>
+    <div class="row">
+
+    </div>
+
+    <div class="container" style="margin-top:-60px">
+        <div class="row">
+            <fieldset class="col-lg-6">
+                <legend>Basic Info:</legend>
+
+                <div class="col-lg-6">
+
+                    <div class="form-element">
+                        <span class="error">{{ form.doc_profile_pic.errors }}</span>
+                        {{ form.doc_profile_pic.label_tag }}
+                        {% if form.instance.doc_profile_pic %}
+                            <img id="myImg"
+                                 src="{{ form.instance.doc_profile_pic.url }}"
+                                 alt="Uploaded image is broken"/>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-element">
+                        <span class="error">{{ form.gr_number.errors }}</span>
+                        <label class="control-label">{{ form.gr_number.label_tag }}</label>
+                        <div class="">{{ form.gr_number.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <label class="control-label">First Name</label>
+                        <div class="">{{ form.first_name.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.middle_name.errors }}</span>
+                        <label class="control-label">{{ form.middle_name.label_tag }}</label>
+                        <div class="">{{ form.middle_name.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <label class="control-label">Last Name</label>
+                        <div class="">{{ form.last_name.value }}</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-element">
+                        <span class="error">{{ form.DOB.errors }}</span>
+                        <label class="control-label">{{ form.DOB.label_tag }}</label>
+                        <div class="">{{ form.DOB.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.caste_type.errors }}</span>
+                        <label class="control-label">{{ form.caste_type.label_tag }}</label>
+                        <div class="">{{ form.caste_type.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.initials.errors }}</span>
+                        <label class="control-label">{{ form.initials.label_tag }}</label>
+                        <div class="">{{ form.initials.value }}</div>
+                    </div>
+                </div>
+
+            </fieldset>
+            <fieldset class="col-lg-6">
+                <legend>Personal Detail:</legend>
+                <div class="form-element">
+                    <span class="error">{{ form.user.email.errors }}</span>
+                    <label class="control-label">{{ form.user.email.label_tag }}</label>
+                    <div class="">{{ form.user.email.value }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.mobile.errors }}</span>
+                    <label class="control-label">{{ form.mobile.label_tag }}</label>
+                    <div class="">{{ form.mobile.value }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.religion.errors }}</span>
+                    <label class="control-label">{{ form.religion.label_tag }}</label>
+                    <div class="">{{ form.religion.value }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.sub_caste.errors }}</span>
+                    <label class="control-label">{{ form.sub_caste.label_tag }}</label>
+                    <div class="">{{ form.sub_caste.value }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.handicapped.errors }}</span>
+                    <label class="control-label">{{ form.handicapped.label_tag }}</label>
+                    <div class="">{{ form.handicapped.value }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.nationality.errors }}</span>
+                    <label class="control-label">{{ form.nationality.label_tag }}</label>
+                    <div class="">{{ form.nationality.value }}</div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="row">
+            <fieldset class="col-lg-6">
+                <legend>Family</legend>
+                <fieldset class="col-lg-6">
+                    {#                <legend>Father</legend>#}
+                    <div class="form-element">
+                        <span class="error">{{ form.father_name.errors }}</span>
+                        <label class="control-label">{{ form.father_name.label_tag }}</label>
+                        <div class="">{{ form.father_name.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.father_profession.errors }}</span>
+                        <label class="control-label">{{ form.father_profession.label_tag }}</label>
+                        <div class="">{{ form.father_profession.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.father_designation.errors }}</span>
+                        <label class="control-label">{{ form.father_designation.label_tag }}</label>
+                        <div class="">{{ form.father_designation.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.father_mobile.errors }}</span>
+                        <label class="control-label">{{ form.father_mobile.label_tag }}</label>
+                        <div class="">{{ form.father_mobile.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.father_email.errors }}</span>
+                        <label class="control-label">{{ form.father_email.label_tag }}</label>
+                        <div class="">{{ form.father_email.value }}</div>
+                    </div>
+                </fieldset>
+                <fieldset class="col-lg-6">
+                    {#                <legend>Mother</legend>#}
+                    <div class="form-element">
+                        <span class="error">{{ form.mother_name.errors }}</span>
+                        <label class="control-label">{{ form.mother_name.label_tag }}</label>
+                        <div class="">{{ form.mother_name.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.mother_profession.errors }}</span>
+                        <label class="control-label">{{ form.mother_profession.label_tag }}</label>
+                        <div class="">{{ form.mother_profession.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.mother_designation.errors }}</span>
+                        <label class="control-label">{{ form.mother_designation.label_tag }}</label>
+                        <div class="">{{ form.mother_designation.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.mother_mobile.errors }}</span>
+                        <label class="control-label">{{ form.mother_mobile.label_tag }}</label>
+                        <div class="">{{ form.mother_mobile.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.mother_email.errors }}</span>
+                        <label class="control-label">{{ form.mother_email.label_tag }}</label>
+                        <div class="">{{ form.mother_email.value }}</div>
+                    </div>
+                </fieldset>
+            </fieldset>
+            <fieldset class="col-lg-6">
+                <legend>Emergency contact</legend>
+                <div class="form-element">
+                    <span class="error">{{ form.emergency_name.errors }}</span>
+                    <label class="control-label">{{ form.emergency_name.label_tag }}</label>
+                    <div class="">{{ form.emergency_name.value }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.emergency_mobile.errors }}</span>
+                    <label class="control-label">{{ form.emergency_mobile.label_tag }}</label>
+                    <div class="">{{ form.emergency_mobile.value }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.emergency_relation.errors }}</span>
+                    <label class="control-label">{{ form.emergency_relation.label_tag }}</label>
+                    <div class="">{{ form.emergency_relation.value }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.emergency_address.errors }}</span>
+                    <label class="control-label">{{ form.emergency_address.label_tag }}</label>
+                    <div class="">{{ form.emergency_address.value }}</div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="row">
+            <fieldset class="col-lg-6">
+                <legend>Address</legend>
+                <fieldset class="col-lg-6">
+                    {#                <legend>Permanent Address</legend>#}
+                    <div class="form-element">
+                        <span class="error">{{ form.permanent_address.errors }}</span>
+                        <label class="control-label">{{ form.permanent_address.label_tag }}</label>
+                        <div class="">{{ form.permanent_address.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.permanent_state.errors }}</span>
+                        <label class="control-label">{{ form.permanent_state.label_tag }}</label>
+                        <div class="">{{ form.permanent_state.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.permanent_city.errors }}</span>
+                        <label class="control-label">{{ form.permanent_city.label_tag }}</label>
+                        <div class="">{{ form.permanent_city.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.permanent_pin_code.errors }}</span>
+                        <label class="control-label">{{ form.permanent_pin_code.label_tag }}</label>
+                        <div class="">{{ form.permanent_pin_code.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.permanent_country.errors }}</span>
+                        <label class="control-label">{{ form.permanent_country.label_tag }}</label>
+                        <div class="">{{ form.permanent_country.value }}</div>
+                    </div>
+                </fieldset>
+                <fieldset class="col-lg-6">
+                    {#                <legend>Current Address</legend>#}
+                    <div class="form-element">
+                        <span class="error">{{ form.current_address.errors }}</span>
+                        <label class="control-label">{{ form.current_address.label_tag }}</label>
+                        <div class="">{{ form.current_address.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.current_state.errors }}</span>
+                        <label class="control-label">{{ form.current_state.label_tag }}</label>
+                        <div class="">{{ form.current_state.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.current_city.errors }}</span>
+                        <label class="control-label">{{ form.current_city.label_tag }}</label>
+                        <div class="">{{ form.current_city.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.current_pin_code.errors }}</span>
+                        <label class="control-label">{{ form.current_pin_code.label_tag }}</label>
+                        <div class="">{{ form.current_pin_code.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.current_country.errors }}</span>
+                        <label class="control-label">{{ form.current_country.label_tag }}</label>
+                        <div class="">{{ form.current_country.value }}</div>
+                    </div>
+                </fieldset>
+            </fieldset>
+            <fieldset class="col-lg-6">
+                <legend>Exam</legend>
+                <fieldset class="col-lg-6">
+                    {#                <legend>Exam details</legend>#}
+                    <div class="form-element">
+                        <span class="error">{{ form.jee_physics.errors }}</span>
+                        <label class="control-label">{{ form.jee_physics.label_tag }}</label>
+                        <div class="">{{ form.jee_physics.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.jee_maths.errors }}</span>
+                        <label class="control-label">{{ form.jee_maths.label_tag }}</label>
+                        <div class="">{{ form.jee_maths.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.jee_chemistry.errors }}</span>
+                        <label class="control-label">{{ form.jee_chemistry.label_tag }}</label>
+                        <div class="">{{ form.jee_chemistry.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.jee_total.errors }}</span>
+                        <label class="control-label">{{ form.jee_total.label_tag }}</label>
+                        <div class="">{{ form.jee_total.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.jee_max_physics.errors }}</span>
+                        <label class="control-label">{{ form.jee_max_physics.label_tag }}</label>
+                        <div class="">{{ form.jee_max_physics.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.jee_max_maths.errors }}</span>
+                        <label class="control-label">{{ form.jee_max_maths.label_tag }}</label>
+                        <div class="">{{ form.jee_max_maths.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.jee_max_chemistry.errors }}</span>
+                        <label class="control-label">{{ form.jee_max_chemistry.label_tag }}</label>
+                        <div class="">{{ form.jee_max_chemistry.value }}</div>
+                    </div>
+                </fieldset>
+                <fieldset class="col-lg-6">
+                    {#                <legend>Documents</legend>#}
+                    <div class="form-element">
+                        <span class="error">{{ form.doc_tenth_marksheet.errors }}</span>
+                        <label class="control-label">{{ form.doc_tenth_marksheet.label_tag }}</label>
+                        <div class="">{{ form.doc_tenth_marksheet.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.doc_twelfth_marksheet.errors }}</span>
+                        <label class="control-label">{{ form.doc_twelfth_marksheet.label_tag }}</label>
+                        <div class="">{{ form.doc_twelfth_marksheet.value }}</div>
+                    </div>
+                    <div class="form-element">
+                        <span class="error">{{ form.doc_jee_marksheet.errors }}</span>
+                        <label class="control-label">{{ form.doc_jee_marksheet.label_tag }}</label>
+                        <div class="">{{ form.doc_jee_marksheet.value }}</div>
+                    </div>
+                    <div class="form-element">
+
+                    </div>
+
+                </fieldset>
+            </fieldset>
+        </div>
+        <div class="row">
+            <div class="col-lg-2 col-lg-offset-5">
+                <a href="{% url 'update:update' %}" class="btn btn-default btn-primary">Edit Profile</a>
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <br>
+
+    </div>
+{% endblock content %}
+
+
+{% block html %}
+    <script>
+        $(function () {
+            $("#id_doc_profile_pic:hidden").change(function () {
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = imageIsLoaded;
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+
+        function imageIsLoaded(e) {
+
+            $('#myImg').attr('src', e.target.result);
+        }
+    </script>
+    <script>
+        $(function () {
+            $("#myImg").on('click', function (e) {
+                e.preventDefault();
+                $("#id_doc_profile_pic:hidden").trigger('click');
+            });
+        });
+    </script>
+
+    <script>
+        $(function () {
+            $(".datepicker").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-50:+0"
+                // You can put more options here.
+
+            });
+        });
+    </script>
+    <script>
+        $("#menu-toggle").click(function (e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+
+    </script>
+{% endblock html %}

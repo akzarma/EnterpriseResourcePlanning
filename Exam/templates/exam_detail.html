@@ -1,0 +1,124 @@
+{% extends 'dashboard_faculty.html' %}
+{% block title %}
+    Exam-Regsiter | ERP
+{% endblock title %}
+{% block extra_style %}
+    label{
+    margin-left:0;
+    }
+    .subject-name{
+    font-size:1.2em;
+    }
+    .subject-checkbox{
+    margin-right:10px!important;
+    }
+{% endblock extra_style %}
+{% block content %}
+    <div class="row col-md-6">
+
+        <form method="POST" action="{% url 'exam:exam_detail' %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                {% for each in form %}
+                    {{ each.errors }}
+                    <label>{{ each.label }}</label>
+                    {{ each }}
+                {% endfor %}</div>
+            <div id="div_subject" class=""></div>
+            <br>
+            <div class="col-lg-12">
+                <input type="submit" class="btn btn-primary">
+            </div>
+        </form>
+
+    </div>
+
+    <script>
+
+
+        $(".datepicker").datepicker({
+            dateFormat: 'yy-mm-dd'
+        });
+
+        function call_ajax() {
+            // code
+            let year_obj = document.getElementById('id_year');
+            let semester_obj = document.getElementById('id_semester');
+            if (year_obj.value !== "" && semester_obj.value !== "") {
+                $.ajax({
+                    type: "POST",
+                    url: '{% url 'exam:get_subjects' %}',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'year': year_obj.value,
+                        'semester': semester_obj.value
+                    },
+                    success: function (data) {
+                        {#loading.style.display = "none";#}
+                        {#main_content.style.opacity = 1;#}
+                        {#if (room.value !== 'all') {#}
+                        {#    let file_path = '/' + data + '.xlsx';#}
+                        {#    let a = document.createElement('a');#}
+                        {#    a.href = file_path;#}
+                        {#    a.click();#}
+
+                        {#alert(data);#}
+                        let div = document.getElementById('div_subject');
+                        $("#div_subject").empty();
+                        let subjects = JSON.parse(data);
+                        console.log(subjects);
+                        for (each in subjects) {
+                            {#console.log(each);#}
+                            {#alert(each);#}
+                            console.log(each);
+                            let div_inside = document.createElement('div');
+                            div_inside.className = "col-lg-6";
+                            let checkbox = document.createElement('input');
+                            checkbox.type = "checkbox";
+                            checkbox.name = "subject";
+                            checkbox.value = each;
+                            checkbox.id = "id_" + each;
+                            checkbox.className = "subject-checkbox";
+
+                            let label = document.createElement('label');
+                            label.htmlFor = "id_" + each;
+                            label.className = "subject-name";
+                            label.appendChild(document.createTextNode(each));
+                            div_inside.appendChild(checkbox);
+                            div_inside.appendChild(label);
+                            div.appendChild(div_inside);
+
+                            let combo_box = document.createElement('select');
+                            combo_box.name = each + '_faculty';
+                            let opt;
+                            for (let each_faculty in subjects[each]) {
+
+                                opt = document.createElement('option');
+                                opt.value = subjects[each][each_faculty];
+                                opt.innerHTML = subjects[each][each_faculty];
+                                combo_box.appendChild(opt);
+                            }
+                            div_inside.appendChild(combo_box);
+                        }
+
+
+                    }
+
+                });
+            }
+        }
+
+        $('#id_year').on('change', function () {
+            call_ajax();
+        });
+        $('#id_semester').on('change', function () {
+            call_ajax();
+        });
+
+
+    </script>
+
+{% endblock content %}
+
+

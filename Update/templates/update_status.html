@@ -1,0 +1,170 @@
+{% extends "./dashboard_faculty.html" %}
+{% load static %}
+{% load exam_extra %}
+{% block title %}
+    Update Exam Status | ERP
+{% endblock title %}
+{% block extra_style %}
+    {#    .true{#}
+    {#    width:55%;#}
+    {#    padding: 5px;#}
+    {#    border: 0 none;#}
+    {#    font-weight: bold;#}
+    {#    background-color: #5cb85c;#}
+    {#    border-color: #4cae4c;#}
+    {#    color: #ffffff;#}
+    {#    outline: 0 none;#}
+    {#    }#}
+    {#    .false{#}
+    {#    width:55%;#}
+    {#    padding: 5px;#}
+    {#    border: 0 none;#}
+    {#    font-weight: bold;#}
+    {#    background: #d9534f;#}
+    {#    border-color: #d43f3a;#}
+    {#    color: #ffffff;#}
+    {#    outline: 0 none;#}
+    {#    }#}
+    {#        <style>#}
+    .switch {
+    --uiSwitchSize: var(--switchSize, 45px);
+    --uiSwitchBgColor: var(--switchBgColor, #f1f1f1);
+    --uiSwitchBgColorActive: var(--switchBgColorActive, #288dd1);
+    --uiSwitchBorderColorActive: var(--switchBorderColorActive, #fff);
+    --uiSwitchBorderColorFocus: var(--switchBgColorFocus, transparent);
+    --uiSwitchButtonBgColor: var(--switchButtonBgColor, #fff);
+    height: 20px;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    }
+
+    .switch__label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    }
+
+    .switch__toggle {
+    width: 0;
+    height: 0;
+    opacity: 0;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    }
+
+    .switch__toggle:focus ~ .switch__label {
+    box-shadow: 0 0 0 var(--uiSwitchThickFocus, 4px) var(--uiSwitchBorderColorFocus);
+    }
+
+    .switch__toggle:checked:focus ~ .switch__label {
+    box-shadow: 0 0 0 var(--uiSwitchThickFocus, 4px) var(--uiSwitchBorderColorActive);
+    }
+
+    .switch__label:before, .switch__label:after {
+    content: "";
+    cursor: pointer;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    }
+
+    .switch__label:before {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    background-color: var(--uiSwitchBgColor);
+    }
+
+    .switch__label:after {
+    top: 48%;
+    z-index: 3;
+    transition: transform .4s cubic-bezier(0.44, -0.12, 0.07, 1.15);
+    }
+
+    /* type 1 */
+
+    .switch_round {
+    --uiSwitchBorderRadius: var(--switchBorderRadius, 60px);
+    /*
+    width: var(--uiSwitchSize);
+    height: calc((var(--uiSwitchSize) / 2));
+    */
+    height: 20px;
+    width: 40px;
+    border-radius: var(--uiSwitchBorderRadius);
+    background-color: var(--uiSwitchBgColorActive);
+    }
+
+    .switch_round .switch__label {
+    border-radius: var(--uiSwitchBorderRadius);
+    }
+
+    .switch_round .switch__label:before {
+    border-radius: var(--uiSwitchBorderRadius);
+    transition: opacity .2s ease-out .1s, transform .2s ease-out .1s;
+    transform: scale(1);
+    opacity: 1;
+    height: 20px;
+    width: 40px;
+    }
+
+    .switch_round .switch__toggle:checked ~ .switch__label:before {
+    transform: scale(0);
+    opacity: .7;
+    }
+
+    .switch_round .switch__label:after {
+    width: calc(var(--uiSwitchSize) / 2);
+    height: calc(var(--uiSwitchSize) / 2);
+    transform: translate3d(0, -50%, 0);
+
+    background-color: var(--uiSwitchButtonBgColor);
+    border-radius: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .3);
+    height: 20px;
+    width: 20px;
+    }
+
+    .switch_round .switch__toggle:checked ~ .switch__label:after {
+    transform: translate3d(100%, -50%, 0);
+    }
+    {#        </style>#}
+
+{% endblock extra_style %}
+{% block content %}
+    <table class="table table-responsive">
+        <thead>
+        {% for field in field_list %}
+            <th>{{ field }}</th>
+        {% endfor %}
+        <th>Is Active</th>
+        </thead>
+        <tbody>
+        {% for object in object_list %}
+            <tr>
+                {% for field in field_list %}
+                    <th>{% lookup object field %}</th>
+                {% endfor %}
+                <td>
+                    <form action="{{ url }}" method="post" id="exam_update_form">
+                        {% csrf_token %}
+                        <label class="switch switch_round" role="switch">
+                            <input type="checkbox" class="switch__toggle"
+                                    {% if object.is_active %}
+                                   checked
+                                    {% endif %} onchange="document.getElementById('exam_update_form').submit();">
+                            <input type="hidden" value="{{ object.id }}" name="id">
+                            <span class="switch__label"></span>
+                        </label>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

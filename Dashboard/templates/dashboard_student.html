@@ -1,0 +1,402 @@
+{% extends "./base.html" %}
+{% load humanize %}
+
+{% block style %}
+    <style>
+        /*
+        DEMO STYLE
+    */
+
+        body {
+
+            background: #fafafa;
+        }
+
+        p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1em;
+            font-weight: 300;
+            line-height: 1.7em;
+            color: #999;
+        }
+
+        a, a:hover, a:focus {
+            color: inherit;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .navbar-btn {
+            box-shadow: none;
+            outline: none !important;
+            border: none;
+        }
+
+        .line {
+            width: 100%;
+            height: 1px;
+            border-bottom: 1px dashed #ddd;
+            margin: 40px 0;
+        }
+
+        /* ---------------------------------------------------
+            SIDEBAR STYLE
+        ----------------------------------------------------- */
+        .wrapper {
+            display: flex;
+            align-items: stretch;
+        }
+
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background: #fff;
+            color: rgb(0, 181, 197);
+            transition: all 0.3s;
+        }
+
+        #sidebar.active {
+            margin-left: -250px;
+        }
+
+        #sidebar .sidebar-header {
+            padding: 20px;
+            background: rgb(0, 181, 197);
+        }
+
+        #sidebar ul.components {
+            padding: 20px 0;
+        }
+
+        #sidebar ul p {
+            color: #fff;
+            padding: 10px;
+        }
+
+        #sidebar ul li a {
+            padding: 10px;
+            font-size: 1.1em;
+            display: block;
+        }
+
+        #sidebar ul li a:hover {
+            background: rgb(231, 231, 231);
+        }
+
+        #sidebar ul li ul li a:hover {
+            color: #fff;
+            background: rgb(0, 138, 150);
+        }
+
+        #sidebar ul li.active > a, a[aria-expanded="true"] {
+            color: #fff;
+            background: #0379C4 !important;
+
+        }
+
+        a[data-toggle="collapse"] {
+            position: relative;
+        }
+
+        ul.CTAs {
+            padding: 20px;
+        }
+
+        ul.CTAs a {
+            text-align: center;
+            font-size: 0.9em !important;
+            display: block;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* ---------------------------------------------------
+            CONTENT STYLE
+        ----------------------------------------------------- */
+        #content {
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        /* ---------------------------------------------------
+            MEDIAQUERIES
+        ----------------------------------------------------- */
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: -250px;
+            }
+
+            #sidebar.active {
+                margin-left: 0;
+            }
+
+            #sidebarCollapse span {
+                display: none;
+            }
+        }
+
+        #sidebarCollapse {
+            visibility: hidden;
+        }
+
+        .navbar-default {
+            margin-bottom: 0;
+        }
+
+        /* Media query to show side bar toggle button  on  small screen */
+        @media only screen and (max-width: 480px) {
+            #sidebarCollapse {
+                visibility: visible;
+            }
+        }
+
+        #head {
+            margin-left: 5px;
+            font-weight: bold;
+            color: rgb(0, 181, 197) !important;
+        }
+
+        .carousel-control.left, .carousel-control.right {
+            background-image: none !important;
+            filter: none !important;
+        }
+
+        .custom-row {
+            padding: 0;
+        }
+
+        .progress-bar-info {
+            background: #0379C4;
+        }
+
+        .progress {
+            border-radius: 0;
+            height: 16px;
+        }
+
+        {% block extra_style %}
+        {% endblock extra_style %}
+    </style>
+
+{% endblock style %}
+
+{% block body %}
+    <div class="wrapper">
+        <!-- Sidebar Holder -->
+        <nav id="sidebar">
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="{% url 'dashboard:dashboard' %}">Home</a>
+
+                <li>
+                    <a href="#registration" data-toggle="collapse" aria-expanded="false">Registration</a>
+                    <ul class="collapse list-unstyled" id="registration">
+                        <li><a href="{% url 'registration:student_subject' %}">Subject Registration</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="{% url 'update:update' %}">Update Details</a>
+                </li>
+                <li>
+                    <a href="{% url 'registration:student_subject' %}">Register Subjects</a>
+                </li>
+                <li>
+                    <a href="{% url 'exam:view_exam' %}">View Exams</a>
+                </li>
+                <li>
+                    <a href="#internshipmenu" data-toggle="collapse" aria-expanded="false">Internship</a>
+                    <ul class="collapse list-unstyled" id="internshipmenu">
+                        <li><a href="{% url 'internship:apply' %}">Apply</a></li>
+                        <li><a href="{% url 'internship:status' %}">Application Status</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="{% url 'Feedback:self_concept' %}">Self Concept Scale Test</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content Holder -->
+        <div id="content">
+            {% block content %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <legend>Timetable</legend>
+                        <form action="{% url 'dashboard:dashboard' %}" method="post" onsubmit="event.preventDefault();"
+                              id="date_form">
+                            {% csrf_token %}
+                            <h4 style="text-align:center; ">Lectures on
+                                <span id="current_datePickerDate"
+                                      style="color: #0379C4;font-weight: bold;">{{ selected_date }}</span>
+                                {#                                <div id="datepicker" class="input-group date" data-date-format="mm-dd-yyyy">#}
+                                {#                                    <input class="form-control" type="text" value="{{ selected_date.month }}-{{ selected_date.day }}-{{ selected_date.year }}"/>#}
+                                {#                                    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>#}
+                                {#                                </div>#}
+
+                                <button id="dateButton" name="GO" type="submit" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </button>
+                                <input type="text" name="selected_date" id="txtDate"
+                                       style="display: none;" onchange="change_timetable()">
+
+                                {#                                <button type="button" name="GO" class="btn btn-default" id="datepickerbtn">#}
+                                {#                                    <span class="glyphicon glyphicon-calendar"></span>#}
+                                {#                                </button>#}
+
+                            </h4>
+                        </form>
+                        <br/>
+                        <input type="hidden" name="selected_date" id="hidden_date" value="{{ selected_date }}">
+                        <div class="row" id="timetable">
+                            {% if timetable %}
+                                {% for each in timetable %}
+                                    <button name="date_timetable" class="card btn btn-info my-context-menu"
+                                            style="width: 100%; font-weight: bold; margin-bottom: 5px;"
+                                            value="{{ each.pk }}">
+                                        {% if each.not_available == True %}
+                                            {% if user.faculty == each.substitute.faculty %}
+                                                <div style="display: block;"
+                                                     class="not-available my-context-menu">You've taken lecture
+                                                    for {{ each.original.faculty.initials }}
+                                                </div>
+                                            {% else %}
+                                                <div id="{{ each.pk }}" style="display: block !important;"
+                                                     name="{{ each.pk }}" class="not-available my-context-menu">I'm
+                                                    not
+                                                    available
+                                                    {% if each.is_substituted is True %} <br/> Lecture taken by
+                                                        {{ each.substitute.faculty.initials }}
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        {% else %}
+                                            <div id="{{ each.pk }}" name="{{ each.pk }}"
+                                                 class="not-available my-context-menu">I'm not available
+                                            </div>
+                                        {% endif %}
+                                        {% if each.is_substituted is True %}
+                                            <div class="card-header my-context-menu"
+                                                 style="border-bottom: 2px solid white;"
+                                                 name="{{ each.pk }}">{{ each.substitute.time }}</div>
+                                            <div class="row my-context-menu">
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.substitute.branch_subject.subject.short_form }}</div>
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.substitute.room.room_number }}</div>
+                                                <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                                                    {{ each.substitute.division.year_branch.branch }}<br/>
+                                                    {{ each.substitute.division.year_branch.year }}
+                                                    {{ each.substitute.division.division }}
+                                                    {% if each.substitute.is_practical %}
+                                                        {{ each.substitute.batch.batch_name }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="card-header my-context-menu"
+                                                 style="border-bottom: 2px solid white;"
+                                                 name="{{ each.pk }}">{{ each.original.time }}</div>
+                                            <div class="row my-context-menu" name="{{ each.pk }}">
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.original.branch_subject.subject.short_form }}</div>
+                                                <div class="col-md-4 my-context-menu"
+                                                     name="{{ each.pk }}">{{ each.original.room.room_number }}</div>
+                                                <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                                                    {{ each.original.division.year_branch.branch }}<br/>
+                                                    {{ each.original.division.year_branch.year }}
+                                                    {{ each.original.division.division }}
+                                                    {% if each.original.is_practical %}
+                                                        {{ each.original.batch.batch_name }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                        {% endif %}
+                                    </button>
+                                {% endfor %}
+                                <button name="previous" value="previous" class="btn left carousel-control"
+                                        style="border: 0 !important;height: 20%;margin:32% 0 0 -10%;">
+                                    <span class="glyphicon glyphicon-chevron-left"></span>
+                                </button>
+                                <button name="next" value="next" type="submit" class="btn right carousel-control"
+                                        style="border: 0 !important;height: 20%;margin:32% -10% 0 0%;">
+                                    <span class="glyphicon glyphicon-chevron-right"></span>
+                                </button>
+                            {% else %}
+                                <p style="text-align: center;">Sorry! No lectures on {{ selected_date }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <legend>Notification</legend>
+                    </div>
+                    <div class="col-md-2">
+                        <legend>Attendance</legend>
+                        <div class="">
+                            <h4 style="text-align: center;">Total Attendance <span
+                                    style="color: #0379C4;font-weight: bold;">{{ total_attendance }}%</span></h4>
+                            {% for key, value in attendance.items %}
+                                <div class="row custom-row">
+                                    <h4>{{ key }}</h4>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-info" role="progressbar"
+                                             aria-valuenow="{{ value.attendance }}"
+                                             aria-valuemin="0" aria-valuemax="100" style="width:{{ value.attendance }}%"
+                                             data-toggle="tooltip" data-placement="top"
+                                             title="Attended: {{ value.attended }} out of {{ value.total }}">
+                                            {{ value.attendance }}%
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock body %}
+{% block on_ready %}
+    $('#sidebarCollapse').on('click', function () {
+    $('#sidebar').toggleClass('active');
+    });
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $('#txtDate').datepicker({
+    format: 'dd-mm-yyyy',
+
+    })  ;
+    $('#dateButton').click(function () {
+    $('#txtDate').show().focus().hide();
+    });
+
+{% endblock %}
+
+{% block html %}
+
+    <script type="text/javascript">
+
+        var current_datePickerDate = document.getElementById('current_datePickerDate');
+        $(function () {
+            $("#datepicker").datepicker({
+                autoclose: true,
+            }).datepicker('setDate', '12-05-2000');
+        });
+
+        function change_timetable() {
+            var form = document.getElementById('date_form');
+            var input = document.createElement('input');
+            input.setAttribute('name', 'GO');
+            input.setAttribute('type', 'hidden');
+            form.appendChild(input);
+            form.submit();
+        }
+
+    </script>
+
+
+
+{% endblock html %}

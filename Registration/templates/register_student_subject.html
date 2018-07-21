@@ -1,0 +1,47 @@
+{% extends "./dashboard_student.html" %}
+{% block title %}Student Subject Registration {% endblock %}
+
+{% block content %}
+    <form method="post" action="{% url 'registration:student_subject' %}">
+        {% csrf_token %}
+        <div class="panel panel-default">
+
+            <!-- Default panel contents -->
+            {#                    <div class="panel-heading">Heading</div>#}
+
+            <!-- Table -->
+            <table class="table">
+                <tr>
+                    <th>Sr. No</th>
+                    <th>Subject</th>
+                    <th>Checked</th>
+                </tr>
+                {% for branch_subject in subjects %}
+                    {% if not branch_subject.subject.is_elective_group %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ branch_subject.subject.name }}</td>
+                            <td></td>
+                        </tr>
+                    {% endif %}
+
+                {% endfor %}
+                {% for each_elective in elective_subjects %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>Elective Group {{ each_elective.subject.name }}
+                            - {{ each_elective.name }}</td>
+                        <td><input
+                                type="checkbox"
+                                name="elective_subject_{{ each_elective.subject.pk }}"
+                                value="{{ each_elective.id }}"></td>
+                    </tr>
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+        <input type="submit" class="btn btn-primary" value="Confirm" name="confirm_student_subject">
+    </form>
+{% endblock content %}

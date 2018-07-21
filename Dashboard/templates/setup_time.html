@@ -1,0 +1,42 @@
+{% extends "dashboard_faculty.html" %}
+{% block content %}
+    <div class="col-md-3">
+        <div class="row">
+            <a class="btn btn-default btn-circle" href="{% url 'dashboard:setup_branch' %}"><i
+                    class="glyphicon glyphicon-chevron-left"></i></a>
+            <a class="btn btn-link" href="{% url 'dashboard:setup_division' %}">Previous Step: Division Registration</a>
+        </div>
+    </div>
+    <div class="col-md-4 col-md-offset-1">
+        <form method="POST" action="{% url 'dashboard:setup_time' %}">
+            {% csrf_token %}
+
+            <legend>Time Slot</legend>
+            <p>Please enter time in 24 hours</p>
+            <div class="form-element">
+                <label>Start Time</label>
+                <input type="time" data-time-format="H:i" name="start_time" class="timepicker">
+            </div>
+            <div class="form-element">
+                <label>End Time</label>
+                <input type="time" name="end_time" class="timepicker">
+            </div>
+
+            <input type="submit" class="btn btn-primary">
+        </form>
+    </div>
+    <div class="col-md-3 col-md-offset-1">
+        <label>Registered time slots</label>
+        {% if not time_slots %}
+            <p>No time slots registered</p>
+        {% else %}
+            {% for each in time_slots %}
+                <p>{{ each }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock content %}
+{% block html %}
+    <script>
+    </script>
+{% endblock html %}

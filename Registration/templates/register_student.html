@@ -1,0 +1,634 @@
+{% extends "./base.html" %}
+{% block title %}Student Registration {% endblock %}
+
+{% block body %}
+    <form method="POST" id="student_form" action="{% url 'registration:register_student' %}"
+          onsubmit="return fileSizeValidate()"
+          enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <a class="pad accordion-toggle" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapseOne">
+                        <h4 class="panel-title">
+                            Personal Info
+                            <i class="indicator glyphicon glyphicon-chevron-down  pull-right"></i>
+                        </h4>
+                    </a>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div class="row">
+                            <fieldset class="col-md-6">
+                                <legend>Basic Info</legend>
+                                <div class="col-md-6">
+                                    <div class="form-element">
+                                        <span class="error">{{ form.doc_profile_pic.errors }}</span>
+                                        {{ form.doc_profile_pic.label_tag }}
+                                        <div class="input-file">{{ form.doc_profile_pic }}</div>
+                                        <img id="myImg"
+                                             src="http://icons.iconarchive.com/icons/paomedia/small-n-flat/512/sign-add-icon.png"
+                                             alt="Uploaded image is broken"/>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.gr_number.errors }}</span>
+                                        <label class="control-label">{{ form.gr_number.label_tag }}</label>
+                                        <div class="">{{ form.gr_number }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.first_name.errors }}</span>
+                                        <label class="control-label">{{ form.first_name.label_tag }}</label>
+                                        <div class="">{{ form.first_name }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.middle_name.errors }}</span>
+                                        <label class="control-label">{{ form.middle_name.label_tag }}</label>
+                                        <div class="">{{ form.middle_name }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.last_name.errors }}</span>
+                                        <label class="control-label">{{ form.last_name.label_tag }}</label>
+                                        <div class="">{{ form.last_name }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.DOB.errors }}</span>
+                                        <label class="control-label">{{ form.DOB.label_tag }}</label>
+                                        <div class="">{{ form.DOB }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.email.errors }}</span>
+                                        <label class="control-label">{{ form.email.label_tag }}</label>
+                                        <div class="">{{ form.email }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-element">
+                                        <span class="error">{{ form.admission_type.errors }}</span>
+                                        <label class="control-label">{{ form.admission_type.label_tag }}</label>
+                                        <div class="">{{ form.admission_type }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.caste_type.errors }}</span>
+                                        <label class="control-label">{{ form.caste_type.label_tag }}</label>
+                                        <div class="">{{ form.caste_type }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.programme.errors }}</span>
+                                        <label class="control-label">{{ form.programme.label_tag }}</label>
+                                        <div class="">{{ form.programme }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.branch.errors }}</span>
+                                        <label class="control-label">{{ form.branch.label_tag }}</label>
+                                        <div class="" onchange="loadDivision()">{{ form.branch }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.year.errors }}</span>
+                                        <label class="control-label">{{ form.year.label_tag }}</label>
+                                        <div class="">{{ form.year }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.shift.errors }}</span>
+                                        <label class="control-label">{{ form.shift.label_tag }}</label>
+                                        <div class="">{{ form.shift }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.division.errors }}</span>
+                                        <label class="control-label">{{ form.division.label_tag }}</label>
+                                        <div class="">{{ form.division }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.batch.errors }}</span>
+                                        <label class="control-label">{{ form.batch.label_tag }}</label>
+                                        <div class="">{{ form.batch }}</div>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                            <fieldset class="col-md-6">
+                                <legend>Personal Detail:</legend>
+                                <div class="col-md-6">
+                                    <div class="form-element">
+                                        <span class="error">{{ form.mobile.errors }}</span>
+                                        <label class="control-label">{{ form.mobile.label_tag }}</label>
+                                        <div class="">{{ form.mobile }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.religion.errors }}</span>
+                                        <label class="control-label">{{ form.religion.label_tag }}</label>
+                                        <div class="">{{ form.religion }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.sub_caste.errors }}</span>
+                                        <label class="control-label">{{ form.sub_caste.label_tag }}</label>
+                                        <div class="">{{ form.sub_caste }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.handicapped.errors }}</span>
+                                        <label class="control-label">{{ form.handicapped.label_tag }}</label>&nbsp;{{ form.handicapped }}
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.nationality.errors }}</span>
+                                        <label class="control-label">{{ form.nationality.label_tag }}</label>
+                                        <div class="">{{ form.nationality }}</div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <a class="pad accordion-toggle" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapseTwo">
+                        <h4 class="panel-title">
+                            Family (Optional)
+                            <i class="indicator glyphicon glyphicon-chevron-up  pull-right"></i>
+                        </h4>
+                    </a>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <div class="row">
+                            <fieldset class="col-md-6">
+                                <legend>Family</legend>
+                                <fieldset class="col-md-6">
+                                    {#                <legend>Father</legend>#}
+                                    <div class="form-element">
+                                        <span class="error">{{ form.father_name.errors }}</span>
+                                        <label class="control-label">{{ form.father_name.label_tag }}</label>
+                                        <div class="">{{ form.father_name }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.father_profession.errors }}</span>
+                                        <label class="control-label">{{ form.father_profession.label_tag }}</label>
+                                        <div class="">{{ form.father_profession }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.father_designation.errors }}</span>
+                                        <label class="control-label">{{ form.father_designation.label_tag }}</label>
+                                        <div class="">{{ form.father_designation }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.father_mobile.errors }}</span>
+                                        <label class="control-label">{{ form.father_mobile.label_tag }}</label>
+                                        <div class="">{{ form.father_mobile }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.father_email.errors }}</span>
+                                        <label class="control-label">{{ form.father_email.label_tag }}</label>
+                                        <div class="">{{ form.father_email }}</div>
+                                    </div>
+                                </fieldset>
+                                <fieldset class="col-md-6">
+                                    {#                <legend>Mother</legend>#}
+                                    <div class="form-element">
+                                        <span class="error">{{ form.mother_name.errors }}</span>
+                                        <label class="control-label">{{ form.mother_name.label_tag }}</label>
+                                        <div class="">{{ form.mother_name }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.mother_profession.errors }}</span>
+                                        <label class="control-label">{{ form.mother_profession.label_tag }}</label>
+                                        <div class="">{{ form.mother_profession }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.mother_designation.errors }}</span>
+                                        <label class="control-label">{{ form.mother_designation.label_tag }}</label>
+                                        <div class="">{{ form.mother_designation }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.mother_mobile.errors }}</span>
+                                        <label class="control-label">{{ form.mother_mobile.label_tag }}</label>
+                                        <div class="">{{ form.mother_mobile }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.mother_email.errors }}</span>
+                                        <label class="control-label">{{ form.mother_email.label_tag }}</label>
+                                        <div class="">{{ form.mother_email }}</div>
+                                    </div>
+                                </fieldset>
+                            </fieldset>
+                            <fieldset class="col-md-6">
+                                <legend>Emergency contact</legend>
+                                <div class="col-md-6">
+                                    <div class="form-element">
+                                        <span class="error">{{ form.emergency_name.errors }}</span>
+                                        <label class="control-label">{{ form.emergency_name.label_tag }}</label>
+                                        <div class="">{{ form.emergency_name }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.emergency_mobile.errors }}</span>
+                                        <label class="control-label">{{ form.emergency_mobile.label_tag }}</label>
+                                        <div class="">{{ form.emergency_mobile }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.emergency_relation.errors }}</span>
+                                        <label class="control-label">{{ form.emergency_relation.label_tag }}</label>
+                                        <div class="">{{ form.emergency_relation }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.emergency_address.errors }}</span>
+                                        <label class="control-label">{{ form.emergency_address.label_tag }}</label>
+                                        <div class="">{{ form.emergency_address }}</div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <a class="pad accordion-toggle" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapseThree">
+                        <h4 class="panel-title">
+                            Address and Documents (Optional)
+                            <i class="indicator glyphicon glyphicon-chevron-up pull-right"></i>
+                        </h4>
+                    </a>
+                </div>
+                <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <div class="row">
+                            <fieldset class="col-md-6">
+                                <legend>Address</legend>
+                                <div>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" id="sameAddress" onchange="stateChanged(this)">Current
+                                            address is same as Permanent address</label>
+                                    </div>
+                                </div>
+                                <fieldset class="col-md-6">
+                                    {#                <legend>Permanent Address</legend>#}
+                                    <div class="form-element">
+                                        <span class="error">{{ form.permanent_country.errors }}</span>
+                                        <label class="control-label">{{ form.permanent_country.label_tag }}</label>
+                                        <div onchange="loadSameAddress(document.getElementById('id_permanent_country'))">{{ form.permanent_country }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.permanent_state.errors }}</span>
+                                        <label class="control-label">{{ form.permanent_state.label_tag }}</label>
+                                        <div onchange="loadSameAddress(document.getElementById('id_permanent_state'))">{{ form.permanent_state }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.permanent_city.errors }}</span>
+                                        <label class="control-label">{{ form.permanent_city.label_tag }}</label>
+                                        <div onchange="loadSameAddress(document.getElementById('id_permanent_city'))">{{ form.permanent_city }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.permanent_address.errors }}</span>
+                                        <label class="control-label">{{ form.permanent_address.label_tag }}</label>
+                                        <div onchange="loadSameAddress(document.getElementById('id_permanent_address'))">{{ form.permanent_address }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.permanent_pin_code.errors }}</span>
+                                        <label class="control-label">{{ form.permanent_pin_code.label_tag }}</label>
+                                        <div onchange="loadSameAddress(document.getElementById('id_permanent_pin_code'))">{{ form.permanent_pin_code }}</div>
+                                    </div>
+                                </fieldset>
+                                <fieldset class="col-md-6">
+                                    {#                <legend>Current Address</legend>#}
+                                    <div class="form-element">
+                                        <span class="error">{{ form.current_country.errors }}</span>
+                                        <label class="control-label">{{ form.current_country.label_tag }}</label>
+                                        <div>{{ form.current_country }}</div>
+                                        <div class="form-element">
+                                            <span class="error">{{ form.current_state.errors }}</span>
+                                            <label class="control-label">{{ form.current_state.label_tag }}</label>
+                                            <div class="">{{ form.current_state }}</div>
+                                        </div>
+                                        <div class="form-element">
+                                            <span class="error">{{ form.current_city.errors }}</span>
+                                            <label class="control-label">{{ form.current_city.label_tag }}</label>
+                                            <div class="">{{ form.current_city }}</div>
+                                        </div>
+
+                                        <div class="form-element">
+                                            <span class="error">{{ form.current_address.errors }}</span>
+                                            <label class="control-label">{{ form.current_address.label_tag }}</label>
+                                            <div class="">{{ form.current_address }}</div>
+                                        </div>
+                                        <div class="form-element">
+                                            <span class="error">{{ form.current_pin_code.errors }}</span>
+                                            <label class="control-label">{{ form.current_pin_code.label_tag }}</label>
+                                            <div class="">{{ form.current_pin_code }}</div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </fieldset>
+                            <fieldset class="col-md-6">
+                                <legend>Exam</legend>
+                                <fieldset class="col-md-6">
+                                    {#                <legend>Exam details</legend>#}
+                                    <div class="form-element">
+                                        <span class="error">{{ form.jee_physics.errors }}</span>
+                                        <label class="control-label">{{ form.jee_physics.label_tag }}</label>
+                                        <div class="">{{ form.jee_physics }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.jee_maths.errors }}</span>
+                                        <label class="control-label">{{ form.jee_maths.label_tag }}</label>
+                                        <div class="">{{ form.jee_maths }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.jee_chemistry.errors }}</span>
+                                        <label class="control-label">{{ form.jee_chemistry.label_tag }}</label>
+                                        <div class="">{{ form.jee_chemistry }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.jee_total.errors }}</span>
+                                        <label class="control-label">{{ form.jee_total.label_tag }}</label>
+                                        <div class="">{{ form.jee_total }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.jee_max_physics.errors }}</span>
+                                        <label class="control-label">{{ form.jee_max_physics.label_tag }}</label>
+                                        <div class="">{{ form.jee_max_physics }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.jee_max_maths.errors }}</span>
+                                        <label class="control-label">{{ form.jee_max_maths.label_tag }}</label>
+                                        <div class="">{{ form.jee_max_maths }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.jee_max_chemistry.errors }}</span>
+                                        <label class="control-label">{{ form.jee_max_chemistry.label_tag }}</label>
+                                        <div class="">{{ form.jee_max_chemistry }}</div>
+                                    </div>
+                                </fieldset>
+                                <fieldset class="col-md-6">
+                                    {#                <legend>Documents</legend>#}
+                                    <div class="form-element">
+                                        <span class="error">{{ form.doc_tenth_marksheet.errors }}</span>
+                                        <label class="control-label">{{ form.doc_tenth_marksheet.label_tag }}</label>
+                                        <div class="">{{ form.doc_tenth_marksheet }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.doc_twelfth_marksheet.errors }}</span>
+                                        <label class="control-label">{{ form.doc_twelfth_marksheet.label_tag }}</label>
+                                        <div class="">{{ form.doc_twelfth_marksheet }}</div>
+                                    </div>
+                                    <div class="form-element">
+                                        <span class="error">{{ form.doc_jee_marksheet.errors }}</span>
+                                        <label class="control-label">{{ form.doc_jee_marksheet.label_tag }}</label>
+                                        <div class="">{{ form.doc_jee_marksheet }}</div>
+                                    </div>
+                                    <div class="form-element">
+
+                                    </div>
+
+                                </fieldset>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+
+            <div class="col-md-2 col-md-offset-5">
+                <button type="button" class="btn btn-primary" onclick="execute()">Register</button>
+            </div>
+
+        </div>
+        <br/>
+        <br/>
+        <br/>
+    </form>
+{% endblock body %}
+
+{% block html %}
+    {#<script>#}
+
+    {#    function toggleChevron(e) {#}
+    {#        $(e.target)#}
+    {#            .prev('.panel-heading')#}
+    {#            .find("i.indicator")#}
+    {#            .toggleClass('glyphicon-chevron-down glyphicon-chevron-up');#}
+    {#    }#}
+    {##}
+    {#    //language=JQuery-CSS#}
+    {#    $('#accordion').on('hidden.bs.collapse', toggleChevron);#}
+    {#    $('#accordion').on('shown.bs.collapse', toggleChevron);#}
+    {#</script>#}
+    <script>
+        $(function () {
+            $("#id_doc_profile_pic:hidden").change(function () {
+                if (this.files && this.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = imageIsLoaded;
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+
+        function imageIsLoaded(e) {
+
+            $('#myImg').attr('src', e.target.result);
+        }
+    </script>
+    <script>
+        function loadSameAddress(e) {
+            if (document.getElementById('sameAddress').checked === true) {
+                var enteredValue = e.value;
+                var splitId = e.id.split('_');
+                var targetId = splitId[0] + "_current_" + splitId[2];
+                if (splitId[3] != null) {
+                    targetId += "_" + splitId[3];
+                }
+                document.getElementById(targetId).value = enteredValue;
+            }
+        }
+
+        function stateChanged(e) {
+            var permanent = ['country', 'state', 'city', 'address', 'pin_code'];
+            for (var i = 0; i < permanent.length; document.getElementById("id_current_" + permanent[i]).disabled = true, i++) ;
+            if (e.checked === true) {
+                loadSameAddress(document.getElementById('id_permanent_country'));
+                loadSameAddress(document.getElementById('id_permanent_state'));
+                loadSameAddress(document.getElementById('id_permanent_city'));
+                loadSameAddress(document.getElementById('id_permanent_address'));
+                loadSameAddress(document.getElementById('id_permanent_pin_code'));
+            }
+            else {
+                for (i = 0; i < permanent.length; document.getElementById("id_current_" + permanent[i]).disabled = false, i++) ;
+                document.getElementById('id_current_country').value = "";
+                document.getElementById('id_current_state').value = "";
+                document.getElementById('id_current_city').value = "";
+                document.getElementById('id_current_address').value = "";
+                document.getElementById('id_current_pin_code').value = "";
+            }
+        }
+    </script>
+
+    <script>
+        $(function () {
+            $("#myImg").on('click', function (e) {
+                e.preventDefault();
+                $("#id_doc_profile_pic:hidden").trigger('click');
+            });
+        });
+    </script>
+    <script>
+        $(function () {
+            $(".datepicker").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-50:+0"
+                // You can put more options here.
+
+            });
+        });
+    </script>
+    <script>
+        function fileSizeValidate() {
+
+            var element = document.getElementById("id_doc_tenth_marksheet");
+            var size = element.files[0].size;
+            var max_size = 5 * 1024 * 1024;
+            //alert(element.files[0].size);
+            if (size > max_size) {
+                alert("File too big!");
+                return false;
+            }
+            else {
+                alert("True");
+                return true;
+            }
+
+            {#        1996-02-11#}
+        }
+    </script>
+    <script>
+        function execute() {
+            var form = document.getElementById('student_form');
+            form.submit();
+            {#$.ajax({#}
+            {#    url: "http://ip-api.com/json",#}
+            {#    type: 'GET',#}
+            {#    dataType: "jsonp",#}
+            {#    success: function (response) {#}
+            {#        alert(response);#}
+            {#        var form = document.getElementById('student_form');#}
+            {#        form.submit();#}
+            {#    },#}
+            {#    error: function (a, b, c) {#}
+            {#        alert("error");#}
+            {#    }#}
+            {##}
+        }
+    </script>
+    <script>
+        $(function () {
+            $(".datepicker").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-50:+0"
+                // You can put more options here.
+
+            });
+        });
+
+        function loadDivision() {
+            var currentElement = document.getElementById('id_branch');
+            var divisionElement = document.getElementById('id_division');
+
+            $.ajax({
+                type: "POST",
+                url: '{% url 'registration:get_division' %}',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'branch': currentElement.value
+                },
+                success: function (data) {
+                    data = data.split(',');
+                    {#                    var select = document.getElementById("DropList");#}
+                    var length = divisionElement.options.length;
+                    for (i = 0; i <= length; i++) {
+                        divisionElement.options.remove(0);
+                    }
+                    for (j in data) {
+                        var option = document.createElement('option');
+                        option.text = data[j];
+                        option.value = data[j];
+                        divisionElement.add(option)
+                    }
+                }
+            })
+
+        }
+
+
+        {#        function loadDivisionFromShift() {#}
+        {#            var currentElement = document.getElementById('id_shift');#}
+        {#            var currentBranchElement = document.getElementById('id_branch')#}
+        {#            var divisionElement = document.getElementById('id_division');#}
+        {##}
+        {#            $.ajax({#}
+        {#                type: "POST",#}
+        {#                url: '{% url 'registration:get_shift' %}',#}
+        {#                data: {#}
+        {#                    'csrfmiddlewaretoken': '{{ csrf_token }}',#}
+        {#                    'branch' : currentBranchElement.value,#}
+        {#                    'shift': currentElement.value#}
+        {#                },#}
+        {#                success: function (data) {#}
+        {#                    alert(data);#}
+        {#                    data = data.split(',');#}
+        {#                    alert(data);#}
+        {#                    var select = document.getElementById("DropList");#}
+        {#                    var length = divisionElement.options.length;#}
+        {#                    for (i = 0; i <= length; i++) {#}
+        {#                        divisionElement.options.remove(0);#}
+        {#                    }#}
+        {#                    for (j in data) {#}
+        {#                        var option = document.createElement('option');#}
+        {#                        option.text = data[j];#}
+        {#                        option.value = data[j];#}
+        {#                        divisionElement.add(option)#}
+        {#                    }#}
+        {#                }#}
+        {#            })#}
+        {#        }#}
+
+
+
+        {#    function loadStates(currentElement) {#}
+        {#        var selectedCountry = currentElement.value;#}
+        {#        var currentStateElement;#}
+        {##}
+        {#        if(currentElement.id == 'id_current_country')#}
+        {#            currentStateElement = document.getElementById('id_current_state');#}
+        {#        else#}
+        {#            currentStateElement = document.getElementById('id_permanent_state');#}
+        {##}
+        {#        currentStateElement.innerHTML = '';#}
+        {#        if (selectedCountry == 'India') {#}
+        {#            $.ajax({#}
+        {#                url: '/register/states/India',#}
+        {#                success: function (data) {#}
+        {#                    data =data.split(',');#}
+        {#                    for(i in data){#}
+        {#                        var option = document.createElement('option');#}
+        {#                        option.text = data[i];#}
+        {#                        option.value = data[i];#}
+        {#                        currentStateElement.add(option)#}
+        {#                    }#}
+        {#                }#}
+        {#            })#}
+        {#        }#}
+        {#        else {#}
+        {#            var option = document.createElement('option');#}
+        {#            option.text = 'Other'#}
+        {#            option.value = 'Other'#}
+        {#            currentStateElement.add(option);#}
+        {#        }#}
+        {#    }#}
+
+
+    </script>
+{% endblock html %}

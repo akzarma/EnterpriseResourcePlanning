@@ -1,0 +1,54 @@
+{% extends "./dashboard_faculty.html" %}
+{% block extra_style %}
+    thead tr th{
+    text-align: center;
+    font-size: 1.1em;
+    }
+    button {
+    background:none!important;
+    border:none;
+    padding:0!important;
+    text-decoration:underline;
+    }
+{% endblock extra_style %}
+{% block content %}
+    <div class="col-md-2 col-md-offset-10">
+        <a href="{% url 'Research:enter_paper' %}" class="btn btn-default"><span
+                class="glyphicon glyphicon-plus"></span>Add
+            research</a>
+    </div>
+    <br>
+    <br>
+
+    <form action="{% url 'Research:view_paper' %}" method="POST">
+        {% csrf_token %}
+        <div class="container table-responsive">
+            <h3>Published Papers</h3>
+            <table class="table white text-center ">
+                <thead class="thead-inverse">
+                <tr>
+
+                    <th>Title</th>
+                    <th>Year</th>
+                    <th>Domain</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for paper in all_papers %}
+                    <tr>
+                        <td>
+                            <button name="paper_selected" value="{{ paper.pk }}">{{ paper.title }}</button>
+                        </td>
+                        <td>{{ paper.year }}</td>
+                        <td>{{ paper.domain }}</td>
+                        <td>
+                            <button name="paper_selected" value="{{ paper.pk }}">Show More...</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+
+{% endblock content %}

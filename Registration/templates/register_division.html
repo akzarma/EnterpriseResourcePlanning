@@ -1,0 +1,123 @@
+{% extends "./dashboard_faculty.html" %}
+
+{% block title %}Division Registration {% endblock title %}
+
+{% block extra_style %}
+    .division-name{
+        display: inline-block;
+        width: 50%;
+    }
+{% endblock extra_style %}
+
+{% block content %}
+    <div class="col-md-4">
+        <form method="post" action="{% url 'registration:register_division' %}" id="division_form">
+            {% csrf_token %}
+            <legend>Register new division</legend>
+            <div class="form-element">
+                <label for="branch">Branch</label>
+                <select class="form-control" id="branch" name="branch" onchange="loadYear()"></select>
+            </div>
+            <div class="form-element">
+                <label for="year">Year</label>
+                <select class="form-control" id="year" name="year"></select>
+            </div>
+            <div class="form-element">
+                <label for="number_of_division">Number of division</label>
+                <input type="text" class="form-control" id="number_of_division">
+            </div>
+            <div class="form-element">
+                <input type="button" class="btn btn-primary" value="GO" onclick="showDivisionNameInput()">
+            </div>
+            <div class="form-element" id="division_names">
+
+            </div>
+        </form>
+    </div>
+{% endblock content %}
+
+{% block on_ready %}
+    loadBranch();
+{% endblock on_ready %}
+
+{% block html %}
+    <script>
+
+        var data = {{ data|safe }};
+
+        function loadBranch() {
+            let branch_combo = document.getElementById('branch');
+            for (let branch in data) {
+                let option = document.createElement('option');
+                option.text = branch;
+                option.value = branch;
+                branch_combo.appendChild(option);
+            }
+            loadYear();
+        }
+
+        function loadYear() {
+            let selected_branch = document.getElementById('branch').value;
+            let year_combo = document.getElementById('year');
+
+            while (year_combo.hasChildNodes()) {
+                year_combo.removeChild(year_combo.childNodes[0]);
+            }
+
+            for (let year in data[selected_branch]) {
+                let option = document.createElement('option');
+                option.text = year;
+                option.value = [year];
+                year_combo.appendChild(option);
+            }
+        }
+
+        function showDivisionNameInput() {
+            let number_of_division = document.getElementById('number_of_division').value;
+            let selected_branch = document.getElementById('branch').value;
+            let selected_year = document.getElementById('year').value;
+            let division_div = document.getElementById('division_names');
+
+            while (division_div.hasChildNodes()) {
+                division_div.removeChild(division_div.childNodes[0]);
+            }
+
+            division_div.appendChild(document.createTextNode('Enter division name and select shift'));
+
+            for (let i = 0; i < number_of_division; i++) {
+                let div = document.createElement('div');
+                div.setAttribute('class', 'form-element');
+
+
+                let input = document.createElement('input');
+                input.setAttribute('type', 'text');
+                input.setAttribute('autocomplete', 'off');
+                input.setAttribute('class', 'form-control division-name');
+                input.setAttribute('name', 'division');
+                input.setAttribute('maxlength', '1');
+                div.appendChild(input);
+
+                let select = document.createElement('select');
+                select.setAttribute('name', 'shift');
+                select.setAttribute('class', 'form-control division-name');
+
+                for (let i = 1; i <= data[selected_branch][selected_year]; i++) {
+                    let option = document.createElement('option');
+                    option.text = i;
+                    option.value = i;
+                    select.appendChild(option);
+                }
+                div.appendChild(select);
+                division_div.appendChild(div);
+            }
+
+            let button = document.createElement('input');
+            button.setAttribute('type', 'submit');
+            button.setAttribute('class', 'btn btn-primary');
+            button.setAttribute('value', 'Submit');
+            division_div.appendChild(button);
+        }
+
+    </script>
+
+{% endblock html %}

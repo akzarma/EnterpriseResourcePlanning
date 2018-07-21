@@ -1,0 +1,27 @@
+{% extends "dashboard_faculty.html" %}
+{% block content %}
+    <div class="col-md-4">
+    <legend>Register Room</legend>
+        <form method="POST" action="{% url 'registration:register_room' %}">
+            {% csrf_token %}
+            <div class="form-element">
+                <label>Branch</label>
+                <select name="branch" id="branch" class="form-control">
+                    {% for branch in branches %}
+                        <option value="{{ branch.branch }}">{{ branch.branch }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-element">
+                <label>Room Number</label>
+                <input name="room_number" type="text" class="form-control">
+            </div>
+            <div class="form-element">
+                <label for="lab">Laboratory?</label>
+                <input name="lab" id="lab" type="checkbox" class="form-control">
+            </div>
+
+            <input type="submit" class="btn btn-primary">
+        </form>
+    </div>
+{% endblock content %}

@@ -1,0 +1,796 @@
+{% extends "./base.html" %}
+{% load humanize %}
+{% block style %}
+    <style>
+        /*
+        DEMO STYLE
+    */
+        label {
+            margin-left: 20px;
+        }
+
+        .cb {
+            margin-right: 10%;
+        }
+
+        .custom-menu {
+            display: none;
+            z-index: 1000;
+            position: absolute;
+            overflow: hidden;
+            border: 1px solid #CCC;
+            white-space: nowrap;
+            font-family: sans-serif;
+            background: #FFF;
+            color: #333;
+            border-radius: 5px;
+            padding: 0;
+        }
+
+        /* Each of the items in the list */
+        .custom-menu li {
+            padding: 8px 12px;
+            cursor: pointer;
+            list-style-type: none;
+            transition: all .3s ease;
+            user-select: none;
+        }
+
+        .custom-menu li:hover {
+            background-color: #DEF;
+        }
+
+        #datepicker {
+            width: 180px;
+            margin: 0 20px 20px 20px;
+        }
+
+        #datepicker > span:hover {
+            cursor: pointer;
+        }
+
+        body {
+
+            background: #fafafa;
+        }
+
+        p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1em;
+            font-weight: 300;
+            line-height: 1.7em;
+            color: #999;
+        }
+
+        a, a:hover, a:focus {
+            color: inherit;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .navbar-btn {
+            box-shadow: none;
+            outline: none !important;
+            border: none;
+        }
+
+        .line {
+            width: 100%;
+            height: 1px;
+            border-bottom: 1px dashed #ddd;
+            margin: 40px 0;
+        }
+
+        /* ---------------------------------------------------
+            SIDEBAR STYLE
+        ----------------------------------------------------- */
+        .wrapper {
+            display: flex;
+            align-items: stretch;
+            overflow-x: hidden;
+        }
+
+        #sidebar {
+            min-width: 250px;
+            max-width: 250px;
+            background: #fff;
+            color: rgb(0, 181, 197);
+            transition: all 0.3s;
+        }
+
+        #sidebar.active {
+            margin-left: -250px;
+        }
+
+        #sidebar .sidebar-header {
+            padding: 20px;
+            background: rgb(0, 181, 197);
+        }
+
+        #sidebar ul.components {
+            padding: 20px 0;
+        }
+
+        #sidebar ul p {
+            color: #fff;
+            padding: 10px;
+        }
+
+        #sidebar ul li a {
+            color: #444444;
+            padding: 10px;
+            font-size: 1.1em;
+            display: block;
+        }
+
+        #sidebar ul li a:hover {
+            background: rgb(231, 231, 231);
+        }
+
+        #sidebar ul li ul li a:hover {
+            color: #fff;
+            background: #3593cf !important;
+        }
+
+        #sidebar ul li.active > a, a[aria-expanded="true"] {
+            color: #fff !important;
+            background: #0379C4 !important;
+
+        }
+
+        #sidebar a[data-toggle="collapse"] {
+            position: relative;
+        }
+
+        #sidebar a[aria-expanded="false"]::before, #sidebar a[aria-expanded="true"]::before {
+            content: '\e259';
+            display: block;
+            position: absolute;
+            right: 20px;
+            font-family: 'Glyphicons Halflings', sans-serif;
+            font-size: 0.6em;
+        }
+
+        #sidebar a[aria-expanded="true"]::before {
+            content: '\e260';
+        }
+
+        #sidebar ul ul a {
+            font-size: 0.9em !important;
+            padding-left: 30px !important;
+            background: #fff;
+            color: #000;
+        }
+
+        #sidebar ul.CTAs {
+            padding: 20px;
+        }
+
+        #sidebar ul.CTAs a {
+            text-align: center;
+            font-size: 0.9em !important;
+            display: block;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* ---------------------------------------------------
+            CONTENT STYLE
+        ----------------------------------------------------- */
+        #content {
+            padding: 20px;
+            min-height: 100vh;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        /* ---------------------------------------------------
+            MEDIAQUERIES
+        ----------------------------------------------------- */
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: -250px;
+            }
+
+            #sidebar.active {
+                margin-left: 0;
+            }
+
+            #sidebarCollapse span {
+                display: none;
+            }
+        }
+
+        #sidebarCollapse {
+            visibility: hidden;
+        }
+
+        .navbar-default {
+            margin-bottom: 0;
+        }
+
+        /* Media query to show side bar toggle button  on  small screen */
+        @media only screen and (max-width: 480px) {
+            #sidebarCollapse {
+                visibility: visible;
+            }
+        }
+
+        #head {
+            margin-left: 5px;
+            font-weight: bold;
+            color: #0379C4 !important;
+        }
+
+        .carousel-control.left, .carousel-control.right {
+            background-image: none !important;
+            filter: none !important;
+        }
+
+        {% block extra_style %}
+            /* .squaredOne */
+
+            .squaredOne {
+                width: 50px;
+                height: 50px;
+                position: relative;
+                z-index: 0;
+                background: rgb(186, 188, 182);
+                color: white;
+            }
+
+            .squaredOne label {
+                width: 45px;
+                height: 45px;
+                position: absolute;
+                top: 2px;
+                left: 2px;
+                cursor: pointer;
+                padding-top: 20%;
+                text-align: center;
+                margin-left: 0px !important;
+            }
+
+            .squaredOne label:after {
+                content: ' ';
+                width: 50px;
+                height: 50px;
+                position: absolute;
+                top: -1px;
+                left: -1px;
+                background: #5bc0de;
+                z-index: -1;
+                opacity: 0;
+            }
+
+            .squaredOne label:hover::after {
+                opacity: 0.3;
+            }
+
+            .squaredOne input[type=checkbox] {
+                visibility: hidden;
+            }
+
+            .squaredOne input[type=checkbox]:checked + label:after {
+                opacity: 1;
+            }
+
+            /* end .squaredOne */
+
+            /*Not Available Div*/
+            .not-available {
+                display: none; /* Hidden by default */
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+            }
+
+            .btn-circle {
+                width: 30px;
+                height: 30px;
+                text-align: center;
+                padding: 6px 0;
+                font-size: 12px;
+                line-height: 1.428571429;
+                border-radius: 15px;
+            }
+
+            .division-name {
+                display: inline-block;
+                width: 50%;
+            }
+        {% endblock extra_style %}
+
+        .navbar-default .navbar-nav > li:hover {
+            background-color: white;
+        }
+
+        button:focus {
+            outline: 0 !important;
+        }
+    </style>
+
+{% endblock style %}
+
+{% block body %}
+    <div class="wrapper">
+        <!-- Sidebar Holder -->
+        <nav id="sidebar">
+            <ul class="list-unstyled components">
+                <li id="setup">
+                    <a href="{% url 'dashboard:setup_branch' %}">Getting Started</a>
+                </li>
+                <li id="dashboard">
+                    <a href="{% url 'dashboard:dashboard' %}">Dashboard</a>
+                </li>
+                <li id="attendance">
+                    <a href="{% url 'attendance:select_cat' %}">Fill or Check Attendance</a>
+                </li>
+                <li id="extra_lecture">
+                    <a href="{% url 'dashboard:take_extra_lecture' %}">Take extra lecture</a>
+                </li>
+
+                <li id="excel">
+                    <a href="#excelSubmenu" data-toggle="collapse" aria-expanded="false">Excel</a>
+                    <ul class="collapse list-unstyled" id="excelSubmenu">
+                        <li><a href="{% url 'report:excel_timetable' %}">TimeTable</a></li>
+                        <li><a href="{% url 'report:excel_room_schedule' %}">Room Schedule</a></li>
+                        <li><a href="{% url 'report:excel_attendance' %}">Attendance</a></li>
+                        <li><a href="{% url 'report:student_details' %}">Student Data</a></li>
+                        <li><a href="{% url 'report:faculty_details' %}">Faculty Data</a></li>
+                    </ul>
+                </li>
+                <li id="set_date">
+                    <a href="#set_dates" data-toggle="collapse" aria-expanded="false">Set Date</a>
+                    <ul class="collapse list-unstyled" id="set_dates">
+                        <li><a href="{% url 'registration:set_schedule_date' %}">Subject Registration</a>
+                        </li>
+                        {#                        <li><a href="{% url 'attendance:excel_student' %}">Student</a></li>#}
+                        {#                        <li><a href="{% url 'dashboard:excel_faculty' %}">Fcaulty</a></li>#}
+                    </ul>
+
+                </li>
+                <li id="backup">
+                    <a href="{% url 'BackupRestore:backup' %}">Backup</a>
+                </li>
+                <li id="register">
+                    <a href="#fill_timetable" data-toggle="collapse" aria-expanded="false">Timetable</a>
+                    <ul class="collapse list-unstyled" id="fill_timetable">
+                        <li><a href="{% url 'timetable:fill_timetable' %}">Fill Timetable</a></li>
+                        <li><a href="{% url 'timetable:register_time_slot' %}">Register time slot</a></li>
+                    </ul>
+                </li>
+                <li id="register">
+                    <a href="#registermenu" data-toggle="collapse" aria-expanded="false">Register</a>
+                    <ul class="collapse list-unstyled" id="registermenu">
+                        <li><a href="{% url 'registration:register_branch' %}">Branch</a></li>
+                        <li><a href="{% url 'registration:register_division' %}">Division</a></li>
+                        <li><a href="{% url 'registration:register_year' %}">Year</a></li>
+                        <li><a href="{% url 'registration:register_subject' %}">Subject</a></li>
+                        <li><a href="{% url 'registration:register_room' %}">Room</a></li>
+                        <li><a href="{% url 'registration:register_year_detail' %}">Set Semester Details</a></li>
+                        <li><a href="{% url 'registration:register_faculty_subject' %}">Bind faculty with subject</a>
+                        </li>
+                        <li><a href="{% url 'registration:student_subject_division' %}">Student Subject Division</a>
+                        </li>
+                    </ul>
+                </li>
+                <li id="exam">
+                    <a href="#exammenu" data-toggle="collapse" aria-expanded="false">Exam</a>
+                    <ul class="collapse list-unstyled" id="exammenu">
+                        <li><a href="{% url 'exam:manage_exam' %}">Manage exam</a>
+                        <li><a href="{% url 'exam:exam_detail' %}">Set exam</a>
+                        <li><a href="{% url 'exam:exam_register' %}">Add new exam</a>
+                        <li><a href="{% url 'exam:set_rooms' %}">Set Rooms</a>
+                        <li><a href="{% url 'exam:view_exam' %}">View Exam Schedule</a>
+                        </li>
+                    </ul>
+                </li>
+                <li id="status">
+                    <a href="#statusmenu" data-toggle="collapse" aria-expanded="false">Status</a>
+                    <ul class="collapse list-unstyled" id="statusmenu">
+                        <li><a href="{% url 'update:update_exam_status' %}">Manage Exam</a></li>
+                        <li><a href="{% url 'update:update_subject_status' %}">Manage Subject</a></li>
+                    </ul>
+                </li>
+                <li id="internship">
+                    <a href="#internshipmenu" data-toggle="collapse" aria-expanded="false">Internship</a>
+                    <ul class="collapse list-unstyled" id="internshipmenu">
+                        <li><a href="{% url 'internship:review' %}">Review</a></li>
+                    </ul>
+                </li>
+                <li id="feedback">
+                    <a href="#feedbackmenu" data-toggle="collapse" aria-expanded="false">Feedback Forms</a>
+                    <ul class="collapse list-unstyled" id="feedbackmenu">
+                        <li><a href="{% url 'Feedback:self_concept_result' %}">Self concept result</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+        </nav>
+
+        <!-- Page Content Holder -->
+        <div id="content">
+            {% block content %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <legend>Timetable</legend>
+                        {#                            <input type="hidden" name="selected_date"#}
+                        {#                                   value="{{ selected_date }}">#}
+                        <form action="{% url 'dashboard:dashboard' %}" method="post" onsubmit="event.preventDefault();"
+                              id="date_form">
+                            {% csrf_token %}
+                            <h4 style="text-align:center; ">Lectures on
+                                <span id="current_datePickerDate">{{ selected_date }}</span>
+                                {#                                <div id="datepicker" class="input-group date" data-date-format="mm-dd-yyyy">#}
+                                {#                                    <input class="form-control" type="text" value="{{ selected_date.month }}-{{ selected_date.day }}-{{ selected_date.year }}"/>#}
+                                {#                                    <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>#}
+                                {#                                </div>#}
+
+                                <button id="dateButton" name="GO" type="submit" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </button>
+                                <input type="text" name="selected_date" id="txtDate"
+                                       style="display: none;" onchange="change_timetable()">
+
+                                {#                                <button type="button" name="GO" class="btn btn-default" id="datepickerbtn">#}
+                                {#                                    <span class="glyphicon glyphicon-calendar"></span>#}
+                                {#                                </button>#}
+
+                            </h4>
+                        </form>
+                        <br/>
+                        <form method="post" action="{% url 'dashboard:dashboard' %}" id="timetable_form">
+                            {% csrf_token %}
+                            <input type="hidden" name="selected_date" id="hidden_date" value="{{ selected_date }}">
+                            <div class="row" id="timetable">
+                                {% if timetable %}
+                                    {% for each in timetable %}
+                                        <button name="date_timetable" class="card btn btn-info my-context-menu"
+                                                style="width: 100%; font-weight: bold; margin-bottom: 5px;"
+                                                value="{{ each.pk }}"
+                                                onclick="checkTimetable(this);">
+                                            {% if each.not_available == True %}
+                                                {% if user.faculty == each.substitute.faculty %}
+                                                    <div style="display: block;"
+                                                         class="not-available my-context-menu">You've taken lecture
+                                                        for {{ each.original.faculty.initials }}
+                                                    </div>
+                                                {% else %}
+                                                    <div id="{{ each.pk }}" style="display: block !important;"
+                                                         name="{{ each.pk }}" class="not-available my-context-menu">I'm
+                                                        not
+                                                        available
+                                                        {% if each.is_substituted is True %} <br/> Lecture taken by
+                                                            {{ each.substitute.faculty.initials }}
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            {% else %}
+                                                <div id="{{ each.pk }}" name="{{ each.pk }}"
+                                                     class="not-available my-context-menu">I'm not available
+                                                </div>
+                                            {% endif %}
+                                            {% if each.is_substituted is True %}
+                                                <div class="card-header my-context-menu"
+                                                     style="border-bottom: 2px solid white;"
+                                                     name="{{ each.pk }}">{{ each.substitute.time }}</div>
+                                                <div class="row my-context-menu">
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.substitute.branch_subject.subject.short_form }}</div>
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.substitute.room.room_number }}</div>
+                                                    <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                                                        {{ each.substitute.division.year_branch.branch }}<br/>
+                                                        {{ each.substitute.division.year_branch.year }}
+                                                        {{ each.substitute.division.division }}
+                                                        {% if each.substitute.is_practical %}
+                                                            {{ each.substitute.batch.batch_name }}
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="card-header my-context-menu"
+                                                     style="border-bottom: 2px solid white;"
+                                                     name="{{ each.pk }}">{{ each.original.time }}</div>
+                                                <div class="row my-context-menu" name="{{ each.pk }}">
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.original.branch_subject.subject.short_form }}</div>
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.original.room.room_number }}</div>
+                                                    <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                                                        {{ each.original.division.year_branch.branch }}<br/>
+                                                        {{ each.original.division.year_branch.year }}
+                                                        {{ each.original.division.division }}
+                                                        {% if each.original.is_practical %}
+                                                            {{ each.original.batch.batch_name }}
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+
+                                            {% endif %}
+                                        </button>
+                                    {% endfor %}
+                                    <button name="previous" value="previous" class="btn left carousel-control"
+                                            style="border: 0 !important;height: 20%;margin:32% 0 0 -10%;">
+                                        <span class="glyphicon glyphicon-chevron-left"></span>
+                                    </button>
+                                    <button name="next" value="next" type="submit" class="btn right carousel-control"
+                                            style="border: 0 !important;height: 20%;margin:32% -10% 0 0%;">
+                                        <span class="glyphicon glyphicon-chevron-right"></span>
+                                    </button>
+                                {% else %}
+                                    <p style="text-align: center;">Sorry! No lectures on {{ selected_date }}</p>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                    {% if all_students_roll %}
+                        <div class="col-md-7 col-md-offset-1">
+                            <legend>Mark Attendance for {{ selected_date }}</legend>
+                            {% if selected_timetable.is_substituted is True %}
+                                <p>{{ selected_timetable.substitute.time }}</p>
+                                <p>{{ selected_timetable.substitute.branch_subject.subject.short_form }}</p>
+                                <p>{{ selected_timetable.substitute.room.room_number }}</p>
+                                <p>{{ selected_timetable.substitute.division.year_branch.branch }} {{ selected_timetable.substitute.division.year_branch.year }} {{ selected_timetable.substitute.division.division }}</p>
+                            {% else %}
+                                <p>{{ selected_timetable.original.time }}</p>
+                                <p>{{ selected_timetable.original.branch_subject.subject.short_form }}</p>
+                                <p>{{ selected_timetable.original.room.room_number }}</p>
+                                <p>{{ selected_timetable.original.division.year_branch.branch }} {{ selected_timetable.original.division.year_branch.year }} {{ selected_timetable.original.division.division }}</p>
+                            {% endif %}
+                            <form action="{% url 'attendance:save' %}" method="post">
+                                {% csrf_token %}
+                                <input class="hidden" name="selected_timetable" value="{{ selected_timetable.pk }}">
+                                <div class="container">
+                                    <div class="row">
+                                        {% for i in all_students_roll %}
+                                            {% if forloop.counter0|divisibleby:9 %}
+                                                </div>
+                                                <div class="row">
+                                            {% endif %}
+                                            <div class="col-lg-1" id="test"
+                                                 style="padding-right: 0;padding-left: 0;width: 5%">
+                                                <section style="width: 50px">
+                                                    <!-- .squaredOne -->
+                                                    <div class="squaredOne">
+                                                        {% if not att %}
+                                                            <input class="cb" type="checkbox" value="{{ i }}"
+                                                                   id="squaredOne{{ forloop.counter }}"
+                                                                   name="present"/>
+                                                        {% else %}
+                                                            {% if i in present_roll %}
+                                                                <input class="cb" type="checkbox" value="{{ i }}"
+                                                                       id="squaredOne{{ forloop.counter }}"
+                                                                       name="present" checked/>
+                                                            {% else %}
+                                                                <input class="cb" type="checkbox" value="{{ i }}"
+                                                                       id="squaredOne{{ forloop.counter }}"
+                                                                       name="present"/>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                        <label for="squaredOne{{ forloop.counter }}">{{ i }}</label>
+                                                    </div>
+                                                    <!-- end .squaredOne -->
+                                                </section>
+                                            </div>
+                                            {#                                        {% if forloop.counter0|divisibleby:12 %}#}
+                                            {#                                            </div>#}
+                                            {#                                        {% endif %}#}
+                                        {% endfor %}
+                                        </div>
+                                    <div class="row">
+                                        <input class="btn btn-primary" type="submit" name="save_attendance"
+                                               value="Save">
+                                    </div>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endblock %}
+        </div>
+    </div>
+
+    {#For context menu#}
+    <ul class='custom-menu'>
+        <li data-action="availability" id="availability"></li>
+    </ul>
+
+{% endblock body %}
+
+{% block on_ready %}
+    {#    <script>#}
+    {#$(document).ready(function () {#}
+    $('#sidebarCollapse').on('click', function () {
+    $('#sidebar').toggleClass('active');
+    });
+
+    $('#txtDate').datepicker({
+    format: 'dd-mm-yyyy',
+
+    })  ;
+    {#    $('#txtDate').datepicker("setDate", new Date(2008,9,03) );#}
+
+    {#    alert("here");#}
+    $('#dateButton').click(function () {
+    $('#txtDate').show().focus().hide();
+    });
+    {#</script>#}
+{% endblock on_ready %}
+
+{% block html %}
+
+    <script type="text/javascript">
+
+        var current_datePickerDate = document.getElementById('current_datePickerDate');
+        $(function () {
+            $("#datepicker").datepicker({
+                autoclose: true,
+            }).datepicker('setDate', '12-05-2000');
+        });
+
+    </script>
+    <script>
+
+        var selected_ajax = "";
+
+        function change_timetable() {
+            var form = document.getElementById('date_form');
+            var input = document.createElement('input');
+            input.setAttribute('name', 'GO');
+            input.setAttribute('type', 'hidden');
+            form.appendChild(input);
+            form.submit();
+        }
+
+
+        // Trigger action when the contexmenu is about to be shown
+        $(document).bind("contextmenu", function (event) {
+            {#let index = -1;#}
+            let arr = event.target.classList;
+            let found = false;
+            var selected_date =
+                '{{ selected_date }}';
+            var splitted_date = selected_date.split('-');
+            selected_date = new Date(splitted_date[2], splitted_date[1] - 1, splitted_date[0]);
+            for (let i = 0; i < arr.length && selected_date >= current_date; i++) {
+                if (arr[i] === "my-context-menu") {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found === true) {
+
+
+                // Avoid the real one
+                event.preventDefault();
+
+                let target = event.target;
+
+                if (target.tagName === "BUTTON") {
+                    selected_ajax = target.value;
+
+                }
+                else {
+                    selected_ajax = target.attributes.name.nodeValue;
+                    {#alert(target.attributes.name.nodeValue);#}
+                }
+
+                {#alert($('#' + selected_ajax).css("display"));#}
+                {#alert(selected_ajax);#}
+
+                if ($('#' + selected_ajax).css("display") === 'none') {
+                    document.getElementById("availability").innerHTML = "I'm not available";
+                } else {
+                    document.getElementById("availability").innerHTML = "I'm available";
+                }
+
+                // Show contextmenu
+                $(".custom-menu").finish().toggle(100).// In the right position (the mouse)
+                css({
+                    top: event.pageY + "px",
+                    left: event.pageX + "px"
+                });
+            }
+        });
+
+
+        // If the document is clicked somewhere
+        $(document).bind("mousedown", function (e) {
+
+            // If the clicked element is not the menu
+            if (!$(e.target).parents(".custom-menu").length > 0) {
+
+                // Hide it
+                $(".custom-menu").hide(100);
+            }
+        });
+
+
+        // If the menu element is clicked
+        $(".custom-menu li").click(function () {
+
+            // This is the triggered action name
+            switch ($(this).attr("data-action")) {
+
+                // A case for each action. Your actions here
+                case "availability":
+                    not_available();
+                    break;
+                {#case "second":#}
+                {#    alert("second");#}
+                {#    break;#}
+                {#case "third":#}
+                {#    alert("third");#}
+                {#    break;#}
+            }
+
+            // Hide it AFTER the action was triggered
+            $(".custom-menu").hide(100);
+        });
+
+
+        function not_available() {
+            {#alert(selected_ajax);#}
+            $.ajax({
+
+                url: '{% url 'dashboard:toggle_availability' %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'selected_timetable': selected_ajax
+                },
+                success: function (data) {
+                    alert(data);
+
+                    var overlay = $('#' + selected_ajax);
+
+                    if (overlay.css("display") === "none") {
+                        overlay.css("display", "block");
+                    } else {
+                        overlay.css("display", "none");
+                    }
+
+                }
+
+            });
+        }
+
+        function checkTimetable(obj) {
+            var pk = obj.value;
+
+            var overlay = $('#' + pk);
+
+            var selected_date =
+                '{{ selected_date }}';
+            var splitted_date = selected_date.split('-');
+            selected_date = new Date(splitted_date[2], splitted_date[1] - 1, splitted_date[0]);
+            alert(selected_date);
+            if (overlay.css("display") === "none") {
+                if (selected_date > current_date) {
+                    alert("You can't mark attendance for future lectures");
+                    event.preventDefault();
+                } else {
+                    $("#timetable_form").submit;
+                }
+            } else {
+                if (selected_date > current_date) {
+                    alert("You can't mark attendance for future lectures");
+                } else {
+                    alert('You can\'t mark attendance for this lecture');
+                }
+                event.preventDefault();
+            }
+
+
+        }
+    </script>
+    <script>
+        //Script to toggle active class
+        var active_class = document.getElementById("{{ class_active }}");
+        if (active_class) {
+            active_class.setAttribute("class", "active");
+        }
+    </script>
+{% endblock html %}

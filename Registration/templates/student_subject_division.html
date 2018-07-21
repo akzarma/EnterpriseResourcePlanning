@@ -1,0 +1,183 @@
+{% extends "./dashboard_faculty.html" %}
+{% block title %}Student Subject Division {% endblock %}
+{% block extra_style %}
+    label{
+    margin-left:0;
+    }
+{% endblock extra_style %}
+{% block content %}
+    <div class="container col-md-6">
+
+        <!-- Default panel contents -->
+        {#                    <div class="panel-heading">Heading</div>#}
+
+        <!-- Table -->
+        {% if select_year_branch_sem %}
+            <form class="form-group" action="{% url 'registration:student_subject_division' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-element">
+                    <span class="error">{{ form.year.errors }}</span>
+                    <label class="control-label">{{ form.year.label_tag }}</label>
+                    <div class="">{{ form.year }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.branch.errors }}</span>
+                    <label class="control-label">{{ form.branch.label_tag }}</label>
+                    <div class="">{{ form.branch }}</div>
+                </div>
+                <div class="form-element">
+                    <span class="error">{{ form.semester.errors }}</span>
+                    <label class="control-label">{{ form.semester.label_tag }}</label>
+                    <div class="">{{ form.semester }}</div>
+                </div>
+
+                <input class="btn btn-primary" type="submit" name="select_year_branch_sem_button" value="Submit">
+            </form>
+        {% endif %}
+
+        {% if select_subjects %}
+
+            <legend style="border-bottom: none;">{{ selected_year }} {{ selected_branch }}
+                Sem {{ selected_semester }}</legend>
+            <table class="table table-bordered">
+                <th>Sr. No</th>
+                <th>Subject</th>
+                <form action="{% url 'registration:student_subject_division' %}" method="POST">
+                    {% csrf_token %}
+
+                    <input type="hidden" name="selected_year" value="{{ selected_year }}">
+                    <input type="hidden" name="selected_branch" value="{{ selected_branch }}">
+                    <input type="hidden" name="selected_semester" value="{{ selected_semester }}">
+                    {% for each_regular in regular_subjects %}
+
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <button class="btn btn-link" name="selected_subject_link"
+                                        value="{{ each_regular.pk }}">{{ each_regular }}</button>
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+                    {% for each_elective in  elective_subjects %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <button class="btn btn-link" name="selected_subject_elective_link"
+                                        value="{{ each_elective.pk }}">Elective Group {{ each_elective.subject.name }}
+                                    - {{ each_elective.name }}</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </form>
+            </table>
+        {% endif %}
+
+        {% if select_student_division %}
+            <legend>{{ selected_year }} {{ selected_branch }} Sem {{ selected_semester }}
+                - {{ selected_subject_obj.subject.name }} - {{ selected_sub_name }}</legend>
+            <form action="{% url 'registration:student_subject_division' %}" method="POST">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Sr. No</th>
+                        <th>GR Number</th>
+                        <th>Student</th>
+                        <th>Elective Division Batch</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {% csrf_token %}
+
+                    <input type="hidden" name="selected_subject" value="{{ selected_subject_obj.pk }}">
+                    {% for each in student_subjects %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ each.student.gr_number }}</td>
+                            <td>{{ each.student.first_name }} {{ each.student.last_name }}</td>
+                            <td>
+                                {% if each.subject.is_elective_group %}
+                                    <label>
+                                        <select name="selected_division_student" class="form-control"
+                                                onchange="loadBatch(this.value, '{{ each.student.pk }}','{{ each.elective_batch.batch_name }}');">
+                                            {% for each_div in divisions %}
+                                                {% ifequal each.elective_division each_div %}
+                                                    <option value="{{ each_div.pk }}_student_{{ each.student.pk }}"
+                                                            selected="selected">{{ each_div.division }}</option>
+
+                                                {% else %}
+                                                    <option value="{{ each_div.pk }}_student_{{ each.student.pk }}">{{ each_div.division }}</option>
+
+                                                {% endifequal %}
+                                            {% endfor %}
+                                        </select>
+                                    </label>
+                                    <label>
+                                        <select name="selected_division_student_batch_{{ each.student.pk }}" class="form-control">
+                                            <option></option>
+                                        </select>
+                                    </label>
+                                {% else %}
+                                    Not elective
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+                <input class="btn btn-primary" type="submit" name="select_division_student_button" value="Save">
+            </form>
+        {% endif %}
+    </div>
+
+
+
+{% endblock content %}
+
+{% block html %}
+    <script>
+        {#var a = {{ division_batch | safe }};#}
+        var active_class = document.getElementById("{{ class_active }}");
+        active_class.setAttribute("class", "active");
+
+        var a = {{ division_batch | safe }};
+
+        function loadBatch(select_div, student_pk, nam) {
+            console.log(select_div + "rgegtggx");
+            key = select_div.split('_student_')[0];
+            console.log(key + "key");
+            select_batch = document.getElementsByName('selected_division_student_batch_' + student_pk)[0];
+            while (select_batch.length > 0) {
+                select_batch.remove(0);
+            }
+            i = 0;
+            while (i < a[key].length) {
+                option = document.createElement("option");
+                option.text = a[key][i];
+                option.value = a[key][i];
+                select_batch.add(option);
+                i++;
+            }
+            {#alert(nam);#}
+            select_batch.value = nam;
+
+        };
+
+
+    </script>
+{% endblock %}
+
+{% block on_ready %}
+
+    {#    <script>#}
+    {#let all_select = document.getElementsByName('selected_division_student');#}
+    {% for each_student in student_subjects %}
+        {#        console.log("{{  each_student}}");#}
+        console.log("{{ each_student.elective_division.pk }}");
+        loadBatch("{{ each_student.elective_division.pk }}_student_{{ each_student.student.pk }}",
+        "{{ each_student.student.pk }}","{{ each_student.elective_batch.batch_name }}");
+    {% endfor %}
+    {#</script>#}
+{% endblock %}
