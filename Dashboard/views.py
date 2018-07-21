@@ -1120,12 +1120,14 @@ def setup_division(request):
 
 
 def setup_time(request):
+    class_active = 'setup'
     user = request.user
     if not user.is_anonymous:
         if has_role(user, 'faculty'):
             if request.method == "GET":
                 return render(request, 'setup_time.html', {
-                    'time_slots': Time.objects.all()
+                    'time_slots': Time.objects.all(),
+                    'class_active': class_active
                 })
             else:
                 splitted_start_time = request.POST.get('start_time').split(':')
@@ -1137,14 +1139,101 @@ def setup_time(request):
                 if len(Time.objects.filter(starting_time=start_time, ending_time=end_time)) > 0:
                     return render(request, 'setup_time.html', {
                         'error': 'Time slot already registered',
-                        'time_slots': Time.objects.all()
+                        'time_slots': Time.objects.all(),
+                        'class_active': class_active
                     })
 
                 Time.objects.create(starting_time=start_time, ending_time=end_time)
                 return render(request, 'setup_time.html', {
                     'success': 'Time slot registered',
-                    'time_slots': Time.objects.all()
+                    'time_slots': Time.objects.all(),
+                    'class_active': class_active
                 })
 
         return redirect('/login/')
     return redirect('/login/')
+
+
+def setup_semester(request):
+    class_active = "setup"
+    user = request.user
+    if not user.is_anonymous:
+        branches = Branch.objects.all()
+        years = CollegeYear.objects.all()
+        year_semester_json = {}
+        for obj in YearSemester.objects.all():
+            branch = obj.year_branch.branch.branch
+            year = obj.year_branch.year.year
+            semester = obj.semester.semester
+            if branch in year_semester_json:
+                if year in year_semester_json[branch]:
+                    {}
+                else:
+                    year_semester_json[branch][year] = []
+            else:
+                year_semester_json[branch] = {}
+                year_semester_json[branch][year] = []
+            year_semester_json[branch][year] += [semester]
+
+        if request.method == 'GET':
+            return render(request, 'setup_semester.html', {
+                'class_active': class_active,
+                'branches': branches,
+                'years': years,
+                'year_semester': year_semester_json
+            })
+
+        elif request.method == 'POST':
+            branch = request.POST.get('branch')
+            year = request.POST.get('year')
+            semester = request.POST.get('semester')
+            # no_of_semester = request.POST.get('no_of_semester')
+            branch_obj = Branch.objects.get(branch=branch)
+            year_obj = CollegeYear.objects.get(year=year)
+            semester_obj = Semester.objects.get(semester=semester)
+            year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
+            # number_of_elective_groups = int(request.POST.get('elective_number'))
+            semester_start_date = parse_date(request.POST.get('semester_start_date'))
+            semester_end_date = parse_date(request.POST.get('semester_end_date'))
+
+            if semester_end_date < semester_start_date:
+                return render(request, 'setup_semester.html', {
+                    'class_active': class_active,
+                    'branches': branches,
+                    'years': years,
+                    'year_semester': year_semester_json,
+                    'error': 'Semester end date cannot be less than semester start date'
+                })
+
+            lecture_start_date = parse_date(request.POST.get('lecture_start_date'))
+            lecture_end_date = parse_date(request.POST.get('lecture_end_date'))
+
+            if lecture_end_date < lecture_start_date:
+                return render(request, 'setup_semester.html', {
+                    'class_active': class_active,
+                    'branches': branches,
+                    'years': years,
+                    'year_semester': year_semester_json,
+                    'error': 'lecture end date cannot be less than lecture start date'
+                })
+
+            # for i in range(number_of_elective_groups):
+            #     ElectiveGroup.objects.create(year_branch=year_branch_obj, semester=semester_obj,
+            #                                  group=chr(i + 65))
+            year_branch_obj = YearBranch.objects.get(year=year_obj, branch=branch_obj, is_active=True)
+            year_sem_obj = YearSemester.objects.get(year_branch=year_branch_obj, semester=semester_obj, is_active=True)
+            year_sem_obj.start_date = semester_start_date
+            year_sem_obj.end_date = semester_end_date
+            year_sem_obj.lecture_start_date = lecture_start_date
+            year_sem_obj.lecture_end_date = lecture_end_date
+            # year_sem_obj.number_of_electives_groups = number_of_elective_groups
+            year_sem_obj.save()
+
+            return render(request, 'setup_semester.html', {
+                'class_active': class_active,
+                'branches': branches,
+                'years': years,
+                'year_semester': year_semester_json,
+                'success': 'Successfully registered details'
+            })
+    return HttpResponseRedirect('/login/')

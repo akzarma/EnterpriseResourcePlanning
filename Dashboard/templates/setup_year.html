@@ -53,15 +53,15 @@
             {% if number_of_year_branch == 0 %}
                 <a class="btn btn-link"
                    onclick="swal('You can\'t go forward!', 'You need to fill atleast one year of any branch to move to next step!', 'error');"
-                   disabled="disabled">Next Step: Division Registration</a>
+                   disabled="disabled">Next Step: Semester Details</a>
                 <a class="btn btn-default btn-circle"
                    onclick="swal('You can\'t go forward!', 'You need to fill atleast one year of any branch to move to next step!', 'error');"
                    disabled="disabled"><i
                         class="glyphicon glyphicon-chevron-right"></i></a>
             {% else %}
-                <a class="btn btn-link" href="{% url 'dashboard:setup_division' %}">Next Step: Division Registration</a>
+                <a class="btn btn-link" href="{% url 'dashboard:setup_semester' %}">Next Step: Division Registration</a>
 
-                <a class="btn btn-success btn-circle" href="{% url 'dashboard:setup_division' %}"><i
+                <a class="btn btn-success btn-circle" href="{% url 'dashboard:setup_semester' %}"><i
                         class="glyphicon glyphicon-chevron-right"></i></a>
             {% endif %}
         </div>
