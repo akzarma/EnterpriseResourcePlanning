@@ -13,6 +13,9 @@
 
 
         </div>
+        <div class="row" id="divisions_registered">
+
+        </div>
     </div>
 
     <div class="col-md-4">
@@ -25,7 +28,7 @@
             </div>
             <div class="form-element">
                 <label for="year">Year</label>
-                <select class="form-control" id="year" name="year"></select>
+                <select class="form-control" id="year" name="year" onchange="showDivisionRegistered()" onload="showDivisionRegistered()"></select>
             </div>
             <div class="form-element">
                 <label for="number_of_division">Number of division</label>
@@ -84,6 +87,7 @@
                 option.value = [year];
                 year_combo.appendChild(option);
             }
+            showDivisionRegistered();
         }
 
         function showDivisionNameInput() {
@@ -115,7 +119,7 @@
                 select.setAttribute('name', 'shift');
                 select.setAttribute('class', 'form-control division-name');
 
-                for (let i = 1; i <= data[selected_branch][selected_year]; i++) {
+                for (let i = 1; i <= data[selected_branch][selected_year]['shift']; i++) {
                     let option = document.createElement('option');
                     option.text = i;
                     option.value = i;
@@ -130,6 +134,29 @@
             button.setAttribute('class', 'btn btn-primary');
             button.setAttribute('value', 'Submit');
             division_div.appendChild(button);
+        }
+
+        function showDivisionRegistered() {
+            let selected_branch = document.getElementById('branch').value;
+            let selected_year = document.getElementById('year').value;
+
+            let div_to_append = document.getElementById('divisions_registered');
+
+            while (div_to_append.hasChildNodes()) {
+                div_to_append.removeChild(div_to_append.childNodes[0]);
+            }
+
+
+            let label = document.createElement('label');
+            label.innerHTML = "Registered divisions for " + selected_branch + "-" + selected_year;
+            div_to_append.appendChild(label);
+
+            for (let i in data[selected_branch][selected_year]['division']) {
+                let p = document.createElement('p');
+                p.innerHTML = data[selected_branch][selected_year]['division'][i];
+                div_to_append.appendChild(p);
+            }
+
         }
 
     </script>
