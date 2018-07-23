@@ -56,4 +56,6 @@ urlpatterns = [
 
     url(r'^setup/time/$', views.setup_time, name='setup_time'),
 
+    url(r'^setup/semester/$', views.setup_semester, name='setup_semester'),
+
 ]
