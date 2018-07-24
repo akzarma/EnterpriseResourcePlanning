@@ -11,9 +11,12 @@ urlpatterns = [
     # /register/faculty - Register Faculty
     url(r'^faculty/$', views.register_faculty, name='register_faculty'),
 
+    url(r'^branch/$', views.register_branch, name='register_branch'),
+
+    url(r'^division/$', views.register_division, name='register_division'),
+
     # /register/subject - Register Subject
     url(r'^subject/$', views.register_subject, name='register_subject'),
-    url(r'^elective/$', views.register_elective, name='register_elective'),
 
     # /register/year - Register Year Details
     url(r'^year_detail/$', views.register_year_detail, name='register_year_detail'),
@@ -50,6 +53,8 @@ urlpatterns = [
     # url(r'student_subject_registration/$', views.student_subject_registration, name='student_subject_registration'),
 
     url(r'year/$', views.register_year, name='register_year'),
+
+    url(r'room/$', views.register_room, name='register_room'),
 
     url(r'^verification/email/(?P<key>[\w]+)/(?P<username>[\w]+)', views.verification_process,
         name="verification_process"),

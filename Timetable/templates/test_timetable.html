@@ -298,7 +298,7 @@
 {% endblock style %}
 
 {% block body %}
-    <form method="post" name="semester_form" id="semester_form" action="{% url 'Timetable:fill_timetable' %}">
+    <form method="post" name="semester_form" id="semester_form" action="{% url 'timetable:fill_timetable' %}">
         {% csrf_token %}
         <label for="id_semester">Semester: </label>
         <select id="id_semester" name="current_semester" onchange="changeSemester()"
@@ -318,7 +318,7 @@
         </select>
 
     </form>
-    <form method="post" id="timetable_form" action="{% url 'Timetable:save_timetable' %}">
+    <form method="post" id="timetable_form" action="{% url 'timetable:save_timetable' %}">
         {% csrf_token %}
         <input type="hidden" name="current_semester" value="{{ current_semester }}">
         <input type="hidden" name="current_branch" value="{{ branch }}">

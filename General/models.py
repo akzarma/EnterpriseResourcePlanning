@@ -16,13 +16,6 @@ class CollegeYear(models.Model):
         return self.year
 
 
-class Shift(models.Model):
-    shift = models.PositiveIntegerField()
-
-    def __str__(self):
-        return str(self.shift)
-
-
 class YearBranch(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
@@ -30,6 +23,15 @@ class YearBranch(models.Model):
 
     def __str__(self):
         return self.branch.branch + ' ' + str(self.year.year)
+
+
+class Shift(models.Model):
+    shift = models.PositiveIntegerField()
+    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.year_branch.branch.branch + '-' + self.year_branch.year.year + '-' + str(self.shift)
 
 
 # Will be known as division
@@ -121,7 +123,6 @@ class BranchSubject(models.Model):
         return str(self.year_branch) + " " + self.subject.name
 
     def save(self, *args, **kwargs):
-
         models.Model.save(self, *args, **kwargs)
 
 

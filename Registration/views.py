@@ -17,6 +17,7 @@ from General.views import notify_users
 from Login.views import generate_activation_key
 from Registration.models import Student, Branch, Faculty, Subject, ElectiveSubject
 from Roles.models import User, RoleManager, RoleMaster
+from Timetable.models import Room
 from .forms import StudentForm, FacultyForm, SubjectForm, FacultySubjectForm, gr_roll_dict, DateScheduleForm, \
     YearBranchSemForm
 from Configuration.stateConf import states
@@ -131,7 +132,7 @@ def auto_register_student(request):
                         branch_obj = Branch.objects.get(branch=branch)
                     year_obj = CollegeYear.objects.get(year=year)
                     year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
-                    shift_obj = Shift.objects.get(shift=shift)
+                    shift_obj = Shift.objects.get(year_branch=year_branch_obj, shift=shift)
                     division_obj = Division.objects.get_or_create(year_branch=year_branch_obj,
                                                                   division=division, shift=shift_obj)[0]
                     batch_obj = Batch.objects.get_or_create(division=division_obj, batch_name=batch)[0]
@@ -211,7 +212,7 @@ def register_student(request):
                     branch_obj = Branch.objects.get(branch=branch)
                 year_obj = CollegeYear.objects.get(year=year)
                 year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
-                shift_obj = Shift.objects.get(shift=shift)
+                shift_obj = Shift.objects.get(year_branch=year_branch_obj, shift=shift)
                 division_obj = Division.objects.get_or_create(year_branch=year_branch_obj,
                                                               division=division, shift=shift_obj)[0]
                 batch_obj = Batch.objects.get_or_create(division=division_obj, batch_name=batch)[0]
@@ -1132,8 +1133,8 @@ def register_year(request):
     class_active = 'register'
     user = request.user
     if not user.is_anonymous:
+        branches = Branch.objects.all()
         if request.method == 'GET':
-            branches = Branch.objects.all()
             return render(request, 'register_year.html', {
                 'class_active': class_active,
                 'branches': branches,
@@ -1157,9 +1158,12 @@ def register_year(request):
                     sem_obj = Semester.objects.create(semester=i + 1)
                     # print(i+1, 'except')
                 year_branch_obj = YearBranch.objects.get_or_create(year=year_obj[0], branch=branch_obj, is_active=True)
-                YearSemester.objects.create(semester=sem_obj, year_branch=year_branch_obj[0])
+                YearSemester.objects.get_or_create(semester=sem_obj, year_branch=year_branch_obj[0])
+                Shift.objects.get_or_create(year_branch=year_branch_obj[0], shift=request.POST.get('no_of_shift'))
+
             return render(request, 'register_year.html', {
                 'class_active': class_active,
+                'branches': branches,
                 'success': 'Year ' + year + ' Saved!'
             })
         return HttpResponse('Something is wrong!')
@@ -1377,5 +1381,91 @@ def student_subject_division(request):
             'success': 'elective divisions are assigned successfully.'})
 
 
-def register_elective(request):
-    return None
+def register_branch(request):
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            if request.method == "GET":
+                return render(request, 'register_branch.html')
+
+            elif request.method == "POST":
+                branch = request.POST.get('branch')
+                branch = branch.title()
+                if len(Branch.objects.filter(branch=branch)) > 0:
+                    return render(request, 'register_branch.html', {
+                        'error': branch + ' is already registered.'
+                    })
+                Branch.objects.create(branch=branch)
+                return render(request, 'register_branch.html', {
+                    'success': 'Successfully registered ' + branch + ' branch',
+                })
+
+        return redirect('/login/')
+    return redirect('/login/')
+
+
+def register_division(request):
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            data = {}
+            year_branch = YearBranch.objects.filter(is_active=True)
+            for each in year_branch:
+                if each.branch.branch not in data:
+                    data[each.branch.branch] = {}
+
+                data[each.branch.branch][each.year.year] = each.shift_set.count()
+
+            if request.method == "GET":
+                return render(request, 'register_division.html', {
+                    'data': data,
+                })
+            else:
+                print(request.POST)
+                branch = Branch.objects.get(branch=request.POST.get('branch'))
+                year = CollegeYear.objects.get(year=request.POST.get('year'))
+                year_branch_obj = YearBranch.objects.get(branch=branch, year=year)
+                divisions = request.POST.getlist('division')
+                shifts = request.POST.getlist('shift')
+
+                for index, value in enumerate(divisions):
+                    Division.objects.get_or_create(year_branch=year_branch_obj, division=value,
+                                                   shift=Shift.objects.get(year_branch=year_branch_obj,
+                                                                           shift=shifts[index]))
+
+            return render(request, 'register_division.html', {
+                'success': divisions + 'registered',
+                'data': data,
+            })
+
+        return redirect('/login/')
+    return redirect('/login/')
+
+
+def register_room(request):
+    class_active = "register"
+    user = request.user
+    if not user.is_anonymous:
+        if request.method == "GET":
+            return render(request, 'register_room.html',{
+                'branches': Branch.objects.all()
+            })
+        elif request.method == "POST":
+            branch = Branch.objects.get(branch=request.POST.get('branch'))
+            room = request.POST.get('room_number')
+            if request.POST.get('lab'):
+                lab = True
+            else:
+                lab=False
+
+            if len(Room.objects.filter(branch=branch, room_number=room, lab=lab)) > 0:
+                return render(request, 'register_room.html', {
+                    'error': 'Room already registered'
+                })
+            else:
+                Room.objects.create(branch=branch, room_number=room, lab=lab)
+                return render(request, 'register_room.html',{
+                    'success': 'Room registered!'
+                })
+
+    return redirect('/login/')

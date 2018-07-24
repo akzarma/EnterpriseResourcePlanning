@@ -19,7 +19,7 @@ from Attendance.models import StudentAttendance
 from Dashboard.models import SpecificNotification, GeneralStudentNotification, GeneralFacultyNotification
 from EnterpriseResourcePlanning.settings import NOTIFICATION_LONG_LIMIT, NOTIFICATION_SMALL_LIMIT
 from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject, YearBranch, \
-    ElectiveDivision
+    ElectiveDivision, Semester, YearSemester, Shift
 from General.views import notify_users
 from Registration.forms import StudentForm, FacultyForm
 from Registration.models import Student, Branch, Faculty, ElectiveSubject, Subject
@@ -30,7 +30,7 @@ from Registration.views import has_role
 from Research.models import Paper
 from Timetable.models import Timetable, DateTimetable, Time, Room
 from Update.forms import StudentUpdateForm, FacultyUpdateForm
-from Roles.models import  RoleMaster, RoleManager
+from Roles.models import RoleMaster, RoleManager
 
 
 # def student(request):
@@ -971,3 +971,124 @@ def test_url(request):
     #     each_student.batch = batch_obj[0]
     #     each_student.save()
     return HttpResponse('Done')
+
+
+def setup_branch(request):
+    class_active = 'setup'
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            if request.method == "GET":
+                return render(request, 'setup_branch.html', {
+                    'number_of_branch': Branch.objects.count(),
+                    'all_branches': Branch.objects.all(),
+                    'class_active': class_active,
+
+                })
+
+            elif request.method == "POST":
+                branch = request.POST.get('branch')
+                branch = branch.title()
+                if len(Branch.objects.filter(branch=branch)) > 0:
+                    return render(request, 'setup_branch.html', {
+                        'error': branch + ' is already registered.',
+                        'all_branches': Branch.objects.all(),
+                        'number_of_branch': Branch.objects.count(),
+                        'class_active': class_active,
+
+                    })
+                Branch.objects.create(branch=branch)
+                return render(request, 'setup_branch.html', {
+                    'success': 'Successfully registered ' + branch + ' branch',
+                    'all_branches': Branch.objects.all(),
+                    'number_of_branch': Branch.objects.count(),
+                    'class_active': class_active,
+
+                })
+
+        return redirect('/login/')
+    return redirect('/login/')
+
+
+def setup_year(request):
+    class_active = 'setup'
+    user = request.user
+    if not user.is_anonymous:
+        branches = Branch.objects.all()
+        if request.method == 'GET':
+            return render(request, 'setup_year.html', {
+                'class_active': class_active,
+                'branches': branches,
+                'number_of_year_branch': YearBranch.objects.count()
+            })
+        elif request.method == 'POST':
+            year = request.POST.get('year')
+            branch = request.POST.get('branch')
+
+            no_of_sem = request.POST.get('no_of_sem')
+            # for i in range(int(no_of_sem)):
+            #     Semester.objects.create(semester=i+1)
+            year_number = request.POST.get('year_number')
+
+            year_obj = CollegeYear.objects.get_or_create(year=year, no_of_semester=no_of_sem, number=year_number)
+            branch_obj = Branch.objects.get(branch=branch)
+            for i in range(int(no_of_sem)):
+                try:
+                    sem_obj = Semester.objects.get(semester=i + 1, is_active=True)
+                    # print(i+1, 'try')
+                except:
+                    sem_obj = Semester.objects.create(semester=i + 1)
+                    # print(i+1, 'except')
+                year_branch_obj = YearBranch.objects.get_or_create(year=year_obj[0], branch=branch_obj, is_active=True)
+                YearSemester.objects.get_or_create(semester=sem_obj, year_branch=year_branch_obj[0])
+                Shift.objects.get_or_create(year_branch=year_branch_obj[0], shift=request.POST.get('no_of_shift'))
+
+            return render(request, 'setup_year.html', {
+                'class_active': class_active,
+                'branches': branches,
+                'success': 'Year ' + year + ' Saved!',
+                'number_of_year_branch': YearBranch.objects.count()
+            })
+        return HttpResponse('Something is wrong!')
+    return HttpResponseRedirect('/login/')
+
+
+def setup_division(request):
+    class_active = 'setup'
+    user = request.user
+    if not user.is_anonymous:
+        if has_role(user, 'faculty'):
+            data = {}
+            year_branch = YearBranch.objects.filter(is_active=True)
+            for each in year_branch:
+                if each.branch.branch not in data:
+                    data[each.branch.branch] = {}
+
+                data[each.branch.branch][each.year.year] = each.shift_set.count()
+
+            if request.method == "GET":
+                return render(request, 'setup_division.html', {
+                    'class_active': class_active,
+                    'data': data,
+                })
+            else:
+                print(request.POST)
+                branch = Branch.objects.get(branch=request.POST.get('branch'))
+                year = CollegeYear.objects.get(year=request.POST.get('year'))
+                year_branch_obj = YearBranch.objects.get(branch=branch, year=year)
+                divisions = request.POST.getlist('division')
+                shifts = request.POST.getlist('shift')
+
+                for index, value in enumerate(divisions):
+                    Division.objects.get_or_create(year_branch=year_branch_obj, division=value,
+                                                   shift=Shift.objects.get(year_branch=year_branch_obj,
+                                                                           shift=shifts[index]))
+
+            return render(request, 'setup_division.html', {
+                'success': str(divisions) + 'registered',
+                'class_active': class_active,
+                'data': data,
+            })
+
+        return HttpResponse('Something is wrong!')
+    return HttpResponseRedirect('/login/')

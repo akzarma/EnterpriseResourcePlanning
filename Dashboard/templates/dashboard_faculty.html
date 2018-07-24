@@ -284,6 +284,21 @@
                 height: 100%;
                 background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
             }
+
+            .btn-circle {
+                width: 30px;
+                height: 30px;
+                text-align: center;
+                padding: 6px 0;
+                font-size: 12px;
+                line-height: 1.428571429;
+                border-radius: 15px;
+            }
+
+            .division-name {
+                display: inline-block;
+                width: 50%;
+            }
         {% endblock extra_style %}
 
         .navbar-default .navbar-nav > li:hover {
@@ -302,6 +317,9 @@
         <!-- Sidebar Holder -->
         <nav id="sidebar">
             <ul class="list-unstyled components">
+                <li id="setup">
+                    <a href="{% url 'dashboard:setup_branch' %}">Getting Started</a>
+                </li>
                 <li id="dashboard">
                     <a href="{% url 'dashboard:dashboard' %}">Dashboard</a>
                 </li>
@@ -335,15 +353,21 @@
                 <li id="backup">
                     <a href="{% url 'BackupRestore:backup' %}">Backup</a>
                 </li>
-                <li id="fill_timetable">
-                    <a href="{% url 'Timetable:fill_timetable' %}">Fill Timetable</a>
-
+                <li id="register">
+                    <a href="#fill_timetable" data-toggle="collapse" aria-expanded="false">Timetable</a>
+                    <ul class="collapse list-unstyled" id="fill_timetable">
+                        <li><a href="{% url 'timetable:fill_timetable' %}">Fill Timetable</a></li>
+                        <li><a href="{% url 'timetable:register_time_slot' %}">Register time slot</a></li>
+                    </ul>
                 </li>
                 <li id="register">
                     <a href="#registermenu" data-toggle="collapse" aria-expanded="false">Register</a>
                     <ul class="collapse list-unstyled" id="registermenu">
+                        <li><a href="{% url 'registration:register_branch' %}">Branch</a></li>
+                        <li><a href="{% url 'registration:register_division' %}">Division</a></li>
+                        <li><a href="{% url 'registration:register_year' %}">Year</a></li>
                         <li><a href="{% url 'registration:register_subject' %}">Subject</a></li>
-                        <li><a href="{% url 'registration:register_year' %}">New Year</a></li>
+                        <li><a href="{% url 'registration:register_room' %}">Room</a></li>
                         <li><a href="{% url 'registration:register_year_detail' %}">Set Semester Details</a></li>
                         <li><a href="{% url 'registration:register_faculty_subject' %}">Bind faculty with subject</a>
                         </li>
@@ -358,6 +382,7 @@
                         <li><a href="{% url 'exam:exam_detail' %}">Set exam</a>
                         <li><a href="{% url 'exam:exam_register' %}">Add new exam</a>
                         <li><a href="{% url 'exam:set_rooms' %}">Set Rooms</a>
+                        <li><a href="{% url 'exam:view_exam' %}">View Exam Schedule</a>
                         </li>
                     </ul>
                 </li>

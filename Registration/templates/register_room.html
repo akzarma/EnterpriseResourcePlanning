@@ -1,7 +1,8 @@
 {% extends "dashboard_faculty.html" %}
 {% block content %}
     <div class="col-md-4">
-        <form method="POST" action="{% url 'registration:register_year' %}">
+    <legend>Register Room</legend>
+        <form method="POST" action="{% url 'registration:register_room' %}">
             {% csrf_token %}
             <div class="form-element">
                 <label>Branch</label>
@@ -12,16 +13,12 @@
                 </select>
             </div>
             <div class="form-element">
-                <label>Year</label>
-                <input name="year" type="text" class="form-control">
+                <label>Room Number</label>
+                <input name="room_number" type="text" class="form-control">
             </div>
             <div class="form-element">
-                <label>Year Number</label>
-                <input name="year_number" type="number" class="form-control">
-            </div>
-            <div class="form-element">
-                <label>Number of semsters in a year</label>
-                <input name="no_of_sem" type="number" class="form-control">
+                <label for="lab">Laboratory?</label>
+                <input name="lab" id="lab" type="checkbox" class="form-control">
             </div>
 
             <input type="submit" class="btn btn-primary">

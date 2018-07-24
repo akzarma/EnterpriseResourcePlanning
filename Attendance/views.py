@@ -616,6 +616,7 @@ def subject_attendance(request):
             return render(request, )
 
         elif request.method=='POST':
+            pass
 
             subjects = request.POST.getlist('subject')
             for each_subject in subjects:

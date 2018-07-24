@@ -3,12 +3,14 @@ from django.conf.urls import url
 # from Timetable import tasks
 from . import views
 
-app_name = 'Timetable'
+app_name = 'timetable'
 
 urlpatterns = [
     url(r'enter/$', views.fill_timetable, name='fill_timetable'),
     #
     url(r'^save/$', views.save_timetable, name='save_timetable'),
+
+    url(r'^time_slot/$', views.register_time_slot, name='register_time_slot'),
 
     # url(r'^to_json/$', views.to_json, name='to_json'),
 
