@@ -25,14 +25,15 @@ class StudentAttendance(models.Model):
 
 
 class SubjectLectures(models.Model):
-    faculty_subject = models.ForeignKey(FacultySubject,on_delete=models.CASCADE)
+    faculty_subject = models.ForeignKey(FacultySubject, on_delete=models.CASCADE)
     conducted_lectures = models.IntegerField(default=0)
 
 
 class StudentSubjectTotalAttendance(models.Model):
-    student =models.ForeignKey(Student,on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subject,on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     attended = models.IntegerField(default=0)
+
 
 # class DailyAttendance(models.Model):
 #     date = models.DateTimeField()
@@ -42,7 +43,6 @@ class StudentSubjectTotalAttendance(models.Model):
 
 
 class FacultyAttendance(models.Model):
-    faculty = models.OneToOneField(Faculty,on_delete=models.CASCADE)
+    faculty = models.OneToOneField(Faculty, on_delete=models.CASCADE)
     in_time = models.TimeField()
     out_time = models.TimeField()
-

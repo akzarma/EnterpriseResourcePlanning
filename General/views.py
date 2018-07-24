@@ -8,8 +8,9 @@ from django.utils import timezone
 
 from Dashboard.models import SpecificNotification, GeneralStudentNotification, GeneralFacultyNotification
 
-from General.models import Division, CollegeYear, Shift, BranchSubject, YearBranch, StudentDetail, Semester
+from General.models import CollegeYear, Shift, BranchSubject, YearBranch, StudentDetail, Semester
 from Registration.models import Branch
+
 
 # notification_type:Either 'specific' or 'general'  (Is case sensitive)
 

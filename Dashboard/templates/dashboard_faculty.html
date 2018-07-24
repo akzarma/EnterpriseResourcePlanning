@@ -1,5 +1,8 @@
 {% extends "./base.html" %}
 {% load humanize %}
+{% block title %}
+    Dashboard | ERP
+{% endblock title %}
 {% block style %}
     <style>
         /*
@@ -766,7 +769,6 @@
                 '{{ selected_date }}';
             var splitted_date = selected_date.split('-');
             selected_date = new Date(splitted_date[2], splitted_date[1] - 1, splitted_date[0]);
-            alert(selected_date);
             if (overlay.css("display") === "none") {
                 if (selected_date > current_date) {
                     alert("You can't mark attendance for future lectures");

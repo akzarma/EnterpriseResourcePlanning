@@ -21,7 +21,7 @@ from Registration.models import Student, Subject
 from Registration.views import has_role
 from Timetable.models import Timetable, DateTimetable, Time, Room
 from Roles.models import RoleManager
-from .models import StudentAttendance
+from .models import StudentAttendance, SubjectLectures, StudentSubjectTotalAttendance
 
 
 # Create your views here.
@@ -124,74 +124,134 @@ def save(request):
 
     if not user.is_anonymous:
         is_faculty = RoleManager.objects.filter(user=user, role__role='faculty')
-        # is_student = RoleManager.objects.filter(user=user, role__role='student')
+
         if is_faculty:
-            if is_faculty:
-                faculty = user.faculty
-                if 'save_attendance' in request.POST:
-                    selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
-                    old_attendance_obj = StudentAttendance.objects.filter(timetable=selected_timetable)
+            faculty = user.faculty
+            if 'save_attendance' in request.POST:
+                selected_timetable = DateTimetable.objects.get(pk=request.POST.get('selected_timetable'))
+                old_attendance_obj = StudentAttendance.objects.filter(timetable=selected_timetable)
 
-                    present_student_objs = list(StudentDetail.objects.filter(
-                        roll_number__in=request.POST.getlist('present')))
+                present_student_objs = list(StudentDetail.objects.filter(
+                    roll_number__in=request.POST.getlist('present')))
 
-                    if not old_attendance_obj:
-                        student_attendance = []
+                if not old_attendance_obj:
+                    student_attendance = []
 
-                        if not selected_timetable.is_substituted:
-                            if selected_timetable.original.is_practical:
-                                all_students = StudentDetail.objects.filter(
-                                    batch=selected_timetable.original.batch) \
-                                    .values_list('student', flat=True)
-                            else:
-                                all_students = StudentDetail.objects.filter(
-                                    batch__division=selected_timetable.original.division) \
-                                    .values_list('student', flat=True)
-
+                    if not selected_timetable.is_substituted:
+                        if selected_timetable.original.is_practical:
+                            all_students = StudentDetail.objects.filter(
+                                batch=selected_timetable.original.batch) \
+                                .values_list('student', flat=True)
                         else:
-                            if selected_timetable.substitute.is_practical:
-                                all_students = StudentDetail.objects.filter(
-                                    batch=selected_timetable.substitute.batch) \
-                                    .values_list('student', flat=True)
-                            else:
-                                all_students = StudentDetail.objects.filter(
-                                    batch__division=selected_timetable.substitute.division) \
-                                    .values_list('student', flat=True)
+                            all_students = StudentDetail.objects.filter(
+                                batch__division=selected_timetable.original.division) \
+                                .values_list('student', flat=True)
 
-                        all_students_roll = [
-                            StudentDetail.objects.get(student=each, is_active=True) for each in
-                            all_students]
+                        subject = selected_timetable.original.branch_subject.subject
+                        subject_lecture = SubjectLectures.objects.get(
+                            faculty_subject__faculty=selected_timetable.original.faculty,
+                            faculty_subject__subject=subject,
+                            faculty_subject__division=selected_timetable.original.division,
+                        )
 
-                        for roll in all_students_roll:
-                            if roll in present_student_objs:
-                                student_attendance += [
-                                    StudentAttendance(student=roll.student, timetable=selected_timetable,
-                                                      attended=True)]
-                            else:
-                                student_attendance += [
-                                    StudentAttendance(student=roll.student, timetable=selected_timetable,
-                                                      attended=False)]
-
-                        StudentAttendance.objects.bulk_create(student_attendance)
+                        subject_lecture.conducted_lectures += 1
 
                     else:
-                        for each in old_attendance_obj:
-                            roll_number = StudentDetail.objects.get(student=each.student, is_active=True)
-                            if roll_number in present_student_objs and each.attended is False:
-                                each.attended = True
-                                each.save()
-                            elif roll_number not in present_student_objs and each.attended is True:
-                                each.attended = False
-                                each.save()
+                        if selected_timetable.substitute.is_practical:
+                            all_students = StudentDetail.objects.filter(
+                                batch=selected_timetable.substitute.batch) \
+                                .values_list('student', flat=True)
+                        else:
+                            all_students = StudentDetail.objects.filter(
+                                batch__division=selected_timetable.substitute.division) \
+                                .values_list('student', flat=True)
 
-                    timetable = sorted(
-                        DateTimetable.objects.filter(date=selected_timetable.date, original__faculty=faculty),
-                        key=lambda x: (x.date, x.original.time.starting_time))
+                        subject_lecture = SubjectLectures.objects.get(
+                            faculty_subject__faculty=selected_timetable.substitute.faculty,
+                            faculty_subject__subject=selected_timetable.substitute.branch_subject.subject,
+                            faculty_subject__division=selected_timetable.substitute.division,
+                        )
 
-                    return render(request, 'dashboard_faculty.html', {'success': 'Attendance saved.',
-                                                                      'selected_date': selected_timetable.date.strftime(
-                                                                          '%d-%m-%Y'),
-                                                                      'timetable': timetable})
+                        subject = selected_timetable.substitute.branch_subject.subject
+
+                        subject_lecture.conducted_lectures += 1
+
+                    subject_lecture.save()
+
+                    all_students_roll = [
+                        StudentDetail.objects.get(student=each, is_active=True) for each in
+                        all_students]
+
+                    for roll in all_students_roll:
+                        if roll in present_student_objs:
+                            student_attendance += [
+                                StudentAttendance(student=roll.student, timetable=selected_timetable,
+                                                  attended=True)]
+
+                            student_subject_total_attendance = StudentSubjectTotalAttendance.objects.get(
+                                student=roll.student,
+                                subject=subject)
+                            student_subject_total_attendance \
+                                .attended += 1
+                            student_subject_total_attendance.save()
+
+
+                        else:
+                            student_attendance += [
+                                StudentAttendance(student=roll.student, timetable=selected_timetable,
+                                                  attended=False)]
+
+                    StudentAttendance.objects.bulk_create(student_attendance)
+
+                else:
+                    for each in old_attendance_obj:
+                        roll_number = StudentDetail.objects.get(student=each.student, is_active=True)
+                        if roll_number in present_student_objs and each.attended is False:
+                            each.attended = True
+                            each.save()
+
+                            if not selected_timetable.is_substituted:
+                                student_subject_total_attendance = StudentSubjectTotalAttendance.objects.get(
+                                    student=each.student,
+                                    subject=selected_timetable.original.branch_subject.subject)
+                                student_subject_total_attendance.attended += 1
+                                student_subject_total_attendance.save()
+
+
+                            else:
+                                student_subject_total_attendance = StudentSubjectTotalAttendance.objects.get(
+                                    student=each.student,
+                                    subject=selected_timetable.substitute.branch_subject.subject)
+                                student_subject_total_attendance.attended += 1
+                                student_subject_total_attendance.save()
+
+                        elif roll_number not in present_student_objs and each.attended is True:
+                            each.attended = False
+                            each.save()
+
+                            if not selected_timetable.is_substituted:
+                                student_subject_total_attendance = StudentSubjectTotalAttendance.objects.get(
+                                    student=each.student,
+                                    subject=selected_timetable.original.branch_subject.subject)
+                                student_subject_total_attendance.attended -= 1
+                                student_subject_total_attendance.save()
+
+                            else:
+                                student_subject_total_attendance = StudentSubjectTotalAttendance.objects.get(
+                                    student=each.student,
+                                    subject=selected_timetable.substitute.branch_subject.subject)
+                                student_subject_total_attendance.attended -= 1
+                                student_subject_total_attendance.save()
+
+                timetable = sorted(
+                    DateTimetable.objects.filter(date=selected_timetable.date, original__faculty=faculty),
+                    key=lambda x: (x.date, x.original.time.starting_time))
+
+                return render(request, 'dashboard_faculty.html', {'success': 'Attendance saved.',
+                                                                  'selected_date': selected_timetable.date.strftime(
+                                                                      '%d-%m-%Y'),
+                                                                  'timetable': timetable})
+
     return render(request, 'dashboard_faculty.html', {'error': 'Some problem is there.'})
 
 
@@ -475,6 +535,7 @@ def android_fill_attendance(request):
         for each in request.POST:
             if each.__contains__('attendance_'):
                 attendance_json = json.loads(request.POST.get(each))
+                timetable_type = 'original'
                 time_obj = Time.objects.get(starting_time=int(attendance_json['start_time']),
                                             ending_time=int(attendance_json['end_time']))
                 branch_obj = Branch.objects.get(branch=attendance_json['branch'])
@@ -495,18 +556,48 @@ def android_fill_attendance(request):
                     timetable_obj = Timetable.objects.get(room=room_obj, time=time_obj, day=attendance_json['day'],
                                                           faculty=faculty, division=division_obj,
                                                           branch_subject=branch_subject, is_practical=True, batch=batch)
-                    selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
 
                 else:
                     timetable_obj = Timetable.objects.get(room=room_obj, time=time_obj, day=attendance_json['day'],
                                                           faculty=faculty, division=division_obj,
                                                           branch_subject=branch_subject)
-                    selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
+
+                selected_timetable = DateTimetable.objects.filter(date=date, original=timetable_obj)
+                if not selected_timetable.exists():
+                    selected_timetable = DateTimetable.objects.filter(date=date, substitute=timetable_obj)
+                    timetable_type = 'substitute'
+                    if selected_timetable.exists():
+                        selected_timetable = selected_timetable[0]
+                    else:
+                        return JsonResponse({
+                            'error': "Timetable object not found"
+                        })
+                else:
+                    selected_timetable = selected_timetable[0]
+
+                if timetable_type == "original":
+                    subject = selected_timetable.original.branch_subject.subject
+                    subject_lecture = SubjectLectures.objects.get(
+                        faculty_subject__faculty=selected_timetable.original.faculty,
+                        faculty_subject__subject=subject,
+                        faculty_subject__division=selected_timetable.original.division,
+                    )
+
+                else:
+                    subject = selected_timetable.substitute.branch_subject.subject
+                    subject_lecture = SubjectLectures.objects.get(
+                        faculty_subject__faculty=selected_timetable.substitute.faculty,
+                        faculty_subject__subject=subject,
+                        faculty_subject__division=selected_timetable.substitute.division,
+                    )
+
+                subject_lecture.conducted_lectures += 1
+
+                subject_lecture.save()
 
                 attendance = []
 
                 old_attendance_obj = StudentAttendance.objects.filter(timetable=selected_timetable)
-                print(old_attendance_obj)
                 if not old_attendance_obj:
                     for roll_number in attendance_json['attendance']:
                         student = StudentDetail.objects.get(roll_number=roll_number, batch__division=division_obj,
@@ -514,6 +605,12 @@ def android_fill_attendance(request):
                         attendance += [StudentAttendance(student=student, timetable=selected_timetable,
                                                          attended=bool(
                                                              attendance_json['attendance'][str(roll_number)]))]
+                        student_subject_total_attendance = StudentSubjectTotalAttendance.objects.get(
+                            student=student,
+                            subject=subject)
+                        student_subject_total_attendance \
+                            .attended += 1
+                        student_subject_total_attendance.save()
 
                     StudentAttendance.objects.bulk_create(attendance)
 
@@ -521,7 +618,21 @@ def android_fill_attendance(request):
                     for i in old_attendance_obj:
                         roll_number = StudentDetail.objects.get(student=i.student, is_active=True).roll_number
                         i.attended = bool(attendance_json['attendance'][str(roll_number)])
-                        print(roll_number, attendance_json['attendance'][str(roll_number)])
+
+                        if i.attended:
+                            student_subject_total_attendance = StudentSubjectTotalAttendance.objects.get(
+                                student=i.student,
+                                subject=subject)
+                            student_subject_total_attendance.attended += 1
+                            student_subject_total_attendance.save()
+
+                        else:
+                            student_subject_total_attendance = StudentSubjectTotalAttendance.objects.get(
+                                student=i.student,
+                                subject=subject)
+                            student_subject_total_attendance.attended -= 1
+                            student_subject_total_attendance.save()
+
                         i.save()
         print('Done android')
         return HttpResponse('true')
@@ -545,6 +656,7 @@ def reload_student_roll(request):
 @csrf_exempt
 def android_instance(request):
     if request.method == "POST":
+        print(request.POST)
         timetable_json = json.loads(request.POST.get('I_WANT_THE_INSTANCE_BRUV'))
         time_obj = Time.objects.get(starting_time=int(timetable_json['start_time']),
                                     ending_time=int(timetable_json['end_time']))
@@ -580,7 +692,10 @@ def android_instance(request):
         for i in StudentAttendance.objects.filter(timetable=selected_timetable):
             response[StudentDetail.objects.get(student=i.student).roll_number] = 1 if i.attended else 0
 
-        return HttpResponse(json.dumps(response))
+        if bool(response):
+            return HttpResponse(json.dumps(response))
+        else:
+            return HttpResponse('No instance found')
 
     else:
         return HttpResponse('ERROR')
@@ -595,7 +710,6 @@ def subject_attendance(request):
         faculty_obj = user.faculty
 
         if request.method == 'GET':
-
 
             subject_json = {}
 
@@ -615,12 +729,10 @@ def subject_attendance(request):
 
             return render(request, )
 
-        elif request.method=='POST':
+        elif request.method == 'POST':
             pass
 
             subjects = request.POST.getlist('subject')
             for each_subject in subjects:
-                subject_obj = Subject.objects.get(is_active=True,short_form=each_subject)
+                subject_obj = Subject.objects.get(is_active=True, short_form=each_subject)
                 StudentSubject.objects.filter(subject)
-
-
