@@ -17,7 +17,7 @@
     </div>
     <div class="col-md-4 col-md-offset-1 text-center">
         <legend>Enter Year and Semester Details</legend>
-        <form action="{% url 'registration:register_year_detail' %}" method="post">
+        <form action="{% url 'dashboard:setup_semester' %}" method="post">
             {% csrf_token %}
             <div class="form-group">
                 <label>Branch</label>

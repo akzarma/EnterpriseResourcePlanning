@@ -147,13 +147,12 @@ def save(request):
                                 batch__division=selected_timetable.original.division) \
                                 .values_list('student', flat=True)
 
-                        subject_lecture = SubjectLectures.objects.get_or_create(
+                        subject = selected_timetable.original.branch_subject.subject
+                        subject_lecture = SubjectLectures.objects.get(
                             faculty_subject__faculty=selected_timetable.original.faculty,
-                            faculty_subject__subject=selected_timetable.original.branch_subject.subject,
+                            faculty_subject__subject=subject,
                             faculty_subject__division=selected_timetable.original.division,
                         )
-
-                        subject = selected_timetable.original.branch_subject.subject
 
                         subject_lecture.conducted_lectures += 1
 
@@ -167,7 +166,7 @@ def save(request):
                                 batch__division=selected_timetable.substitute.division) \
                                 .values_list('student', flat=True)
 
-                        subject_lecture = SubjectLectures.objects.get_or_create(
+                        subject_lecture = SubjectLectures.objects.get(
                             faculty_subject__faculty=selected_timetable.substitute.faculty,
                             faculty_subject__subject=selected_timetable.substitute.branch_subject.subject,
                             faculty_subject__division=selected_timetable.substitute.division,
@@ -225,7 +224,6 @@ def save(request):
                                     subject=selected_timetable.substitute.branch_subject.subject)
                                 student_subject_total_attendance.attended += 1
                                 student_subject_total_attendance.save()
-
 
                         elif roll_number not in present_student_objs and each.attended is True:
                             each.attended = False
@@ -537,6 +535,7 @@ def android_fill_attendance(request):
         for each in request.POST:
             if each.__contains__('attendance_'):
                 attendance_json = json.loads(request.POST.get(each))
+                timetable_type = 'original'
                 time_obj = Time.objects.get(starting_time=int(attendance_json['start_time']),
                                             ending_time=int(attendance_json['end_time']))
                 branch_obj = Branch.objects.get(branch=attendance_json['branch'])
@@ -557,20 +556,40 @@ def android_fill_attendance(request):
                     timetable_obj = Timetable.objects.get(room=room_obj, time=time_obj, day=attendance_json['day'],
                                                           faculty=faculty, division=division_obj,
                                                           branch_subject=branch_subject, is_practical=True, batch=batch)
-                    selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
 
                 else:
                     timetable_obj = Timetable.objects.get(room=room_obj, time=time_obj, day=attendance_json['day'],
                                                           faculty=faculty, division=division_obj,
                                                           branch_subject=branch_subject)
-                    selected_timetable = DateTimetable.objects.get(date=date, original=timetable_obj)
 
-                subject = selected_timetable.original.branch_subject.subject
-                subject_lecture = SubjectLectures.objects.get_or_create(
-                    faculty_subject__faculty=selected_timetable.original.faculty,
-                    faculty_subject__subject=subject,
-                    faculty_subject__division=selected_timetable.original.division,
-                )
+                selected_timetable = DateTimetable.objects.filter(date=date, original=timetable_obj)
+                if not selected_timetable.exists():
+                    selected_timetable = DateTimetable.objects.filter(date=date, substitute=timetable_obj)
+                    timetable_type = 'substitute'
+                    if selected_timetable.exists():
+                        selected_timetable = selected_timetable[0]
+                    else:
+                        return JsonResponse({
+                            'error': "Timetable object not found"
+                        })
+                else:
+                    selected_timetable = selected_timetable[0]
+
+                if timetable_type == "original":
+                    subject = selected_timetable.original.branch_subject.subject
+                    subject_lecture = SubjectLectures.objects.get(
+                        faculty_subject__faculty=selected_timetable.original.faculty,
+                        faculty_subject__subject=subject,
+                        faculty_subject__division=selected_timetable.original.division,
+                    )
+
+                else:
+                    subject = selected_timetable.substitute.branch_subject.subject
+                    subject_lecture = SubjectLectures.objects.get(
+                        faculty_subject__faculty=selected_timetable.substitute.faculty,
+                        faculty_subject__subject=subject,
+                        faculty_subject__division=selected_timetable.substitute.division,
+                    )
 
                 subject_lecture.conducted_lectures += 1
 
@@ -602,15 +621,15 @@ def android_fill_attendance(request):
 
                         if i.attended:
                             student_subject_total_attendance = StudentSubjectTotalAttendance.objects.get(
-                                student=each.student,
-                                subject=selected_timetable.original.branch_subject.subject)
+                                student=i.student,
+                                subject=subject)
                             student_subject_total_attendance.attended += 1
                             student_subject_total_attendance.save()
 
                         else:
                             student_subject_total_attendance = StudentSubjectTotalAttendance.objects.get(
-                                student=each.student,
-                                subject=selected_timetable.original.branch_subject.subject)
+                                student=i.student,
+                                subject=subject)
                             student_subject_total_attendance.attended -= 1
                             student_subject_total_attendance.save()
 
@@ -637,6 +656,7 @@ def reload_student_roll(request):
 @csrf_exempt
 def android_instance(request):
     if request.method == "POST":
+        print(request.POST)
         timetable_json = json.loads(request.POST.get('I_WANT_THE_INSTANCE_BRUV'))
         time_obj = Time.objects.get(starting_time=int(timetable_json['start_time']),
                                     ending_time=int(timetable_json['end_time']))
@@ -672,7 +692,10 @@ def android_instance(request):
         for i in StudentAttendance.objects.filter(timetable=selected_timetable):
             response[StudentDetail.objects.get(student=i.student).roll_number] = 1 if i.attended else 0
 
-        return HttpResponse(json.dumps(response))
+        if bool(response):
+            return HttpResponse(json.dumps(response))
+        else:
+            return HttpResponse('No instance found')
 
     else:
         return HttpResponse('ERROR')

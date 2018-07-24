@@ -41,7 +41,7 @@ def login_user(request):
 
 
 @csrf_exempt
-def login_android(request):
+def android_login(request):
     response = {
         'user_type': 'null'
     }
