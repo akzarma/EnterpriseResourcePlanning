@@ -21,7 +21,7 @@
             {% csrf_token %}
             <div class="form-group">
                 <label>Branch</label>
-                <select class="form-control" name="branch" id="branch">
+                <select class="form-control" name="branch" id="branch" required>
                     {% for branch in branches %}
                         <option value="{{ branch.branch }}">{{ branch.branch }}</option>
                     {% endfor %}
@@ -29,7 +29,7 @@
             </div>
             <div class="form-group">
                 <label>Year</label>
-                <select class="form-control" name="year" onchange="fillSemester()" id="year">
+                <select class="form-control" name="year" onchange="fillSemester()" id="year" required>
                     <option></option>
                     {% for year in years %}
                         <option value="{{ year }}">{{ year }}</option>
@@ -38,23 +38,23 @@
             </div>
             <div class="form-group">
                 <label>Semester</label>
-                <select class="form-control" id="semester_div" name="semester"></select>
+                <select class="form-control" id="semester_div" name="semester" required></select>
             </div>
             <div class="form-group">
                 <label>Semester start date</label>
-                <input class="form-control datepicker" type="date" name="semester_start_date">
+                <input class="form-control datepicker" type="date" name="semester_start_date" required>
             </div>
             <div class="form-group">
                 <label>Semester end date</label>
-                <input type="date" class="form-control datepicker" name="semester_end_date">
+                <input type="date" class="form-control datepicker" name="semester_end_date" required>
             </div>
             <div class="form-group">
                 <label>Lecture start date</label>
-                <input type="date" class="form-control datepicker" name="lecture_start_date">
+                <input type="date" class="form-control datepicker" name="lecture_start_date" required>
             </div>
             <div class="form-group">
                 <label>Lecture end date</label>
-                <input type="date" class="form-control datepicker" name="lecture_end_date">
+                <input type="date" class="form-control datepicker" name="lecture_end_date" required>
             </div>
             <div class="form-group">
                 <input class="btn btn-primary" type="submit" value="Submit">

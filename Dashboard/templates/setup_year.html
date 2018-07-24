@@ -22,7 +22,7 @@
             <div class="form-element">
                 <label>Branch</label>
                 <select name="branch" id="branch" class="form-control" onchange="showRegisteredYears();"
-                        onload="showRegisteredYears();">
+                        onload="showRegisteredYears();" required>
                     {% for branch in branches %}
                         <option value="{{ branch.branch }}">{{ branch.branch }}</option>
                     {% endfor %}
@@ -30,19 +30,19 @@
             </div>
             <div class="form-element">
                 <label>Year</label>
-                <input name="year" type="text" class="form-control">
+                <input name="year" type="text" class="form-control" required>
             </div>
             <div class="form-element">
                 <label>Year Number</label>
-                <input name="year_number" type="number" class="form-control">
+                <input name="year_number" type="number" class="form-control" required>
             </div>
             <div class="form-element">
                 <label>Number of semesters in a year</label>
-                <input name="no_of_sem" type="number" class="form-control">
+                <input name="no_of_sem" type="number" class="form-control" required>
             </div>
             <div class="form-element">
                 <label>Number of shifts</label>
-                <input name="no_of_shift" type="number" class="form-control">
+                <input name="no_of_shift" type="number" class="form-control" required>
             </div>
 
             <input type="submit" class="btn btn-primary">
