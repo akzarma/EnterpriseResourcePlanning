@@ -24,5 +24,9 @@ urlpatterns = [
     url(r'^check_availability/$', views.check_availability, name='check_availability'),
     # /exam/check_availability/exam_group
     url(r'^check_availability/(?P<still_schedule>[0-9]+)/$', views.check_availability, name='check_availability'),
+    # /exam/android/types_of_exam
+    url(r'^android/types_of_exam/$', views.android_types_of_exam, name='android_types_of_exam'),
+    # /exam/android/exam_subjects
+    url(r'^android/exam_subjects/$', views.android_subject_for_exam, name='android_subject_for_exam'),
 
 ]

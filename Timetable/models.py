@@ -39,7 +39,8 @@ class Room(models.Model):
     room_number = models.CharField(max_length=10)
     lab = models.BooleanField(default=False)
     capacity = models.PositiveIntegerField(default=28)
-    is_active=models.BooleanField(default=True)
+    number_of_rows = models.PositiveIntegerField(default=4)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.branch) + str(self.room_number)
@@ -51,7 +52,7 @@ class Timetable(models.Model):
     day = models.CharField(max_length=10)
     branch_subject = models.ForeignKey(BranchSubject, on_delete=models.CASCADE)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
-    division = models.ForeignKey(Division, max_length=10, null=True, on_delete=models.CASCADE)
+    division = models.ForeignKey(Division, null=True, on_delete=models.CASCADE)
     is_practical = models.BooleanField(default=False)
     batch = models.ForeignKey(Batch, null=True, on_delete=models.CASCADE)
     elective_division = models.ForeignKey(ElectiveDivision, on_delete=models.CASCADE, null=True)

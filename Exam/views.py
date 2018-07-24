@@ -3,7 +3,7 @@ from collections import defaultdict
 from operator import attrgetter
 
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 import datetime
 import dateutil.parser
@@ -587,12 +587,55 @@ def check_availability(request, still_schedule='0'):
 def android_types_of_exam(request):
     if request.method == 'POST':
         gr_number = request.POST.get('gr_number')
-        student_obj = Student.objects.get(gr_number=gr_number)
-        student_subjects = StudentSubject.objects.filter(student=student_obj, is_active=True)
-        exams = ExamSubject.objects.filter(
-            subject__in=[each_subejct for each_subejct in student_subjects]).values_list('exam__exam__exam_name')
+        print('gr_number', gr_number)
+        student_obj = Student.objects.filter(gr_number=gr_number)
+        if student_obj.__len__() > 0:
+            student_obj = student_obj[0]
+            student_subjects = StudentSubject.objects.filter(student=student_obj, is_active=True)
+            exams = list(set([each_exam_subject.exam for each_exam_subject in list(ExamSubject.objects.filter(
+                subject__in=[each_student_subject.subject for each_student_subject in student_subjects],
+                is_active=True).distinct())]))
+            # print(exams)
+            exam_json = {}
 
-        return HttpResponse(exams)
+            for each_exam in exams:
+                # a = each_exam.exam.exam.exam_name
+                exam_json[each_exam.pk] = each_exam.exam.exam_name
+            print(exam_json)
+            return JsonResponse(exam_json)
+        else:
+            print('not student')
+            return JsonResponse({'error': 'Not Student'})
+    else:
+        return HttpResponse('Not a POST request')
+
+
+@csrf_exempt
+def android_subject_for_exam(request):
+    if request.method == 'POST':
+        print('POST')
+
+        gr_number = request.POST.get('gr_number')
+        student_obj = Student.objects.filter(gr_number=gr_number)
+        if student_obj.__len__() > 0:
+            student_obj = student_obj[0]
+
+        exam_id = int(request.POST.get('exam_id'))
+        print('exam_id',exam_id)
+        exam_obj = ExamDetail.objects.filter(id=exam_id)
+        if exam_obj.__len__() == 0:
+            return HttpResponse('Exam not found.')
+
+        exam_obj = exam_obj[0]
+
+        all_subjects = exam_obj.examsubject_set.filter(is_active=True)
+
+        exam_json = {}
+
+        for each_subject in all_subjects:
+            exam_json[each_subject.pk] = each_subject.subject.short_form
+
+        return JsonResponse(exam_json)
 
 
     else:

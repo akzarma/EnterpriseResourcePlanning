@@ -735,83 +735,93 @@ def android_timetable_json(request):
 
             student_detail_obj = student.studentdetail_set.filter(is_active=True)
 
-            branch_obj = student.branch
+            if student_detail_obj.exists():
 
-            college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
+                if student_detail_obj.__len__()==1:
+                    student_detail_obj = student_detail_obj[0]
 
-            full_timetable = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
-                                                      division=college_extra_detail)
-            # faculty_json = {}
-            for each in full_timetable:
-                year = each.branch_subject.year_branch.year.year
-                branch = each.branch_subject.year_branch.branch.branch
+                    branch_obj = student_detail_obj.batch.division.year_branch.branch
 
-                division = each.division.division
+                    college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
 
-                day = each.day
+                    full_timetable = Timetable.objects.filter(branch_subject__year_branch__branch=branch_obj,
+                                                              division=college_extra_detail)
+                    # faculty_json = {}
+                    for each in full_timetable:
+                        year = each.branch_subject.year_branch.year.year
+                        branch = each.branch_subject.year_branch.branch.branch
 
-                time = each.time.format_for_json()
+                        division = each.division.division
 
-                faculty = each.faculty.initials
+                        day = each.day
 
-                room = each.room.room_number
-                subject = each.branch_subject.subject.short_form
+                        time = each.time.format_for_json()
 
-                if year in answer:
-                    if branch in answer[year]:
-                        if division in answer[year][branch]:
-                            if day in answer[year][branch][division]:
-                                if time in answer[year][branch][division][day]:
-                                    var = {}
+                        faculty = each.faculty.initials
+
+                        room = each.room.room_number
+                        subject = each.branch_subject.subject.short_form
+
+                        if year in answer:
+                            if branch in answer[year]:
+                                if division in answer[year][branch]:
+                                    if day in answer[year][branch][division]:
+                                        if time in answer[year][branch][division][day]:
+                                            var = {}
+                                        else:
+                                            answer[year][branch][division][day][time] = {}
+                                    else:
+                                        answer[year][branch][division][day] = {}
+                                        answer[year][branch][division][day][time] = {}
+
                                 else:
+                                    answer[year][branch][division] = {}
+                                    answer[year][branch][division][day] = {}
                                     answer[year][branch][division][day][time] = {}
+
                             else:
+                                answer[year][branch] = {}
+                                answer[year][branch][division] = {}
                                 answer[year][branch][division][day] = {}
                                 answer[year][branch][division][day][time] = {}
-
                         else:
+                            answer[year] = {}
+                            answer[year][branch] = {}
                             answer[year][branch][division] = {}
                             answer[year][branch][division][day] = {}
                             answer[year][branch][division][day][time] = {}
 
-                    else:
-                        answer[year][branch] = {}
-                        answer[year][branch][division] = {}
-                        answer[year][branch][division][day] = {}
-                        answer[year][branch][division][day][time] = {}
+                        is_practical = each.is_practical
+
+                        if is_practical:
+                            batch = each.batch.batch_name
+                            if 'is_practical' in answer[year][branch][division][day][time]:
+                                {}
+                            else:
+                                answer[year][branch][division][day][time] = {
+                                    'is_practical': is_practical
+                                }
+                            answer[year][branch][division][day][time][batch] = {
+                                'faculty': faculty,
+                                'room': room,
+                                'subject': subject,
+                            }
+
+
+                        else:
+                            answer[year][branch][division][day][time] = {
+                                'faculty': faculty,
+                                'room': room,
+                                'subject': subject,
+                                'is_practical': is_practical
+                            }
+
+                    return JsonResponse(answer)
                 else:
-                    answer[year] = {}
-                    answer[year][branch] = {}
-                    answer[year][branch][division] = {}
-                    answer[year][branch][division][day] = {}
-                    answer[year][branch][division][day][time] = {}
+                    return JsonResponse({'error':'Got more than 1 student object'})
+            else:
+                return JsonResponse({'error': 'Got no studentdetail object'})
 
-                is_practical = each.is_practical
-
-                if is_practical:
-                    batch = each.batch.batch_name
-                    if 'is_practical' in answer[year][branch][division][day][time]:
-                        {}
-                    else:
-                        answer[year][branch][division][day][time] = {
-                            'is_practical': is_practical
-                        }
-                    answer[year][branch][division][day][time][batch] = {
-                        'faculty': faculty,
-                        'room': room,
-                        'subject': subject,
-                    }
-
-
-                else:
-                    answer[year][branch][division][day][time] = {
-                        'faculty': faculty,
-                        'room': room,
-                        'subject': subject,
-                        'is_practical': is_practical
-                    }
-
-            return JsonResponse(answer)
         else:
 
             faculty_code = request.POST.get('faculty_code')
