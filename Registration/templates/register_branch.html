@@ -10,13 +10,17 @@
                 <legend>Register new branch</legend>
                 <div class="form-element">
                     <label for="branch">Enter branch name</label>
-                    <input class="form-control" id="branch" name="branch"/>
+                    <input class="form-control" id="branch" name="branch" required/>
                 </div>
             </fieldset>
             <div class="form-element">
                 <input type="submit" class="btn btn-primary">
             </div>
         </form>
+        <label>Already registered branches</label>
+        {% for branch in all_branches %}
+            <p>{{ branch.branch }}</p>
+        {% endfor %}
     </div>
 {% endblock content %}
 

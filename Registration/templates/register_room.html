@@ -1,12 +1,15 @@
 {% extends "dashboard_faculty.html" %}
+{% block title %}
+    Register Room | ERP
+{% endblock title %}
 {% block content %}
     <div class="col-md-4">
-    <legend>Register Room</legend>
+        <legend>Register Room</legend>
         <form method="POST" action="{% url 'registration:register_room' %}">
             {% csrf_token %}
             <div class="form-element">
                 <label>Branch</label>
-                <select name="branch" id="branch" class="form-control">
+                <select name="branch" id="branch" class="form-control" onchange="showRegisteredRooms()" required>
                     {% for branch in branches %}
                         <option value="{{ branch.branch }}">{{ branch.branch }}</option>
                     {% endfor %}
@@ -14,7 +17,7 @@
             </div>
             <div class="form-element">
                 <label>Room Number</label>
-                <input name="room_number" type="text" class="form-control">
+                <input name="room_number" type="text" class="form-control" required>
             </div>
             <div class="form-element">
                 <label for="lab">Laboratory?</label>
@@ -24,4 +27,37 @@
             <input type="submit" class="btn btn-primary">
         </form>
     </div>
+    <div class="col-md-4">
+        <div class="row" id="registered_rooms">
+
+        </div>
+    </div>
 {% endblock content %}
+{% block on_ready %}
+    showRegisteredRooms();
+{% endblock on_ready %}
+{% block html %}
+    <script>
+
+        var data = {{ data|safe }};
+
+        function showRegisteredRooms() {
+            let selected_branch = document.getElementById('branch').value;
+            let div = document.getElementById('registered_rooms');
+
+            while(div.hasChildNodes()){
+                div.removeChild(div.childNodes[0]);
+            }
+
+            let label = document.createElement('label');
+            label.innerHTML = 'Registered rooms for ' + selected_branch;
+            div.appendChild(label);
+
+            for (let i in data[selected_branch]) {
+                let p = document.createElement('p');
+                p.innerHTML = data[selected_branch][i];
+                div.appendChild(p);
+            }
+        }
+    </script>
+{% endblock html %}
