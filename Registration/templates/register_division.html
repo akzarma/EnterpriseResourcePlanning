@@ -1,11 +1,11 @@
 {% extends "./dashboard_faculty.html" %}
 
-{% block title %}Division Registration {% endblock title %}
+{% block title %}Division Registration | ERP {% endblock title %}
 
 {% block extra_style %}
     .division-name{
-        display: inline-block;
-        width: 50%;
+    display: inline-block;
+    width: 50%;
     }
 {% endblock extra_style %}
 
@@ -16,15 +16,16 @@
             <legend>Register new division</legend>
             <div class="form-element">
                 <label for="branch">Branch</label>
-                <select class="form-control" id="branch" name="branch" onchange="loadYear()"></select>
+                <select class="form-control" id="branch" name="branch" onchange="loadYear()" required></select>
             </div>
             <div class="form-element">
                 <label for="year">Year</label>
-                <select class="form-control" id="year" name="year"></select>
+                <select class="form-control" id="year" name="year" onchange="showDivisionRegistered()"
+                        onload="showDivisionRegistered()" required></select>
             </div>
             <div class="form-element">
                 <label for="number_of_division">Number of division</label>
-                <input type="text" class="form-control" id="number_of_division">
+                <input type="text" class="form-control" id="number_of_division" required>
             </div>
             <div class="form-element">
                 <input type="button" class="btn btn-primary" value="GO" onclick="showDivisionNameInput()">
@@ -33,6 +34,11 @@
 
             </div>
         </form>
+    </div>
+    <div class="col-md-4">
+        <div class="row" id="divisions_registered">
+
+        </div>
     </div>
 {% endblock content %}
 
@@ -70,6 +76,8 @@
                 option.value = [year];
                 year_combo.appendChild(option);
             }
+            showDivisionRegistered();
+
         }
 
         function showDivisionNameInput() {
@@ -116,6 +124,29 @@
             button.setAttribute('class', 'btn btn-primary');
             button.setAttribute('value', 'Submit');
             division_div.appendChild(button);
+        }
+
+        function showDivisionRegistered() {
+            let selected_branch = document.getElementById('branch').value;
+            let selected_year = document.getElementById('year').value;
+
+            let div_to_append = document.getElementById('divisions_registered');
+
+            while (div_to_append.hasChildNodes()) {
+                div_to_append.removeChild(div_to_append.childNodes[0]);
+            }
+
+
+            let label = document.createElement('label');
+            label.innerHTML = "Registered divisions for " + selected_branch + "-" + selected_year;
+            div_to_append.appendChild(label);
+
+            for (let i in data[selected_branch][selected_year]['division']) {
+                let p = document.createElement('p');
+                p.innerHTML = data[selected_branch][selected_year]['division'][i];
+                div_to_append.appendChild(p);
+            }
+
         }
 
     </script>
