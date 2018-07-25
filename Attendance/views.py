@@ -21,7 +21,7 @@ from Registration.models import Student, Subject
 from Registration.views import has_role
 from Timetable.models import Timetable, DateTimetable, Time, Room
 from Roles.models import RoleManager
-from .models import StudentAttendance, SubjectLectures, StudentSubjectTotalAttendance
+from .models import StudentAttendance, SubjectLecture, StudentSubjectTotalAttendance
 
 
 # Create your views here.
@@ -148,7 +148,7 @@ def save(request):
                                 .values_list('student', flat=True)
 
                         subject = selected_timetable.original.branch_subject.subject
-                        subject_lecture = SubjectLectures.objects.get(
+                        subject_lecture = SubjectLecture.objects.get(
                             faculty_subject__faculty=selected_timetable.original.faculty,
                             faculty_subject__subject=subject,
                             faculty_subject__division=selected_timetable.original.division,
@@ -166,7 +166,7 @@ def save(request):
                                 batch__division=selected_timetable.substitute.division) \
                                 .values_list('student', flat=True)
 
-                        subject_lecture = SubjectLectures.objects.get(
+                        subject_lecture = SubjectLecture.objects.get(
                             faculty_subject__faculty=selected_timetable.substitute.faculty,
                             faculty_subject__subject=selected_timetable.substitute.branch_subject.subject,
                             faculty_subject__division=selected_timetable.substitute.division,
@@ -546,8 +546,9 @@ def android_fill_attendance(request):
                 division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
                                                     division=attendance_json['division'])
                 # college_detail = Division.objects.filter(branch=branch_obj, year=year_obj)
-                branch_subject = BranchSubject.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj
-                                                           , subject=subject_obj)
+                branch_subject = BranchSubject.objects.get(year_semester__year_branch__branch=branch_obj,
+                                                           year_semester__year_branch__year=year_obj
+                                                           , subject=subject_obj, year_semester__is_active=True)
 
                 date = datetime.datetime.strptime(attendance_json['date'], '%Y,%m,%d').date()
 
@@ -577,7 +578,7 @@ def android_fill_attendance(request):
 
                 if timetable_type == "original":
                     subject = selected_timetable.original.branch_subject.subject
-                    subject_lecture = SubjectLectures.objects.get(
+                    subject_lecture = SubjectLecture.objects.get(
                         faculty_subject__faculty=selected_timetable.original.faculty,
                         faculty_subject__subject=subject,
                         faculty_subject__division=selected_timetable.original.division,
@@ -585,7 +586,7 @@ def android_fill_attendance(request):
 
                 else:
                     subject = selected_timetable.substitute.branch_subject.subject
-                    subject_lecture = SubjectLectures.objects.get(
+                    subject_lecture = SubjectLecture.objects.get(
                         faculty_subject__faculty=selected_timetable.substitute.faculty,
                         faculty_subject__subject=subject,
                         faculty_subject__division=selected_timetable.substitute.division,
@@ -669,7 +670,7 @@ def android_instance(request):
         division_obj = Division.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
                                             division=timetable_json['division'])
         # college_detail = Division.objects.filter(branch=branch_obj, year=year_obj)
-        branch_subject = BranchSubject.objects.get(year_branch__branch=branch_obj, year_branch__year=year_obj,
+        branch_subject = BranchSubject.objects.get(year_semester__year_branch__branch=branch_obj, year_semester__year_branch__year=year_obj,
                                                    subject=subject_obj)
 
         date = datetime.datetime.strptime(timetable_json['date'], '%Y,%m,%d').date()

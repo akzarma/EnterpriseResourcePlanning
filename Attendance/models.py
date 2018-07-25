@@ -24,7 +24,7 @@ class StudentAttendance(models.Model):
         return self.student.first_name + self.student.gr_number
 
 
-class SubjectLectures(models.Model):
+class SubjectLecture(models.Model):
     faculty_subject = models.ForeignKey(FacultySubject, on_delete=models.CASCADE)
     conducted_lectures = models.IntegerField(default=0)
 

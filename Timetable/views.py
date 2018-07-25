@@ -86,7 +86,8 @@ def fill_timetable(request):
             # timetable_prac = Timetable.objects.filter(is_practical=True)
             subjects_json = {}
             # college_detail = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj)
-            all_subjects = BranchSubject.objects.filter(year_branch__in=year_branch_obj, semester=semester_obj)
+            year_semester_objs = YearSemester.objects.filter(year_branch__in=year_branch_obj, semester=semester_obj)
+            all_subjects = BranchSubject.objects.filter(year_semester__in=year_semester_objs)
 
             for year in years:
                 year_obj = CollegeYear.objects.get(year=year)
@@ -348,7 +349,7 @@ def save_timetable(request):
                     initials=faculty_initials)  # this has to be changed, should not get only with initials. Use faculty_subject_set for that
 
                 if len(token) < 5:  # theory (normal)
-                    branch_subject = BranchSubject.objects.get(year_branch=year_branch_obj,
+                    branch_subject = BranchSubject.objects.get(year_semester__year_branch=year_branch_obj,
                                                                subject__short_form=subject_short_name, is_active=True)
                     division = Division.objects.get(division=division, year_branch=branch_subject.year_branch,
                                                     is_active=True)
@@ -389,7 +390,7 @@ def save_timetable(request):
 
 
                 else:  # practical
-                    branch_subject = BranchSubject.objects.get(year_branch=year_branch_obj,
+                    branch_subject = BranchSubject.objects.get(year_semester__year_branch=year_branch_obj,
                                                                subject__short_form=subject_short_name, is_active=True)
                     # batch = token[4]
                     division = Division.objects.get(division=division, year_branch=branch_subject.year_branch,

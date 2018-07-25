@@ -15,7 +15,7 @@ from Exam.forms import ExamDetailForm
 from Exam.models import ExamMaster, ExamSubject, ExamDetail, ExamGroupDetail, ExamGroupRoom, ExamSubjectRoom, \
     ExamSubjectStudentRoom, ExamGroup
 from General.models import Semester, BranchSubject, CollegeYear, YearBranch, FacultySubject, Division, StudentDetail, \
-    StudentSubject
+    StudentSubject, YearSemester
 from General.views import notify_users
 from Registration.models import Branch, Student
 from Registration.views import has_role
@@ -51,7 +51,7 @@ def exam_detail(request):
             subjects = request.POST.getlist('subject')
 
             for each_subject in subjects:
-                subject = BranchSubject.objects.get(is_active=True, year_branch=exam_detail_obj.year,
+                subject = BranchSubject.objects.get(is_active=True, year_semester__year_branch=exam_detail_obj.year,
                                                     subject__short_form=each_subject).subject
                 faculty_initials = request.POST.get(each_subject + '_faculty')
 
@@ -144,7 +144,9 @@ def get_subjects(request):
             # year_obj = CollegeYear.objects.get(year=year)
             year_branch_obj = YearBranch.objects.get(pk=year)
 
-            subjects = BranchSubject.objects.filter(year_branch=year_branch_obj, semester=semester_obj, is_active=True)
+            year_semester = YearSemester.objects.get(year_branch=year_branch_obj, semester=semester_obj, is_active=True)
+
+            subjects = BranchSubject.objects.filter(year_semester=year_semester, is_active=True)
 
             subject_faculty_json = {}
 
@@ -699,7 +701,7 @@ def android_subject_for_exam(request):
         #     student_obj = student_obj[0]
 
         exam_id = int(request.POST.get('exam_id'))
-        print('exam_id',exam_id)
+        print('exam_id', exam_id)
         exam_obj = ExamDetail.objects.filter(id=exam_id)
         if exam_obj.__len__() == 0:
             return HttpResponse('Exam not found.')
