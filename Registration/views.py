@@ -185,14 +185,20 @@ def register_student(request):
         form = StudentForm(request.POST, request.FILES)
         if form.is_valid():
             student = 0
+
+            student = form.save(commit=False)
+            student.key = generate_activation_key()
             try:
-                student = form.save(commit=False)
-                student.key = generate_activation_key()
                 new_user = User.objects.create_user(username=student.gr_number,
                                                     first_name=form.cleaned_data.get('first_name'),
                                                     last_name=form.cleaned_data.get('last_name'),
                                                     email=form.cleaned_data.get('email'))
                 new_user.save()
+            except Exception as e:
+                form = StudentForm(initial={'handicapped': False})
+                return render(request, "register_student.html", {'form': form,
+                                                                 'error': e})
+            try:
                 division = form.cleaned_data.get('division')
                 shift = form.cleaned_data.get('shift')
                 branch = form.cleaned_data.get('branch')
@@ -203,19 +209,28 @@ def register_student(request):
 
                 student.user = new_user
 
-                student.save()
+                student = student.save()
 
+            except Exception as e:
+                User.objects.filter(username=student.gr_number).delete()
+                form = StudentForm(initial={'handicapped': False})
+                return render(request, "register_student.html", {'form': form,
+                                                                 'error': e})
+            try:
                 # roll_number = gr_roll_dict[student.gr_number]
                 branch_obj = Branch.objects.get(branch=branch)
                 year_obj = CollegeYear.objects.get(year=year)
                 year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
                 shift_obj = Shift.objects.get(year_branch=year_branch_obj, shift=shift)
-                division_obj = Division.objects.get_or_create(year_branch=year_branch_obj,
+                division_obj = Division.objects.get(year_branch=year_branch_obj,
                                                               division=division, shift=shift_obj)[0]
-                batch_obj = Batch.objects.get_or_create(division=division_obj, batch_name=batch)[0]
+                batch_obj = Batch.objects.get(division=division_obj, batch_name=batch)[0]
                 sem_obj = Semester.objects.get(semester=1, is_active=True)
-                StudentDetail.objects.get_or_create(student=student, batch=batch_obj,
-                                                    semester=sem_obj)
+
+                StudentDetail.objects.create(student=student,batch=batch_obj,semester=sem_obj)
+
+                # StudentDetail.objects.get_or_create(student=student, batch=batch_obj,
+                #                                     semester=sem_obj)
 
                 # college_year_obj = CollegeYear.objects.get(year=year)
                 # shift_obj = Shift.objects.get(shift=shift)
@@ -228,15 +243,12 @@ def register_student(request):
                 # new_student_division.save()
                 request.session['user_id'] = student.pk
                 return HttpResponseRedirect('/register/student/success/')
-                # return HttpResponse(form.errors)
             except Exception as e:
-                if not student == 0:
-                    StudentDetail.objects.filter(student=student).delete()
-                    Student.objects.filter(pk=student.pk).delete()
-                    User.objects.filter(pk=student.pk).delete()
+                User.objects.filter(username=student.gr_number).delete()
                 form = StudentForm(initial={'handicapped': False})
                 return render(request, "register_student.html", {'form': form,
                                                                  'error': e})
+
         else:
             print(form.errors)
             # return HttpResponse(form.errors)
@@ -364,7 +376,7 @@ def get_shift(request):
     shift = request.POST.get('shift')
     division_list = Division.objects.filter(shift=Shift.objects.get(shift=shift),
                                             branch=Branch.objects.get(branch=branch)).values_list('division',
-                                                                                                flat=True)
+                                                                                                  flat=True)
     return HttpResponse(division_list)
 
 
@@ -1157,7 +1169,7 @@ def register_year(request):
                 year_branch_obj = YearBranch.objects.get_or_create(year=year_obj[0], branch=branch_obj, is_active=True)
                 YearSemester.objects.get_or_create(semester=sem_obj, year_branch=year_branch_obj[0])
                 for i in range(int(request.POST.get('no_of_shift'))):
-                    Shift.objects.get_or_create(year_branch=year_branch_obj[0], shift=(i+1))
+                    Shift.objects.get_or_create(year_branch=year_branch_obj[0], shift=(i + 1))
 
             return render(request, 'register_year.html', {
                 'class_active': class_active,
@@ -1429,7 +1441,7 @@ def register_division(request):
                 for index, value in enumerate(divisions):
                     Division.objects.get_or_create(year_branch=year_branch_obj, division=value,
                                                    shift=Shift.objects.get(year_branch=year_branch_obj,
-                                                                         shift=shifts[index]))
+                                                                           shift=shifts[index]))
 
             return render(request, 'register_division.html', {
                 'success': divisions + 'registered',
