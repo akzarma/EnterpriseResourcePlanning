@@ -442,7 +442,7 @@ def android_display_attendance(request):
         for each in student_subject:
             division = StudentDetail.objects.get(student=student).batch.division
             faculty_subject = FacultySubject.objects.get(subject=each.subject, division=division)
-            total_lectures = SubjectLecture.objects.get(faculty_subject=faculty_subject)
+            total_lectures = SubjectLecture.objects.get(faculty_subject=faculty_subject).conducted_lectures
 
             total += total_lectures
             attended += each.attended
@@ -536,7 +536,8 @@ def mark_from_excel(request):
 @csrf_exempt
 def android_fill_attendance(request):
     if request.method == "POST":
-        print(request.POST)
+
+
         for each in request.POST:
             if each.__contains__('attendance_'):
                 attendance_json = json.loads(request.POST.get(each))
