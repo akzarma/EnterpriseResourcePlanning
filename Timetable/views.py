@@ -86,8 +86,7 @@ def fill_timetable(request):
             # timetable_prac = Timetable.objects.filter(is_practical=True)
             subjects_json = {}
             # college_detail = CollegeExtraDetail.objects.filter(year_branch__in=year_branch_obj)
-            year_semester_objs = YearSemester.objects.filter(year_branch__in=year_branch_obj, semester=semester_obj)
-            all_subjects = BranchSubject.objects.filter(year_semester__in=year_semester_objs)
+            all_subjects = BranchSubject.objects.filter(year_branch__in=year_branch_obj, semester=semester_obj)
 
             for year in years:
                 year_obj = CollegeYear.objects.get(year=year)
