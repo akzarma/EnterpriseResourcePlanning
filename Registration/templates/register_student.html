@@ -80,24 +80,23 @@
                                         <div class="">{{ form.programme }}</div>
                                     </div>
                                     <div class="form-element">
-                                        <span class="error">{{ form.branch.errors }}</span>
-                                        <label class="control-label">{{ form.branch.label_tag }}</label>
-                                        <div class="" onchange="loadDivision()">{{ form.branch }}</div>
+                                        <label for="branch">Branch</label>
+                                        <select class="form-control" id="branch" name="branch" onchange="loadYear();"
+                                                required></select>
                                     </div>
                                     <div class="form-element">
-                                        <span class="error">{{ form.year.errors }}</span>
-                                        <label class="control-label">{{ form.year.label_tag }}</label>
-                                        <div class="">{{ form.year }}</div>
+                                        <label for="year">Year</label>
+                                        <select class="form-control" id="year" name="year"
+                                                onchange="loadDivision();" required></select>
                                     </div>
                                     <div class="form-element">
-                                        <span class="error">{{ form.shift.errors }}</span>
-                                        <label class="control-label">{{ form.shift.label_tag }}</label>
-                                        <div class="">{{ form.shift }}</div>
+                                        <label for="division">Division</label>
+                                        <select class="form-control" id="division" name="division"
+                                                onchange="loadShift();" required></select>
                                     </div>
                                     <div class="form-element">
-                                        <span class="error">{{ form.division.errors }}</span>
-                                        <label class="control-label">{{ form.division.label_tag }}</label>
-                                        <div class="">{{ form.division }}</div>
+                                        <label for="division">Shift</label>
+                                        <input class="form-control" id="shift" type="text" name="shift" readonly>
                                     </div>
                                     <div class="form-element">
                                         <span class="error">{{ form.batch.errors }}</span>
@@ -400,6 +399,9 @@
         <br/>
     </form>
 {% endblock body %}
+{% block on_ready %}
+    loadBranch();
+{% endblock on_ready %}
 
 {% block html %}
     {#<script>#}
@@ -533,33 +535,67 @@
             });
         });
 
+        var data = {{ data|safe }};
+
+        function loadBranch() {
+            let branch_combo = document.getElementById('branch');
+            for (let branch in data) {
+                let option = document.createElement('option');
+                option.text = branch;
+                option.value = branch;
+                branch_combo.appendChild(option);
+            }
+            loadYear();
+        }
+
+        function loadYear() {
+            let selected_branch = document.getElementById('branch').value;
+            let year_combo = document.getElementById('year');
+
+            while (year_combo.hasChildNodes()) {
+                year_combo.removeChild(year_combo.childNodes[0]);
+            }
+
+            for (let year in data[selected_branch]) {
+                let option = document.createElement('option');
+                option.text = year;
+                option.value = [year];
+                year_combo.appendChild(option);
+            }
+            loadDivision();
+
+        }
+
         function loadDivision() {
-            var currentElement = document.getElementById('id_branch');
-            var divisionElement = document.getElementById('id_division');
+            let selected_branch = document.getElementById('branch').value;
+            let selected_year = document.getElementById('year').value;
+            let division_combo = document.getElementById('division');
 
-            $.ajax({
-                type: "POST",
-                url: '{% url 'registration:get_division' %}',
-                data: {
-                    'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    'branch': currentElement.value
-                },
-                success: function (data) {
-                    data = data.split(',');
-                    {#                    var select = document.getElementById("DropList");#}
-                    var length = divisionElement.options.length;
-                    for (i = 0; i <= length; i++) {
-                        divisionElement.options.remove(0);
-                    }
-                    for (j in data) {
-                        var option = document.createElement('option');
-                        option.text = data[j];
-                        option.value = data[j];
-                        divisionElement.add(option)
-                    }
-                }
-            })
+            while (division_combo.hasChildNodes()) {
+                division_combo.removeChild(division_combo.childNodes[0]);
+            }
 
+            let divisions = [];
+            for (let key in data[selected_branch][selected_year]) {
+                divisions[divisions.length] = key;
+            }
+            divisions.sort();
+
+            for (let division in divisions) {
+                let option = document.createElement('option');
+                option.text = divisions[division];
+                option.value = divisions[division];
+                division_combo.appendChild(option);
+            }
+            loadShift();
+        }
+
+        function loadShift() {
+            let selected_branch = document.getElementById('branch').value;
+            let selected_year = document.getElementById('year').value;
+            let selected_division = document.getElementById('division').value;
+
+            document.getElementById('shift').value = data[selected_branch][selected_year][selected_division];
         }
 
 

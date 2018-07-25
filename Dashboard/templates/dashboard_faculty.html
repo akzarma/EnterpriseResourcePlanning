@@ -356,7 +356,7 @@
                 <li id="backup">
                     <a href="{% url 'BackupRestore:backup' %}">Backup</a>
                 </li>
-                <li id="register">
+                <li id="timetable">
                     <a href="#fill_timetable" data-toggle="collapse" aria-expanded="false">Timetable</a>
                     <ul class="collapse list-unstyled" id="fill_timetable">
                         <li><a href="{% url 'timetable:fill_timetable' %}">Fill Timetable</a></li>
@@ -367,8 +367,8 @@
                     <a href="#registermenu" data-toggle="collapse" aria-expanded="false">Register</a>
                     <ul class="collapse list-unstyled" id="registermenu">
                         <li><a href="{% url 'registration:register_branch' %}">Branch</a></li>
-                        <li><a href="{% url 'registration:register_division' %}">Division</a></li>
                         <li><a href="{% url 'registration:register_year' %}">Year</a></li>
+                        <li><a href="{% url 'registration:register_division' %}">Division</a></li>
                         <li><a href="{% url 'registration:register_subject' %}">Subject</a></li>
                         <li><a href="{% url 'registration:register_room' %}">Room</a></li>
                         <li><a href="{% url 'registration:register_year_detail' %}">Set Semester Details</a></li>

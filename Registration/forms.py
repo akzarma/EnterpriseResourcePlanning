@@ -701,10 +701,6 @@ class StudentForm(forms.ModelForm):
                  ('Institute Level', 'Institute Level')]
     )
 
-    division = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Eg: A'})
-    )
-
     batch = forms.CharField(
         widget=forms.TextInput(attrs={'placeholder': 'Eg: A1'})
     )
@@ -715,24 +711,13 @@ class StudentForm(forms.ModelForm):
             if field not in ['DOB', 'handicapped']:
                 self.fields[field].widget.attrs.update({'class': 'form-control', })
 
-        self.fields['year'] = forms.ChoiceField(
-            choices=[(i.year, i.year) for i in CollegeYear.objects.all()]
-        )
-
-        self.fields['branch'] = forms.ChoiceField(
-            choices=[(i.branch, i.branch) for i in Branch.objects.filter(is_active=True)]
-        )
-        self.fields['shift'] = forms.ChoiceField(
-            choices=[(i.shift, i.shift) for i in Shift.objects.filter(is_active=True)]
-        )
-
     class Meta:
         model = Student
         widgets = {
             'DOB': forms.DateInput(attrs={'class': 'datepicker form-control'}),
         }
         fields = '__all__'
-        exclude = ['salary', 'user']
+        exclude = ['salary', 'user', 'branch','year','division','shift']
 
     # def clean_gr_number(self):
     #     cleaned_data = super().clean()

@@ -5,7 +5,8 @@
             {% csrf_token %}
             <div class="form-element">
                 <label>Branch</label>
-                <select name="branch" id="branch" class="form-control">
+                <select name="branch" id="branch" class="form-control" onchange="showRegisteredYears();"
+                        onload="showRegisteredYears();" required>
                     {% for branch in branches %}
                         <option value="{{ branch.branch }}">{{ branch.branch }}</option>
                     {% endfor %}
@@ -13,18 +14,56 @@
             </div>
             <div class="form-element">
                 <label>Year</label>
-                <input name="year" type="text" class="form-control">
+                <input name="year" type="text" class="form-control" required>
             </div>
             <div class="form-element">
                 <label>Year Number</label>
-                <input name="year_number" type="number" class="form-control">
+                <input name="year_number" type="number" class="form-control" required>
             </div>
             <div class="form-element">
                 <label>Number of semsters in a year</label>
-                <input name="no_of_sem" type="number" class="form-control">
+                <input name="no_of_sem" type="number" class="form-control" required>
+            </div>
+            <div class="form-element">
+                <label>Number of shifts</label>
+                <input name="no_of_shift" type="number" class="form-control" required>
             </div>
 
             <input type="submit" class="btn btn-primary">
         </form>
     </div>
+    <div class="col-md-4">
+        <div class="row" id="years_registered">
+
+        </div>
+    </div>
 {% endblock content %}
+{% block on_ready %}
+    showRegisteredYears();
+{% endblock on_ready %}
+{% block html %}
+    <script>
+        var year_branch = {{ year_branch_json| safe }};
+
+        function showRegisteredYears() {
+            let selected_branch = document.getElementById('branch').value;
+
+            let div_to_append = document.getElementById('years_registered');
+
+            while (div_to_append.hasChildNodes()) {
+                div_to_append.removeChild(div_to_append.childNodes[0]);
+            }
+
+
+            let label = document.createElement('label');
+            label.innerHTML = "Registered Years for " + selected_branch;
+            div_to_append.appendChild(label);
+
+            for (let i in year_branch[selected_branch]) {
+                let p = document.createElement('p');
+                p.innerHTML = year_branch[selected_branch][i];
+                div_to_append.appendChild(p);
+            }
+        }
+    </script>
+{% endblock html %}

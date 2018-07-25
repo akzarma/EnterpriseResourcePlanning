@@ -3,18 +3,30 @@
     <div class="col-md-4">
         <form method="POST" action="{% url 'timetable:register_time_slot' %}">
             {% csrf_token %}
+
             <legend>Time Slot</legend>
+            <p>Please enter time in 24 hours</p>
             <div class="form-element">
                 <label>Start Time</label>
-                <input type="time" data-time-format="H:i" name="start_time" class="timepicker">
+                <input type="time" name="start_time" class="timepicker" required>
             </div>
             <div class="form-element">
                 <label>End Time</label>
-                <input type="time" name="end_time" class="timepicker">
+                <input type="time" name="end_time" class="timepicker" required>
             </div>
 
             <input type="submit" class="btn btn-primary">
         </form>
+    </div>
+    <div class="col-md-4">
+        <label>Registered time slots</label>
+        {% if not time_slots %}
+            <p>No time slots registered</p>
+        {% else %}
+            {% for each in time_slots %}
+                <p>{{ each }}</p>
+            {% endfor %}
+        {% endif %}
     </div>
 {% endblock content %}
 {% block html %}

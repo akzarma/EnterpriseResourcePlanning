@@ -904,15 +904,16 @@ def android_timetable_json(request):
         return HttpResponse('Error')
 
 
-# def bg_task(request):
-#     celery_app.send_task("Timetable.tasks.bg_task", [])
-#     return HttpResponse('running in bg')
 def register_time_slot(request):
+    class_active = 'timetable'
     user = request.user
     if not user.is_anonymous:
         if has_role(user, 'faculty'):
             if request.method == "GET":
-                return render(request, 'register_time_slot.html')
+                return render(request, 'setup_time.html', {
+                    'time_slots': Time.objects.all(),
+                    'class_active': class_active
+                })
             else:
                 splitted_start_time = request.POST.get('start_time').split(':')
                 splitted_end_time = request.POST.get('end_time').split(':')
@@ -921,13 +922,17 @@ def register_time_slot(request):
                 end_time = (int(splitted_end_time[0]) * 100) + int(splitted_end_time[1])
 
                 if len(Time.objects.filter(starting_time=start_time, ending_time=end_time)) > 0:
-                    return render(request, 'register_time_slot.html', {
-                        'error': 'Time slot already registered'
+                    return render(request, 'setup_time.html', {
+                        'error': 'Time slot already registered',
+                        'time_slots': Time.objects.all(),
+                        'class_active': class_active
                     })
 
                 Time.objects.create(starting_time=start_time, ending_time=end_time)
-                return render(request, 'register_time_slot.html', {
-                    'success': 'Time slot registered'
+                return render(request, 'setup_time.html', {
+                    'success': 'Time slot registered',
+                    'time_slots': Time.objects.all(),
+                    'class_active': class_active
                 })
 
         return redirect('/login/')
