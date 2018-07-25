@@ -428,27 +428,31 @@ def android_display_attendance(request):
         gr_number = request.POST.get('gr_number')
 
         if not gr_number:
-            error = {
-                'error': 'No GR number.'
-            }
-            return HttpResponse(error)
+            return JsonResponse({'error': 'Invalid GR Number'})
 
         student = Student.objects.get(gr_number=gr_number)
 
-        total_attendance = student.totalattendance_set.all()
+        student_subject = StudentSubjectTotalAttendance.objects.filter(student=student)
 
         response = {}
 
         attended = 0
         total = 0
 
-        for each in total_attendance:
-            total += each.total_lectures
-            attended += each.attended_lectures
+        for each in student_subject:
+            division = StudentDetail.objects.get(student=student).batch.division
+            faculty_subject = FacultySubject.objects.get(subject=each.subject, division=division)
+            total_lectures = SubjectLecture.objects.get(faculty_subject=faculty_subject).conducted_lectures
+
+            total += total_lectures
+            attended += each.attended
+
             response[each.subject.short_form] = {
-                'total': each.total_lectures,
-                'attended': each.attended_lectures
+                'total': total_lectures,
+                'attended': each.attended,
+                'percentage': round(100 * each.attended / total_lectures, 2) if total_lectures is not 0 else 0 + '%'
             }
+
         total_percent = round(100 * attended / total, 2) if total is not 0 else 0
 
         response['total_percent'] = str(total_percent) + '%'
@@ -456,9 +460,9 @@ def android_display_attendance(request):
 
     else:
         error = {
-            'error': 'Not Post.'
+            'error': 'Not Post'
         }
-        return HttpResponse(error)
+        return JsonResponse(error)
 
 
 def mark_from_excel(request):
@@ -532,6 +536,8 @@ def mark_from_excel(request):
 @csrf_exempt
 def android_fill_attendance(request):
     if request.method == "POST":
+
+
         for each in request.POST:
             if each.__contains__('attendance_'):
                 attendance_json = json.loads(request.POST.get(each))

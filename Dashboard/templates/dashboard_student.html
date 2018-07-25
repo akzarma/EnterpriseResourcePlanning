@@ -1,5 +1,8 @@
 {% extends "./base.html" %}
 {% load humanize %}
+{% block title %}
+    Dashboard | ERP
+{% endblock title %}
 
 {% block style %}
     <style>
@@ -200,9 +203,6 @@
                     <a href="{% url 'update:update' %}">Update Details</a>
                 </li>
                 <li>
-                    <a href="{% url 'registration:student_subject' %}">Register Subjects</a>
-                </li>
-                <li>
                     <a href="{% url 'exam:view_exam' %}">View Exams</a>
                 </li>
                 <li>
@@ -222,7 +222,7 @@
         <div id="content">
             {% block content %}
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-4 col-md-offset-1">
                         <legend>Timetable</legend>
                         <form action="{% url 'dashboard:dashboard' %}" method="post" onsubmit="event.preventDefault();"
                               id="date_form">
@@ -239,7 +239,7 @@
                                     <span class="glyphicon glyphicon-calendar"></span>
                                 </button>
                                 <input type="text" name="selected_date" id="txtDate"
-                                       style="display: none;" onchange="change_timetable()">
+                                       style="display: none;" onchange="change_timetable();">
 
                                 {#                                <button type="button" name="GO" class="btn btn-default" id="datepickerbtn">#}
                                 {#                                    <span class="glyphicon glyphicon-calendar"></span>#}
@@ -248,91 +248,73 @@
                             </h4>
                         </form>
                         <br/>
-                        <input type="hidden" name="selected_date" id="hidden_date" value="{{ selected_date }}">
-                        <div class="row" id="timetable">
-                            {% if timetable %}
-                                {% for each in timetable %}
-                                    <button name="date_timetable" class="card btn btn-info my-context-menu"
-                                            style="width: 100%; font-weight: bold; margin-bottom: 5px;"
-                                            value="{{ each.pk }}">
-                                        {% if each.not_available == True %}
-                                            {% if user.faculty == each.substitute.faculty %}
-                                                <div style="display: block;"
-                                                     class="not-available my-context-menu">You've taken lecture
-                                                    for {{ each.original.faculty.initials }}
+                        <form method="post" action="{% url 'dashboard:dashboard' %}" id="timetable_form">
+                            {% csrf_token %}
+                            <input type="hidden" name="selected_date" id="hidden_date" value="{{ selected_date }}">
+                            <div class="row" id="timetable">
+                                {% if timetable %}
+                                    {% for each in timetable %}
+                                        <button type="button" name="date_timetable"
+                                                class="card btn btn-info my-context-menu"
+                                                style="width: 100%; font-weight: bold; margin-bottom: 5px;"
+                                                value="{{ each.pk }}">
+
+                                            {% if each.is_substituted is True %}
+                                                <div class="card-header my-context-menu"
+                                                     style="border-bottom: 2px solid white;"
+                                                     name="{{ each.pk }}">{{ each.substitute.time }}</div>
+                                                <div class="row my-context-menu">
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.substitute.branch_subject.subject.short_form }}</div>
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.substitute.room.room_number }}</div>
+                                                    <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                                                        {{ each.substitute.division.year_branch.branch }}<br/>
+                                                        {{ each.substitute.division.year_branch.year }}
+                                                        {{ each.substitute.division.division }}
+                                                        {% if each.substitute.is_practical %}
+                                                            {{ each.substitute.batch.batch_name }}
+                                                        {% endif %}
+                                                    </div>
                                                 </div>
                                             {% else %}
-                                                <div id="{{ each.pk }}" style="display: block !important;"
-                                                     name="{{ each.pk }}" class="not-available my-context-menu">I'm
-                                                    not
-                                                    available
-                                                    {% if each.is_substituted is True %} <br/> Lecture taken by
-                                                        {{ each.substitute.faculty.initials }}
-                                                    {% endif %}
+                                                <div class="card-header my-context-menu"
+                                                     style="border-bottom: 2px solid white;"
+                                                     name="{{ each.pk }}">{{ each.original.time }}</div>
+                                                <div class="row my-context-menu" name="{{ each.pk }}">
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.original.branch_subject.subject.short_form }}</div>
+                                                    <div class="col-md-4 my-context-menu"
+                                                         name="{{ each.pk }}">{{ each.original.room.room_number }}</div>
+                                                    <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
+                                                        {{ each.original.division.year_branch.branch }}<br/>
+                                                        {{ each.original.division.year_branch.year }}
+                                                        {{ each.original.division.division }}
+                                                        {% if each.original.is_practical %}
+                                                            {{ each.original.batch.batch_name }}
+                                                        {% endif %}
+                                                    </div>
                                                 </div>
-                                            {% endif %}
-                                        {% else %}
-                                            <div id="{{ each.pk }}" name="{{ each.pk }}"
-                                                 class="not-available my-context-menu">I'm not available
-                                            </div>
-                                        {% endif %}
-                                        {% if each.is_substituted is True %}
-                                            <div class="card-header my-context-menu"
-                                                 style="border-bottom: 2px solid white;"
-                                                 name="{{ each.pk }}">{{ each.substitute.time }}</div>
-                                            <div class="row my-context-menu">
-                                                <div class="col-md-4 my-context-menu"
-                                                     name="{{ each.pk }}">{{ each.substitute.branch_subject.subject.short_form }}</div>
-                                                <div class="col-md-4 my-context-menu"
-                                                     name="{{ each.pk }}">{{ each.substitute.room.room_number }}</div>
-                                                <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
-                                                    {{ each.substitute.division.year_branch.branch }}<br/>
-                                                    {{ each.substitute.division.year_branch.year }}
-                                                    {{ each.substitute.division.division }}
-                                                    {% if each.substitute.is_practical %}
-                                                        {{ each.substitute.batch.batch_name }}
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        {% else %}
-                                            <div class="card-header my-context-menu"
-                                                 style="border-bottom: 2px solid white;"
-                                                 name="{{ each.pk }}">{{ each.original.time }}</div>
-                                            <div class="row my-context-menu" name="{{ each.pk }}">
-                                                <div class="col-md-4 my-context-menu"
-                                                     name="{{ each.pk }}">{{ each.original.branch_subject.subject.short_form }}</div>
-                                                <div class="col-md-4 my-context-menu"
-                                                     name="{{ each.pk }}">{{ each.original.room.room_number }}</div>
-                                                <div class="col-md-4 my-context-menu" name="{{ each.pk }}">
-                                                    {{ each.original.division.year_branch.branch }}<br/>
-                                                    {{ each.original.division.year_branch.year }}
-                                                    {{ each.original.division.division }}
-                                                    {% if each.original.is_practical %}
-                                                        {{ each.original.batch.batch_name }}
-                                                    {% endif %}
-                                                </div>
-                                            </div>
 
-                                        {% endif %}
+                                            {% endif %}
+                                        </button>
+                                    {% endfor %}
+                                    <button name="previous" value="previous" class="btn left carousel-control"
+                                            style="border: 0 !important;height: 20%;margin:32% 0 0 -10%;">
+                                        <span class="glyphicon glyphicon-chevron-left"></span>
                                     </button>
-                                {% endfor %}
-                                <button name="previous" value="previous" class="btn left carousel-control"
-                                        style="border: 0 !important;height: 20%;margin:32% 0 0 -10%;">
-                                    <span class="glyphicon glyphicon-chevron-left"></span>
-                                </button>
-                                <button name="next" value="next" type="submit" class="btn right carousel-control"
-                                        style="border: 0 !important;height: 20%;margin:32% -10% 0 0%;">
-                                    <span class="glyphicon glyphicon-chevron-right"></span>
-                                </button>
-                            {% else %}
-                                <p style="text-align: center;">Sorry! No lectures on {{ selected_date }}</p>
-                            {% endif %}
-                        </div>
+                                    <button name="next" value="next" type="submit" class="btn right carousel-control"
+                                            style="border: 0 !important;height: 20%;margin:32% -10% 0 0%;">
+                                        <span class="glyphicon glyphicon-chevron-right"></span>
+                                    </button>
+                                {% else %}
+                                    <p style="text-align: center;">Sorry! No lectures on {{ selected_date }}</p>
+                                {% endif %}
+                            </div>
+                        </form>
                     </div>
-                    <div class="col-md-6">
-                        <legend>Notification</legend>
-                    </div>
-                    <div class="col-md-2">
+
+                    <div class="col-md-4 col-md-offset-1">
                         <legend>Attendance</legend>
                         <div class="">
                             <h4 style="text-align: center;">Total Attendance <span

@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
-from Attendance.models import StudentAttendance
+from Attendance.models import StudentAttendance, StudentSubjectTotalAttendance, SubjectLecture
 from Dashboard.models import SpecificNotification, GeneralStudentNotification, GeneralFacultyNotification
 from EnterpriseResourcePlanning.settings import NOTIFICATION_LONG_LIMIT, NOTIFICATION_SMALL_LIMIT
 from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject, YearBranch, \
@@ -63,24 +63,29 @@ def show_dashboard(request):
         is_student = has_role(user, 'student')
         if is_student:
             student = user.student
-            attendance = {}
-            #     attended = 0
-            #    total = 0
-            #     total_attendance = student.totalattendance_set.all()
 
-            #      for each in total_attendance:
-            #         total += each.total_lectures
-            #         attended += each.attended_lectures
-            #          if each.total_lectures is not 0:
-            #              subject_attendance = round(100 * each.attended_lectures / each.total_lectures, 2)
-            #          else:
-            #              subject_attendance = 0
-            #           attendance[each.subject.short_form] = {
-            #                'total': each.total_lectures,
-            #                 'attended': each.attended_lectures,
-            #                  'attendance': subject_attendance,
-            #               }
-            #            total_percent = round(100 * attended / total, 2) if total is not 0 else 0
+            student_subject = StudentSubjectTotalAttendance.objects.filter(student=student)
+
+            attendance = {}
+
+            attended = 0
+            total = 0
+
+            for each in student_subject:
+                division = StudentDetail.objects.get(student=student).batch.division
+                faculty_subject = FacultySubject.objects.get(subject=each.subject, division=division)
+                total_lectures = SubjectLecture.objects.get(faculty_subject=faculty_subject).conducted_lectures
+
+                total += total_lectures
+                attended += each.attended
+
+                attendance[each.subject.short_form] = {
+                    'total': total_lectures,
+                    'attended': each.attended,
+                    'attendance': round(100 * each.attended / total_lectures, 2) if total_lectures is not 0 else 0 + '%'
+                }
+
+            total_percent = round(100 * attended / total, 2) if total is not 0 else 0
 
             college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
             if request.method == "GET":
@@ -92,6 +97,8 @@ def show_dashboard(request):
                 return render(request, 'dashboard_student.html', {
                     'timetable': timetable,
                     'selected_date': datetime.date.today().strftime('%d-%m-%Y'),
+                    'attendance': attendance,
+                    'total_attendance': total_percent
                 })
             else:
                 if 'GO' in request.POST:
@@ -104,6 +111,8 @@ def show_dashboard(request):
                     return render(request, 'dashboard_student.html', {
                         'timetable': timetable,
                         'selected_date': selected_date.strftime('%d-%m-%Y'),
+                        'attendance': attendance,
+                        'total_attendance': total_percent
                     })
 
                 elif request.POST.__contains__('previous') or request.POST.__contains__('next'):
@@ -122,6 +131,8 @@ def show_dashboard(request):
                     return render(request, 'dashboard_student.html', {
                         'timetable': timetable,
                         'selected_date': selected_date.strftime('%d-%m-%Y'),
+                        'attendance': attendance,
+                        'total_attendance': total_percent
                     })
 
         elif is_faculty:

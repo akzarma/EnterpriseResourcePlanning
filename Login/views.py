@@ -6,7 +6,7 @@ import json
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
@@ -51,7 +51,6 @@ def android_login(request):
             username = request.POST.get('username')
             password = request.POST.get('password')
             user = authenticate(username=username, password=password)
-            print(user)
             if user:
 
                 user = User.objects.get(username=username)
@@ -154,27 +153,25 @@ def android_login(request):
                 elif is_student:
                     student = user.student
                     student_detail = StudentDetail.objects.get(student=student, is_active=True)
-                    branch = student.branch
 
                     student_response = {
                         'user_type': 'Student',
                         'year': student_detail.batch.division.year_branch.year.year,
-                        'branch': branch,
+                        'branch': student_detail.batch.division.year_branch.branch.branch,
                         'division': student_detail.batch.division.division,
                         'batch': student_detail.batch.batch_name,
                         'name': user.student.first_name + user.student.last_name
                     }
-
-                    return HttpResponse(str(student_response))
-
+                    print(student_response)
+                    return JsonResponse(student_response)
             else:
-                return HttpResponse(str(response))
+                return JsonResponse(response)
 
         except Exception as ex:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
             message = template.format(type(ex).__name__, ex.args)
 
-            return HttpResponse(str(message))
+            return JsonResponse(message)
     else:
         return render(request, 'login.html')
 

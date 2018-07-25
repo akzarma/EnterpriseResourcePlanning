@@ -186,8 +186,6 @@ def register_student(request):
     if request.method == "POST":
         form = StudentForm(request.POST, request.FILES)
         if form.is_valid():
-            student = 0
-
             student = form.save(commit=False)
             student.key = generate_activation_key()
             try:
@@ -196,11 +194,7 @@ def register_student(request):
                                                     last_name=form.cleaned_data.get('last_name'),
                                                     email=form.cleaned_data.get('email'))
                 new_user.save()
-            except Exception as e:
-                form = StudentForm(initial={'handicapped': False})
-                return render(request, "register_student.html", {'form': form,
-                                                                 'error': e})
-            try:
+
                 branch = request.POST.get('branch')
                 year = request.POST.get('year')
                 division = request.POST.get('division')
@@ -210,7 +204,7 @@ def register_student(request):
 
                 student.user = new_user
 
-                student = student.save()
+                student.save()
 
             except Exception as e:
                 User.objects.filter(username=student.gr_number).delete()
@@ -224,7 +218,7 @@ def register_student(request):
                 year_branch_obj = YearBranch.objects.get(branch=branch_obj, year=year_obj, is_active=True)
                 shift_obj = Shift.objects.get(year_branch=year_branch_obj, shift=shift)
                 division_obj = Division.objects.get(year_branch=year_branch_obj,
-                                                              division=division, shift=shift_obj)
+                                                    division=division, shift=shift_obj)
                 batch_obj = Batch.objects.get_or_create(division=division_obj, batch_name=batch)[0]
                 sem_obj = Semester.objects.get(semester=1, is_active=True)
 
@@ -268,7 +262,8 @@ def register_student(request):
             divisions = each.division_set.filter(is_active=True).order_by('division')
 
             for i in divisions:
-                data[each.branch.branch][each.year.year][i.division] = Shift.objects.get(year_branch=each,division=i).shift
+                data[each.branch.branch][each.year.year][i.division] = Shift.objects.get(year_branch=each,
+                                                                                         division=i).shift
 
         return render(request, "register_student.html", {
             'form': form,
@@ -570,37 +565,39 @@ def set_schedule_date(request):
     class_active = "set_date"
     user = request.user
     if not user.is_anonymous:
-        if request.method == 'GET':
-            form = DateScheduleForm()
-            return render(request, 'set_schedule_date.html', {
-                'class_active': class_active,
-                'form': form
-            })
-        else:
-            form = DateScheduleForm(request.POST)
-            if form.is_valid():
-                obj = form.save()
-                # below code is only for subject registration of student
-                notification_type = 'general'
-                message = 'Subject Registration has been Scheduled from ' + obj.start_date.__str__() + ' to ' + obj.end_date.__str__()
-                heading = 'Subject Registration'
-                type = 'forward'
-                user_type = 'Student'
-                action = '/register/student_subject/'
-                division = Division.objects.filter(is_active=True)
-                notify_users(notification_type=notification_type, message=message, type=type, user_type=user_type,
-                             action=action, division=division, heading=heading)
+        if has_role(user, 'faculty'):
+            if request.method == 'GET':
+                form = DateScheduleForm()
                 return render(request, 'set_schedule_date.html', {
                     'class_active': class_active,
-                    'success': 'Successfully saved',
                     'form': form
                 })
             else:
-                return render(request, 'set_schedule_date.html', {
-                    'class_active': class_active,
-                    'form': form
-                })
-
+                form = DateScheduleForm(request.POST)
+                if form.is_valid():
+                    obj = form.save()
+                    # below code is only for subject registration of student
+                    notification_type = 'general'
+                    message = 'Subject Registration has been Scheduled from ' + obj.start_date.__str__() + ' to ' + obj.end_date.__str__()
+                    heading = 'Subject Registration'
+                    type = 'forward'
+                    user_type = 'Student'
+                    action = '/register/student_subject/'
+                    division = Division.objects.filter(is_active=True)
+                    notify_users(notification_type=notification_type, message=message, type=type, user_type=user_type,
+                                 action=action, division=division, heading=heading)
+                    return render(request, 'set_schedule_date.html', {
+                        'class_active': class_active,
+                        'success': 'Successfully saved',
+                        'form': form
+                    })
+                else:
+                    return render(request, 'set_schedule_date.html', {
+                        'class_active': class_active,
+                        'form': form
+                    })
+        else:
+            return redirect('/login/')
     else:
         return redirect('/login/')
 
