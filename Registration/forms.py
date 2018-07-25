@@ -720,10 +720,10 @@ class StudentForm(forms.ModelForm):
         )
 
         self.fields['branch'] = forms.ChoiceField(
-            choices=[(i.branch, i.branch) for i in Branch.objects.all()]
+            choices=[(i.branch, i.branch) for i in Branch.objects.filter(is_active=True)]
         )
         self.fields['shift'] = forms.ChoiceField(
-            choices=[(i.shift, i.shift) for i in Shift.objects.all()]
+            choices=[(i.shift, i.shift) for i in Shift.objects.filter(is_active=True)]
         )
 
     class Meta:

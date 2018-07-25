@@ -693,10 +693,10 @@ def android_subject_for_exam(request):
     if request.method == 'POST':
         print('POST')
 
-        gr_number = request.POST.get('gr_number')
-        student_obj = Student.objects.filter(gr_number=gr_number)
-        if student_obj.__len__() > 0:
-            student_obj = student_obj[0]
+        # gr_number = request.POST.get('gr_number')
+        # student_obj = Student.objects.filter(gr_number=gr_number)
+        # if student_obj.__len__() > 0:
+        #     student_obj = student_obj[0]
 
         exam_id = int(request.POST.get('exam_id'))
         print('exam_id',exam_id)
