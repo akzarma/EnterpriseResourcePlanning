@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, HttpResponse, redirect
 from django.utils.dateparse import parse_date
 
+from Attendance.models import SubjectLectures
 from EnterpriseResourcePlanning import conf
 from EnterpriseResourcePlanning.conf import email_sending_service_enabled
 from General.models import Division, Shift, StudentDetail, CollegeYear, BranchSubject, Semester, \
@@ -74,6 +75,7 @@ def register_faculty_subject(request):
                     subject=subject,
                     elective_subject=elective_subject,
                     elective_division=elective_division)
+                SubjectLectures.objects.create(faculty_subject=faculty_subject,)
                 faculty_subject.save()
             return render(request, 'register_faculty_subject.html', {
                 'class_active': class_active,

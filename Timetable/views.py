@@ -55,7 +55,8 @@ def fill_timetable(request):
                 years.append(i)
 
             year_semester_json = {}
-            for obj in YearSemester.objects.filter(is_active=True, semester__is_active=True):
+            for obj in YearSemester.objects.filter(is_active=True, semester__is_active=True,
+                                                   year_branch__in=year_branch_obj):
                 year_sem = obj.year_branch.year.year
                 semester = obj.semester.semester
                 if year_sem not in year_semester_json:
@@ -738,7 +739,7 @@ def android_timetable_json(request):
 
             if student_detail_obj.exists():
 
-                if student_detail_obj.__len__()==1:
+                if student_detail_obj.__len__() == 1:
                     student_detail_obj = student_detail_obj[0]
 
                     branch_obj = student_detail_obj.batch.division.year_branch.branch
@@ -819,7 +820,7 @@ def android_timetable_json(request):
 
                     return JsonResponse(answer)
                 else:
-                    return JsonResponse({'error':'Got more than 1 student object'})
+                    return JsonResponse({'error': 'Got more than 1 student object'})
             else:
                 return JsonResponse({'error': 'Got no studentdetail object'})
 
