@@ -222,7 +222,7 @@
         <div id="content">
             {% block content %}
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-4 col-md-offset-2">
                         <legend>Timetable</legend>
                         <form action="{% url 'dashboard:dashboard' %}" method="post" onsubmit="event.preventDefault();"
                               id="date_form">
@@ -329,10 +329,8 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <legend>Notification</legend>
-                    </div>
-                    <div class="col-md-2">
+
+                    <div class="col-md-4 col-md-offset-2">
                         <legend>Attendance</legend>
                         <div class="">
                             <h4 style="text-align: center;">Total Attendance <span

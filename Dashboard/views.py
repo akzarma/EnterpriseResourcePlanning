@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
 
-from Attendance.models import StudentAttendance
+from Attendance.models import StudentAttendance, StudentSubjectTotalAttendance, SubjectLecture
 from Dashboard.models import SpecificNotification, GeneralStudentNotification, GeneralFacultyNotification
 from EnterpriseResourcePlanning.settings import NOTIFICATION_LONG_LIMIT, NOTIFICATION_SMALL_LIMIT
 from General.models import Batch, StudentDetail, Division, CollegeYear, FacultySubject, BranchSubject, YearBranch, \
@@ -63,7 +63,6 @@ def show_dashboard(request):
         is_student = has_role(user, 'student')
         if is_student:
             student = user.student
-            attendance = {}
             #     attended = 0
             #    total = 0
             #     total_attendance = student.totalattendance_set.all()
@@ -82,6 +81,29 @@ def show_dashboard(request):
             #               }
             #            total_percent = round(100 * attended / total, 2) if total is not 0 else 0
 
+            student_subject = StudentSubjectTotalAttendance.objects.filter(student=student)
+
+            attendance = {}
+
+            attended = 0
+            total = 0
+
+            for each in student_subject:
+                division = StudentDetail.objects.get(student=student).batch.division
+                faculty_subject = FacultySubject.objects.get(subject=each.subject, division=division)
+                total_lectures = SubjectLecture.objects.get(faculty_subject=faculty_subject)
+
+                total += total_lectures
+                attended += each.attended
+
+                attendance[each.subject.short_form] = {
+                    'total': total_lectures,
+                    'attended': each.attended,
+                    'attendance': round(100 * each.attended / total_lectures, 2) if total_lectures is not 0 else 0 + '%'
+                }
+
+            total_percent = round(100 * attended / total, 2) if total is not 0 else 0
+
             college_extra_detail = StudentDetail.objects.get(student=student, is_active=True).batch.division
             if request.method == "GET":
                 timetable = sorted(
@@ -92,6 +114,8 @@ def show_dashboard(request):
                 return render(request, 'dashboard_student.html', {
                     'timetable': timetable,
                     'selected_date': datetime.date.today().strftime('%d-%m-%Y'),
+                    'attendance': attendance,
+                    'total_attendance': total_percent
                 })
             else:
                 if 'GO' in request.POST:
@@ -104,6 +128,8 @@ def show_dashboard(request):
                     return render(request, 'dashboard_student.html', {
                         'timetable': timetable,
                         'selected_date': selected_date.strftime('%d-%m-%Y'),
+                        'attendance': attendance,
+                        'total_attendance': total_percent
                     })
 
                 elif request.POST.__contains__('previous') or request.POST.__contains__('next'):
@@ -122,6 +148,8 @@ def show_dashboard(request):
                     return render(request, 'dashboard_student.html', {
                         'timetable': timetable,
                         'selected_date': selected_date.strftime('%d-%m-%Y'),
+                        'attendance': attendance,
+                        'total_attendance': total_percent
                     })
 
         elif is_faculty:
@@ -513,7 +541,7 @@ def set_substitute(request, key):
 
                     selected_timetable.is_substituted = True
                     subject = BranchSubject.objects.get(
-                        year_semester__year_branch =selected_timetable.original.branch_subject.year_branch,
+                        year_semester__year_branch=selected_timetable.original.branch_subject.year_branch,
                         subject__short_form=request.POST.get('subject'))
 
                     substitute_tt = Timetable.objects.create(room=selected_timetable.original.room,
@@ -623,7 +651,7 @@ def android_set_substitute(request):
 
         selected_timetable.is_substituted = True
         subject = BranchSubject.objects.get(
-            year_semester__year_branch =selected_timetable.original.branch_subject.year_branch,
+            year_semester__year_branch=selected_timetable.original.branch_subject.year_branch,
             subject__short_form=request.POST.get('choice'))
 
         substitute_tt = Timetable.objects.create(room=selected_timetable.original.room,
@@ -691,7 +719,8 @@ def take_extra_lecture(request):
 
             for i in FacultySubject.objects.filter(faculty=faculty, subject__is_elective_group=True):
                 if i.elective_division is not None:
-                    elective_year_branch = BranchSubject.objects.get(subject=i.subject, is_active=True).year_semester.year_branch
+                    elective_year_branch = BranchSubject.objects.get(subject=i.subject,
+                                                                     is_active=True).year_semester.year_branch
 
                     if not elective_year_branch.branch.branch in data:
                         data[elective_year_branch.branch.branch] = {}

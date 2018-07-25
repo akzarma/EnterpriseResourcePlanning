@@ -806,8 +806,14 @@ class DateScheduleForm(forms.ModelForm):
 
     class Meta:
         widgets = {
-            'start_date': forms.DateInput(attrs={'class': 'datepicker form-control'}),
-            'end_date': forms.DateInput(attrs={'class': 'datepicker form-control'}),
+            'start_date': forms.DateInput(attrs={
+                'class': 'datepicker form-control',
+                'autocomplete': 'off'
+            }),
+            'end_date': forms.DateInput(attrs={
+                'class': 'datepicker form-control',
+                'autocomplete': 'off'
+            }),
         }
         model = Schedule
         fields = '__all__'

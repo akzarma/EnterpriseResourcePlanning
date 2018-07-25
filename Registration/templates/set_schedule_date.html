@@ -5,10 +5,10 @@
 
 
 {% block content %}
-
-    <form method="POST" action="{% url 'registration:set_schedule_date' %}">
-        {% csrf_token %}
-        <div class="row col-md-3">
+    <div class="col-md-4">
+        <legend>Set Subject Registration Date</legend>
+        <form method="POST" action="{% url 'registration:set_schedule_date' %}">
+            {% csrf_token %}
             {% for each in form %}
                 <div class="form-group">
                     {{ each.errors }}
@@ -19,8 +19,8 @@
 
             <br>
             <input type="submit" class="btn btn-primary">
-        </div>
-    </form>
+        </form>
+    </div>
 
     <script>
         $('.datepicker').datepicker();
