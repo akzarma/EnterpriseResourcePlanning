@@ -15,7 +15,7 @@ from Exam.forms import ExamDetailForm
 from Exam.models import ExamMaster, ExamSubject, ExamDetail, ExamGroupDetail, ExamGroupRoom, ExamSubjectRoom, \
     ExamSubjectStudentRoom, ExamGroup
 from General.models import Semester, BranchSubject, CollegeYear, YearBranch, FacultySubject, Division, StudentDetail, \
-    StudentSubject, YearSemester
+    StudentSubject
 from General.views import notify_users
 from Registration.models import Branch, Student
 from Registration.views import has_role
@@ -32,7 +32,7 @@ def exam_register(request):
 
     else:
         exam_name = request.POST.get('exam_name')
-        ExamMaster.objects.create(name=exam_name, start_date=datetime.date.today())
+        ExamMaster.objects.create(exam_name=exam_name, start_date=datetime.date.today())
         context = {'success': "Successfully registered"}
         return render(request, 'exam_register.html', context)
 
@@ -51,7 +51,7 @@ def exam_detail(request):
             subjects = request.POST.getlist('subject')
 
             for each_subject in subjects:
-                subject = BranchSubject.objects.get(is_active=True, year_semester__year_branch=exam_detail_obj.year,
+                subject = BranchSubject.objects.get(is_active=True, year_branch=exam_detail_obj.year,
                                                     subject__short_form=each_subject).subject
                 faculty_initials = request.POST.get(each_subject + '_faculty')
 
@@ -144,9 +144,7 @@ def get_subjects(request):
             # year_obj = CollegeYear.objects.get(year=year)
             year_branch_obj = YearBranch.objects.get(pk=year)
 
-            year_semester = YearSemester.objects.get(year_branch=year_branch_obj, semester=semester_obj, is_active=True)
-
-            subjects = BranchSubject.objects.filter(year_semester=year_semester, is_active=True)
+            subjects = BranchSubject.objects.filter(year_branch=year_branch_obj, semester=semester_obj, is_active=True)
 
             subject_faculty_json = {}
 
@@ -701,7 +699,7 @@ def android_subject_for_exam(request):
 
         gr_number = request.POST.get('gr_number')
         student_obj = Student.objects.filter(gr_number=gr_number)
-        if student_obj.__len__() ==1:
+        if student_obj.__len__() == 1:
             student_obj = student_obj[0]
 
             exam_id = int(request.POST.get('exam_id'))
@@ -718,17 +716,33 @@ def android_subject_for_exam(request):
 
             for each_subject in all_subjects:
                 exam_json[each_subject.pk] = {
-                    'name':each_subject.subject.short_form,
-                    'start_date':each_subject.start_datetime.__str__(),
-                    'end_date':each_subject.end_datetime.__str__(),
+                    'name': each_subject.subject.short_form,
+                    'start_date': each_subject.start_datetime.__str__(),
+                    'end_date': each_subject.end_datetime.__str__(),
                 }
+                exam_room_objs = each_subject.examsubjectroom_set.all()
 
+                student_subject_obj = StudentSubject.objects.get(is_active=True, student=student_obj,
+                                                                 subject=each_subject.subject)
+                student_room = []
 
+                for each_exam_room_obj in exam_room_objs:
+                    student_room.append(each_exam_room_obj.examsubjectstudentroom_set.filter(
+                        student_subject=student_subject_obj).values_list('exam_subject_room__room__room_number'))
+                if student_room.__len__() == 0:
+                    print('Student not found for subject=' + each_subject.subject.short_form)
+                    return JsonResponse({'error': 'Student not found for subject=' + each_subject.subject.short_form})
+                elif student_room.__len__() > 1:
+                    print('error student found in multiple rooms')
+                    return JsonResponse(
+                        {'error': 'error student found in multiple rooms' + each_subject.subject.short_form})
+                else:
+                    exam_json['room'] = student_room[0]
             return JsonResponse(exam_json)
         else:
-            if student_obj.__len__()==0:
+            if student_obj.__len__() == 0:
                 print('no student')
-                return JsonResponse({'error':'Student not found'})
+                return JsonResponse({'error': 'Student not found'})
             else:
                 print('multiple student')
                 return JsonResponse({'error': 'Multiple Student found'})
