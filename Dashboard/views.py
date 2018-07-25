@@ -513,7 +513,7 @@ def set_substitute(request, key):
 
                     selected_timetable.is_substituted = True
                     subject = BranchSubject.objects.get(
-                        year_semester__year_branch =selected_timetable.original.branch_subject.year_branch,
+                        year_branch=selected_timetable.original.branch_subject.year_branch,
                         subject__short_form=request.POST.get('subject'))
 
                     substitute_tt = Timetable.objects.create(room=selected_timetable.original.room,
@@ -623,7 +623,7 @@ def android_set_substitute(request):
 
         selected_timetable.is_substituted = True
         subject = BranchSubject.objects.get(
-            year_semester__year_branch =selected_timetable.original.branch_subject.year_branch,
+            year_branch=selected_timetable.original.branch_subject.year_branch,
             subject__short_form=request.POST.get('choice'))
 
         substitute_tt = Timetable.objects.create(room=selected_timetable.original.room,
@@ -691,7 +691,7 @@ def take_extra_lecture(request):
 
             for i in FacultySubject.objects.filter(faculty=faculty, subject__is_elective_group=True):
                 if i.elective_division is not None:
-                    elective_year_branch = BranchSubject.objects.get(subject=i.subject, is_active=True).year_semester.year_branch
+                    elective_year_branch = BranchSubject.objects.get(subject=i.subject, is_active=True).year_branch
 
                     if not elective_year_branch.branch.branch in data:
                         data[elective_year_branch.branch.branch] = {}
@@ -805,7 +805,7 @@ def take_extra_lecture(request):
                     else:
                         # elective division
                         splitted = division.split('--')
-                        subject_selected = BranchSubject.objects.get(year_semester__year_branch=year_branch_object,
+                        subject_selected = BranchSubject.objects.get(year_branch=year_branch_object,
                                                                      subject__is_elective_group=True,
                                                                      subject__short_form=splitted[
                                                                          0]).subject  # semester se bhi filter krna hai
@@ -854,7 +854,7 @@ def take_extra_lecture(request):
                     if '--' not in division:
                         if type == "theory":
                             room = Room.objects.get(branch__branch=branch, room_number=room, lab=False)
-                            branch_subject = BranchSubject.objects.get(year_semester__year_branch=year_branch_object,
+                            branch_subject = BranchSubject.objects.get(year_branch=year_branch_object,
                                                                        subject__short_form=subject,
                                                                        subject__is_active=True,
                                                                        subject__is_elective_group=False,
@@ -899,7 +899,7 @@ def take_extra_lecture(request):
 
                         else:
                             room = Room.objects.get(branch__branch=branch, room_number=room, lab=True)
-                            branch_subject = BranchSubject.objects.get(year_semester__year_branch=year_branch_object,
+                            branch_subject = BranchSubject.objects.get(year_branch=year_branch_object,
                                                                        subject__short_form=subject,
                                                                        subject__is_active=True,
                                                                        subject__is_elective_group=False,
