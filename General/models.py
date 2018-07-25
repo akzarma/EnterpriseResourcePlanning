@@ -111,9 +111,8 @@ class Batch(models.Model):
 class BranchSubject(models.Model):
     # branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     # year = models.ForeignKey(CollegeYear, on_delete=models.CASCADE)
-    # year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
-    # semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
-    year_semester = models.ForeignKey(YearSemester,on_delete=models.CASCADE,default=1)
+    year_branch = models.ForeignKey(YearBranch, on_delete=models.CASCADE, null=True)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
     # type = models.CharField(max_length=20, null=True)
     # group = models.ForeignKey(ElectiveGroup, on_delete=models.CASCADE, null=True)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
@@ -122,7 +121,7 @@ class BranchSubject(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.year_semester) + " " + self.subject.name
+        return str(self.year_branch) + " " + self.subject.name
 
     def save(self, *args, **kwargs):
         models.Model.save(self, *args, **kwargs)

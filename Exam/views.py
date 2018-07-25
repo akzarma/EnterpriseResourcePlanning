@@ -680,7 +680,11 @@ def android_types_of_exam(request):
 
             for each_exam in exams:
                 # a = each_exam.exam.exam.exam_name
-                exam_json[each_exam.pk] = each_exam.exam.exam_name
+                exam_json[each_exam.pk] = {
+                    'name': each_exam.exam.exam_name,
+                    'start_date': each_exam.schedule_start_date,
+                    'end_date': each_exam.schedule_end_date
+                }
             print(exam_json)
             return JsonResponse(exam_json)
         else:
@@ -695,28 +699,39 @@ def android_subject_for_exam(request):
     if request.method == 'POST':
         print('POST')
 
-        # gr_number = request.POST.get('gr_number')
-        # student_obj = Student.objects.filter(gr_number=gr_number)
-        # if student_obj.__len__() > 0:
-        #     student_obj = student_obj[0]
+        gr_number = request.POST.get('gr_number')
+        student_obj = Student.objects.filter(gr_number=gr_number)
+        if student_obj.__len__() ==1:
+            student_obj = student_obj[0]
 
-        exam_id = int(request.POST.get('exam_id'))
-        print('exam_id', exam_id)
-        exam_obj = ExamDetail.objects.filter(id=exam_id)
-        if exam_obj.__len__() == 0:
-            return HttpResponse('Exam not found.')
+            exam_id = int(request.POST.get('exam_id'))
+            print('exam_id', exam_id)
+            exam_obj = ExamDetail.objects.filter(id=exam_id)
+            if exam_obj.__len__() == 0:
+                return HttpResponse('Exam not found.')
 
-        exam_obj = exam_obj[0]
+            exam_obj = exam_obj[0]
 
-        all_subjects = exam_obj.examsubject_set.filter(is_active=True)
+            all_subjects = exam_obj.examsubject_set.filter(is_active=True)
 
-        exam_json = {}
+            exam_json = {}
 
-        for each_subject in all_subjects:
-            exam_json[each_subject.pk] = each_subject.subject.short_form
+            for each_subject in all_subjects:
+                exam_json[each_subject.pk] = {
+                    'name':each_subject.subject.short_form,
+                    'start_date':each_subject.start_datetime.__str__(),
+                    'end_date':each_subject.end_datetime.__str__(),
+                }
 
-        return JsonResponse(exam_json)
 
+            return JsonResponse(exam_json)
+        else:
+            if student_obj.__len__()==0:
+                print('no student')
+                return JsonResponse({'error':'Student not found'})
+            else:
+                print('multiple student')
+                return JsonResponse({'error': 'Multiple Student found'})
 
     else:
         return HttpResponse('Not a POST request')
