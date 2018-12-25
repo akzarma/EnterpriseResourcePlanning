@@ -712,7 +712,8 @@ def android_subject_for_exam(request):
                 return HttpResponse('Exam not found.')
 
             exam_obj = exam_obj[0]
-
+            exam_group = exam_obj.examgroupdetail_set.filter(is_active=True)
+            print(exam_group.__len__())
             all_subjects = exam_obj.examsubject_set.filter(is_active=True)
 
             exam_json = {}
